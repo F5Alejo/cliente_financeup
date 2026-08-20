@@ -1,0 +1,167 @@
+<div class="page">
+
+  <!-- ======================= VISTA: CATÁLOGO ======================= -->
+  <ng-container *ngIf="!cursoSeleccionado">
+
+    <header class="hero">
+      <div class="hero-copy">
+        <h1>Domina tus finanzas personales y de inversión en el mundo digital.</h1>
+        <p>
+          Aprende sin límites con los mejores cursos online de ahorro, crédito,
+          inversiones, criptomonedas y más. Conviértete en un experto financiero.
+        </p>
+      </div>
+
+      <div class="progress-card">
+        <div class="progress-card-header">
+          <span class="progress-title">Progreso</span>
+          <span class="progress-pill">{{ progresoGeneral.porcentaje }}%</span>
+        </div>
+        <span class="progress-module">
+          Módulo {{ progresoGeneral.moduloActual }} de {{ progresoGeneral.moduloTotal }}
+        </span>
+        <div class="progress-bar-track">
+          <div
+            class="progress-bar-fill"
+            [style.width.%]="progresoGeneral.porcentaje"
+          ></div>
+        </div>
+        <span class="progress-time">{{ progresoGeneral.minutosRestantes }} min restantes</span>
+        <button type="button" class="btn-secondary">Reiniciar ruta</button>
+      </div>
+    </header>
+
+    <div class="body-layout">
+
+      <!-- Sidebar de filtros -->
+      <aside class="sidebar">
+        <div class="search-box">
+          <input
+            type="text"
+            placeholder="Buscar temas, p.ej. 'puntaje'"
+            [(ngModel)]="terminoBusqueda"
+          />
+        </div>
+
+        <h3 class="filter-heading">Categorías</h3>
+        <div class="pill-group">
+          <button
+            type="button"
+            *ngFor="let cat of categorias"
+            class="pill"
+            [class.pill-active]="categoriaActiva === cat.id"
+            (click)="alternarCategoria(cat.id)"
+          >
+            {{ cat.etiqueta }}
+          </button>
+        </div>
+
+        <h3 class="filter-heading">Nivel</h3>
+        <div class="pill-group">
+          <button
+            type="button"
+            *ngFor="let nivel of niveles"
+            class="pill"
+            [class.pill-active]="nivelActivo === nivel.id"
+            (click)="alternarNivel(nivel.id)"
+          >
+            {{ nivel.etiqueta }}
+          </button>
+        </div>
+
+        <h3 class="filter-heading">Formato</h3>
+        <div class="pill-group">
+          <button
+            type="button"
+            *ngFor="let formato of formatos"
+            class="pill"
+            [class.pill-active]="formatoActivo === formato.id"
+            (click)="alternarFormato(formato.id)"
+          >
+            {{ formato.etiqueta }}
+          </button>
+        </div>
+      </aside>
+
+      <!-- Contenido principal -->
+      <main class="content">
+
+        <div class="quick-filters">
+          <button
+            type="button"
+            *ngFor="let filtro of filtrosRapidos"
+            class="quick-filter"
+            [class.quick-filter-active]="filtroRapidoActivo === filtro.id"
+            (click)="seleccionarFiltroRapido(filtro.id)"
+          >
+            {{ filtro.etiqueta }}
+          </button>
+        </div>
+
+        <section class="school-section" *ngFor="let escuela of escuelasFiltradas">
+          <h2>{{ escuela.nombre }}</h2>
+
+          <div class="course-grid">
+            <article
+              class="course-card"
+              *ngFor="let curso of escuela.cursos"
+              (click)="seleccionarCurso(curso)"
+            >
+              <div
+                class="course-image"
+                [style.backgroundImage]="'url(' + curso.imagen + ')'"
+              ></div>
+              <h4>{{ curso.titulo }}</h4>
+              <button type="button" class="btn-primary">Entrar al Curso</button>
+            </article>
+          </div>
+        </section>
+
+        <p class="empty-state" *ngIf="escuelasFiltradas.length === 0">
+          No encontramos cursos con esos filtros. Prueba ajustando la búsqueda.
+        </p>
+      </main>
+    </div>
+  </ng-container>
+
+  <!-- ======================= VISTA: DETALLE DE CURSO ======================= -->
+  <ng-container *ngIf="cursoSeleccionado as curso">
+    <div class="detail-layout">
+      <button type="button" class="back-link" (click)="volverAlCatalogo()">
+        ← Volver a los cursos
+      </button>
+
+      <header class="detail-header">
+        <h1>{{ curso.titulo }}</h1>
+        <p>{{ curso.descripcion }}</p>
+        <button type="button" class="btn-primary btn-large">Comenzar Curso</button>
+      </header>
+
+      <section class="detail-card">
+        <h3>Información del Curso</h3>
+        <ul class="info-list">
+          <li>Duración: {{ curso.duracion }}</li>
+          <li>Nivel: {{ curso.nivel }}</li>
+          <li>{{ curso.resumenLecciones }}</li>
+          <li *ngIf="curso.certificado">Certificado al completar</li>
+        </ul>
+      </section>
+
+      <section class="detail-card">
+        <h3>Tu Progreso</h3>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" [style.width.%]="curso.progreso"></div>
+        </div>
+        <p class="progress-caption">{{ textoProgreso(curso) }}</p>
+      </section>
+
+      <section class="detail-card">
+        <h3>Contenido del Curso</h3>
+        <ol class="content-list">
+          <li *ngFor="let tema of curso.contenido">{{ tema }}</li>
+        </ol>
+      </section>
+    </div>
+  </ng-container>
+
+</div>

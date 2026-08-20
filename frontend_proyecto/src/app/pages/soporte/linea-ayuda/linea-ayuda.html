@@ -1,0 +1,40 @@
+<section class="linea-ayuda">
+
+  <!-- Banner -->
+  <div class="banner">
+    <h1 class="banner__title">{{ bannerTitle }}</h1>
+    <p class="banner__description">{{ bannerDescription }}</p>
+
+    <div class="banner__footer">
+      <p class="banner__phone">
+        <span class="banner__phone-dot">•</span>
+        {{ phoneNumber }}
+      </p>
+      <button class="btn btn--dark" (click)="onChatClick()">
+        {{ chatButtonLabel }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Título de sección -->
+  <h2 class="linea-ayuda__section-title">{{ sectionTitle }}</h2>
+
+  <!-- Acordeón de preguntas -->
+  <div class="faq-list">
+    @for (item of faqItems; track item.question) {
+      <div class="faq-item" [class.faq-item--open]="item.expanded">
+        <button class="faq-item__header" (click)="toggleFaq(item)">
+          <span class="faq-item__question">{{ item.question }}</span>
+          <span class="faq-item__icon">{{ item.expanded ? '–' : '+' }}</span>
+        </button>
+
+        @if (item.expanded) {
+          <div class="faq-item__answer-wrap">
+            <p class="faq-item__answer">{{ item.answer }}</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+</section>

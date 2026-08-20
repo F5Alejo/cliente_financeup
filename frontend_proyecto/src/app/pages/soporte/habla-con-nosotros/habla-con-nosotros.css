@@ -1,0 +1,113 @@
+/* ---------------------------------------------
+   Habla Con Nosotros component
+--------------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+:host {
+  display: block;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.habla-banner {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ececec;
+  padding: clamp(16px, 2.5vw, 32px);
+}
+
+.habla-card {
+  width: 100%;
+  max-width: 1120px;
+  display: grid;
+  grid-template-columns: 56% 44%;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.12);
+  aspect-ratio: 1.7 / 1;
+}
+
+/* Lado izquierdo: contenido */
+.habla-card__content {
+  background: #22b455;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6% 7%;
+}
+
+.habla-card__title {
+  font-size: clamp(30px, 3.4vw, 44px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 26px;
+}
+
+.habla-card__description {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #eafff0;
+  max-width: 360px;
+  margin: 0 0 32px;
+}
+
+/* Botón WhatsApp */
+.btn-whatsapp {
+  align-self: flex-start;
+  background: #ffffff;
+  color: #22b455;
+  border: none;
+  border-radius: 10px;
+  padding: 16px 34px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-whatsapp:hover {
+  opacity: 0.9;
+}
+
+/* Lado derecho: imagen */
+.habla-card__image {
+  position: relative;
+  background-image: url('./img/habla-nosotros.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1c2330; /* respaldo mientras carga la imagen */
+}
+
+/* Responsive */
+@media (max-width: 860px) {
+  .habla-card {
+    grid-template-columns: 1fr;
+    aspect-ratio: auto;
+  }
+  .habla-card__image {
+    min-height: 280px;
+  }
+  .habla-card__title {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 480px) {
+  .habla-banner {
+    padding: 16px;
+  }
+  .habla-card__content {
+    padding: 36px 28px;
+  }
+  .habla-card__title {
+    font-size: 28px;
+  }
+}

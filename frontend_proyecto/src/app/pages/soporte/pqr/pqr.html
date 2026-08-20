@@ -1,0 +1,117 @@
+<div class="pqr-container">
+
+  <!-- Título -->
+  <h1>{{ tituloPagina }}</h1>
+
+  <!-- Buscador -->
+  <div class="search-container">
+
+    <input
+      type="text"
+      [placeholder]="placeholderBuscador"
+      [(ngModel)]="searchText"
+    />
+
+    <button
+      type="button"
+      class="search-button"
+    >
+      <span class="search-icon"></span>
+    </button>
+
+  </div>
+
+
+  <!-- Contenido -->
+  <div class="pqr-content">
+
+    <!-- Lista de PQR -->
+    <div class="pqr-list">
+
+      <!-- PQR encontradas -->
+      <div
+        class="pqr-card"
+        *ngFor="let pqr of filteredPqrs"
+      >
+
+        <h2>{{ pqr.titulo }}</h2>
+
+        <p>
+          numero de peticion:
+          <span>{{ pqr.numero }}</span>
+        </p>
+
+        <p>
+          Estado:
+          <span>{{ pqr.estado }}</span>
+        </p>
+
+        <button
+          type="button"
+          class="view-button"
+          (click)="verPqr(pqr)"
+        >
+          {{ botonVerMas }}
+        </button>
+
+      </div>
+
+
+      <!-- Crear nuevo cuando NO hay PQR -->
+      <div
+        class="new-pqr-card no-results-card"
+        *ngIf="filteredPqrs.length === 0"
+      >
+
+        <h2>{{ tituloCrearNuevo }}</h2>
+
+        <button
+          type="button"
+          class="plus-button"
+          (click)="crearNuevaPqr()"
+        >
+          {{ botonAgregar }}
+        </button>
+
+        <button
+          type="button"
+          class="create-button"
+          (click)="crearNuevaPqr()"
+        >
+          {{ botonCrearNuevo }}
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- Crear nuevo cuando SÍ hay PQR -->
+    <div
+      class="new-pqr-card"
+      *ngIf="filteredPqrs.length > 0"
+    >
+
+      <h2>{{ tituloCrearNuevo }}</h2>
+
+      <button
+        type="button"
+        class="plus-button"
+        (click)="crearNuevaPqr()"
+      >
+        {{ botonAgregar }}
+      </button>
+
+      <button
+        type="button"
+        class="create-button"
+        (click)="crearNuevaPqr()"
+      >
+        {{ botonCrearNuevo }}
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

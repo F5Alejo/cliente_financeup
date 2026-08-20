@@ -1,0 +1,894 @@
+/* =========================================================
+   FINANCE UP - LOGIN (versión compacta)
+   Diseño moderno y profesional
+   ========================================================= */
+
+:host {
+  --green: #35a853;
+  --green-dark: #218838;
+  --green-light: #e9f7ec;
+  --green-panel: #a8dca9;
+
+  --text: #172033;
+  --text-secondary: #667085;
+  --border: #d9dee7;
+  --background: #f4f6f8;
+  --white: #ffffff;
+  --error: #dc3545;
+
+  display: block;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CONTENEDOR PRINCIPAL
+   ========================================================= */
+
+.login-container {
+  min-height: 100vh;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px 20px;
+
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(53, 168, 83, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 90% 90%,
+      rgba(53, 168, 83, 0.07),
+      transparent 30%
+    ),
+    #f4f6f8;
+}
+
+/* =========================================================
+   CONTENIDO
+   ========================================================= */
+
+.login-content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-row {
+  width: 100%;
+  max-width: 900px;
+
+  display: flex;
+  align-items: stretch;
+
+  border-radius: 18px;
+  overflow: hidden;
+
+  background: white;
+
+  box-shadow:
+    0 18px 40px rgba(16, 24, 40, 0.12),
+    0 6px 14px rgba(16, 24, 40, 0.06);
+}
+
+/* =========================================================
+   TARJETA LOGIN
+   ========================================================= */
+
+.login-card {
+  width: 50%;
+  max-width: none;
+
+  padding: 34px 38px;
+
+  background: #ffffff;
+
+  border-radius: 18px 0 0 18px;
+
+  display: flex;
+  flex-direction: column;
+
+  position: relative;
+}
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.logo-section {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+/* Logo FinanceUp */
+.logo-section::before {
+  content: "FinanceUp ↗";
+
+  display: block;
+
+  font-size: 24px;
+  font-weight: 800;
+
+  letter-spacing: -1px;
+
+  color: #172033;
+
+  margin-bottom: 22px;
+}
+
+/* Verde en la palabra Up */
+.logo-section h1 {
+  position: relative;
+
+  font-size: 21px;
+  font-weight: 750;
+
+  color: var(--text);
+
+  margin: 0 0 5px;
+}
+
+/*
+  Cambiamos visualmente el título:
+  Sistema ADSO queda como texto secundario.
+*/
+
+.logo-section p {
+  font-size: 13px;
+  color: var(--text-secondary);
+
+  margin: 0;
+}
+
+/* =========================================================
+   MENSAJE DE ERROR
+   ========================================================= */
+
+.alert {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border-radius: 9px;
+
+  font-size: 12px;
+
+  margin-bottom: 14px;
+}
+
+.alert-error {
+  background: #fff1f2;
+  color: var(--error);
+
+  border: 1px solid #fecdd3;
+}
+
+/* =========================================================
+   CAMPOS
+   ========================================================= */
+
+.form-group {
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  color: var(--text);
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="text"] {
+  width: 100%;
+
+  height: 42px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: var(--text);
+
+  font-size: 13px;
+
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: #98a2b3;
+}
+
+.form-group input:hover {
+  border-color: #b9c1cc;
+}
+
+.form-group input:focus {
+  outline: none;
+
+  border-color: var(--green);
+
+  box-shadow:
+    0 0 0 3px rgba(53, 168, 83, 0.12);
+}
+
+/* =========================================================
+   CONTRASEÑA
+   ========================================================= */
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  padding-right: 44px !important;
+}
+
+.toggle-password {
+  position: absolute;
+
+  right: 10px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+
+  border: none;
+
+  cursor: pointer;
+
+  border-radius: 7px;
+
+  font-size: 14px;
+
+  transition: background 0.2s ease;
+}
+
+.toggle-password:hover {
+  background: #f1f3f5;
+}
+
+/* =========================================================
+   RECORDAR / OLVIDASTE
+   ========================================================= */
+
+.form-row {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin: 0 0 16px;
+
+  font-size: 12px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--text-secondary);
+
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  width: 14px;
+  height: 14px;
+
+  accent-color: var(--green);
+
+  cursor: pointer;
+}
+
+.link {
+  color: var(--green);
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  font-weight: 500;
+
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--green-dark);
+  text-decoration: underline;
+}
+
+/* =========================================================
+   BOTÓN INGRESAR
+   ========================================================= */
+
+.login-card > button:not(.register-button):not(.btn-social):not(.toggle-password) {
+  width: 100%;
+
+  height: 44px;
+
+  padding: 0 16px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background: linear-gradient(
+    135deg,
+    #35b657,
+    #2d9d49
+  );
+
+  color: white;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  margin-bottom: 10px;
+
+  box-shadow:
+    0 6px 13px rgba(53, 168, 83, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.login-card > button:not(.register-button):not(.btn-social):not(.toggle-password):hover {
+  background: linear-gradient(
+    135deg,
+    #2d9d49,
+    #218838
+  );
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 16px rgba(53, 168, 83, 0.28);
+}
+
+.login-card > button:not(.register-button):not(.btn-social):not(.toggle-password):active {
+  transform: translateY(0);
+}
+
+/* =========================================================
+   BOTÓN REGISTRO
+   ========================================================= */
+
+.register-button {
+  width: 100%;
+
+  height: 44px;
+
+  padding: 0 16px;
+
+  background: white;
+
+  color: var(--green);
+
+  border: 1.5px solid var(--green);
+
+  border-radius: 9px;
+
+  font-size: 14px;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.register-button:hover {
+  background: var(--green-light);
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   SEPARADOR SOCIAL
+   ========================================================= */
+
+.social-divider {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+
+  margin: 18px 0 12px;
+
+  color: var(--text-secondary);
+
+  font-size: 12px;
+}
+
+.social-divider::before,
+.social-divider::after {
+  content: "";
+
+  height: 1px;
+
+  background: #e4e7ec;
+
+  flex: 1;
+}
+
+.social-divider span {
+  padding: 0 12px;
+
+  background: white;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   BOTONES SOCIALES
+   ========================================================= */
+
+.social-buttons {
+  width: 100%;
+
+  display: flex;
+
+  gap: 8px;
+}
+
+.btn-social {
+  flex: 1;
+
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 8px;
+
+  background: white;
+
+  border: 1px solid var(--border);
+
+  border-radius: 9px;
+
+  color: var(--text);
+
+  font-size: 12px;
+
+  font-weight: 550;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-social:hover {
+  border-color: #b7bec8;
+
+  box-shadow:
+    0 3px 10px rgba(16, 24, 40, 0.07);
+
+  transform: translateY(-1px);
+}
+
+.social-icon {
+  width: 16px;
+  height: 16px;
+
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   PANEL DERECHO
+   ========================================================= */
+
+.login-welcome {
+  width: 50%;
+  max-width: none;
+
+  padding: 38px 38px;
+
+  border-radius: 0 18px 18px 0;
+
+  color: #12351b;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(255,255,255,0.35),
+      transparent 28%
+    ),
+    linear-gradient(
+      145deg,
+      #b7dfb7 0%,
+      #a5d6a7 45%,
+      #91cd95 100%
+    );
+}
+
+/* Decoración */
+.login-welcome::before {
+  content: "";
+
+  position: absolute;
+
+  width: 220px;
+  height: 220px;
+
+  border-radius: 50%;
+
+  right: -80px;
+  top: -90px;
+
+  border: 1px solid rgba(255,255,255,0.25);
+
+  box-shadow:
+    0 0 0 24px rgba(255,255,255,0.05),
+    0 0 0 48px rgba(255,255,255,0.04);
+}
+
+.login-welcome::after {
+  content: "";
+
+  position: absolute;
+
+  width: 140px;
+  height: 140px;
+
+  border-radius: 50%;
+
+  left: -80px;
+  bottom: -60px;
+
+  background: rgba(255,255,255,0.08);
+}
+
+/* =========================================================
+   TÍTULO DERECHO
+   ========================================================= */
+
+.login-welcome h2 {
+  position: relative;
+  z-index: 2;
+
+  font-size: 22px;
+
+  font-weight: 750;
+
+  color: #12351b;
+
+  margin: 0 0 6px;
+
+  letter-spacing: -0.4px;
+}
+
+.welcome-subtitle {
+  position: relative;
+  z-index: 2;
+
+  font-size: 13px;
+
+  line-height: 1.45;
+
+  color: #315a37;
+
+  margin: 0 0 20px;
+}
+
+/* =========================================================
+   CARACTERÍSTICAS
+   ========================================================= */
+
+.welcome-features {
+  position: relative;
+  z-index: 2;
+
+  list-style: none;
+
+  margin: 0;
+
+  padding: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 11px;
+}
+
+.welcome-features li {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+}
+
+.feature-icon {
+  width: 38px;
+  height: 38px;
+
+  min-width: 38px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 17px;
+
+  background: rgba(255,255,255,0.72);
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 3px 8px rgba(0,0,0,0.05);
+}
+
+.welcome-features strong {
+  display: block;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  color: #153b1c;
+
+  margin-bottom: 2px;
+}
+
+.welcome-features p {
+  margin: 0;
+
+  font-size: 11px;
+
+  line-height: 1.35;
+
+  color: #315a37;
+}
+
+/* =========================================================
+   ILUSTRACIÓN
+   ========================================================= */
+
+.illustration {
+  position: relative;
+  z-index: 2;
+
+  height: 90px;
+
+  margin-top: 18px;
+
+  padding-top: 14px;
+
+  border-top: 1px solid rgba(255,255,255,0.5);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 20px;
+}
+
+.icon-coin,
+.icon-chart {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 52px;
+  height: 52px;
+
+  border-radius: 15px;
+
+  background: rgba(255,255,255,0.35);
+
+  font-size: 28px;
+
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.05);
+
+  animation: floating 3s ease-in-out infinite;
+}
+
+.icon-chart {
+  animation-delay: 0.5s;
+}
+
+@keyframes floating {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .login-row {
+    max-width: 620px;
+  }
+
+  .login-card,
+  .login-welcome {
+    padding: 28px;
+  }
+
+  .login-welcome h2 {
+    font-size: 19px;
+  }
+
+  .welcome-features {
+    gap: 9px;
+  }
+
+  .welcome-features p {
+    font-size: 10px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE CELULAR
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .login-container {
+    padding: 16px 12px;
+  }
+
+  .login-row {
+    flex-direction: column;
+
+    border-radius: 16px;
+  }
+
+  .login-card,
+  .login-welcome {
+    width: 100%;
+    max-width: 100%;
+
+    border-radius: 0;
+  }
+
+  .login-card {
+    padding: 24px 18px;
+
+    order: 2;
+  }
+
+  .login-welcome {
+    padding: 24px 18px;
+
+    order: 1;
+
+    border-radius: 16px 16px 0 0;
+  }
+
+  .login-welcome h2 {
+    font-size: 18px;
+  }
+
+  .welcome-subtitle {
+    margin-bottom: 16px;
+  }
+
+  .illustration {
+    height: 70px;
+
+    margin-top: 16px;
+  }
+
+  .icon-coin,
+  .icon-chart {
+    width: 42px;
+    height: 42px;
+
+    font-size: 22px;
+  }
+}
+
+/* =========================================================
+   CELULARES PEQUEÑOS
+   ========================================================= */
+
+@media (max-width: 450px) {
+
+  .login-card {
+    padding: 20px 16px;
+  }
+
+  .login-welcome {
+    padding: 20px 16px;
+  }
+
+  .logo-section::before {
+    font-size: 21px;
+  }
+
+  .logo-section h1 {
+    font-size: 18px;
+  }
+
+  .form-row {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 8px;
+  }
+
+  .social-buttons {
+    flex-direction: column;
+  }
+
+  .btn-social {
+    width: 100%;
+  }
+}

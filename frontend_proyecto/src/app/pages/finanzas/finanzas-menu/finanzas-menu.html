@@ -1,0 +1,10 @@
+<nav class="finanzas-menu" aria-label="Navegación del módulo de finanzas">
+    @for (item of items; track item.ruta) {
+        <a
+            [routerLink]="item.ruta"
+            routerLinkActive="activo"
+            ariaCurrentWhenActive="page">
+            {{ item.nombre }}
+        </a>
+    }
+</nav>

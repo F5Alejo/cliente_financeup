@@ -1,0 +1,410 @@
+:host {
+  --verde: #1db954;
+  --verde-oscuro: #169c46;
+  --verde-claro: #e3f6e8;
+  --navy: #0e1a24;
+  --gris-fondo: #f3f4f6;
+  --gris-texto: #6b7280;
+  --gris-borde: #e5e7eb;
+  --texto: #111827;
+
+  display: block;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--texto);
+  background: var(--gris-fondo);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.page {
+  width: 100%;
+  max-width: 1280px;
+  min-height: 1000vh;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+/* ---------------------------------------------------------------- */
+/* HERO + PROGRESO GENERAL                                          */
+/* ---------------------------------------------------------------- */
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.hero-copy {
+  max-width: 620px;
+}
+
+.hero-copy h1 {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0 0 12px;
+}
+
+.hero-copy p {
+  font-size: 14px;
+  color: var(--gris-texto);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.progress-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  width: 360px;
+  max-width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.progress-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progress-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.progress-pill {
+  background: var(--gris-fondo);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.progress-module {
+  font-size: 13px;
+  color: var(--gris-texto);
+}
+
+.progress-bar-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--gris-borde);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--verde);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.progress-time {
+  font-size: 13px;
+  color: var(--gris-texto);
+}
+
+/* ---------------------------------------------------------------- */
+/* LAYOUT PRINCIPAL: SIDEBAR + CONTENIDO                             */
+/* ---------------------------------------------------------------- */
+
+.body-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 32px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.search-box {
+  margin-bottom: 20px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+  font-size: 13px;
+  background: #ffffff;
+}
+
+.search-box input:focus {
+  outline: 2px solid var(--verde);
+  outline-offset: 1px;
+}
+
+.filter-heading {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 16px 0 10px;
+}
+
+.pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  border: none;
+  background: var(--verde-claro);
+  color: #14532d;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.pill:hover {
+  background: #cdeed7;
+}
+
+.pill-active {
+  background: var(--verde);
+  color: #ffffff;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.quick-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.quick-filter {
+  border: 1px solid var(--gris-borde);
+  background: #ffffff;
+  color: var(--texto);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.quick-filter-active {
+  background: var(--verde);
+  border-color: var(--verde);
+  color: #ffffff;
+}
+
+/* ---------------------------------------------------------------- */
+/* SECCIONES DE ESCUELA Y TARJETAS DE CURSO                          */
+/* ---------------------------------------------------------------- */
+
+.school-section {
+  margin-bottom: 36px;
+}
+
+.school-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.course-card {
+  background: var(--navy);
+  border: 1px solid var(--verde);
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-2px);
+}
+
+.course-image {
+  width: 100%;
+  height: 110px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.course-card h4 {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+  min-height: 36px;
+}
+
+.empty-state {
+  color: var(--gris-texto);
+  font-size: 14px;
+}
+
+/* ---------------------------------------------------------------- */
+/* BOTONES                                                           */
+/* ---------------------------------------------------------------- */
+
+.btn-primary {
+  background: var(--verde);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.15s ease;
+
+}
+
+.btn-primary:hover {
+  background: var(--verde-oscuro);
+}
+
+.btn-large {
+  width: auto;
+  padding: 12px 24px;
+}
+
+.btn-secondary {
+  background: var(--gris-fondo);
+  color: var(--texto);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: var(--gris-borde);
+}
+
+/* ---------------------------------------------------------------- */
+/* VISTA DE DETALLE DE CURSO                                         */
+/* ---------------------------------------------------------------- */
+
+.detail-layout {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.back-link {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--gris-texto);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.back-link:hover {
+  color: var(--texto);
+}
+
+.detail-header h1 {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.detail-header p {
+  font-size: 14px;
+  color: var(--gris-texto);
+  margin: 0 0 16px;
+}
+
+.detail-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.detail-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 14px;
+}
+
+.info-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--texto);
+}
+
+.progress-caption {
+  font-size: 13px;
+  color: var(--gris-texto);
+  margin: 10px 0 0;
+}
+
+.content-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+/* ---------------------------------------------------------------- */
+/* RESPONSIVE                                                        */
+/* ---------------------------------------------------------------- */
+
+@media (max-width: 860px) {
+  .body-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .page {
+    padding: 24px 20px 48px;
+  }
+}
