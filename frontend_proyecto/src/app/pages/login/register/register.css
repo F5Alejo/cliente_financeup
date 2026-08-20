@@ -69,16 +69,16 @@
   display: flex;
   align-items: stretch;
   width: 100%;
-  max-width: 860px;
+  max-width: 960px;
 }
 
 /* Tarjeta principal */
 .register-card {
   flex: 1.15;
-  max-width: 480px;
-  padding: 28px 32px;
+  max-width: 540px;
+  padding: 56px 36px;
   background-color: #fff;
-  border-radius: 12px 0 0 12px;
+  border-radius: 14px 0 0 14px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
@@ -89,38 +89,38 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .card-header h1 {
-  font-size: 20px;
+  font-size: 23px;
   font-weight: 700;
-  margin: 0 0 4px;
+  margin: 0 0 5px;
   color: var(--color-text);
 }
 
 .subtitle {
-  font-size: 12.5px;
+  font-size: 14px;
   color: var(--color-text-muted);
   margin: 0;
-  max-width: 320px;
+  max-width: 360px;
 }
 
 .step-badge {
   flex-shrink: 0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--color-text-muted);
   background-color: #f2f4f5;
   border: 1px solid var(--color-border);
   border-radius: 20px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   white-space: nowrap;
 }
 
 .form-row-fields {
   display: flex;
-  gap: 12px;
+  gap: 14px;
 }
 
 .form-row-fields .form-group {
@@ -128,7 +128,7 @@
 }
 
 .form-group {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   width: 100%;
 }
 
@@ -136,10 +136,10 @@
 .form-group input[type="password"],
 .form-group input[type="text"] {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 9px;
+  font-size: 15px;
   transition: border-color 0.2s;
 }
 
@@ -155,7 +155,7 @@
 
 .field-error {
   display: block;
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--color-error);
   margin-top: 4px;
   line-height: 1.3;
@@ -167,46 +167,46 @@
 
 .toggle-password {
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .terms-label {
   display: block;
-  font-size: 11.5px;
-  line-height: 1.4;
+  font-size: 12.5px;
+  line-height: 1.45;
   color: var(--color-text-muted);
   background-color: var(--color-primary-light);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin: 4px 0 16px;
+  border-radius: 9px;
+  padding: 12px 14px;
+  margin: 5px 0 18px;
   cursor: pointer;
 }
 
 .terms-label input {
-  margin-right: 6px;
+  margin-right: 7px;
   vertical-align: middle;
 }
 
 .button-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .btn-primary {
   flex: 2;
-  padding: 12px;
+  padding: 13px;
   background-color: var(--color-primary);
   color: #fff;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 9px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -218,12 +218,12 @@
 
 .btn-secondary {
   flex: 1;
-  padding: 12px;
+  padding: 13px;
   background-color: #fff;
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 9px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -236,15 +236,15 @@
 /* Registro social */
 .social-divider {
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--color-text-muted);
-  margin: 4px 0 12px;
+  margin: 5px 0 14px;
   width: 100%;
 }
 
 .social-buttons {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -254,11 +254,11 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px;
+  padding: 11px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 9px;
   background-color: #fff;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--color-text);
   cursor: pointer;
@@ -271,16 +271,16 @@
 }
 
 .social-icon {
-  width: 18px;
-  height: 18px;
+  width: 19px;
+  height: 19px;
   flex-shrink: 0;
 }
 
 .alert {
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  margin-bottom: 14px;
+  padding: 11px 14px;
+  border-radius: 9px;
+  font-size: 14px;
+  margin-bottom: 16px;
   width: 100%;
 }
 
@@ -293,10 +293,10 @@
 /* Panel de beneficios */
 .register-benefits {
   flex: 0.85;
-  max-width: 340px;
+  max-width: 380px;
   background-color: var(--color-bg-panel);
-  padding: 28px 32px;
-  border-radius: 0 12px 12px 0;
+  padding: 32px 36px;
+  border-radius: 0 14px 14px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -304,25 +304,25 @@
 }
 
 .register-benefits h2 {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
-  margin: 0 0 14px;
+  margin: 0 0 16px;
 }
 
 .benefits-list {
   list-style: none;
-  margin: 0 0 20px;
+  margin: 0 0 22px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 11px;
 }
 
 .benefits-list li {
-  font-size: 12.5px;
-  line-height: 1.4;
+  font-size: 13.5px;
+  line-height: 1.45;
   color: #2e4a2f;
-  padding-left: 18px;
+  padding-left: 20px;
   position: relative;
 }
 
@@ -336,17 +336,17 @@
 
 .benefits-buttons {
   display: flex;
-  gap: 8px;
+  gap: 9px;
 }
 
 .btn-outline {
   flex: 1;
-  padding: 9px 8px;
+  padding: 10px 9px;
   background-color: transparent;
   color: var(--color-text);
   border: 1px solid rgba(0, 0, 0, 0.25);
-  border-radius: 8px;
-  font-size: 12.5px;
+  border-radius: 9px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -359,12 +359,12 @@
 
 .btn-primary-small {
   flex: 1;
-  padding: 9px 8px;
+  padding: 10px 9px;
   background-color: var(--color-primary-dark);
   color: #fff;
   border: none;
-  border-radius: 8px;
-  font-size: 12.5px;
+  border-radius: 9px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
