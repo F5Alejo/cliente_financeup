@@ -1,0 +1,112 @@
+<div class="rc-page">
+<!-- Radios controlan qué pantalla se muestra (solo CSS, sin JS) -->
+<input type="radio" name="screen" id="r-select" class="rc-screen-radio" checked>
+<input type="radio" name="screen" id="r-email" class="rc-screen-radio">
+<input type="radio" name="screen" id="r-sms" class="rc-screen-radio">
+
+<div class="rc-wrap">
+
+  <!-- SCREEN 1: Método -->
+  <label for="r-select" class="rc-screen-toggle"></label>
+  <div id="panel-select" class="rc-select-card rc-panel">
+    <div class="rc-icon-badge">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 9.5-4-1.3-7-5-7-9.5V6l7-3z" stroke="#1fae5c" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#1fae5c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h1>Verifica tu identidad</h1>
+    <p class="rc-sub">Elige cómo quieres recibir tu código de verificación</p>
+
+    <label for="r-email" class="rc-method-btn">
+      <span class="rc-m-icon rc-gmail">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/><path fill="#fff" d="M5 7l7 5 7-5" stroke="#fff"/></svg>
+      </span>
+      <span class="rc-m-text">
+        <span class="rc-title">Correo (Gmail)</span>
+        <span class="rc-desc">Enviar código a tu email</span>
+      </span>
+      <span class="rc-chev">›</span>
+    </label>
+
+    <label for="r-sms" class="rc-method-btn">
+      <span class="rc-m-icon rc-sms">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 5h16a1 1 0 011 1v10a1 1 0 01-1 1H8l-4 3V6a1 1 0 011-1z" fill="#1fae5c"/></svg>
+      </span>
+      <span class="rc-m-text">
+        <span class="rc-title">Mensaje de texto (SMS)</span>
+        <span class="rc-desc">Enviar código a tu celular</span>
+      </span>
+      <span class="rc-chev">›</span>
+    </label>
+  </div>
+
+  <!-- SCREEN 2: Correo -->
+  <div id="panel-email" class="rc-verify-layout rc-panel">
+    <div class="rc-card">
+      <label for="r-select" class="rc-back-link">‹ Cambiar método</label>
+      <div class="rc-top-row">
+        <div></div>
+        <span class="rc-step-pill">Paso 1 de 2</span>
+      </div>
+      <h2>Verifica tu correo</h2>
+      <p class="rc-desc">Ingresa el código de 6 dígitos enviado a tu email</p>
+
+      <div class="rc-otp-row">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+      </div>
+
+      <p class="rc-sent-to">Código enviado a <strong>us***@gmail.com</strong> — <a href="#" class="rc-link-inline">Reenviar código</a></p>
+
+      <button class="rc-btn-primary" type="button">Verificar código</button>
+
+      <div class="rc-bottom-row">
+        <a href="#" class="rc-link">Reenviar código</a>
+        <label for="r-select" class="rc-link-blue">Cambiar correo</label>
+      </div>
+    </div>
+
+    <div class="rc-info-panel">
+      <h3>Acceso seguro</h3>
+      <p>Para proteger tu cuenta, usamos verificación en dos pasos. Ingresa el código que recibiste en tu correo.</p>
+      <p>Este proceso toma menos de 30 segundos y ayuda a mantener tu cuenta segura.</p>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: SMS -->
+  <div id="panel-sms" class="rc-verify-layout rc-panel">
+    <div class="rc-card">
+      <label for="r-select" class="rc-back-link">‹ Cambiar método</label>
+      <div class="rc-top-row">
+        <div></div>
+        <span class="rc-step-pill">Paso 1 de 2</span>
+      </div>
+      <h2>Verificación por SMS</h2>
+      <p class="rc-desc">Ingresa el código que enviamos a tu celular para continuar</p>
+
+      <div class="rc-otp-row">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+      </div>
+
+      <p class="rc-sent-to">Código enviado al <strong>+57 •••• 1234</strong> — <a href="#" class="rc-link-inline">Reenviar código</a></p>
+
+      <button class="rc-btn-primary" type="button">Verificar código</button>
+      <label for="r-select" class="rc-btn-secondary">No recibí el código</label>
+    </div>
+
+    <div class="rc-info-panel">
+      <h3>Acceso seguro</h3>
+      <p>Para proteger tu cuenta utilizamos verificación en dos pasos. Ingresa el código recibido por mensaje de texto.</p>
+      <p>Este proceso tarda menos de 30 segundos y ayuda a mantener tu cuenta segura.</p>
+    </div>
+  </div>
+
+</div>
+</div>
