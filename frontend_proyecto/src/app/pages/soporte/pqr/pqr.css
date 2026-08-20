@@ -1,0 +1,257 @@
+* {
+  box-sizing: border-box;
+}
+
+.pqr-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 50px 8%;
+  background: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================
+   TITULO
+========================= */
+
+.pqr-container h1 {
+  margin: 0 0 40px 20px;
+  font-size: 30px;
+  font-weight: 700;
+  color: #111111;
+}
+
+/* =========================
+   BUSCADOR
+========================= */
+
+.search-container {
+  width: 100%;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.search-container input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: 0 20px;
+  font-size: 14px;
+  color: #333333;
+}
+
+.search-container input::placeholder {
+  color: #888888;
+}
+
+.search-button {
+  width: 65px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.search-icon {
+  width: 19px;
+  height: 19px;
+  border: 3px solid #111111;
+  border-radius: 50%;
+  position: relative;
+}
+
+.search-icon::after {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 3px;
+  background: #111111;
+  right: -8px;
+  bottom: -4px;
+  transform: rotate(-45deg);
+  border-radius: 2px;
+}
+
+/* =========================
+   CONTENIDO
+========================= */
+
+.pqr-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 70px;
+  margin-top: 75px;
+  margin-left: 40px;
+}
+
+/* =========================
+   LISTA PQR
+========================= */
+
+.pqr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 320px;
+}
+
+.pqr-card {
+  width: 320px;
+  min-height: 165px;
+  padding: 22px 19px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18);
+}
+
+.pqr-card h2 {
+  margin: 0 0 13px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #111111;
+}
+
+.pqr-card p {
+  margin: 0 0 11px;
+  font-size: 13px;
+  color: #777777;
+}
+
+.pqr-card p span {
+  color: #777777;
+}
+
+/* =========================
+   BOTON VER MAS
+========================= */
+
+.view-button {
+  width: 115px;
+  height: 32px;
+  margin-top: 7px;
+  border: 1px solid #9c9c9c;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.view-button:hover {
+  background: #f3f3f3;
+}
+
+/* =========================
+   CREAR NUEVA PQR
+========================= */
+
+.new-pqr-card {
+  width: 320px;
+  height: 165px;
+  margin-top: 48px;
+  background: #dfdfdf;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-pqr-card h2 {
+  margin: 0 0 13px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111111;
+}
+
+/* =========================
+   BOTON +
+========================= */
+
+.plus-button {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 15px;
+
+  border: 2px solid #111111;
+  border-radius: 50%;
+  background: transparent;
+
+  font-size: 28px;
+  line-height: 28px;
+  font-weight: 300;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+}
+
+.plus-button:hover {
+  background: #d2d2d2;
+}
+
+/* =========================
+   CREAR NUEVO
+========================= */
+
+.create-button {
+  width: 215px;
+  height: 32px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: #4f596e;
+  color: #ffffff;
+
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.create-button:hover {
+  background: #41495a;
+}
+
+.no-results-card {
+  margin-top: 0;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 850px) {
+
+  .pqr-container {
+    padding: 35px 5%;
+  }
+
+  .pqr-content {
+    margin-left: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 35px;
+  }
+
+  .pqr-list {
+    width: 100%;
+    align-items: center;
+  }
+
+  .new-pqr-card {
+    margin-top: 0;
+  }
+}

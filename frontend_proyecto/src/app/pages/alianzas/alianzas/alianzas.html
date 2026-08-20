@@ -1,0 +1,168 @@
+<section class="hero">
+  <div class="hero-left">
+    <span class="hero-badge">✅ BENEFICIOS EXCLUSIVOS</span>
+    <h1 class="hero-title">
+      <span class="hero-title-dark">Tu Crédito Ideal,</span>
+      <span class="hero-title-accent">Aprobado en</span>
+      <span class="hero-title-accent">Minutos</span>
+    </h1>
+    <p class="hero-subtitle">
+      Accede a ofertas preferenciales de los mejores bancos y fintechs de Colombia.
+      Mejora tu perfil y ahorra en intereses hoy mismo.
+    </p>
+    <div class="hero-actions">
+      <button type="button" class="btn btn-hero">Ver mis elegibles →</button>
+      <button type="button" class="btn btn-outline">Explorar Todo</button>
+    </div>
+  </div>
+
+  <div class="hero-card-wrapper">
+    <div class="credit-card">
+      <div class="card-chip"></div>
+      <p class="card-number">•••• •••• •••• 8842</p>
+      <p class="card-tier">PLATINUM</p>
+    </div>
+  </div>
+</section>
+
+<section class="content-grid">
+  <!-- Filtros -->
+  <aside class="filters-panel">
+    <h2 class="panel-title">☰ Filtrar ofertas</h2>
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Bancos, fintechs..."
+        [value]="busqueda()"
+        (input)="busqueda.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="filter-group">
+      <p class="filter-label">Tipo de Aliado</p>
+      <div class="filter-tags">
+        <button
+          type="button"
+          class="tag"
+          *ngFor="let tipo of tiposAliado"
+          [class.active]="tipoAliadoSeleccionado() === tipo"
+          (click)="seleccionarTipoAliado(tipo)"
+        >
+          {{ tipo }}
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <p class="filter-label">Beneficio Principal</p>
+      <div class="filter-tags">
+        <button
+          type="button"
+          class="tag"
+          *ngFor="let beneficio of beneficios"
+          [class.active]="beneficioSeleccionado() === beneficio"
+          (click)="seleccionarBeneficio(beneficio)"
+        >
+          {{ beneficio }}
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <p class="filter-label">Tu Perfil</p>
+      <div class="filter-tags">
+        <button
+          type="button"
+          class="tag"
+          *ngFor="let perfil of perfiles"
+          [class.active]="perfilSeleccionado() === perfil"
+          (click)="seleccionarPerfil(perfil)"
+        >
+          {{ perfil }}
+        </button>
+      </div>
+    </div>
+
+    <div class="bonus-card">
+      <p class="bonus-title">Bonos por buen hábito</p>
+      <button type="button" class="btn btn-bonus">Conoce Cómo</button>
+    </div>
+  </aside>
+
+  <!-- Ofertas -->
+  <main class="offers-panel">
+    <h2 class="section-title">Ofertas recomendadas</h2>
+
+    <article class="offer-card" *ngFor="let oferta of ofertas">
+      <div class="offer-info">
+        <h3 class="offer-name">{{ oferta.aliado }}</h3>
+        <p class="offer-desc">{{ oferta.descripcion }}</p>
+        <p class="offer-meta">{{ oferta.meta }}</p>
+        <div class="offer-actions">
+          <button type="button" class="btn btn-primary">{{ oferta.ctaPrimaria }}</button>
+          <button type="button" class="btn btn-secondary" *ngIf="oferta.ctaSecundaria">
+            {{ oferta.ctaSecundaria }}
+          </button>
+        </div>
+      </div>
+      <div class="offer-logo" [style.background]="oferta.logoBg">
+        {{ oferta.logoText }}
+      </div>
+    </article>
+  </main>
+
+  <!-- Simulador -->
+  <aside class="simulator-panel">
+    <h2 class="panel-title">📊 Simulador Pro</h2>
+
+    <div class="sim-row">
+      <span class="sim-label">¿Cuánto necesitas?</span>
+      <span class="sim-value">{{ formatCOP(monto()) }}</span>
+    </div>
+
+    <input
+      type="range"
+      class="sim-slider"
+      min="1000000"
+      max="100000000"
+      step="500000"
+      [value]="monto()"
+      (input)="onMontoChange($event)"
+    />
+    <div class="slider-labels">
+      <span>1M</span>
+      <span>100M</span>
+    </div>
+
+    <p class="sim-label">Plazo (meses)</p>
+    <p class="sim-value-lg">{{ plazoMeses() }}</p>
+
+    <div class="plazo-buttons">
+      <button
+        type="button"
+        class="plazo-btn"
+        *ngFor="let plazo of plazosDisponibles"
+        [class.active]="plazoMeses() === plazo"
+        (click)="seleccionarPlazo(plazo)"
+      >
+        {{ plazo }}
+      </button>
+    </div>
+
+    <p class="sim-label">Pago mensual estimado</p>
+    <p class="sim-value-xl">{{ formatCOP(pagoMensual()) }}</p>
+
+    <div class="ahorro-box">
+      <span class="ahorro-icon">↓</span>
+      <div>
+        <p class="ahorro-label">AHORRO POTENCIAL</p>
+        <p class="ahorro-value">-{{ formatCOP(ahorroPotencial()) }} en intereses</p>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-solicitar">Solicitar este crédito</button>
+  </aside>
+</section>

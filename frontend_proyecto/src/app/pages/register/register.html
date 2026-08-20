@@ -1,0 +1,170 @@
+<div class="register-container">
+
+  <div class="register-content">
+    <div class="register-row">
+
+      <!-- Tarjeta principal -->
+      <div class="register-card">
+
+        <div class="card-header">
+          <div>
+            <h1>Crear cuenta</h1>
+            <p class="subtitle">Regístrate para acceder a tu puntaje, educación financiera y recomendaciones personalizadas.</p>
+          </div>
+          <span class="step-badge">Paso 1 de 2</span>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="registroUsuario()" novalidate>
+
+          <!-- Mensaje de error general -->
+          <div class="alert alert-error" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <!-- Nombre / Apellido -->
+          <div class="form-row-fields">
+            <div class="form-group">
+              <input
+                type="text"
+                formControlName="nombre"
+                placeholder="Nombre"
+                [class.input-error]="nombre?.invalid && nombre?.touched"
+              >
+              <span class="field-error" *ngIf="nombre?.invalid && nombre?.touched">
+                <span *ngIf="nombre?.errors?.['required']">El nombre es obligatorio.</span>
+                <span *ngIf="nombre?.errors?.['minlength']">Mínimo 3 caracteres.</span>
+              </span>
+            </div>
+            <div class="form-group">
+              <input
+                type="text"
+                formControlName="apellido"
+                placeholder="Apellido"
+                [class.input-error]="apellido?.invalid && apellido?.touched"
+              >
+              <span class="field-error" *ngIf="apellido?.invalid && apellido?.touched">
+                <span *ngIf="apellido?.errors?.['required']">El apellido es obligatorio.</span>
+                <span *ngIf="apellido?.errors?.['minlength']">Mínimo 3 caracteres.</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Correo electrónico -->
+          <div class="form-group">
+            <input
+              type="email"
+              formControlName="correo"
+              placeholder="Correo electrónico"
+              [class.input-error]="correo?.invalid && correo?.touched"
+            >
+            <span class="field-error" *ngIf="correo?.invalid && correo?.touched">
+              <span *ngIf="correo?.errors?.['required']">El correo es obligatorio.</span>
+              <span *ngIf="correo?.errors?.['email']">Ingresa un correo válido.</span>
+            </span>
+          </div>
+
+          <!-- Contraseña / Confirmar contraseña -->
+          <div class="form-row-fields">
+            <div class="form-group">
+              <div class="password-wrapper">
+                <input
+                  [type]="showPassword ? 'text' : 'password'"
+                  formControlName="password"
+                  placeholder="Mínimo 8 caracteres"
+                  [class.input-error]="password?.invalid && password?.touched"
+                >
+                <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+                  {{ showPassword ? '🙈' : '👁️' }}
+                </button>
+              </div>
+              <span class="field-error" *ngIf="password?.invalid && password?.touched">
+                <span *ngIf="password?.errors?.['required']">La contraseña es obligatoria.</span>
+                <span *ngIf="password?.errors?.['minlength']">Mínimo 8 caracteres.</span>
+                <span *ngIf="password?.errors?.['pattern']">Debe tener mayúscula, minúscula y número.</span>
+              </span>
+            </div>
+            <div class="form-group">
+              <div class="password-wrapper">
+                <input
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  formControlName="confirmarPassword"
+                  placeholder="Vuelve a escribirla"
+                  [class.input-error]="confirmarPassword?.touched && (confirmarPassword?.invalid || registerForm.errors?.['passwordsNoCoinciden'])"
+                >
+                <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()">
+                  {{ showConfirmPassword ? '🙈' : '👁️' }}
+                </button>
+              </div>
+              <span class="field-error" *ngIf="confirmarPassword?.touched">
+                <span *ngIf="confirmarPassword?.errors?.['required']">Confirma tu contraseña.</span>
+                <span *ngIf="!confirmarPassword?.errors?.['required'] && registerForm.errors?.['passwordsNoCoinciden']">Las contraseñas no coinciden.</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Aceptar términos -->
+          <label class="terms-label">
+            <input type="checkbox" required>
+            Al registrarte aceptas los Términos y la Política de Privacidad. Operamos en Colombia.
+          </label>
+
+          <!-- Botones -->
+          <div class="button-row">
+            <button type="submit" class="btn-primary">Crear cuenta</button>
+            <button type="button" class="btn-secondary" (click)="goToLogin()">Volver</button>
+          </div>
+
+        </form>
+
+        <!-- Registro social -->
+        <div class="social-divider">
+          <span>O registrarte con</span>
+        </div>
+
+        <div class="social-buttons">
+          <button type="button" class="btn-social" (click)="registerWithGoogle()">
+            <svg class="social-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
+              <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+              <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 27 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.3 44 24 44z"/>
+              <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.6 5.4C41.5 36.6 44 30.9 44 24c0-1.3-.1-2.7-.4-3.5z"/>
+            </svg>
+            Gmail
+          </button>
+          <button type="button" class="btn-social" (click)="registerWithApple()">
+            <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#000000" d="M17.05 12.536c-.03-3.017 2.463-4.467 2.575-4.535-1.404-2.05-3.588-2.332-4.365-2.363-1.86-.19-3.63 1.095-4.573 1.095-.943 0-2.4-1.068-3.947-1.04-2.03.03-3.902 1.18-4.947 3-2.11 3.66-.54 9.08 1.516 12.05 1.007 1.454 2.207 3.088 3.782 3.03 1.52-.062 2.09-.98 3.925-.98 1.835 0 2.35.98 3.955.95 1.634-.03 2.665-1.485 3.664-2.945 1.156-1.69 1.632-3.328 1.656-3.412-.036-.016-3.176-1.22-3.24-4.85z"/>
+              <path fill="#000000" d="M14.72 3.71c.837-1.01 1.4-2.42 1.245-3.82-1.203.05-2.66.803-3.524 1.813-.775.895-1.454 2.328-1.272 3.7 1.34.104 2.71-.68 3.55-1.693z"/>
+            </svg>
+            Apple
+          </button>
+          <button type="button" class="btn-social" (click)="registerWithFacebook()">
+            <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            Facebook
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Panel de beneficios -->
+      <div class="register-benefits">
+        <h2>Beneficios al unirte</h2>
+
+        <ul class="benefits-list">
+          <li>Consulta tu puntaje y tendencias de crédito en Colombia.</li>
+          <li>Contenido educativo para mejorar tu vida financiera.</li>
+          <li>Recomendaciones y alianzas con entidades financieras.</li>
+          <li>Seguridad y control de tus datos personales.</li>
+        </ul>
+
+        <div class="benefits-buttons">
+          <button type="button" class="btn-outline" (click)="goToLogin()">Ya tengo cuenta</button>
+          <button type="button" class="btn-primary-small" (click)="registroUsuario()">Continuar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

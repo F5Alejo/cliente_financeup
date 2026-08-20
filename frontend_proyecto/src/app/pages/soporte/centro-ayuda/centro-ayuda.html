@@ -1,0 +1,63 @@
+<section class="help-center">
+
+  <h1 class="help-center__title">{{ title }}</h1>
+
+  <div class="help-center__search">
+    <input
+      type="text"
+      class="help-center__search-input"
+      [placeholder]="searchPlaceholder"
+    />
+  </div>
+
+  <div class="help-center__cards">
+
+    <!-- Tarjeta de preguntas frecuentes -->
+    <article class="card">
+      <h2 class="card__title">{{ faqCardTitle }}</h2>
+      <ul class="card__list">
+        @for (question of faqQuestions; track question) {
+          <li>{{ question }}</li>
+        }
+      </ul>
+      <button class="btn btn--dark" (click)="onVerMasFaq()">
+        {{ faqButtonLabel }}
+      </button>
+    </article>
+
+    <!-- Tarjetas de acción (Asesor / PQR) -->
+    @for (card of actionCards; track card.title) {
+      <article class="card">
+        <h2 class="card__title">{{ card.title }}</h2>
+        <p class="card__text">{{ card.description }}</p>
+        <button
+          class="btn"
+          [class.btn--green]="card.variant === 'green'"
+          [class.btn--dark]="card.variant === 'dark'"
+          (click)="card.variant === 'green' ? onIniciarChat() : onCrearPqr()"
+        >
+          {{ card.buttonLabel }}
+        </button>
+      </article>
+    }
+
+  </div>
+
+  <div class="help-center__support">
+    <h3 class="help-center__support-title">{{ supportTitle }}</h3>
+
+    <div class="help-center__support-grid">
+      @for (block of supportBlocks; track $index) {
+        <div class="support-block">
+          @for (contact of block.contacts; track contact.label) {
+            <p>
+              <span class="support-block__label">{{ contact.label }}</span>
+              <span class="support-block__value">{{ contact.value }}</span>
+            </p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+</section>

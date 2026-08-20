@@ -1,0 +1,21 @@
+<header class="app-header">
+  <div class="header-container">
+    <a routerLink="/prueba" class="brand" aria-label="Ir al inicio de FinanceUp">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">FinanceUp</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Navegacion principal">
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.exact }"
+        class="nav-link"
+      >
+        {{ item.label }}
+      </a>
+    </nav>
+  </div>
+</header>
+

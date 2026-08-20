@@ -1,0 +1,22 @@
+<footer class="app-footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <a routerLink="/prueba" class="footer-logo">
+        <span class="footer-mark">F</span>
+        <span>FinanceUp</span>
+      </a>
+      <p class="tagline">Educacion financiera clara para tomar mejores decisiones.</p>
+    </div>
+
+    <nav class="footer-links" aria-label="Enlaces del sitio">
+      <section class="footer-col" *ngFor="let col of columns">
+        <h3>{{ col.title }}</h3>
+        <a *ngFor="let link of col.links" [routerLink]="link.path">{{ link.label }}</a>
+      </section>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; {{ currentYear }} FinanceUp. Todos los derechos reservados.</p>
+  </div>
+</footer>
