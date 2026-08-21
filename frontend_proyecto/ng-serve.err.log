@@ -1,5 +1,0 @@
-[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTypeScript compiler option 'isolatedModules' may prevent the 'emitDecoratorMetadata' option from emitting all metadata.[0m [1m[35m[plugin angular-compiler][0m
-
-  The 'emitDecoratorMetadata' option is not required by Angularand can be removed if not explictly required by the project.
-
-

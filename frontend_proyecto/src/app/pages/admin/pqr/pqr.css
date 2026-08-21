@@ -1,0 +1,73 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.admin-pqr {
+    padding: 28px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.admin-pqr h1 {
+    font-size: 24px;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.admin-sub {
+    color: #64748b;
+    font-size: 13px;
+    margin: 4px 0 24px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid #eef2f6;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+thead th {
+    text-align: left;
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 600;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eef2f6;
+}
+
+tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13.5px;
+    color: #334155;
+}
+
+tbody select {
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 12.5px;
+}
+
+.acciones button {
+    border: none;
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@media (max-width: 560px) {
+    .admin-pqr {
+        padding: 20px;
+    }
+}
