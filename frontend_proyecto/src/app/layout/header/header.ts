@@ -23,6 +23,5 @@ export class HeaderComponent {
     { label: 'Alianzas', path: '/alianzas', exact: false },
     { label: 'Finanzas', path: '/finanzas', exact: false },
     { label: 'Soporte', path: '/centro-ayuda', exact: false },
-    { label: 'Perfil', path: '/prueba', exact: false },
   ];
 }
