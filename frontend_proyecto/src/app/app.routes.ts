@@ -84,7 +84,7 @@ export const routes: Routes = [
       {
         path: 'finanzas',
         loadComponent: () =>
-          import('./pages/finanzas/finanzas/finanzas')
+          import('./pages/FINANZAS.1/finanzas/finanzas/finanzas')
             .then((m) => m.FinanzasComponent),
         title: 'Finanzas - FinanceUp',
       },
@@ -92,7 +92,7 @@ export const routes: Routes = [
       {
         path: 'menu',
         loadComponent: () =>
-          import('./pages/finanzas/menu/menu')
+          import('./pages/FINANZAS.1/finanzas/menu/menu')
             .then((m) => m.MenuComponent),
         title: 'Menu - FinanceUp',
       },
