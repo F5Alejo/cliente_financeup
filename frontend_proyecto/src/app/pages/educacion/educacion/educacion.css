@@ -1,15 +1,15 @@
 :host {
-  --verde: #1db954;
-  --verde-oscuro: #169c46;
-  --verde-claro: #e3f6e8;
+  --verde: var(--green-primary);
+  --verde-oscuro: var(--green-dark);
+  --verde-claro: var(--green-soft);
   --navy: #0e1a24;
-  --gris-fondo: #f3f4f6;
-  --gris-texto: #6b7280;
-  --gris-borde: #e5e7eb;
+  --gris-fondo: var(--bg-page);
+  --gris-texto: var(--text-muted);
+  --gris-borde: var(--border-soft);
   --texto: #111827;
 
   display: block;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-family-base);
   color: var(--texto);
   background: var(--gris-fondo);
 }
@@ -21,7 +21,7 @@
 .page {
   width: 100%;
   max-width: 1280px;
-  min-height: 1000vh;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 32px 20px 64px;
 }

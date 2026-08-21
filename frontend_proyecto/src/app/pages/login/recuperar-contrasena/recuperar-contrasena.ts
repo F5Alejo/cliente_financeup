@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToastService } from '../../../shared/services/toast';
 
 type StageId = 's1' | 's2' | 's3';
 type RecoveryMethod = 'email' | 'sms';
@@ -19,6 +20,7 @@ interface PasswordRules {
 })
 export class RecuperarContrasena {
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   // ---------- Estado del flujo ----------
 
@@ -73,17 +75,17 @@ export class RecuperarContrasena {
 
   savePassword(): void {
     if (!this.allRulesPassed) {
-      alert('La contraseña no cumple con todos los requisitos.');
+      this.toastService.error('La contraseña no cumple con todos los requisitos.');
       return;
     }
 
     if (this.newPassword !== this.confirmPassword) {
-      alert('Las contraseñas no coinciden.');
+      this.toastService.error('Las contraseñas no coinciden.');
       return;
     }
 
     // Aquí iría la llamada real al servicio para guardar la nueva contraseña.
-    console.log('Contraseña actualizada correctamente.');
+    this.toastService.success('Contraseña actualizada correctamente.');
     this.goTo('s3');
   }
 
