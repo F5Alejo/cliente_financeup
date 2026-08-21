@@ -69,7 +69,7 @@ export class LoginComponent {
   }
 
   goToForgotPassword(): void {
-    this.router.navigate(['/forgot-password']);
+    this.router.navigate(['/recuperar-contrasena']);
   }
   
   
