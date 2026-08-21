@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToastService } from '../../../shared/services/toast';
 
 interface ActionCard {
   title: string;
@@ -23,7 +25,10 @@ interface SupportBlock {
   styleUrl: './centro-ayuda.css',
 })
 export class CentroAyudaConponent {
-  
+  constructor(
+    private router: Router,
+    private toastService: ToastService
+  ) {}
 
   // Encabezado
   title: string = '¿En qué podemos ayudarte?';
@@ -73,17 +78,17 @@ export class CentroAyudaConponent {
     },
   ];
  
-  // Manejadores de eventos (lógica pendiente de conectar a servicios reales)
   onVerMasFaq(): void {
-    console.log('Ver más preguntas frecuentes');
+    this.router.navigate(['/linea-ayuda']);
   }
- 
+
   onIniciarChat(): void {
-    console.log('Iniciar chat con asesor');
+    this.toastService.info('Conectando con un asesor (simulado)...');
+    this.router.navigate(['/linea-ayuda']);
   }
- 
+
   onCrearPqr(): void {
-    console.log('Crear PQR');
+    this.router.navigate(['/pqr']);
   }
 }
  

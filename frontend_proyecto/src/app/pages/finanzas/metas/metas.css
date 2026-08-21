@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .metas-pagina {
@@ -31,7 +31,7 @@
 }
 
 .btn-nueva-meta {
-    background: #0f766e;
+    background: var(--green-primary);
     color: white;
     border: none;
     border-radius: 10px;
@@ -43,7 +43,7 @@
 }
 
 .btn-nueva-meta:hover {
-    background: #0d9488;
+    background: var(--green-dark);
 }
 
 .panel {
@@ -86,7 +86,7 @@
     bottom: -4px;
     font-size: 11px;
     font-weight: 700;
-    color: #0f766e;
+    color: var(--green-primary);
     background: white;
     padding: 0 4px;
     border-radius: 6px;
@@ -105,7 +105,7 @@
 
 .meta-restante {
     font-size: 11px;
-    color: #0d9488;
+    color: var(--green-dark);
     font-weight: 600;
 }
 
