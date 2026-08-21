@@ -1,0 +1,28 @@
+<app-admin-menu></app-admin-menu>
+<div class="admin-dashboard">
+    <h1>Panel de administración</h1>
+    <p class="admin-sub">Resumen del contenido de la plataforma.</p>
+
+    <section class="cards-resumen">
+        <div class="card-resumen">
+            <span class="card-icono">🤝</span>
+            <span class="card-titulo">Ofertas de alianzas</span>
+            <span class="card-valor">{{ alianzasService.ofertas.length }}</span>
+        </div>
+        <div class="card-resumen">
+            <span class="card-icono">🎓</span>
+            <span class="card-titulo">Cursos de educación</span>
+            <span class="card-valor">{{ totalCursos }}</span>
+        </div>
+        <div class="card-resumen">
+            <span class="card-icono">💰</span>
+            <span class="card-titulo">Movimientos</span>
+            <span class="card-valor">{{ finanzasService.movimientos.length }}</span>
+        </div>
+        <div class="card-resumen">
+            <span class="card-icono">📨</span>
+            <span class="card-titulo">PQR</span>
+            <span class="card-valor">{{ pqrService.pqrs.length }}</span>
+        </div>
+    </section>
+</div>
