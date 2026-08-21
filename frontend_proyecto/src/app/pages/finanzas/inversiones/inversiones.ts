@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { FinanzasMenuComponent } from '../finanzas/finanzas-menu/finanzas-menu';
+import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 interface SegmentoCartera {
   etiqueta: string;
   porcentaje: number;

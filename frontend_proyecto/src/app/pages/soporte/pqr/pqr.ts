@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PqrService } from '../../../services/pqr';
 
 @Component({
   selector: 'app-pqr',
@@ -9,6 +10,11 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './pqr.css',
 })
 export class PqrComponent {
+  constructor(private pqrService: PqrService) {}
+
+  get pqrs() {
+    return this.pqrService.pqrs;
+  }
 
   // =========================
   // TEXTOS DEL COMPONENTE
@@ -32,24 +38,6 @@ export class PqrComponent {
   // =========================
 
   searchText: string = '';
-
-
-  // =========================
-  // PQR QUEMADAS
-  // =========================
-
-  pqrs = [
-    {
-      titulo: 'Queja asesor',
-      numero: '1121313131',
-      estado: 'En revisión'
-    },
-    {
-      titulo: 'Bug en la plataforma',
-      numero: '1516655',
-      estado: 'En revisión'
-    }
-  ];
 
 
   // =========================

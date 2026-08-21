@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout/layout';
+import { adminGuard } from './pages/admin/admin.guard';
 
 export const routes: Routes = [
   {
@@ -19,14 +20,15 @@ export const routes: Routes = [
           import('./pages/login/register/register').then((m) => m.RegisterComponent),
         title: 'Registro - FinanceUp',
       },
+
       {
-    path: 'recuperar-contrasena',
-    loadComponent: () =>
-    import('./pages/login/recuperar-contrasena/recuperar-contrasena').then(
-      (m) => m.RecuperarContrasena
-    ),
-    title: 'Recuperar contraseña - FinanceUp',
-},
+        path: 'recuperar-contrasena',
+        loadComponent: () =>
+          import('./pages/login/recuperar-contrasena/recuperar-contrasena').then(
+            (m) => m.RecuperarContrasena
+          ),
+        title: 'Recuperar contraseña - FinanceUp',
+      },
 
       {
         path: '',
@@ -82,11 +84,55 @@ export const routes: Routes = [
       },
 
       {
-        path: 'menu',
+        path: 'inversiones',
         loadComponent: () =>
-          import('./pages/finanzas/menu/menu')
-            .then((m) => m.MenuComponent),
-        title: 'Menu - FinanceUp',
+          import('./pages/finanzas/inversiones/inversiones')
+            .then((m) => m.InversionesComponent),
+        title: 'Inversiones - FinanceUp',
+      },
+
+      {
+        path: 'metas',
+        loadComponent: () =>
+          import('./pages/finanzas/metas/metas').then((m) => m.Metas),
+        title: 'Metas - FinanceUp',
+      },
+
+      {
+        path: 'admin',
+        canActivateChild: [adminGuard],
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./pages/admin/dashboard/dashboard').then((m) => m.AdminDashboardComponent),
+            title: 'Admin - FinanceUp',
+          },
+          {
+            path: 'alianzas',
+            loadComponent: () =>
+              import('./pages/admin/alianzas/alianzas').then((m) => m.AdminAlianzasComponent),
+            title: 'Admin Alianzas - FinanceUp',
+          },
+          {
+            path: 'educacion',
+            loadComponent: () =>
+              import('./pages/admin/educacion/educacion').then((m) => m.AdminEducacionComponent),
+            title: 'Admin Educación - FinanceUp',
+          },
+          {
+            path: 'finanzas',
+            loadComponent: () =>
+              import('./pages/admin/finanzas/finanzas').then((m) => m.AdminFinanzasComponent),
+            title: 'Admin Finanzas - FinanceUp',
+          },
+          {
+            path: 'pqr',
+            loadComponent: () =>
+              import('./pages/admin/pqr/pqr').then((m) => m.AdminPqrComponent),
+            title: 'Admin PQR - FinanceUp',
+          },
+        ],
       },
 
       {
@@ -99,12 +145,6 @@ export const routes: Routes = [
   {
     path: 'Finanzas',
     redirectTo: 'finanzas',
-    pathMatch: 'full',
-  },
-
-  {
-    path: 'Menu',
-    redirectTo: 'menu',
     pathMatch: 'full',
   },
 ];
