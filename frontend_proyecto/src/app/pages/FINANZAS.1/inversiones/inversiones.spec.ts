@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { InversionesComponent } from './inversiones';
+
 
 describe('Inversiones', () => {
   let component: InversionesComponent;
