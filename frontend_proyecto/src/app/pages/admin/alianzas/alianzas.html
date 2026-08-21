@@ -1,0 +1,51 @@
+<app-admin-menu></app-admin-menu>
+<div class="admin-alianzas">
+    <h1>Alianzas</h1>
+    <p class="admin-sub">Agrega, edita o elimina las ofertas de aliados.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Aliado</th>
+                <th>Descripción</th>
+                <th>CTA</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (oferta of alianzasService.ofertas; track oferta.id) {
+                <tr>
+                    <td>{{ oferta.aliado }}</td>
+                    <td>{{ oferta.descripcion }}</td>
+                    <td>{{ oferta.ctaPrimaria }}</td>
+                    <td class="acciones">
+                        <button type="button" (click)="editarOferta(oferta)">Editar</button>
+                        <button type="button" class="btn-eliminar" (click)="eliminarOferta(oferta.id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <section class="panel-form">
+        <h2>{{ editandoId ? 'Editar oferta' : 'Agregar oferta' }}</h2>
+        <form (ngSubmit)="guardarOferta()">
+            <div class="form-row">
+                <input type="text" [(ngModel)]="formOferta.aliado" name="aliado" placeholder="Nombre del aliado" required>
+                <input type="text" [(ngModel)]="formOferta.logoText" name="logoText" placeholder="Sigla del logo">
+            </div>
+            <input type="text" [(ngModel)]="formOferta.descripcion" name="descripcion" placeholder="Descripción de la oferta">
+            <input type="text" [(ngModel)]="formOferta.meta" name="meta" placeholder="Meta / vigencia">
+            <div class="form-row">
+                <input type="text" [(ngModel)]="formOferta.ctaPrimaria" name="ctaPrimaria" placeholder="Texto botón principal">
+                <input type="text" [(ngModel)]="formOferta.ctaSecundaria" name="ctaSecundaria" placeholder="Texto botón secundario">
+            </div>
+            <div class="form-acciones">
+                <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar oferta' }}</button>
+                @if (editandoId) {
+                    <button type="button" (click)="cancelarEdicion()">Cancelar</button>
+                }
+            </div>
+        </form>
+    </section>
+</div>
