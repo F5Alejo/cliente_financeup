@@ -4,10 +4,10 @@
    ========================================================= */
 
 :host {
-  --green: #35a853;
-  --green-dark: #218838;
-  --green-light: #e9f7ec;
-  --green-panel: #a8dca9;
+  --green: #4caf50;
+  --green-dark: #3d8b40;
+  --green-light: #e8f5e9;
+  --green-panel: #a8d5a8;
 
   --text: #172033;
   --text-secondary: #667085;
@@ -41,12 +41,12 @@
   background:
     radial-gradient(
       circle at 10% 10%,
-      rgba(53, 168, 83, 0.08),
+      rgba(76, 175, 80, 0.08),
       transparent 30%
     ),
     radial-gradient(
       circle at 90% 90%,
-      rgba(53, 168, 83, 0.07),
+      rgba(76, 175, 80, 0.07),
       transparent 30%
     ),
     #f4f6f8;
@@ -230,7 +230,7 @@
   border-color: var(--green);
 
   box-shadow:
-    0 0 0 3px rgba(53, 168, 83, 0.12);
+    0 0 0 3px rgba(76, 175, 80, 0.12);
 }
 
 /* =========================================================
@@ -348,8 +348,8 @@
 
   background: linear-gradient(
     135deg,
-    #35b657,
-    #2d9d49
+    #4caf50,
+    #43a047
   );
 
   color: white;
@@ -363,7 +363,7 @@
   margin-bottom: 10px;
 
   box-shadow:
-    0 6px 13px rgba(53, 168, 83, 0.22);
+    0 6px 13px rgba(76, 175, 80, 0.22);
 
   transition:
     transform 0.2s ease,
@@ -374,14 +374,14 @@
 .login-card > button:not(.register-button):not(.btn-social):not(.toggle-password):hover {
   background: linear-gradient(
     135deg,
-    #2d9d49,
-    #218838
+    #43a047,
+    #3d8b40
   );
 
   transform: translateY(-2px);
 
   box-shadow:
-    0 8px 16px rgba(53, 168, 83, 0.28);
+    0 8px 16px rgba(76, 175, 80, 0.28);
 }
 
 .login-card > button:not(.register-button):not(.btn-social):not(.toggle-password):active {
@@ -556,9 +556,9 @@
     ),
     linear-gradient(
       145deg,
-      #b7dfb7 0%,
-      #a5d6a7 45%,
-      #91cd95 100%
+      #b8e0b8 0%,
+      #a8d5a8 45%,
+      #93c893 100%
     );
 }
 
