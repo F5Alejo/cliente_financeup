@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../services/auth';
 import { FinanzasService } from '../../../services/finanzas';
+import { MetasService } from '../../../services/metas';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
+import { MonedaPipe } from '../../../pipes/moneda.pipe';
+import { ToastService } from '../../../shared/services/toast';
 
 interface TarjetaResumen {
   icono: string;
@@ -21,27 +24,25 @@ interface PuntoInversion {
   valor: number;
 }
 
-interface Meta {
-  nombre: string;
-  icono: string;
-  porcentaje: number;
-  actual: number;
-  objetivo: number;
-}
-
 @Component({
   selector: 'app-finanzas',
-  imports: [FinanzasMenuComponent],
+  imports: [FinanzasMenuComponent, MonedaPipe],
   templateUrl: './finanzas.html',
   styleUrls: ['./finanzas.css']
-  
-  
 })
 export class FinanzasComponent implements OnInit {
-  constructor(public authService: AuthService, private finanzasService: FinanzasService) {}
+  constructor(
+    public authService: AuthService,
+    private finanzasService: FinanzasService,
+    private metasService: MetasService,
+    private toastService: ToastService
+  ) {}
+
+  mostrarTodosMovimientos = false;
 
   get movimientos() {
-    return this.finanzasService.movimientos;
+    const todos = this.finanzasService.movimientos;
+    return this.mostrarTodosMovimientos ? todos : todos.slice(0, 5);
   }
 
   usuario: string = '';
@@ -65,10 +66,10 @@ export class FinanzasComponent implements OnInit {
 
   /** ----- Distribución del salario (dona) ----- */
   distribucion: SegmentoGasto[] = [
-    { etiqueta: 'Vivienda', porcentaje: 33, color: '#0f766e' },
-    { etiqueta: 'Alimento', porcentaje: 25, color: '#14b8a6' },
-    { etiqueta: 'Transporte', porcentaje: 18, color: '#5eead4' },
-    { etiqueta: 'Ahorro', porcentaje: 15, color: '#99f6e4' },
+    { etiqueta: 'Vivienda', porcentaje: 33, color: 'var(--green-primary)' },
+    { etiqueta: 'Alimento', porcentaje: 25, color: 'var(--green-accent-text)' },
+    { etiqueta: 'Transporte', porcentaje: 18, color: 'var(--green-soft)' },
+    { etiqueta: 'Ahorro', porcentaje: 15, color: 'var(--bg-ahorro)' },
     { etiqueta: 'Ocio', porcentaje: 9, color: '#e2e8f0' },
   ];
 
@@ -122,23 +123,21 @@ export class FinanzasComponent implements OnInit {
     return `${signo}$${Math.abs(valor).toLocaleString('es-CO')}`;
   }
 
-  /** ----- Tus metas (anillos) ----- */
-  metas: Meta[] = [
-    { nombre: 'Vacaciones', icono: '✈️', porcentaje: 72, actual: 1800000, objetivo: 2500000 },
-    { nombre: 'Emergencia', icono: '🛟', porcentaje: 40, actual: 800000, objetivo: 2000000 },
-    { nombre: 'Educación', icono: '🎓', porcentaje: 100, actual: 5000000, objetivo: 5000000 },
-    { nombre: 'Auto', icono: '🚙', porcentaje: 25, actual: 1250000, objetivo: 5000000 },
-  ];
+  /** ----- Tus metas (anillos, vista previa de las primeras 4) ----- */
+  get metas() {
+    return this.metasService.metas.slice(0, 4);
+  }
 
   obtenerOffset(porcentaje: number): number {
     return this.circunferencia * (1 - porcentaje / 100);
   }
 
-  formatearCOP(valor: number): string {
-    return `$${valor.toLocaleString('es-CO')}`;
-  }
-
   verTodos(): void {
-    // Punto de extensión: navegar al historial completo de movimientos
+    this.mostrarTodosMovimientos = !this.mostrarTodosMovimientos;
+    this.toastService.info(
+      this.mostrarTodosMovimientos
+        ? 'Mostrando todos los movimientos'
+        : 'Mostrando los movimientos más recientes'
+    );
   }
 }

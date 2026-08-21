@@ -1,30 +1,27 @@
-:root{
+:host{
   --green-50:#eef8ef;
   --green-100:#e8f5e9;
   --green-panel:#a8d5a8;
   --green-panel-2:#93c893;
-  --green-500:#4caf50;
-  --green-600:#3d8b40;
-  --green-700:#2e6b30;
+  --green-500: var(--green-primary);
+  --green-600: var(--green-dark);
+  --green-700: var(--green-darkest);
   --ink:#1f2a24;
   --ink-soft:#5c6b62;
   --border:#e3e8e5;
   --bg:#eef1ef;
   --white:#ffffff;
-}
 
-*{box-sizing:border-box;}
-
-body{
-  margin:0;
-  background:var(--bg);
-  font-family:'Segoe UI',Helvetica,Arial,sans-serif;
-  color:var(--ink);
   display:flex;
   flex-direction:column;
   align-items:center;
   padding:32px 16px 60px;
+  background:var(--bg);
+  font-family: var(--font-family-base);
+  color:var(--ink);
 }
+
+*{box-sizing:border-box;}
 
 .switcher{
   display:flex;

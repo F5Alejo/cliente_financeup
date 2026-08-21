@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .finanzas-menu {
@@ -30,11 +30,11 @@
 }
 
 .finanzas-menu a.activo {
-    background: #0f766e;
+    background: var(--green-primary);
     color: white;
 }
 
 .finanzas-menu a:focus-visible {
-    outline: 3px solid #0f766e;
+    outline: 3px solid var(--green-primary);
     outline-offset: 2px;
 }
