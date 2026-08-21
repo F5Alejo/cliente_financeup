@@ -16,18 +16,16 @@ export const routes: Routes = [
       {
         path: 'register',
         loadComponent: () =>
-          import('./pages/register/register').then((m) => m.RegisterComponent),
+          import('./pages/login/register/register').then((m) => m.RegisterComponent),
         title: 'Registro - FinanceUp',
       },
-
-    
       {
-  path: 'recuperar-contrasena',
-  loadComponent: () =>
-    import('./pages/recuperar-contrasena/recuperar-contrasena').then(
+    path: 'recuperar-contrasena',
+    loadComponent: () =>
+    import('./pages/login/recuperar-contrasena/recuperar-contrasena').then(
       (m) => m.RecuperarContrasena
     ),
-  title: 'Recuperar contraseña - FinanceUp',
+    title: 'Recuperar contraseña - FinanceUp',
 },
 
       {
@@ -75,12 +73,6 @@ export const routes: Routes = [
         title: 'Linea de ayuda - FinanceUp',
       },
 
-      {
-        path: 'pqr',
-        loadComponent: () =>
-          import('./pages/soporte/pqr/pqr').then((m) => m.PqrComponent),
-        title: 'Linea de ayuda - FinanceUp',
-      },
       {
         path: 'finanzas',
         loadComponent: () =>

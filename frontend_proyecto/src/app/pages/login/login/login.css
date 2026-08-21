@@ -36,7 +36,7 @@
   align-items: center;
   justify-content: center;
 
-  padding: 24px 20px;
+  padding: 32px 24px;
 
   background:
     radial-gradient(
@@ -65,12 +65,12 @@
 
 .login-row {
   width: 100%;
-  max-width: 900px;
+  max-width: 1000px;
 
   display: flex;
   align-items: stretch;
 
-  border-radius: 18px;
+  border-radius: 20px;
   overflow: hidden;
 
   background: white;
@@ -78,6 +78,19 @@
   box-shadow:
     0 18px 40px rgba(16, 24, 40, 0.12),
     0 6px 14px rgba(16, 24, 40, 0.06);
+
+  animation: cardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* =========================================================
@@ -88,16 +101,37 @@
   width: 50%;
   max-width: none;
 
-  padding: 34px 38px;
+  padding: 42px 46px;
 
   background: #ffffff;
 
-  border-radius: 18px 0 0 18px;
+  border-radius: 20px 0 0 20px;
 
   display: flex;
   flex-direction: column;
 
   position: relative;
+
+  overflow: hidden;
+}
+
+/* Halo decorativo sutil en la esquina */
+.login-card::before {
+  content: "";
+
+  position: absolute;
+
+  width: 200px;
+  height: 200px;
+
+  border-radius: 50%;
+
+  top: -110px;
+  left: -110px;
+
+  background: radial-gradient(circle, rgba(53, 168, 83, 0.09), transparent 70%);
+
+  pointer-events: none;
 }
 
 /* =========================================================
@@ -106,7 +140,8 @@
 
 .logo-section {
   text-align: left;
-  margin-bottom: 20px;
+  margin-bottom: 26px;
+  position: relative;
 }
 
 /* Logo FinanceUp */
@@ -115,21 +150,53 @@
 
   display: block;
 
-  font-size: 24px;
+  font-size: 27px;
   font-weight: 800;
 
   letter-spacing: -1px;
 
   color: #172033;
 
-  margin-bottom: 22px;
+  margin-bottom: 28px;
+
+  position: relative;
+}
+
+/* Acento en gradiente bajo el logo */
+.logo-section::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 34px;
+
+  width: 46px;
+  height: 4px;
+
+  border-radius: 4px;
+
+  background: linear-gradient(90deg, var(--green), #8fd6a3);
+
+  animation: accentGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+@keyframes accentGrow {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 46px;
+    opacity: 1;
+  }
 }
 
 /* Verde en la palabra Up */
 .logo-section h1 {
   position: relative;
 
-  font-size: 21px;
+  font-size: 24px;
   font-weight: 750;
 
   color: var(--text);
@@ -143,7 +210,7 @@
 */
 
 .logo-section p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-secondary);
 
   margin: 0;
@@ -178,7 +245,7 @@
 
 .form-group {
   width: 100%;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
@@ -197,9 +264,9 @@
 .form-group input[type="text"] {
   width: 100%;
 
-  height: 42px;
+  height: 47px;
 
-  padding: 0 14px;
+  padding: 0 15px;
 
   border: 1px solid var(--border);
   border-radius: 9px;
@@ -208,7 +275,7 @@
 
   color: var(--text);
 
-  font-size: 13px;
+  font-size: 14px;
 
   transition:
     border-color 0.25s ease,
@@ -269,13 +336,33 @@
 
   border-radius: 7px;
 
-  font-size: 14px;
+  color: var(--text-secondary);
 
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.toggle-password svg {
+  width: 18px;
+  height: 18px;
+
+  animation: iconPop 0.2s ease;
+}
+
+@keyframes iconPop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .toggle-password:hover {
   background: #f1f3f5;
+
+  color: var(--green-dark);
 }
 
 /* =========================================================
@@ -289,9 +376,9 @@
   align-items: center;
   justify-content: space-between;
 
-  margin: 0 0 16px;
+  margin: 0 0 20px;
 
-  font-size: 12px;
+  font-size: 12.5px;
 }
 
 .checkbox-label {
@@ -338,9 +425,9 @@
 .login-card > button:not(.register-button):not(.btn-social):not(.toggle-password) {
   width: 100%;
 
-  height: 44px;
+  height: 48px;
 
-  padding: 0 16px;
+  padding: 0 17px;
 
   border: none;
 
@@ -360,7 +447,7 @@
 
   cursor: pointer;
 
-  margin-bottom: 10px;
+  margin-bottom: 11px;
 
   box-shadow:
     0 6px 13px rgba(53, 168, 83, 0.22);
@@ -395,9 +482,9 @@
 .register-button {
   width: 100%;
 
-  height: 44px;
+  height: 48px;
 
-  padding: 0 16px;
+  padding: 0 17px;
 
   background: white;
 
@@ -438,11 +525,11 @@
 
   position: relative;
 
-  margin: 18px 0 12px;
+  margin: 22px 0 14px;
 
   color: var(--text-secondary);
 
-  font-size: 12px;
+  font-size: 12.5px;
 }
 
 .social-divider::before,
@@ -479,13 +566,13 @@
 .btn-social {
   flex: 1;
 
-  height: 38px;
+  height: 41px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  gap: 7px;
+  gap: 8px;
 
   padding: 0 8px;
 
@@ -533,9 +620,9 @@
   width: 50%;
   max-width: none;
 
-  padding: 38px 38px;
+  padding: 46px 46px;
 
-  border-radius: 0 18px 18px 0;
+  border-radius: 0 20px 20px 0;
 
   color: #12351b;
 
@@ -581,6 +668,8 @@
   box-shadow:
     0 0 0 24px rgba(255,255,255,0.05),
     0 0 0 48px rgba(255,255,255,0.04);
+
+  animation: gentlePulse 6s ease-in-out infinite;
 }
 
 .login-welcome::after {
@@ -597,6 +686,111 @@
   bottom: -60px;
 
   background: rgba(255,255,255,0.08);
+
+  animation: gentlePulse 6s ease-in-out infinite 1.5s;
+}
+
+@keyframes gentlePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.8;
+  }
+}
+
+/* =========================================================
+   INSIGNIA DE LOGO FLOTANTE
+   ========================================================= */
+
+.welcome-logo {
+  position: relative;
+  z-index: 3;
+
+  align-self: flex-start;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 9px 18px 9px 14px;
+
+  margin-bottom: 30px;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.4);
+
+  border: 1px solid rgba(255, 255, 255, 0.6);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 10px 24px rgba(18, 53, 27, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  font-size: 14px;
+
+  font-weight: 800;
+
+  letter-spacing: -0.3px;
+
+  color: #12351b;
+
+  animation: logoFloat 4s ease-in-out infinite;
+}
+
+.welcome-logo-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #218838;
+
+  box-shadow: 0 0 0 4px rgba(33, 136, 56, 0.18);
+
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+.welcome-logo-arrow {
+  display: inline-block;
+
+  color: #218838;
+
+  animation: arrowNudge 2.2s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(-1deg);
+  }
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(33, 136, 56, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(33, 136, 56, 0.06);
+  }
+}
+
+@keyframes arrowNudge {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(2px, -2px);
+  }
 }
 
 /* =========================================================
@@ -607,7 +801,7 @@
   position: relative;
   z-index: 2;
 
-  font-size: 22px;
+  font-size: 25px;
 
   font-weight: 750;
 
@@ -622,13 +816,13 @@
   position: relative;
   z-index: 2;
 
-  font-size: 13px;
+  font-size: 14px;
 
-  line-height: 1.45;
+  line-height: 1.5;
 
   color: #315a37;
 
-  margin: 0 0 20px;
+  margin: 0 0 26px;
 }
 
 /* =========================================================
@@ -649,7 +843,7 @@
 
   flex-direction: column;
 
-  gap: 11px;
+  gap: 14px;
 }
 
 .welcome-features li {
@@ -661,17 +855,15 @@
 }
 
 .feature-icon {
-  width: 38px;
-  height: 38px;
+  width: 43px;
+  height: 43px;
 
-  min-width: 38px;
+  min-width: 43px;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
-
-  font-size: 17px;
 
   background: rgba(255,255,255,0.72);
 
@@ -679,12 +871,19 @@
 
   box-shadow:
     0 3px 8px rgba(0,0,0,0.05);
+
+  color: var(--green-dark);
+}
+
+.feature-icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 .welcome-features strong {
   display: block;
 
-  font-size: 13px;
+  font-size: 14px;
 
   font-weight: 700;
 
@@ -704,64 +903,68 @@
 }
 
 /* =========================================================
-   ILUSTRACIÓN
+   ILUSTRACIÓN — tarjeta de estadística
    ========================================================= */
 
 .illustration {
   position: relative;
   z-index: 2;
 
-  height: 90px;
+  margin-top: 22px;
 
-  margin-top: 18px;
-
-  padding-top: 14px;
-
-  border-top: 1px solid rgba(255,255,255,0.5);
+  padding-top: 12px;
 
   display: flex;
 
   align-items: center;
 
   justify-content: center;
-
-  gap: 20px;
 }
 
-.icon-coin,
-.icon-chart {
-  display: flex;
+.illustration-svg {
+  width: 100%;
+  max-width: 260px;
 
-  align-items: center;
-  justify-content: center;
-
-  width: 52px;
-  height: 52px;
-
-  border-radius: 15px;
-
-  background: rgba(255,255,255,0.35);
-
-  font-size: 28px;
-
-  box-shadow:
-    0 6px 14px rgba(0,0,0,0.05);
-
-  animation: floating 3s ease-in-out infinite;
+  height: auto;
 }
 
-.icon-chart {
-  animation-delay: 0.5s;
+.illustration-svg .coin-group {
+  animation: coinFloat 3s ease-in-out infinite;
+  transform-origin: center;
 }
 
-@keyframes floating {
-  0%,
-  100% {
+.illustration-svg .bar-1 {
+  animation: barGrow 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+  transform-origin: bottom;
+}
+
+.illustration-svg .bar-2 {
+  animation: barGrow 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+  transform-origin: bottom;
+}
+
+.illustration-svg .bar-3 {
+  animation: barGrow 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+  transform-origin: bottom;
+}
+
+@keyframes coinFloat {
+  0%, 100% {
     transform: translateY(0);
   }
-
   50% {
     transform: translateY(-6px);
+  }
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
   }
 }
 
@@ -831,6 +1034,12 @@
     border-radius: 16px 16px 0 0;
   }
 
+  .welcome-logo {
+    font-size: 12.5px;
+    padding: 7px 14px 7px 11px;
+    margin-bottom: 18px;
+  }
+
   .login-welcome h2 {
     font-size: 18px;
   }
@@ -840,17 +1049,11 @@
   }
 
   .illustration {
-    height: 70px;
-
     margin-top: 16px;
   }
 
-  .icon-coin,
-  .icon-chart {
-    width: 42px;
-    height: 42px;
-
-    font-size: 22px;
+  .illustration-svg {
+    max-width: 200px;
   }
 }
 
