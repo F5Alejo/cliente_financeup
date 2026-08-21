@@ -74,11 +74,30 @@ export const routes: Routes = [
             .then((m) => m.LineaAyudaComponent),
         title: 'Linea de ayuda - FinanceUp',
       },
+      {
+        path: 'habla-con-nosostros',
+        loadComponent: () =>
+          import('./pages/soporte/habla-con-nosotros/habla-con-nosotros')
+            .then((m) => m.HablaConNosotrosComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
 
       {
         path: 'pqr',
         loadComponent: () =>
           import('./pages/soporte/pqr/pqr').then((m) => m.PqrComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
+      {
+        path: 'nuevo-pqr',
+        loadComponent: () =>
+          import('./pages/soporte/nuevo-pqr/nuevo-pqr').then((m) => m.NuevoPqrComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
+      {
+        path: 'cookis',
+        loadComponent: () =>
+          import('./pages/soporte/banner-cookies/banner-cookies').then((m) => m.BannerCookiesComponent),
         title: 'Linea de ayuda - FinanceUp',
       },
       {
