@@ -1,7 +1,11 @@
 import { Component, signal } from '@angular/core';
+<<<<<<<< HEAD:frontend_proyecto/src/app/pages/FINANZAS.1/inversiones/inversiones.ts
 import { FormsModule } from '@angular/forms';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 
+========
+import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
+>>>>>>>> origin/develop:frontend_proyecto/src/app/pages/finanzas/inversiones/inversiones.ts
 interface SegmentoCartera {
   etiqueta: string;
   porcentaje: number;
