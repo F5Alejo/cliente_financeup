@@ -3,10 +3,36 @@
     <header class="inversiones-header">
         <h1><span class="icono-titulo" aria-hidden="true">📈</span> Inversiones</h1>
         <div class="header-acciones">
-            <button type="button" class="btn-secundario" (click)="nuevaInversion()">+ Nueva inversión</button>
+            <button type="button" class="btn-secundario" (click)="toggleFormularioInversion()">+ Nueva inversión</button>
             <button type="button" class="btn-primario" (click)="exportar()">⭳ Exportar</button>
         </div>
     </header>
+
+    @if (mostrarFormularioInversion()) {
+        <form class="panel form-nueva-inversion" (ngSubmit)="guardarNuevaInversion()">
+            <div class="campo">
+                <label for="nombre-inv">Nombre</label>
+                <input id="nombre-inv" type="text" placeholder="Ej: CDT a 90 días" [(ngModel)]="nombreNuevaInversion" name="nombreInv" required />
+            </div>
+            <div class="campo">
+                <label for="monto-inv">Monto</label>
+                <input id="monto-inv" type="number" min="1" placeholder="Ej: 1000000" [(ngModel)]="montoNuevaInversion" name="montoInv" required />
+            </div>
+            <div class="campo">
+                <label for="riesgo-inv">Riesgo</label>
+                <select id="riesgo-inv" [(ngModel)]="riesgoNuevaInversion" name="riesgoInv">
+                    <option value="Bajo">Bajo</option>
+                    <option value="Medio">Medio</option>
+                    <option value="Alto">Alto</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label for="duracion-inv">Duración</label>
+                <input id="duracion-inv" type="text" placeholder="Ej: 1 año" [(ngModel)]="duracionNuevaInversion" name="duracionInv" />
+            </div>
+            <button type="submit" class="btn-agregar">Guardar inversión</button>
+        </form>
+    }
 
     <section class="cards-resumen" aria-label="Resumen de inversiones">
         <div class="card-resumen">
@@ -74,7 +100,7 @@
                             {{ seg.etiqueta }} <strong>{{ seg.porcentaje }}%</strong>
                         </li>
                     }
-                </ul> 
+                </ul>
             </div>
             <div class="panel-acciones">
                 <button type="button" class="link-boton">Compartir</button>
@@ -138,4 +164,3 @@
         </table>
     </section>
 </div>
-

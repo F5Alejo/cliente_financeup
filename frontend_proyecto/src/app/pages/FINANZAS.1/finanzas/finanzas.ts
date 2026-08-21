@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 
@@ -36,13 +37,20 @@ interface Meta {
   objetivo: number;
 }
 
+/** ----- Nuevo: Activos / Pasivos / Gastos ----- */
+interface RegistroFinanciero {
+  id: number;
+  nombre: string;
+  monto: number;
+}
+
+type TipoRegistro = 'activos' | 'pasivos' | 'gastos';
+
 @Component({
   selector: 'app-finanzas',
-  imports: [FinanzasMenuComponent],
+  imports: [FinanzasMenuComponent, FormsModule],
   templateUrl: './finanzas.html',
-  styleUrls: ['./finanzas.css']
-  
-  
+  styleUrls: ['./finanzas.css'],
 })
 export class FinanzasComponent implements OnInit {
   constructor(public authService: AuthService) {}
@@ -150,5 +158,85 @@ export class FinanzasComponent implements OnInit {
 
   verTodos(): void {
     // Punto de extensión: navegar al historial completo de movimientos
+  }
+
+  /** ============================================================
+   *  NUEVO: Activos / Pasivos / Gastos (formulario funcional)
+   * ============================================================ */
+
+  /** Pestaña activa del bloque de registros */
+  tipoActivo = signal<TipoRegistro>('activos');
+
+  private siguienteId = 1000;
+
+  registros: Record<TipoRegistro, RegistroFinanciero[]> = {
+    activos: [
+      { id: 1, nombre: 'Ahorros en cuenta', monto: 4000000 },
+      { id: 2, nombre: 'Vehículo', monto: 12000000 },
+    ],
+    pasivos: [
+      { id: 1, nombre: 'Tarjeta de crédito', monto: 900000 },
+    ],
+    gastos: [
+      { id: 1, nombre: 'Arriendo', monto: 1200000 },
+      { id: 2, nombre: 'Servicios', monto: 250000 },
+    ],
+  };
+
+  /** Campos del formulario para agregar un registro nuevo */
+  nombreNuevoRegistro: string = '';
+  montoNuevoRegistro: number | null = null;
+
+  cambiarTipoActivo(tipo: TipoRegistro): void {
+    this.tipoActivo.set(tipo);
+    this.nombreNuevoRegistro = '';
+    this.montoNuevoRegistro = null;
+  }
+
+  get listaActiva(): RegistroFinanciero[] {
+    return this.registros[this.tipoActivo()];
+  }
+
+  agregarRegistro(): void {
+    const nombre = this.nombreNuevoRegistro.trim();
+    const monto = this.montoNuevoRegistro;
+
+    if (!nombre || monto === null || monto <= 0) {
+      return; // validación mínima: no agrega registros vacíos o con monto inválido
+    }
+
+    this.registros[this.tipoActivo()].push({
+      id: this.siguienteId++,
+      nombre,
+      monto,
+    });
+
+    this.nombreNuevoRegistro = '';
+    this.montoNuevoRegistro = null;
+  }
+
+  eliminarRegistro(id: number): void {
+    const tipo = this.tipoActivo();
+    this.registros[tipo] = this.registros[tipo].filter(r => r.id !== id);
+  }
+
+  totalPorTipo(tipo: TipoRegistro): number {
+    return this.registros[tipo].reduce((suma, r) => suma + r.monto, 0);
+  }
+
+  get totalActivos(): number {
+    return this.totalPorTipo('activos');
+  }
+
+  get totalPasivos(): number {
+    return this.totalPorTipo('pasivos');
+  }
+
+  get totalGastosRegistrados(): number {
+    return this.totalPorTipo('gastos');
+  }
+
+  get patrimonioNeto(): number {
+    return this.totalActivos - this.totalPasivos;
   }
 }
