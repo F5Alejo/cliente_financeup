@@ -1,0 +1,152 @@
+:host {
+  display: block;
+  font-family: var(--font-family-base);
+  color: var(--green-darkest);
+}
+
+.perfil {
+  padding: 28px 32px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.perfil-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.perfil-sub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.panel h2 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+
+.cuenta-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar-grande {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--green-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.cuenta-nombre {
+  font-weight: 700;
+  margin: 0;
+}
+
+.cuenta-email {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 2px 0 6px;
+}
+
+.cuenta-rol {
+  display: inline-block;
+  background: var(--green-soft);
+  color: var(--green-accent-text);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-body);
+}
+
+.form-group input {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--font-family-base);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--green-primary);
+}
+
+.btn-guardar {
+  border: none;
+  background: var(--green-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 0.7rem 1.4rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-guardar:hover {
+  background: var(--green-dark);
+}
+
+.reglas-password {
+  list-style: none;
+  margin: -6px 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.reglas-password li::before {
+  content: '○ ';
+}
+
+.reglas-password li.cumplida {
+  color: var(--green-accent-text);
+}
+
+.reglas-password li.cumplida::before {
+  content: '✓ ';
+}

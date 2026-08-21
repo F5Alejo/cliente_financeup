@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout/layout';
 import { adminGuard } from './pages/admin/admin.guard';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -32,15 +33,23 @@ export const routes: Routes = [
 
       {
         path: '',
-        redirectTo: 'prueba',
+        redirectTo: 'home',
         pathMatch: 'full',
       },
 
       {
-        path: 'prueba',
+        path: 'home',
         loadComponent: () =>
-          import('./pages/prueba/prueba').then((m) => m.Prueba),
-        title: 'Prueba - FinanceUp',
+          import('./pages/home/home').then((m) => m.HomeComponent),
+        title: 'Inicio - FinanceUp',
+      },
+
+      {
+        path: 'perfil',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/perfil/perfil').then((m) => m.PerfilComponent),
+        title: 'Mi perfil - FinanceUp',
       },
 
       {
@@ -83,6 +92,7 @@ export const routes: Routes = [
       },
       {
         path: 'finanzas',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/finanzas/finanzas/finanzas')
             .then((m) => m.FinanzasComponent),
@@ -91,6 +101,7 @@ export const routes: Routes = [
 
       {
         path: 'inversiones',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/finanzas/inversiones/inversiones')
             .then((m) => m.InversionesComponent),
@@ -99,6 +110,7 @@ export const routes: Routes = [
 
       {
         path: 'metas',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/finanzas/metas/metas').then((m) => m.Metas),
         title: 'Metas - FinanceUp',
@@ -143,7 +155,7 @@ export const routes: Routes = [
 
       {
         path: '**',
-        redirectTo: 'prueba',
+        redirectTo: 'home',
       },
     ],
   },

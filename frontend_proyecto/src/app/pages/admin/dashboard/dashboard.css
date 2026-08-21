@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .admin-dashboard {
@@ -44,7 +44,7 @@
 
 .card-titulo {
     font-size: 12.5px;
-    color: #0f766e;
+    color: var(--green-primary);
     font-weight: 600;
 }
 

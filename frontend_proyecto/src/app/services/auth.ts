@@ -6,14 +6,18 @@ export interface Usuario {
   nombre: string;
   apellido?: string;
   rol: string;
+  telefono?: string;
+  documento?: string;
+  direccion?: string;
+  fechaNacimiento?: string;
 }
 
 // TODO: BLOQUE TEMPORAL CON DATOS QUEMADOS (MOCK)
 // Reemplazar por llamadas HTTP al backend real cuando esté listo (HttpClient + endpoints de auth).
 const USUARIOS_MOCK: Usuario[] = [
-  { email: 'admin@financeup.com', password: 'admin123', nombre: 'Administrador', rol: 'admin' },
-  { email: 'usuario@financeup.com', password: 'usuario123', nombre: 'Usuario Demo', rol: 'user' },
-  { email: 'test@financeup.com', password: '123456', nombre: 'Test User', rol: 'user' }
+  { email: 'admin@gmail.com', password: '123456', nombre: 'Administrador', rol: 'admin' },
+  { email: 'usuario@gmail.com', password: '123456', nombre: 'Usuario Demo', rol: 'user' },
+  { email: 'test@gmail.com', password: '123456', nombre: 'Test User', rol: 'user' }
 ];
 
 const STORAGE_KEY = 'financeup_user';
@@ -37,20 +41,34 @@ export class AuthService {
   }
 
   /**
-   * Valida credenciales contra los usuarios quemados (mock).
-   * Devuelve true si el login fue exitoso, false si las credenciales son incorrectas.
+   * Valida credenciales contra los usuarios quemados (mock), sin crear sesión.
+   * Se usa como primer paso del login, antes de pedir el código de verificación (2FA).
    */
-  iniciarSesion(email: string, password: string): boolean {
+  validarCredenciales(email: string, password: string): Usuario | null {
     const usuario = this.usuarios.find(
       (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
     );
+    return usuario ?? null;
+  }
 
+  /**
+   * Persiste la sesión de un usuario ya validado (segundo paso del login, tras el 2FA).
+   */
+  completarSesion(usuario: Usuario): void {
+    this.usuarioActual = usuario;
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
+  }
+
+  /**
+   * Valida credenciales y crea la sesión en un solo paso (sin 2FA).
+   * Devuelve true si el login fue exitoso, false si las credenciales son incorrectas.
+   */
+  iniciarSesion(email: string, password: string): boolean {
+    const usuario = this.validarCredenciales(email, password);
     if (!usuario) {
       return false;
     }
-
-    this.usuarioActual = usuario;
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
+    this.completarSesion(usuario);
     return true;
   }
 
@@ -74,10 +92,46 @@ export class AuthService {
     };
 
     this.usuarios.push(nuevoUsuario);
-    this.usuarioActual = nuevoUsuario;
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(nuevoUsuario));
+    this.completarSesion(nuevoUsuario);
 
     return { exito: true };
+  }
+
+  /**
+   * Actualiza los datos personales del usuario autenticado (mock, en memoria).
+   */
+  actualizarPerfil(datos: Partial<Usuario>): { exito: boolean } {
+    if (!this.usuarioActual) {
+      return { exito: false };
+    }
+
+    const actualizado: Usuario = { ...this.usuarioActual, ...datos, email: this.usuarioActual.email };
+    this.usuarioActual = actualizado;
+
+    const indice = this.usuarios.findIndex((u) => u.email.toLowerCase() === actualizado.email.toLowerCase());
+    if (indice !== -1) {
+      this.usuarios[indice] = actualizado;
+    }
+
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(actualizado));
+    return { exito: true };
+  }
+
+  /**
+   * Cambia la contraseña del usuario autenticado, validando la contraseña actual.
+   */
+  cambiarPassword(actual: string, nueva: string): { exito: boolean; mensaje?: string } {
+    if (!this.usuarioActual) {
+      return { exito: false, mensaje: 'No hay una sesión activa.' };
+    }
+
+    if (this.usuarioActual.password !== actual) {
+      return { exito: false, mensaje: 'La contraseña actual no es correcta.' };
+    }
+
+    return this.actualizarPerfil({ password: nueva }).exito
+      ? { exito: true }
+      : { exito: false, mensaje: 'No se pudo actualizar la contraseña.' };
   }
 
   /**

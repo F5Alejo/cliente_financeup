@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .inversiones {
@@ -12,7 +12,7 @@
 }
 
 .inversiones button:focus-visible {
-    outline: 3px solid #0f766e;
+    outline: 3px solid var(--green-primary);
     outline-offset: 2px;
     border-radius: 8px;
 }
@@ -65,12 +65,12 @@
 }
 
 .btn-primario {
-    background: #0f766e;
+    background: var(--green-primary);
     color: white;
 }
 
 .btn-primario:hover {
-    background: #0d9488;
+    background: var(--green-dark);
 }
 
 /* TARJETAS DE RESUMEN */
@@ -104,7 +104,7 @@
 }
 
 .card-valor.positivo {
-    color: #0f766e;
+    color: var(--green-primary);
 }
 
 .card-nota {
@@ -113,7 +113,7 @@
 }
 
 .card-nota.positivo {
-    color: #0f766e;
+    color: var(--green-primary);
 }
 
 .card-retiro {
@@ -180,7 +180,7 @@
 
 .periodos button.activo,
 .filtros button.activo {
-    background: #0f766e;
+    background: var(--green-primary);
     color: white;
 }
 
@@ -207,7 +207,7 @@
 
 .badge-crecimiento {
     background: #ccfbf1;
-    color: #0f766e;
+    color: var(--green-primary);
     font-weight: 700;
     padding: 4px 10px;
     border-radius: 999px;
@@ -275,7 +275,7 @@
 .link-boton {
     background: none;
     border: none;
-    color: #0f766e;
+    color: var(--green-primary);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -317,7 +317,7 @@ tfoot td {
 }
 
 td.positivo {
-    color: #0f766e;
+    color: var(--green-primary);
     font-weight: 700;
 }
 

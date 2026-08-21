@@ -1,19 +1,6 @@
 :host {
-  --green-primary: #1db954;
-  --green-dark: #0a5c28;
-  --green-darkest: #0d1f14;
-  --green-accent-text: #0f8c3b;
-  --text-muted: #6b7c72;
-  --text-body: #666666;
-  --text-soft: #777777;
-  --border-soft: #e2ede6;
-  --bg-panel: #ffffff;
-  --bg-page: #f3f4f6;
-  --bg-search: #f4faf6;
-  --bg-ahorro: #e8f8ee;
-
   display: block;
-  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-family: var(--font-family-base);
   color: var(--green-darkest);
   background: var(--bg-page);
 }

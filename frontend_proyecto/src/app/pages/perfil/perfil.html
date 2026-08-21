@@ -1,0 +1,75 @@
+<div class="perfil">
+  <header class="perfil-header">
+    <h1>Mi perfil</h1>
+    <p class="perfil-sub">Administra tus datos personales y la seguridad de tu cuenta.</p>
+  </header>
+
+  <section class="panel cuenta-info">
+    <div class="avatar-grande" aria-hidden="true">{{ nombre.charAt(0) || '?' }}</div>
+    <div>
+      <p class="cuenta-nombre">{{ nombre }} {{ apellido }}</p>
+      <p class="cuenta-email">{{ usuario?.email }}</p>
+      <span class="cuenta-rol">{{ usuario?.rol === 'admin' ? 'Administrador' : 'Usuario' }}</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Datos personales</h2>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="nombre" name="nombre">
+      </div>
+      <div class="form-group">
+        <label>Apellido</label>
+        <input type="text" [(ngModel)]="apellido" name="apellido">
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" [(ngModel)]="telefono" name="telefono" placeholder="Ej: 3001234567">
+      </div>
+      <div class="form-group">
+        <label>Documento</label>
+        <input type="text" [(ngModel)]="documento" name="documento" placeholder="Cédula o NIT">
+      </div>
+      <div class="form-group">
+        <label>Dirección</label>
+        <input type="text" [(ngModel)]="direccion" name="direccion">
+      </div>
+      <div class="form-group">
+        <label>Fecha de nacimiento</label>
+        <input type="date" [(ngModel)]="fechaNacimiento" name="fechaNacimiento">
+      </div>
+    </div>
+
+    <button type="button" class="btn-guardar" (click)="guardarPerfil()">Guardar cambios</button>
+  </section>
+
+  <section class="panel">
+    <h2>Cambiar contraseña</h2>
+
+    <div class="form-group">
+      <label>Contraseña actual</label>
+      <input type="password" [(ngModel)]="passwordActual" name="passwordActual">
+    </div>
+
+    <div class="form-group">
+      <label>Nueva contraseña</label>
+      <input type="password" [(ngModel)]="passwordNueva" name="passwordNueva" (input)="onPasswordNuevaInput()">
+    </div>
+
+    <ul class="reglas-password">
+      <li [class.cumplida]="rules.minLength">Mínimo 8 caracteres</li>
+      <li [class.cumplida]="rules.hasNumber">Al menos un número</li>
+      <li [class.cumplida]="rules.hasUppercase">Al menos una mayúscula</li>
+    </ul>
+
+    <div class="form-group">
+      <label>Confirmar nueva contraseña</label>
+      <input type="password" [(ngModel)]="passwordConfirmar" name="passwordConfirmar">
+    </div>
+
+    <button type="button" class="btn-guardar" (click)="cambiarPassword()">Actualizar contraseña</button>
+  </section>
+</div>
