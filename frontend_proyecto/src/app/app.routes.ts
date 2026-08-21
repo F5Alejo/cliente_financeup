@@ -84,7 +84,7 @@ export const routes: Routes = [
       {
         path: 'finanzas',
         loadComponent: () =>
-          import('./pages/FINANZAS.1/finanzas/finanzas/finanzas')
+          import('./pages/FINANZAS.1/finanzas/finanzas')
             .then((m) => m.FinanzasComponent),
         title: 'Finanzas - FinanceUp',
       },
@@ -92,9 +92,23 @@ export const routes: Routes = [
       {
         path: 'menu',
         loadComponent: () =>
-          import('./pages/FINANZAS.1/finanzas/menu/menu')
-            .then((m) => m.MenuComponent),
+          import('./pages/FINANZAS.1/finanzas-menu/finanzas-menu')
+            .then((m) => m.FinanzasMenuComponent),
         title: 'Menu - FinanceUp',
+      },
+      {
+        path: 'inversiones',
+        loadComponent: () =>
+          import('./pages/FINANZAS.1/inversiones/inversiones')
+            .then((m) => m.InversionesComponent),
+        title: 'Inversiones - FinanceUp',
+      },
+      {
+        path: 'metas',
+        loadComponent: () =>
+          import('./pages/FINANZAS.1/metas/metas')
+            .then((m) => m.MetasComponent),
+        title: 'Metas - FinanceUp',
       },
 
       {
@@ -115,4 +129,5 @@ export const routes: Routes = [
     redirectTo: 'menu',
     pathMatch: 'full',
   },
+     
 ];
