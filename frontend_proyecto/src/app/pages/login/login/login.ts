@@ -45,7 +45,7 @@ export class LoginComponent {
 
     const usuario = this.authService.obtenerUsuario();
     alert(`Bienvenido ${usuario?.nombre}\nrol: ${usuario?.rol}`);
-    this.router.navigateByUrl('/dashboard');
+    this.router.navigateByUrl('/finanzas');
   }
 
   togglePasswordVisibility(): void {

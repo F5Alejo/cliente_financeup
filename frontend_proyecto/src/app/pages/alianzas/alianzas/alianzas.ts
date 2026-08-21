@@ -1,16 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
-
-interface Oferta {
-  id: string;
-  aliado: string;
-  descripcion: string;
-  meta: string;
-  logoBg: string;
-  logoText: string;
-  ctaPrimaria: string;
-  ctaSecundaria?: string;
-}
+import { AlianzasService } from '../../../services/alianzas';
 
 type TipoAliado = 'Bancos' | 'Fintech' | 'Comercio';
 type Beneficio = '0% Interés' | 'Cashback' | 'Sin Cuota';
@@ -24,37 +14,11 @@ type Perfil = 'Score Alto' | 'Historial Nuevo';
   styleUrl: './alianzas.css',
 })
 export class AlianzasComponent {
-  // ---------- Ofertas (mock; reemplazar por datos del backend) ----------
-  readonly ofertas: Oferta[] = [
-    {
-      id: 'banco-andino',
-      aliado: 'Banco Andino',
-      descripcion: 'Hasta 2 puntos menos en tasa si completas los módulos básicos.',
-      meta: 'Vence en 7 días · 2.1k usuarios · ID 8866',
-      logoBg: '#0d1f4d',
-      logoText: 'BA',
-      ctaPrimaria: 'Aplicar',
-    },
-    {
-      id: 'fintech-luz',
-      aliado: 'Fintech Luz',
-      descripcion: '5% de cashback en compras esenciales y 0% cuota de manejo por 6 meses.',
-      meta: 'Recomendado · Válido este mes · ID 2288',
-      logoBg: '#111111',
-      logoText: 'FINTECH',
-      ctaPrimaria: 'Solicitar',
-      ctaSecundaria: 'Guardar',
-    },
-    {
-      id: 'microcredito-ya',
-      aliado: 'MicroCrédito Ya',
-      descripcion: 'Préstamos pequeños para construir historial.',
-      meta: 'ID 6795',
-      logoBg: '#0f2a1f',
-      logoText: 'MC',
-      ctaPrimaria: 'Solicitar',
-    },
-  ];
+  constructor(private alianzasService: AlianzasService) {}
+
+  get ofertas() {
+    return this.alianzasService.ofertas;
+  }
 
   // ---------- Filtros ----------
   readonly tiposAliado: TipoAliado[] = ['Bancos', 'Fintech', 'Comercio'];

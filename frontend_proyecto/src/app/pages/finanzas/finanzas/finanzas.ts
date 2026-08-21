@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../services/auth';
+import { FinanzasService } from '../../../services/finanzas';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 
 interface TarjetaResumen {
@@ -20,14 +21,6 @@ interface PuntoInversion {
   valor: number;
 }
 
-interface Movimiento {
-  id: number;
-  icono: string;
-  categoria: string;
-  fecha: string;
-  monto: number;
-}
-
 interface Meta {
   nombre: string;
   icono: string;
@@ -45,7 +38,11 @@ interface Meta {
   
 })
 export class FinanzasComponent implements OnInit {
-  constructor(public authService: AuthService) {}
+  constructor(public authService: AuthService, private finanzasService: FinanzasService) {}
+
+  get movimientos() {
+    return this.finanzasService.movimientos;
+  }
 
   usuario: string = '';
   mesActual: string = 'Marzo 2026';
@@ -119,13 +116,6 @@ export class FinanzasComponent implements OnInit {
       })
       .join(' ');
   }
-
-  /** ----- Movimientos recientes ----- */
-  movimientos: Movimiento[] = [
-    { id: 1, icono: '🏠', categoria: 'Vivienda', fecha: '2 mar 2026', monto: 150000 },
-    { id: 2, icono: '🍽️', categoria: 'Alimentación', fecha: '5 mar 2026', monto: -150000 },
-    { id: 3, icono: '🚗', categoria: 'Transporte', fecha: '8 mar 2026', monto: 100000 },
-  ];
 
   formatearMonto(valor: number): string {
     const signo = valor < 0 ? '-' : '+';

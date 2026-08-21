@@ -1,0 +1,10 @@
+<nav class="admin-menu" aria-label="Navegación de administración">
+    @for (item of items; track item.ruta) {
+        <a
+            [routerLink]="item.ruta"
+            routerLinkActive="activo"
+            ariaCurrentWhenActive="page">
+            {{ item.nombre }}
+        </a>
+    }
+</nav>

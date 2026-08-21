@@ -1,0 +1,66 @@
+<app-admin-menu></app-admin-menu>
+<div class="admin-educacion">
+    <h1>Educación</h1>
+    <p class="admin-sub">Agrega, edita o elimina cursos de cada escuela.</p>
+
+    @for (escuela of educacionService.escuelas; track escuela.id) {
+        <h2 class="escuela-titulo">{{ escuela.nombre }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Curso</th>
+                    <th>Nivel</th>
+                    <th>Formato</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (curso of escuela.cursos; track curso.id) {
+                    <tr>
+                        <td>{{ curso.titulo }}</td>
+                        <td>{{ curso.nivel }}</td>
+                        <td>{{ curso.formato }}</td>
+                        <td class="acciones">
+                            <button type="button" (click)="editarCurso(escuela.id, curso)">Editar</button>
+                            <button type="button" class="btn-eliminar" (click)="eliminarCurso(curso.id)">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <section class="panel-form">
+        <h2>{{ editandoId ? 'Editar curso' : 'Agregar curso' }}</h2>
+        <form (ngSubmit)="guardarCurso()">
+            <div class="form-row">
+                <select [(ngModel)]="escuelaSeleccionada" name="escuela">
+                    @for (escuela of educacionService.escuelas; track escuela.id) {
+                        <option [value]="escuela.id">{{ escuela.nombre }}</option>
+                    }
+                </select>
+                <input type="text" [(ngModel)]="formCurso.titulo" name="titulo" placeholder="Título del curso" required>
+            </div>
+            <input type="text" [(ngModel)]="formCurso.descripcion" name="descripcion" placeholder="Descripción">
+            <div class="form-row">
+                <select [(ngModel)]="formCurso.nivel" name="nivel">
+                    <option value="Básico">Básico</option>
+                    <option value="Intermedio">Intermedio</option>
+                    <option value="Avanzado">Avanzado</option>
+                </select>
+                <select [(ngModel)]="formCurso.formato" name="formato">
+                    <option value="Video">Video</option>
+                    <option value="Artículo">Artículo</option>
+                    <option value="Quiz">Quiz</option>
+                </select>
+                <input type="text" [(ngModel)]="formCurso.duracion" name="duracion" placeholder="Duración">
+            </div>
+            <div class="form-acciones">
+                <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar curso' }}</button>
+                @if (editandoId) {
+                    <button type="button" (click)="cancelarEdicion()">Cancelar</button>
+                }
+            </div>
+        </form>
+    </section>
+</div>

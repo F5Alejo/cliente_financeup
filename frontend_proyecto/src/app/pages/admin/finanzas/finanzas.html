@@ -1,0 +1,49 @@
+<app-admin-menu></app-admin-menu>
+<div class="admin-finanzas">
+    <h1>Movimientos financieros</h1>
+    <p class="admin-sub">Agrega, edita o elimina los movimientos que ven los usuarios.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Categoría</th>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (mov of finanzasService.movimientos; track mov.id) {
+                <tr>
+                    <td>{{ mov.icono }} {{ mov.categoria }}</td>
+                    <td>{{ mov.fecha }}</td>
+                    <td [class.negativo]="mov.monto < 0" [class.positivo]="mov.monto >= 0">
+                        {{ formatearCOP(mov.monto) }}
+                    </td>
+                    <td class="acciones">
+                        <button type="button" (click)="editarMovimiento(mov)">Editar</button>
+                        <button type="button" class="btn-eliminar" (click)="eliminarMovimiento(mov.id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <section class="panel-form">
+        <h2>{{ editandoId ? 'Editar movimiento' : 'Agregar movimiento' }}</h2>
+        <form (ngSubmit)="guardarMovimiento()">
+            <div class="form-row">
+                <input type="text" [(ngModel)]="formMovimiento.icono" name="icono" placeholder="Emoji" maxlength="2">
+                <input type="text" [(ngModel)]="formMovimiento.categoria" name="categoria" placeholder="Categoría" required>
+                <input type="text" [(ngModel)]="formMovimiento.fecha" name="fecha" placeholder="Fecha (ej: 10 mar 2026)">
+                <input type="number" [(ngModel)]="formMovimiento.monto" name="monto" placeholder="Monto (negativo si es gasto)">
+            </div>
+            <div class="form-acciones">
+                <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar movimiento' }}</button>
+                @if (editandoId) {
+                    <button type="button" (click)="cancelarEdicion()">Cancelar</button>
+                }
+            </div>
+        </form>
+    </section>
+</div>

@@ -115,7 +115,7 @@ export class RegisterComponent {
     }
 
     alert(`Usuario registrado. ¡Bienvenido ${nombre}!`);
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/finanzas']);
   }
 
   registerWithGoogle(): void {
