@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth';
+import { FinanzasService } from '../../../services/finanzas';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 
 interface TarjetaResumen {
@@ -19,14 +20,6 @@ interface SegmentoGasto {
 interface PuntoInversion {
   mes: string;
   valor: number;
-}
-
-interface Movimiento {
-  id: number;
-  icono: string;
-  categoria: string;
-  fecha: string;
-  monto: number;
 }
 
 interface Meta {
@@ -53,7 +46,11 @@ type TipoRegistro = 'activos' | 'pasivos' | 'gastos';
   styleUrls: ['./finanzas.css'],
 })
 export class FinanzasComponent implements OnInit {
-  constructor(public authService: AuthService) {}
+  constructor(public authService: AuthService, private finanzasService: FinanzasService) {}
+
+  get movimientos() {
+    return this.finanzasService.movimientos;
+  }
 
   usuario: string = '';
   mesActual: string = 'Marzo 2026';
@@ -127,13 +124,6 @@ export class FinanzasComponent implements OnInit {
       })
       .join(' ');
   }
-
-  /** ----- Movimientos recientes ----- */
-  movimientos: Movimiento[] = [
-    { id: 1, icono: '🏠', categoria: 'Vivienda', fecha: '2 mar 2026', monto: 150000 },
-    { id: 2, icono: '🍽️', categoria: 'Alimentación', fecha: '5 mar 2026', monto: -150000 },
-    { id: 3, icono: '🚗', categoria: 'Transporte', fecha: '8 mar 2026', monto: 100000 },
-  ];
 
   formatearMonto(valor: number): string {
     const signo = valor < 0 ? '-' : '+';
