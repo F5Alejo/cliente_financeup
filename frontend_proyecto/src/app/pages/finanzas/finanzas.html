@@ -1,0 +1,113 @@
+<app-finanzas-menu></app-finanzas-menu>
+<div class="finanzas">
+    <header class="finanzas-header">
+        <div>
+            <h1>Hola, {{ usuario }}</h1>
+            <p class="mes-actual">{{ mesActual }}</p>
+        </div>
+        <div class="header-acciones">
+            <button type="button" class="icono-accion" aria-label="Buscar" title="Buscar">🔍</button>
+            <button type="button" class="icono-accion" aria-label="Notificaciones" title="Notificaciones">🔔</button>
+        </div>
+    </header>
+
+    <section class="cards-resumen" aria-label="Resumen financiero">
+        @for (t of tarjetas; track t.titulo) {
+            <div class="card-resumen">
+                <span class="card-icono" aria-hidden="true">{{ t.icono }}</span>
+                <span class="card-titulo">{{ t.titulo }}</span>
+                <span class="card-valor">{{ t.valor }}</span>
+                <span class="card-tendencia">{{ t.tendencia }}</span>
+            </div>
+        }
+    </section>
+
+    <section class="graficas">
+        <div class="panel">
+            <h2>Distribución del salario</h2>
+            <div class="donut-wrap">
+                <div class="donut" [style.background]="gradienteDistribucion" role="img" aria-label="Gráfica de distribución del salario">
+                    <div class="donut-hueco" aria-hidden="true">💲</div>
+                </div>
+                <ul class="leyenda">
+                    @for (seg of distribucion; track seg.etiqueta) {
+                        <li>
+                            <span class="punto" [style.background]="seg.color" aria-hidden="true"></span>
+                            {{ seg.etiqueta }} <strong>{{ seg.porcentaje }}%</strong>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Crecimiento inversión</h2>
+                <span class="crecimiento-badge">+{{ crecimientoPorcentaje }}%</span>
+            </div>
+            <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Tendencia de crecimiento de la inversión">
+                <polyline [attr.points]="puntosLinea" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="linea-rango">
+                <span>{{ crecimientoInicio.valor }}M</span>
+                <span aria-hidden="true">→</span>
+                <span>{{ crecimientoFin.valor }}M COP</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel tabla-panel">
+        <div class="panel-header">
+            <h2>Movimientos recientes</h2>
+            <button type="button" class="link-boton" (click)="verTodos()">Ver todos</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Categoría</th>
+                    <th>Fecha</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (mov of movimientos; track mov.id) {
+                    <tr>
+                        <td>
+                            <span class="icono-fila" aria-hidden="true">{{ mov.icono }}</span>
+                            {{ mov.categoria }}
+                        </td>
+                        <td class="fecha-fila">{{ mov.fecha }}</td>
+                        <td [class.negativo]="mov.monto < 0" [class.positivo]="mov.monto >= 0">
+                            {{ formatearMonto(mov.monto) }}
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel metas-panel">
+        <h2>Tus metas</h2>
+        <div class="metas-grid">
+            @for (meta of metas; track meta.nombre) {
+                <div class="meta-item">
+                    <div class="meta-anillo">
+                        <svg width="88" height="88" viewBox="0 0 88 88" role="img" [attr.aria-label]="meta.nombre + ': ' + meta.porcentaje + ' por ciento completado'">
+                            <circle cx="44" cy="44" r="30" fill="none" stroke="#e2e8f0" stroke-width="7" />
+                            <circle
+                                cx="44" cy="44" r="30" fill="none" stroke="#0f766e" stroke-width="7"
+                                stroke-linecap="round"
+                                [attr.stroke-dasharray]="circunferencia"
+                                [attr.stroke-dashoffset]="obtenerOffset(meta.porcentaje)"
+                                transform="rotate(-90 44 44)" />
+                        </svg>
+                        <span class="meta-icono" aria-hidden="true">{{ meta.icono }}</span>
+                        <span class="meta-porcentaje">{{ meta.porcentaje }}%</span>
+                    </div>
+                    <span class="meta-nombre">{{ meta.nombre }}</span>
+                    <span class="meta-montos">{{ formatearCOP(meta.actual) }} / {{ formatearCOP(meta.objetivo) }}</span>
+                </div>
+            }
+        </div>
+    </section>
+</div>
