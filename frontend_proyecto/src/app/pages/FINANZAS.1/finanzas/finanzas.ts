@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../../services/auth';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 
 interface TarjetaResumen {
