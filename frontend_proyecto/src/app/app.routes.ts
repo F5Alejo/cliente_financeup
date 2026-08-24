@@ -113,7 +113,7 @@ export const routes: Routes = [
         path: 'finanzas',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('./pages/FINANZAS.1/finanzas/finanzas')
+          import('./pages/finanzas/finanzas/finanzas')
             .then((m) => m.FinanzasComponent),
         title: 'Finanzas - FinanceUp',
       },
@@ -122,7 +122,7 @@ export const routes: Routes = [
         path: 'inversiones',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('./pages/FINANZAS.1/inversiones/inversiones')
+          import('./pages/finanzas/inversiones/inversiones')
             .then((m) => m.InversionesComponent),
         title: 'Inversiones - FinanceUp',
       },
@@ -131,7 +131,7 @@ export const routes: Routes = [
         path: 'metas',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('./pages/FINANZAS.1/metas/metas').then((m) => m.MetasComponent),
+          import('./pages/finanzas/metas/metas').then((m) => m.MetasComponent),
         title: 'Metas - FinanceUp',
       },
 
@@ -139,7 +139,7 @@ export const routes: Routes = [
         path: 'menu',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('./pages/FINANZAS.1/finanzas-menu/finanzas-menu')
+          import('./pages/finanzas/finanzas-menu/finanzas-menu')
             .then((m) => m.FinanzasMenuComponent),
         title: 'Menu - FinanceUp',
       },
