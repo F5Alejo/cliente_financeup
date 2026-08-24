@@ -2,7 +2,13 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../services/auth';
+import { AuthService, Usuario } from '../../../services/auth';
+import { ToastService } from '../../../shared/services/toast';
+
+type LoginStage = 'credenciales' | 'verificacion';
+
+// TODO: código de verificación quemado (mock de 2FA). Reemplazar por envío/validación real por SMS o correo.
+const CODIGO_2FA_MOCK = '123456';
 
 @Component({
   selector: 'app-login',
@@ -12,7 +18,11 @@ import { AuthService } from '../../../services/auth';
   styleUrls: ['./login.css'],
 })
 export class LoginComponent {
-  constructor(private router: Router, private authService: AuthService) {
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private toastService: ToastService
+  ) {
     // Si el usuario marcó "Recordarme" antes, precargamos su correo
     const emailGuardado = localStorage.getItem('financeup_email');
     if (emailGuardado) {
@@ -27,13 +37,34 @@ export class LoginComponent {
   showPassword: boolean = false;
   errorMessage: string = '';
 
+  stage: LoginStage = 'credenciales';
+  codigo: string = '';
+  private usuarioValidado: Usuario | null = null;
+
   login(): void {
     this.errorMessage = '';
 
-    const autenticado = this.authService.iniciarSesion(this.email.trim(), this.password);
+    const usuario = this.authService.validarCredenciales(this.email.trim(), this.password);
 
-    if (!autenticado) {
+    if (!usuario) {
       this.errorMessage = 'Credenciales incorrectas. Intenta de nuevo.';
+      return;
+    }
+
+    this.usuarioValidado = usuario;
+    this.codigo = '';
+    this.stage = 'verificacion';
+  }
+
+  verificarCodigo(): void {
+    if (!this.usuarioValidado) {
+      this.stage = 'credenciales';
+      return;
+    }
+
+    if (this.codigo.trim() !== CODIGO_2FA_MOCK) {
+      this.toastService.error('Código incorrecto. Intenta de nuevo.');
+      this.codigo = '';
       return;
     }
 
@@ -43,9 +74,19 @@ export class LoginComponent {
       localStorage.removeItem('financeup_email');
     }
 
-    const usuario = this.authService.obtenerUsuario();
-    alert(`Bienvenido ${usuario?.nombre}\nrol: ${usuario?.rol}`);
-    this.router.navigateByUrl('/finanzas');
+    this.authService.completarSesion(this.usuarioValidado);
+    this.toastService.success(`Bienvenido ${this.usuarioValidado.nombre}`);
+    this.router.navigateByUrl('/home');
+  }
+
+  reenviarCodigo(): void {
+    this.toastService.info('Código reenviado (simulado): 123456');
+  }
+
+  volverACredenciales(): void {
+    this.stage = 'credenciales';
+    this.usuarioValidado = null;
+    this.codigo = '';
   }
 
   togglePasswordVisibility(): void {
@@ -71,6 +112,4 @@ export class LoginComponent {
   goToForgotPassword(): void {
     this.router.navigate(['/recuperar-contrasena']);
   }
-  
-  
 }

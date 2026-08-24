@@ -1,13 +1,12 @@
 <header class="app-header">
   <div class="header-container">
-    <a routerLink="/prueba" class="brand" aria-label="Ir al inicio de FinanceUp">
-      <span class="brand-mark" aria-hidden="true"></span>
-      <span class="brand-text">FinanceUp</span>
+    <a routerLink="/home" class="brand" aria-label="Ir al inicio de FinanceUp">
+      <img src="/assets/logo-financeup.jpeg" alt="FinanceUp" class="brand-logo">
     </a>
 
     <nav class="main-nav" aria-label="Navegacion principal">
       <a
-        *ngFor="let item of navItems"
+        *ngFor="let item of navItemsVisibles"
         [routerLink]="item.path"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: item.exact }"
@@ -16,6 +15,26 @@
         {{ item.label }}
       </a>
     </nav>
+
+    @if (authService.estaAutenticado()) {
+      <div class="perfil-menu">
+        <button type="button" class="perfil-boton" (click)="toggleMenu()" [attr.aria-expanded]="menuAbierto">
+          <span class="perfil-avatar" aria-hidden="true">{{ iniciales }}</span>
+          <span class="perfil-nombre">{{ authService.obtenerNombre() }}</span>
+        </button>
+
+        @if (menuAbierto) {
+          <div class="perfil-dropdown">
+            <a routerLink="/perfil" class="perfil-item" (click)="cerrarMenu()">Ver perfil</a>
+            <button type="button" class="perfil-item perfil-item-boton" (click)="cerrarSesion()">Cerrar sesión</button>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="auth-actions">
+        <a routerLink="/login" class="btn-login">Iniciar sesión</a>
+        <a routerLink="/register" class="btn-register">Regístrate</a>
+      </div>
+    }
   </div>
 </header>
-
