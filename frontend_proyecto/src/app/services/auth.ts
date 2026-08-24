@@ -55,6 +55,38 @@ export class AuthService {
   }
 
   /**
+   * Login con proveedor social (Google/Apple/Facebook).
+   * MOCK: simula la respuesta del proveedor mientras no haya SDK/backend real conectado.
+   * TODO: reemplazar por el flujo real de cada proveedor (ver notas de integración).
+   */
+  iniciarSesionConProveedor(proveedor: 'google' | 'apple' | 'facebook'): Promise<Usuario> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const emailSimulado = `usuario@${proveedor}.com`;
+
+        let usuario = this.usuarios.find(
+          (u) => u.email.toLowerCase() === emailSimulado.toLowerCase()
+        );
+
+        // Si es la primera vez que "entra" con ese proveedor, se crea el usuario
+        if (!usuario) {
+          usuario = {
+            email: emailSimulado,
+            password: '', // no aplica en login social
+            nombre: `Usuario ${proveedor.charAt(0).toUpperCase() + proveedor.slice(1)}`,
+            rol: 'user'
+          };
+          this.usuarios.push(usuario);
+        }
+
+        this.usuarioActual = usuario;
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
+        resolve(usuario);
+      }, 1200);
+    });
+  }
+
+  /**
    * Registra un nuevo usuario (mock, en memoria) y lo deja autenticado.
    * Devuelve { exito: true } si se creó, o { exito: false, mensaje } si el correo ya existe.
    */
