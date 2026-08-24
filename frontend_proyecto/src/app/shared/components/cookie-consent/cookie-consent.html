@@ -1,0 +1,27 @@
+@if (cookieConsentService.mostrar()) {
+  <div class="cookie-overlay">
+    <div class="cookie-panel" role="dialog" aria-label="Aviso de cookies y términos y condiciones">
+      <p class="cookie-texto">
+        Utilizamos cookies para optimizar la página web y mejorar tu experiencia en FinanceUp.
+        Usamos cookies propias y de terceros para analizar el tráfico, personalizar la publicidad
+        y mostrarte anuncios relevantes. Además, compartimos información sobre el uso que haces
+        del sitio con nuestros socios de redes sociales, publicidad y análisis web, quienes pueden
+        combinarla con otra información que les hayas proporcionado o que hayan recopilado a partir
+        del uso de sus servicios. Al continuar aceptas nuestros
+        <a routerLink="/centro-ayuda" class="cookie-link">Términos y Condiciones</a>.
+      </p>
+
+      <div class="cookie-acciones">
+        <button type="button" class="cookie-btn cookie-btn-secundario" (click)="cookieConsentService.soloFundamentales()">
+          Fundamentales
+        </button>
+        <button type="button" class="cookie-btn cookie-btn-secundario" (click)="cookieConsentService.cancelar()">
+          Cancelar
+        </button>
+        <button type="button" class="cookie-btn cookie-btn-primario" (click)="cookieConsentService.aceptarTodas()">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+}

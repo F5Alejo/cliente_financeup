@@ -21,7 +21,7 @@ export class FooterComponent {
     {
       title: 'Explorar',
       links: [
-        { label: 'Inicio', path: '/prueba' },
+        { label: 'Inicio', path: '/home' },
         { label: 'Educacion', path: '/educacion' },
         { label: 'Alianzas', path: '/alianzas' },
         { label: 'Centro de ayuda', path: '/centro-ayuda' },

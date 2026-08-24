@@ -1,0 +1,15 @@
+<div class="toast-stack" aria-live="polite">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast" [class.toast-success]="toast.tipo === 'success'"
+                        [class.toast-error]="toast.tipo === 'error'"
+                        [class.toast-info]="toast.tipo === 'info'">
+      <span class="toast-icono" aria-hidden="true">
+        @if (toast.tipo === 'success') { ✓ }
+        @if (toast.tipo === 'error') { ✕ }
+        @if (toast.tipo === 'info') { ℹ }
+      </span>
+      <span class="toast-texto">{{ toast.texto }}</span>
+      <button type="button" class="toast-cerrar" (click)="toastService.dismiss(toast.id)" aria-label="Cerrar notificación">✕</button>
+    </div>
+  }
+</div>
