@@ -1,16 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
-
-interface Meta {
-  id: number;
-  nombre: string;
-  actual: number;
-  objetivo: number;
-  cumplida: boolean;
-  notaPrincipal: string;
-  notaSecundaria: string;
-}
+import { MetasService, Meta } from '../../../services/metas';
+import { ToastService } from '../../../shared/services/toast';
 
 @Component({
   selector: 'app-metas',
@@ -19,50 +11,22 @@ interface Meta {
   styleUrl: './metas.css',
 })
 export class MetasComponent {
-  /** Estadística mostrada tal como en la referencia (no se deriva del arreglo) */
-  metasAlcanzadas = 3;
-  totalMetas = 4;
+  constructor(
+    private metasService: MetasService,
+    private toastService: ToastService
+  ) {}
 
-  private siguienteIdMeta = 100;
+  get metas(): Meta[] {
+    return this.metasService.metas;
+  }
 
-  metas: Meta[] = [
-    {
-      id: 1,
-      nombre: 'Ahorro Vacaciones',
-      actual: 3600000,
-      objetivo: 5000000,
-      cumplida: false,
-      notaPrincipal: 'Meta alcanzada en 4 meses',
-      notaSecundaria: '$3.600.000 / mes',
-    },
-    {
-      id: 2,
-      nombre: 'Fondo de Emergencia',
-      actual: 4700000,
-      objetivo: 8000000,
-      cumplida: false,
-      notaPrincipal: 'Ahorro mensual $3.000.000',
-      notaSecundaria: '20 meses restantes',
-    },
-    {
-      id: 3,
-      nombre: 'Comprar Nueva Laptop',
-      actual: 3000000,
-      objetivo: 3000000,
-      cumplida: true,
-      notaPrincipal: 'Cumplida Febrero 2023',
-      notaSecundaria: 'Duración 6 meses',
-    },
-    {
-      id: 4,
-      nombre: 'Comprar Un Auto',
-      actual: 300000,
-      objetivo: 20000000,
-      cumplida: false,
-      notaPrincipal: '$400.000 / mes',
-      notaSecundaria: 'Meta alcanzada en Abr 2028',
-    },
-  ];
+  get metasAlcanzadas(): number {
+    return this.metas.filter((m) => m.cumplida).length;
+  }
+
+  get totalMetas(): number {
+    return this.metas.length;
+  }
 
   get totalAhorrado(): number {
     return this.metas.reduce((suma, m) => suma + m.actual, 0);
@@ -73,11 +37,23 @@ export class MetasComponent {
   }
 
   get progresoGeneral(): number {
-    return Math.round((this.totalAhorrado / this.totalObjetivo) * 100);
+    return this.totalObjetivo > 0
+      ? Math.round((this.totalAhorrado / this.totalObjetivo) * 100)
+      : 0;
   }
 
   progresoMeta(meta: Meta): number {
-    return Math.min(100, Math.round((meta.actual / meta.objetivo) * 100));
+    return meta.porcentaje;
+  }
+
+  notaPrincipal(meta: Meta): string {
+    return meta.cumplida ? 'Meta alcanzada' : 'En progreso';
+  }
+
+  notaSecundaria(meta: Meta): string {
+    return meta.cumplida
+      ? '¡Felicidades!'
+      : `Faltan ${this.formatearCOP(meta.objetivo - meta.actual)}`;
   }
 
   formatearCOP(valor: number): string {
@@ -95,7 +71,7 @@ export class MetasComponent {
   objetivoNuevaMeta: number | null = null;
 
   toggleFormularioMeta(): void {
-    this.mostrarFormularioMeta.update(v => !v);
+    this.mostrarFormularioMeta.update((v) => !v);
   }
 
   guardarNuevaMeta(): void {
@@ -106,15 +82,13 @@ export class MetasComponent {
       return; // validación mínima: no guarda si falta el nombre o el monto es inválido
     }
 
-    this.metas.push({
-      id: this.siguienteIdMeta++,
+    this.metasService.agregarMeta({
       nombre,
+      icono: '🎯',
       actual: 0,
       objetivo,
-      cumplida: false,
-      notaPrincipal: 'Meta recién creada',
-      notaSecundaria: 'Define tu aporte mensual',
     });
+    this.toastService.success('Meta creada correctamente');
 
     this.nombreNuevaMeta = '';
     this.objetivoNuevaMeta = null;
