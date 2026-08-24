@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ToastService } from '../../../shared/services/toast';
 
 interface FaqItem {
   question: string;
@@ -13,6 +14,7 @@ interface FaqItem {
   styleUrl: './linea-ayuda.css',
 })
 export class LineaAyudaComponent {
+  constructor(private toastService: ToastService) {}
 
   // Banner
   bannerTitle: string = 'Línea de Ayuda';
@@ -68,6 +70,6 @@ export class LineaAyudaComponent {
   }
 
   onChatClick(): void {
-    console.log('Abrir chat de la línea de ayuda');
+    this.toastService.info('El chat en vivo estará disponible próximamente.');
   }
 }

@@ -1,6 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
+import { InversionesService, Inversion } from '../../../services/inversiones';
+import { ToastService } from '../../../shared/services/toast';
+import { MonedaPipe } from '../../../pipes/moneda.pipe';
 
 interface SegmentoCartera {
   etiqueta: string;
@@ -13,29 +16,25 @@ interface PuntoRendimiento {
   valor: number;
 }
 
-interface Inversion {
-  id: number;
-  nombre: string;
-  monto: number;
-  rendimiento: number;
-  riesgo: 'Bajo' | 'Medio' | 'Alto';
-  duracion: string;
-}
-
 @Component({
   selector: 'app-inversiones',
-  imports: [FinanzasMenuComponent, FormsModule],
+  imports: [FinanzasMenuComponent, FormsModule, MonedaPipe],
   templateUrl: './inversiones.html',
   styleUrl: './inversiones.css',
 })
 export class InversionesComponent {
+  constructor(
+    private inversionesService: InversionesService,
+    private toastService: ToastService
+  ) {}
+
   /** ----- Tarjetas superiores ----- */
-  balanceInversiones = 15800000;
-  balanceSemana = 250000;
-  rendimientoTotal = 1350000;
-  rendimientoPorcentaje = 25.8;
-  proximoRetiro = '12 abril';
-  progresoRetiro = 85;
+  get balanceInversiones() { return this.inversionesService.balanceInversiones; }
+  get balanceSemana() { return this.inversionesService.balanceSemana; }
+  get rendimientoTotal() { return this.inversionesService.rendimientoTotal; }
+  get rendimientoPorcentaje() { return this.inversionesService.rendimientoPorcentaje; }
+  get proximoRetiro() { return this.inversionesService.proximoRetiro; }
+  get progresoRetiro() { return this.inversionesService.progresoRetiro; }
 
   radioAnillo = 30;
   circunferencia = 2 * Math.PI * this.radioAnillo;
@@ -82,10 +81,10 @@ export class InversionesComponent {
 
   /** ----- Distribución de carteras (dona) ----- */
   carteras: SegmentoCartera[] = [
-    { etiqueta: 'Bonos', porcentaje: 40, color: '#0f766e' },
-    { etiqueta: 'Fondos', porcentaje: 22, color: '#14b8a6' },
-    { etiqueta: 'Acciones', porcentaje: 18, color: '#5eead4' },
-    { etiqueta: 'Bonos corporativos', porcentaje: 15, color: '#99f6e4' },
+    { etiqueta: 'Bonos', porcentaje: 40, color: 'var(--green-primary)' },
+    { etiqueta: 'Fondos', porcentaje: 22, color: 'var(--green-accent-text)' },
+    { etiqueta: 'Acciones', porcentaje: 18, color: 'var(--green-soft)' },
+    { etiqueta: 'Bonos corporativos', porcentaje: 15, color: 'var(--bg-ahorro)' },
     { etiqueta: 'Criptomonedas', porcentaje: 5, color: '#e2e8f0' },
   ];
 
@@ -103,12 +102,19 @@ export class InversionesComponent {
   filtros = ['Todos', 'Corto plazo', 'Largo plazo', 'Mejores'];
   filtroActivo = signal('Todos');
 
-  inversiones: Inversion[] = [
-    { id: 1, nombre: 'Bonos del Gobierno', monto: 8000000, rendimiento: 600000, riesgo: 'Bajo', duracion: '2 años' },
-    { id: 2, nombre: 'Fondo de Inversión', monto: 8600000, rendimiento: 800000, riesgo: 'Medio', duracion: '1 año' },
-    { id: 3, nombre: 'Acciones Tecnológicas', monto: 7300000, rendimiento: 1300000, riesgo: 'Alto', duracion: '6 meses' },
-    { id: 4, nombre: 'Criptomonedas', monto: 1000000, rendimiento: -440000, riesgo: 'Alto', duracion: 'Flexible' },
-  ];
+  get inversiones(): Inversion[] {
+    const todas = this.inversionesService.inversiones;
+    switch (this.filtroActivo()) {
+      case 'Corto plazo':
+        return todas.filter((inv) => inv.duracion.includes('mes') || inv.duracion === 'Flexible');
+      case 'Largo plazo':
+        return todas.filter((inv) => inv.duracion.includes('año'));
+      case 'Mejores':
+        return [...todas].sort((a, b) => b.rendimiento - a.rendimiento);
+      default:
+        return todas;
+    }
+  }
 
   seleccionarFiltro(f: string): void {
     this.filtroActivo.set(f);
@@ -122,12 +128,8 @@ export class InversionesComponent {
     return this.inversiones.reduce((suma, inv) => suma + inv.rendimiento, 0);
   }
 
-  formatearCOP(valor: number): string {
-    return `$${Math.abs(valor).toLocaleString('es-CO')}`;
-  }
-
   exportar(): void {
-    // Punto de extensión: generar el archivo de exportación
+    this.toastService.info('Exportación simulada: el resumen de inversiones se generó correctamente.');
   }
 
   /** ----- Formulario de nueva inversión (funcional) ----- */
