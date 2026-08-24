@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { InversionesComponent } from './inversiones';
-import { Component } from '@angular/core';
+
 
 describe('Inversiones', () => {
   let component: InversionesComponent;
@@ -21,8 +20,3 @@ describe('Inversiones', () => {
     expect(component).toBeTruthy();
   });
 });
-
-  it('should create', () => {
-    expect(Component).toBeTruthy();
-  });
-

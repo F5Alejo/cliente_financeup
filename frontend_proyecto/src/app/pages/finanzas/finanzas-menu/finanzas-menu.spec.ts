@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FinanzasMenuComponent } from './finanzas-menu';
 
-describe('Sidebar', () => {
+describe('FinanzasMenu', () => {
   let component: FinanzasMenuComponent;
   let fixture: ComponentFixture<FinanzasMenuComponent>;
 
