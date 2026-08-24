@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NuevoPqr } from './nuevo-pqr';
+import { NuevoPqrComponent } from './nuevo-pqr';
 
-describe('NuevoPqr', () => {
-  let component: NuevoPqr;
-  let fixture: ComponentFixture<NuevoPqr>;
+describe('NuevoPqrComponent', () => {
+  let component: NuevoPqrComponent;
+  let fixture: ComponentFixture<NuevoPqrComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NuevoPqr],
+      imports: [NuevoPqrComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NuevoPqr);
+    fixture = TestBed.createComponent(NuevoPqrComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
