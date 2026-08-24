@@ -19,25 +19,16 @@
 }
 
 .footer-logo {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  color: #1d2a22;
   text-decoration: none;
-  font-size: 1rem;
-  font-weight: 700;
 }
 
-.footer-mark {
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #cfd8d2;
-  border-radius: 7px;
-  background: #ffffff;
-  color: #2f8f52;
-  line-height: 1;
+.footer-logo-img {
+  height: 32px;
+  width: auto;
+  display: block;
+  border-radius: 6px;
 }
 
 .tagline {
@@ -75,7 +66,7 @@
 }
 
 .footer-col a:hover {
-  color: #2f8f52;
+  color: var(--green-accent-text);
 }
 
 .footer-bottom {

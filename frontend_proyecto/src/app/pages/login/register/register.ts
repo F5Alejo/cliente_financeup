@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth';
+import { ToastService } from '../../../shared/services/toast';
 
 @Component({
   selector: 'app-register',
@@ -31,7 +32,8 @@ export class RegisterComponent {
   constructor(
     private router: Router,
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
     this.registerForm = this.fb.group({
       /** Nombre: obligatorio, mínimo 3 caracteres */
@@ -114,8 +116,8 @@ export class RegisterComponent {
       return;
     }
 
-    alert(`Usuario registrado. ¡Bienvenido ${nombre}!`);
-    this.router.navigate(['/finanzas']);
+    this.toastService.success(`Usuario registrado. ¡Bienvenido ${nombre}!`);
+    this.router.navigate(['/home']);
   }
 
   registerWithGoogle(): void {
