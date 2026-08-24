@@ -163,6 +163,10 @@ export class FinanzasComponent implements OnInit {
     );
   }
 
+  formatearCOP(valor: number): string {
+    return `$${valor.toLocaleString('es-CO')}`;
+  }
+
   /** ============================================================
    *  NUEVO: Activos / Pasivos / Gastos (formulario funcional)
    * ============================================================ */
@@ -241,9 +245,5 @@ export class FinanzasComponent implements OnInit {
 
   get patrimonioNeto(): number {
     return this.totalActivos - this.totalPasivos;
-  }
-
-  formatearCOP(valor: number): string {
-    return `$${Math.abs(valor).toLocaleString('es-CO')}`;
   }
 }
