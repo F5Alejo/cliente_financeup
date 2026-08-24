@@ -1,35 +1,53 @@
 <app-finanzas-menu></app-finanzas-menu>
-<div class="metas-pagina">
+<div class="metas">
     <header class="metas-header">
-        <div>
-            <h1>Tus metas de ahorro</h1>
-            <p class="metas-sub">Sigue el avance de cada una de tus metas.</p>
+        <h1>Metas</h1>
+        <div class="header-acciones">
+            <button type="button" class="btn-primario" (click)="toggleFormularioMeta()">+ Crear Nueva Meta</button>
+            <button type="button" class="btn-icono" (click)="masOpciones()" aria-label="Más opciones" title="Más opciones">⋯</button>
         </div>
-        <button type="button" class="btn-nueva-meta" (click)="nuevaMeta()">+ Nueva meta</button>
     </header>
 
-    <section class="panel">
-        <div class="metas-grid">
-            @for (meta of metas; track meta.nombre) {
-                <div class="meta-item">
-                    <div class="meta-anillo">
-                        <svg width="88" height="88" viewBox="0 0 88 88" role="img" [attr.aria-label]="meta.nombre + ': ' + meta.porcentaje + ' por ciento completado'">
-                            <circle cx="44" cy="44" r="30" fill="none" stroke="#e2e8f0" stroke-width="7" />
-                            <circle
-                                cx="44" cy="44" r="30" fill="none" stroke="#0f766e" stroke-width="7"
-                                stroke-linecap="round"
-                                [attr.stroke-dasharray]="circunferencia"
-                                [attr.stroke-dashoffset]="obtenerOffset(meta.porcentaje)"
-                                transform="rotate(-90 44 44)" />
-                        </svg>
-                        <span class="meta-icono" aria-hidden="true">{{ meta.icono }}</span>
-                        <span class="meta-porcentaje">{{ meta.porcentaje }}%</span>
-                    </div>
-                    <span class="meta-nombre">{{ meta.nombre }}</span>
-                    <span class="meta-montos">{{ formatearCOP(meta.actual) }} / {{ formatearCOP(meta.objetivo) }}</span>
-                    <span class="meta-restante">Faltan {{ formatearCOP(meta.objetivo - meta.actual) }}</span>
-                </div>
-            }
+    @if (mostrarFormularioMeta()) {
+        <form class="resumen-panel form-nueva-meta" (ngSubmit)="guardarNuevaMeta()">
+            <div class="campo">
+                <label for="nombre-meta">Nombre de la meta</label>
+                <input id="nombre-meta" type="text" placeholder="Ej: Fondo universitario" [(ngModel)]="nombreNuevaMeta" name="nombreMeta" required />
+            </div>
+            <div class="campo">
+                <label for="objetivo-meta">Monto objetivo</label>
+                <input id="objetivo-meta" type="number" min="1" placeholder="Ej: 5000000" [(ngModel)]="objetivoNuevaMeta" name="objetivoMeta" required />
+            </div>
+            <button type="submit" class="btn-primario">Guardar meta</button>
+        </form>
+    }
+
+    <section class="resumen-panel" aria-label="Resumen general de metas">
+        <div class="resumen-header">
+            <span class="resumen-total">{{ formatearCOP(totalAhorrado) }} ahorrados</span>
+            <span class="resumen-contador">{{ metasAlcanzadas }} / {{ totalMetas }} metas alcanzadas</span>
         </div>
+        <div class="barra-progreso" role="progressbar" [attr.aria-valuenow]="progresoGeneral" aria-valuemin="0" aria-valuemax="100">
+            <div class="barra-relleno" [style.width.%]="progresoGeneral"></div>
+        </div>
+    </section>
+
+    <section class="metas-grid" aria-label="Listado de metas">
+        @for (meta of metas; track meta.id) {
+            <article class="meta-card" [class.cumplida]="meta.cumplida">
+                <h2>{{ meta.nombre }}</h2>
+                <p class="meta-monto">
+                    {{ formatearCOP(meta.actual) }}
+                    @if (!meta.cumplida) {
+                        <span class="meta-objetivo"> / {{ formatearCOP(meta.objetivo) }}</span>
+                    }
+                </p>
+                <div class="barra-progreso pequena" role="progressbar" [attr.aria-valuenow]="progresoMeta(meta)" aria-valuemin="0" aria-valuemax="100">
+                    <div class="barra-relleno" [style.width.%]="progresoMeta(meta)"></div>
+                </div>
+                <p class="meta-nota-principal">{{ meta.notaPrincipal }}</p>
+                <p class="meta-nota-secundaria">{{ meta.notaSecundaria }}</p>
+            </article>
+        }
     </section>
 </div>

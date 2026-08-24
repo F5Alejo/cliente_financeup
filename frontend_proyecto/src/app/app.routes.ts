@@ -100,7 +100,8 @@ export const routes: Routes = [
       {
         path: 'metas',
         loadComponent: () =>
-          import('./pages/finanzas/metas/metas').then((m) => m.Metas),
+          import('./pages/finanzas/metas/metas')
+            .then((m) => m.MetasComponent),
         title: 'Metas - FinanceUp',
       },
 

@@ -1,5 +1,7 @@
 import { Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
+
 interface SegmentoCartera {
   etiqueta: string;
   porcentaje: number;
@@ -22,7 +24,7 @@ interface Inversion {
 
 @Component({
   selector: 'app-inversiones',
-  imports: [FinanzasMenuComponent],
+  imports: [FinanzasMenuComponent, FormsModule],
   templateUrl: './inversiones.html',
   styleUrl: './inversiones.css',
 })
@@ -85,7 +87,7 @@ export class InversionesComponent {
     { etiqueta: 'Acciones', porcentaje: 18, color: '#5eead4' },
     { etiqueta: 'Bonos corporativos', porcentaje: 15, color: '#99f6e4' },
     { etiqueta: 'Criptomonedas', porcentaje: 5, color: '#e2e8f0' },
-  ];  
+  ];
 
   get gradienteCarteras(): string {
     let acumulado = 0;
@@ -124,11 +126,45 @@ export class InversionesComponent {
     return `$${Math.abs(valor).toLocaleString('es-CO')}`;
   }
 
-  nuevaInversion(): void {
-    // Punto de extensión: abrir el formulario/modal de nueva inversión
-  }
-
   exportar(): void {
     // Punto de extensión: generar el archivo de exportación
+  }
+
+  /** ----- Formulario de nueva inversión (funcional) ----- */
+  mostrarFormularioInversion = signal(false);
+  private siguienteIdInversion = 100;
+
+  nombreNuevaInversion: string = '';
+  montoNuevaInversion: number | null = null;
+  riesgoNuevaInversion: 'Bajo' | 'Medio' | 'Alto' = 'Bajo';
+  duracionNuevaInversion: string = '';
+
+  toggleFormularioInversion(): void {
+    this.mostrarFormularioInversion.update(v => !v);
+  }
+
+  guardarNuevaInversion(): void {
+    const nombre = this.nombreNuevaInversion.trim();
+    const monto = this.montoNuevaInversion;
+
+    if (!nombre || monto === null || monto <= 0) {
+      return; // validación mínima
+    }
+
+    this.inversiones.push({
+      id: this.siguienteIdInversion++,
+      nombre,
+      monto,
+      rendimiento: 0, // rendimiento inicial en 0, aún no ha generado retorno
+      riesgo: this.riesgoNuevaInversion,
+      duracion: this.duracionNuevaInversion.trim() || 'Sin definir',
+    });
+
+    // limpiar formulario
+    this.nombreNuevaInversion = '';
+    this.montoNuevaInversion = null;
+    this.riesgoNuevaInversion = 'Bajo';
+    this.duracionNuevaInversion = '';
+    this.mostrarFormularioInversion.set(false);
   }
 }
