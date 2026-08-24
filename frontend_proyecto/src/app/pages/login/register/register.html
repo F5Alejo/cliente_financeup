@@ -104,9 +104,12 @@
 
           <!-- Aceptar términos -->
           <label class="terms-label">
-            <input type="checkbox" required>
+            <input type="checkbox" formControlName="aceptaTerminos">
             Al registrarte aceptas los Términos y la Política de Privacidad. Operamos en Colombia.
           </label>
+          <span class="field-error" *ngIf="aceptaTerminos?.invalid && aceptaTerminos?.touched">
+            Debes aceptar los términos para continuar.
+          </span>
 
           <!-- Botones -->
           <div class="button-row">
