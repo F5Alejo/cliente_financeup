@@ -46,7 +46,7 @@
                 <span class="crecimiento-badge">+{{ crecimientoPorcentaje }}%</span>
             </div>
             <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Tendencia de crecimiento de la inversión">
-                <polyline [attr.points]="puntosLinea" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline [attr.points]="puntosLinea" fill="none" stroke="var(--green-primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <div class="linea-rango">
                 <span>{{ crecimientoInicio.valor }}M</span>
@@ -59,7 +59,9 @@
     <section class="panel tabla-panel">
         <div class="panel-header">
             <h2>Movimientos recientes</h2>
-            <button type="button" class="link-boton" (click)="verTodos()">Ver todos</button>
+            <button type="button" class="link-boton" (click)="verTodos()">
+              {{ mostrarTodosMovimientos ? 'Ver recientes' : 'Ver todos' }}
+            </button>
         </div>
         <table>
             <thead>
@@ -95,7 +97,7 @@
                         <svg width="88" height="88" viewBox="0 0 88 88" role="img" [attr.aria-label]="meta.nombre + ': ' + meta.porcentaje + ' por ciento completado'">
                             <circle cx="44" cy="44" r="30" fill="none" stroke="#e2e8f0" stroke-width="7" />
                             <circle
-                                cx="44" cy="44" r="30" fill="none" stroke="#0f766e" stroke-width="7"
+                                cx="44" cy="44" r="30" fill="none" stroke="var(--green-primary)" stroke-width="7"
                                 stroke-linecap="round"
                                 [attr.stroke-dasharray]="circunferencia"
                                 [attr.stroke-dashoffset]="obtenerOffset(meta.porcentaje)"
@@ -105,7 +107,7 @@
                         <span class="meta-porcentaje">{{ meta.porcentaje }}%</span>
                     </div>
                     <span class="meta-nombre">{{ meta.nombre }}</span>
-                    <span class="meta-montos">{{ formatearCOP(meta.actual) }} / {{ formatearCOP(meta.objetivo) }}</span>
+                    <span class="meta-montos">{{ meta.actual | moneda }} / {{ meta.objetivo | moneda }}</span>
                 </div>
             }
         </div>

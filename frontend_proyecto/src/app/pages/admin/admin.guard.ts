@@ -5,11 +5,12 @@ import { AuthService } from '../../services/auth';
 export const adminGuard: CanActivateChildFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const usuario = authService.obtenerUsuario();
 
-  if (authService.obtenerUsuario()?.rol === 'admin') {
+  if (usuario?.rol === 'admin') {
     return true;
   }
 
-  router.navigateByUrl('/finanzas');
+  router.navigateByUrl(usuario ? '/home' : '/login');
   return false;
 };
