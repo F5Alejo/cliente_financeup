@@ -1,5 +1,0 @@
-# Claude Code local settings (session-specific, not meant to be shared)
-.claude/settings.local.json
-
-# Logs locales de ng serve
-frontend_proyecto/*.log
