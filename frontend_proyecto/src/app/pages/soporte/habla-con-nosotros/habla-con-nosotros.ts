@@ -8,7 +8,7 @@ import { Component } from '@angular/core';
 })
 export class HablaConNosotrosComponent {
 
-  title: string = 'Habla Con Nosotos';
+  title: string = 'Habla Con Nosotros';
   description: string =
     'Si aun  tienes dudas sobre nuestros servicios contactanos, Tu voz nos importa';
   buttonLabel: string = 'WhatsApp';
