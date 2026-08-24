@@ -74,11 +74,36 @@ export const routes: Routes = [
             .then((m) => m.LineaAyudaComponent),
         title: 'Linea de ayuda - FinanceUp',
       },
+      {
+        path: 'habla-con-nosostros',
+        loadComponent: () =>
+          import('./pages/soporte/habla-con-nosotros/habla-con-nosotros')
+            .then((m) => m.HablaConNosotrosComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
 
+      {
+        path: 'pqr',
+        loadComponent: () =>
+          import('./pages/soporte/pqr/pqr').then((m) => m.PqrComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
+      {
+        path: 'nuevo-pqr',
+        loadComponent: () =>
+          import('./pages/soporte/nuevo-pqr/nuevo-pqr').then((m) => m.NuevoPqrComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
+      {
+        path: 'cookis',
+        loadComponent: () =>
+          import('./pages/soporte/banner-cookies/banner-cookies').then((m) => m.BannerCookiesComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
       {
         path: 'finanzas',
         loadComponent: () =>
-          import('./pages/finanzas/finanzas/finanzas')
+          import('./pages/FINANZAS.1/finanzas/finanzas')
             .then((m) => m.FinanzasComponent),
         title: 'Finanzas - FinanceUp',
       },
@@ -133,6 +158,23 @@ export const routes: Routes = [
             title: 'Admin PQR - FinanceUp',
           },
         ],
+          import('./pages/FINANZAS.1/finanzas-menu/finanzas-menu')
+            .then((m) => m.FinanzasMenuComponent),
+        title: 'Menu - FinanceUp',
+      },
+      {
+        path: 'inversiones',
+        loadComponent: () =>
+          import('./pages/FINANZAS.1/inversiones/inversiones')
+            .then((m) => m.InversionesComponent),
+        title: 'Inversiones - FinanceUp',
+      },
+      {
+        path: 'metas',
+        loadComponent: () =>
+          import('./pages/FINANZAS.1/metas/metas')
+            .then((m) => m.MetasComponent),
+        title: 'Metas - FinanceUp',
       },
 
       {
@@ -147,4 +189,13 @@ export const routes: Routes = [
     redirectTo: 'finanzas',
     pathMatch: 'full',
   },
+];
+
+
+  {
+    path: 'Menu',
+    redirectTo: 'menu',
+    pathMatch: 'full',
+  },
+     
 ];

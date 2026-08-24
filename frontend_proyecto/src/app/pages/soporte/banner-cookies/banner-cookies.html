@@ -1,0 +1,17 @@
+<div class="cookies-overlay">
+  <div class="cookies-banner">
+    <p class="cookies-mensaje">{{ mensajeCookies }}</p>
+
+    <div class="cookies-acciones">
+      <button type="button" class="btn-cookie btn-aceptar" (click)="aceptar()">
+        {{ textoAceptar }}
+      </button>
+      <button type="button" class="btn-cookie btn-fundamentales" (click)="fundamentales()">
+        {{ textoFundamentales }}
+      </button>
+      <button type="button" class="btn-cookie btn-cancelar" (click)="cancelar()">
+        {{ textoCancelar }}
+      </button>
+    </div>
+  </div>
+</div>

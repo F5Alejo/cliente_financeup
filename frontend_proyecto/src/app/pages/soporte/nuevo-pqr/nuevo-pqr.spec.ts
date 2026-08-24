@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Metas } from './metas';
+import { NuevoPqr } from './nuevo-pqr';
 
-describe('Metas', () => {
-  let component: Metas;
-  let fixture: ComponentFixture<Metas>;
+describe('NuevoPqr', () => {
+  let component: NuevoPqr;
+  let fixture: ComponentFixture<NuevoPqr>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Metas],
+      imports: [NuevoPqr],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Metas);
+    fixture = TestBed.createComponent(NuevoPqr);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
