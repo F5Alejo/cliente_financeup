@@ -50,6 +50,8 @@ export class RegisterComponent {
       ]],
       /** Confirmar contraseña: obligatoria */
       confirmarPassword: ['', Validators.required],
+      /** Términos y condiciones: debe estar marcado */
+      aceptaTerminos: [false, Validators.requiredTrue],
     }, {
       validators: this.passwordsIguales,
     });
@@ -74,6 +76,10 @@ export class RegisterComponent {
 
   get confirmarPassword() {
     return this.registerForm.get('confirmarPassword');
+  }
+
+  get aceptaTerminos() {
+    return this.registerForm.get('aceptaTerminos');
   }
 
   /** Método para validar que las contraseñas sean iguales */
