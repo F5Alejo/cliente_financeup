@@ -1,14 +1,13 @@
 /* Variables de color del proyecto Finance Up */
 :host {
-  --color-primary: #4caf50;
-  --color-primary-dark: #3d8b40;
+  --color-primary: var(--green-primary);
+  --color-primary-dark: var(--green-dark);
   --color-primary-light: #e8f5e9;
   --color-bg-panel: #a8d5a8;
   --color-text: #1a1a1a;
   --color-text-muted: #6b7280;
   --color-border: #d1d5db;
-  --color-error: #e53935;
-  --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-family: var(--font-family-base);
   display: block;
   font-family: var(--font-family);
 }
