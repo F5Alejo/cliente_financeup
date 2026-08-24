@@ -1,0 +1,140 @@
+<app-finanzas-menu></app-finanzas-menu>
+<div class="inversiones">
+    <header class="inversiones-header">
+        <h1><span class="icono-titulo" aria-hidden="true">📈</span> Inversiones</h1>
+        <div class="header-acciones">
+            <button type="button" class="btn-secundario" (click)="nuevaInversion()">+ Nueva inversión</button>
+            <button type="button" class="btn-primario" (click)="exportar()">⭳ Exportar</button>
+        </div>
+    </header>
+
+    <section class="cards-resumen" aria-label="Resumen de inversiones">
+        <div class="card-resumen">
+            <span class="card-titulo">Saldo en Inversiones</span>
+            <span class="card-valor">{{ formatearCOP(balanceInversiones) }}</span>
+            <span class="card-nota positivo">+{{ formatearCOP(balanceSemana) }} esta semana</span>
+        </div>
+        <div class="card-resumen">
+            <span class="card-titulo">Rendimiento Total</span>
+            <span class="card-valor positivo">+{{ formatearCOP(rendimientoTotal) }}</span>
+            <span class="card-nota">+{{ rendimientoPorcentaje }}% en total</span>
+        </div>
+        <div class="card-resumen card-retiro">
+            <span class="card-titulo">Próximo retiro</span>
+            <span class="card-valor">{{ proximoRetiro }}</span>
+            <svg class="anillo-retiro" width="46" height="46" viewBox="0 0 76 76" role="img" [attr.aria-label]="'Progreso del próximo retiro: ' + progresoRetiro + ' por ciento'">
+                <circle cx="38" cy="38" r="30" fill="none" stroke="#e2e8f0" stroke-width="7" />
+                <circle
+                    cx="38" cy="38" r="30" fill="none" stroke="#0f766e" stroke-width="7"
+                    stroke-linecap="round"
+                    [attr.stroke-dasharray]="circunferencia"
+                    [attr.stroke-dashoffset]="offsetRetiro"
+                    transform="rotate(-90 38 38)" />
+            </svg>
+        </div>
+    </section>
+
+    <section class="graficas">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Crecimiento de Rendimiento</h2>
+                <div class="periodos" role="tablist" aria-label="Periodo del gráfico">
+                    @for (p of periodos; track p) {
+                        <button
+                            type="button"
+                            role="tab"
+                            [attr.aria-selected]="periodoActivo() === p"
+                            [class.activo]="periodoActivo() === p"
+                            (click)="seleccionarPeriodo(p)">
+                            {{ p }}
+                        </button>
+                    }
+                </div>
+            </div>
+            <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Tendencia de rendimiento de la inversión">
+                <polyline [attr.points]="puntosLinea" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="linea-rango">
+                <span>{{ crecimientoInicio.valor }}M COP</span>
+                <span class="badge-crecimiento">+{{ rendimientoPorcentaje }}% últimos 6 meses</span>
+                <span>{{ crecimientoFin.valor }}M COP</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Distribución de carteras</h2>
+            <div class="donut-wrap">
+                <div class="donut" [style.background]="gradienteCarteras" role="img" aria-label="Distribución de carteras de inversión">
+                    <div class="donut-hueco"></div>
+                </div>
+                <ul class="leyenda">
+                    @for (seg of carteras; track seg.etiqueta) {
+                        <li>
+                            <span class="punto" [style.background]="seg.color" aria-hidden="true"></span>
+                            {{ seg.etiqueta }} <strong>{{ seg.porcentaje }}%</strong>
+                        </li>
+                    }
+                </ul> 
+            </div>
+            <div class="panel-acciones">
+                <button type="button" class="link-boton">Compartir</button>
+                <button type="button" class="link-boton">Retirar</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel tabla-panel">
+        <div class="panel-header">
+            <h2>Mis Inversiones</h2>
+            <div class="filtros" role="tablist" aria-label="Filtrar inversiones">
+                @for (f of filtros; track f) {
+                    <button
+                        type="button"
+                        role="tab"
+                        [attr.aria-selected]="filtroActivo() === f"
+                        [class.activo]="filtroActivo() === f"
+                        (click)="seleccionarFiltro(f)">
+                        {{ f }}
+                    </button>
+                }
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Inversión</th>
+                    <th>Monto</th>
+                    <th>Rendimiento</th>
+                    <th>Riesgo</th>
+                    <th>Duración</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (inv of inversiones; track inv.id) {
+                    <tr>
+                        <td>{{ inv.nombre }}</td>
+                        <td>{{ formatearCOP(inv.monto) }}</td>
+                        <td [class.positivo]="inv.rendimiento >= 0" [class.negativo]="inv.rendimiento < 0">
+                            {{ inv.rendimiento >= 0 ? '+' : '-' }}{{ formatearCOP(inv.rendimiento) }}
+                        </td>
+                        <td>
+                            <span class="riesgo" [class]="'riesgo-' + inv.riesgo.toLowerCase()">
+                                <span class="punto-riesgo" aria-hidden="true"></span>{{ inv.riesgo }}
+                            </span>
+                        </td>
+                        <td>{{ inv.duracion }}</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Total</td>
+                    <td>{{ formatearCOP(montoTotal) }}</td>
+                    <td class="positivo">+{{ formatearCOP(rendimientoTotalTabla) }}</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </section>
+</div>

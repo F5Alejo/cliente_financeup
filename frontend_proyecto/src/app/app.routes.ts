@@ -84,7 +84,7 @@ export const routes: Routes = [
       {
         path: 'finanzas',
         loadComponent: () =>
-          import('./pages/FINANZAS.1/finanzas/finanzas')
+          import('./pages/finanzas/finanzas/finanzas')
             .then((m) => m.FinanzasComponent),
         title: 'Finanzas - FinanceUp',
       },
@@ -139,23 +139,6 @@ export const routes: Routes = [
             title: 'Admin PQR - FinanceUp',
           },
         ],
-          import('./pages/FINANZAS.1/finanzas-menu/finanzas-menu')
-            .then((m) => m.FinanzasMenuComponent),
-        title: 'Menu - FinanceUp',
-      },
-      {
-        path: 'inversiones',
-        loadComponent: () =>
-          import('./pages/FINANZAS.1/inversiones/inversiones')
-            .then((m) => m.InversionesComponent),
-        title: 'Inversiones - FinanceUp',
-      },
-      {
-        path: 'metas',
-        loadComponent: () =>
-          import('./pages/FINANZAS.1/metas/metas')
-            .then((m) => m.MetasComponent),
-        title: 'Metas - FinanceUp',
       },
 
       {
@@ -170,13 +153,4 @@ export const routes: Routes = [
     redirectTo: 'finanzas',
     pathMatch: 'full',
   },
-];
-
-
-  {
-    path: 'Menu',
-    redirectTo: 'menu',
-    pathMatch: 'full',
-  },
-     
 ];
