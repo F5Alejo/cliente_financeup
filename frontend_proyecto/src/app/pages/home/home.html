@@ -1,0 +1,94 @@
+<app-cookie-consent></app-cookie-consent>
+
+<div class="home">
+
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Gestiona tus <span class="hero-title-accent">Finanzas</span>
+        <span class="hero-title-block">con Inteligencia</span>
+      </h1>
+      <p class="hero-subtitle">
+        Plataforma integral para el control financiero personal y empresarial.
+        Toma decisiones inteligentes con datos en tiempo real.
+      </p>
+      <button type="button" class="btn-hero" routerLink="/register" (click)="interactuar()">
+        Comenzar Ahora
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== Características ===== -->
+  <section class="caracteristicas" id="caracteristicas">
+    <div class="seccion-encabezado">
+      <h2>Características <span class="texto-accent">Poderosas</span></h2>
+      <p>Todo lo que necesitas para tomar el control total de tus finanzas personales y empresariales.</p>
+    </div>
+
+    <div class="caracteristicas-grid">
+      @for (car of caracteristicas; track car.titulo) {
+        <div class="caracteristica-card">
+          <span class="caracteristica-icono" aria-hidden="true">{{ car.icono }}</span>
+          <h3>{{ car.titulo }}</h3>
+          <p>{{ car.descripcion }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ===== Servicios ===== -->
+  <section class="servicios">
+    <div class="seccion-encabezado">
+      <h2>Nuestros <span class="texto-accent">Servicios</span></h2>
+      <p>Soluciones financieras adaptadas a cada necesidad, desde usuarios individuales hasta grandes empresas.</p>
+    </div>
+
+    <div class="servicio-bloque">
+      <div class="servicio-ilustracion" aria-hidden="true">
+        <span class="servicio-icono-grande">💰</span>
+        <span class="servicio-icono-flotante">📈</span>
+      </div>
+      <div class="servicio-info">
+        <h3>Finanzas Personales</h3>
+        <p>Controla tus ingresos, gastos y ahorros con herramientas diseñadas para individuos y familias. Obtén una visión clara de tu salud financiera.</p>
+        <ul>
+          <li>Seguimiento automático de gastos</li>
+          <li>Establecimiento de metas de ahorro</li>
+          <li>Reportes mensuales detallados</li>
+        </ul>
+        <button type="button" class="btn-outline" routerLink="/register" (click)="interactuar()">Conocer Más</button>
+      </div>
+    </div>
+
+    <div class="servicio-bloque servicio-bloque-invertido">
+      <div class="servicio-info">
+        <h3>Gestión Empresarial</h3>
+        <p>Conecta con bancos aliados en cualquier parte del mundo y ten acceso a:</p>
+        <ul>
+          <li>Comunicación directa con los bancos</li>
+          <li>Control centralizado de finanzas</li>
+          <li>Análisis de rentabilidad</li>
+        </ul>
+        <button type="button" class="btn-outline" routerLink="/register" (click)="interactuar()">Conocer Más</button>
+      </div>
+      <div class="servicio-ilustracion" aria-hidden="true">
+        <span class="servicio-icono-grande">📑</span>
+        <span class="servicio-icono-flotante">🖊️</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA final ===== -->
+  <section class="cta-final">
+    <div class="cta-texto">
+      <h2>Comienza a Gestionar tus Finanzas Hoy</h2>
+      <p>Únete a más de 50,000 usuarios que están tomando el control de su futuro financiero con nuestra plataforma inteligente.</p>
+      <div class="cta-acciones">
+        <button type="button" class="btn-cta-primario" routerLink="/register" (click)="interactuar()">Crear Cuenta Gratis</button>
+        <button type="button" class="btn-cta-secundario" (click)="verCaracteristicas()">Conocer más</button>
+      </div>
+    </div>
+  </section>
+
+</div>
