@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PqrService } from '../../../services/pqr';
+import { PqrService, Pqr } from '../../../services/pqr';
+import { ToastService } from '../../../shared/services/toast';
 
 @Component({
   selector: 'app-pqr',
@@ -10,7 +11,10 @@ import { PqrService } from '../../../services/pqr';
   styleUrl: './pqr.css',
 })
 export class PqrComponent {
-  constructor(private pqrService: PqrService) {}
+  constructor(
+    private pqrService: PqrService,
+    private toastService: ToastService
+  ) {}
 
   get pqrs() {
     return this.pqrService.pqrs;
@@ -61,16 +65,30 @@ export class PqrComponent {
     );
   }
 
+  buscar(): void {
+    // La lista ya se filtra de forma reactiva (ver filteredPqrs); esto solo da
+    // feedback explícito al usuario cuando pulsa el botón de búsqueda.
+    if (this.filteredPqrs.length === 0) {
+      this.toastService.info('No se encontraron PQR con ese criterio.');
+    }
+  }
+
 
   // =========================
   // ACCIONES
   // =========================
 
-  verPqr(pqr: any): void {
-    console.log('PQR seleccionada:', pqr);
+  verPqr(pqr: Pqr): void {
+    this.toastService.info(`${pqr.titulo} · N° ${pqr.numero} · Estado: ${pqr.estado}`);
   }
 
   crearNuevaPqr(): void {
-    console.log('Crear nueva PQR');
+    const numero = Math.floor(1000000 + Math.random() * 9000000).toString();
+    this.pqrService.agregarPqr({
+      titulo: 'Nueva PQR',
+      numero,
+      estado: 'En revisión',
+    });
+    this.toastService.success('PQR creada correctamente.');
   }
 }

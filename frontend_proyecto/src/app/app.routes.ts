@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout/layout';
 import { adminGuard } from './pages/admin/admin.guard';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -32,15 +33,23 @@ export const routes: Routes = [
 
       {
         path: '',
-        redirectTo: 'prueba',
+        redirectTo: 'home',
         pathMatch: 'full',
       },
 
       {
-        path: 'prueba',
+        path: 'home',
         loadComponent: () =>
-          import('./pages/prueba/prueba').then((m) => m.Prueba),
-        title: 'Prueba - FinanceUp',
+          import('./pages/home/home').then((m) => m.HomeComponent),
+        title: 'Inicio - FinanceUp',
+      },
+
+      {
+        path: 'perfil',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/perfil/perfil').then((m) => m.PerfilComponent),
+        title: 'Mi perfil - FinanceUp',
       },
 
       {
@@ -74,6 +83,13 @@ export const routes: Routes = [
             .then((m) => m.LineaAyudaComponent),
         title: 'Linea de ayuda - FinanceUp',
       },
+      {
+        path: 'habla-con-nosostros',
+        loadComponent: () =>
+          import('./pages/soporte/habla-con-nosotros/habla-con-nosotros')
+            .then((m) => m.HablaConNosotrosComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
 
       {
         path: 'pqr',
@@ -82,7 +98,20 @@ export const routes: Routes = [
         title: 'Linea de ayuda - FinanceUp',
       },
       {
+        path: 'nuevo-pqr',
+        loadComponent: () =>
+          import('./pages/soporte/nuevo-pqr/nuevo-pqr').then((m) => m.NuevoPqrComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
+      {
+        path: 'cookis',
+        loadComponent: () =>
+          import('./pages/soporte/banner-cookies/banner-cookies').then((m) => m.BannerCookiesComponent),
+        title: 'Linea de ayuda - FinanceUp',
+      },
+      {
         path: 'finanzas',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/finanzas/finanzas/finanzas')
             .then((m) => m.FinanzasComponent),
@@ -91,6 +120,7 @@ export const routes: Routes = [
 
       {
         path: 'inversiones',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/finanzas/inversiones/inversiones')
             .then((m) => m.InversionesComponent),
@@ -99,10 +129,19 @@ export const routes: Routes = [
 
       {
         path: 'metas',
+        canActivate: [authGuard],
         loadComponent: () =>
-          import('./pages/finanzas/metas/metas')
-            .then((m) => m.MetasComponent),
+          import('./pages/finanzas/metas/metas').then((m) => m.MetasComponent),
         title: 'Metas - FinanceUp',
+      },
+
+      {
+        path: 'menu',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/finanzas/finanzas-menu/finanzas-menu')
+            .then((m) => m.FinanzasMenuComponent),
+        title: 'Menu - FinanceUp',
       },
 
       {
@@ -144,7 +183,7 @@ export const routes: Routes = [
 
       {
         path: '**',
-        redirectTo: 'prueba',
+        redirectTo: 'home',
       },
     ],
   },
@@ -152,6 +191,11 @@ export const routes: Routes = [
   {
     path: 'Finanzas',
     redirectTo: 'finanzas',
+    pathMatch: 'full',
+  },
+  {
+    path: 'Menu',
+    redirectTo: 'menu',
     pathMatch: 'full',
   },
 ];
