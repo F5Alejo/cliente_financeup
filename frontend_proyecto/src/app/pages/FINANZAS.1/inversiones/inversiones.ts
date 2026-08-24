@@ -128,10 +128,6 @@ export class InversionesComponent {
     return this.inversiones.reduce((suma, inv) => suma + inv.rendimiento, 0);
   }
 
-  formatearCOP(valor: number): string {
-    return `$${Math.abs(valor).toLocaleString('es-CO')}`;
-  }
-
   exportar(): void {
     this.toastService.info('Exportación simulada: el resumen de inversiones se generó correctamente.');
   }
