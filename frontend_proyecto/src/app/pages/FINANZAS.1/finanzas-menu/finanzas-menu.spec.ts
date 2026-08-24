@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FinanzasComponent } from './finanzas';
+import { FinanzasMenuComponent } from './finanzas-menu';
 
-describe('Sidebar', () => {
-  let component: FinanzasComponent;
-  let fixture: ComponentFixture<FinanzasComponent>;
+describe('FinanzasMenu', () => {
+  let component: FinanzasMenuComponent;
+  let fixture: ComponentFixture<FinanzasMenuComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FinanzasComponent],
+      imports: [FinanzasMenuComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FinanzasComponent);
+    fixture = TestBed.createComponent(FinanzasMenuComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

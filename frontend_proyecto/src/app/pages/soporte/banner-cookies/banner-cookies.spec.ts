@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Prueba } from './prueba';
+import { BannerCookies } from './banner-cookies';
 
-describe('Prueba', () => {
-  let component: Prueba;
-  let fixture: ComponentFixture<Prueba>;
+describe('BannerCookies', () => {
+  let component: BannerCookies;
+  let fixture: ComponentFixture<BannerCookies>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Prueba],
+      imports: [BannerCookies],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Prueba);
+    fixture = TestBed.createComponent(BannerCookies);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
