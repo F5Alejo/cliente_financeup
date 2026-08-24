@@ -10,7 +10,7 @@
   display: block;
   width: 100%;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: var(--font-family-base);
   background: #ecebeb;
   color: #1f2430;
 }
