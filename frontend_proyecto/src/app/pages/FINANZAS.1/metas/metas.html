@@ -45,8 +45,8 @@
                 <div class="barra-progreso pequena" role="progressbar" [attr.aria-valuenow]="progresoMeta(meta)" aria-valuemin="0" aria-valuemax="100">
                     <div class="barra-relleno" [style.width.%]="progresoMeta(meta)"></div>
                 </div>
-                <p class="meta-nota-principal">{{ meta.notaPrincipal }}</p>
-                <p class="meta-nota-secundaria">{{ meta.notaSecundaria }}</p>
+                <p class="meta-nota-principal">{{ notaPrincipal(meta) }}</p>
+                <p class="meta-nota-secundaria">{{ notaSecundaria(meta) }}</p>
             </article>
         }
     </section>

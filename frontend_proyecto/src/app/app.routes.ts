@@ -136,6 +136,15 @@ export const routes: Routes = [
       },
 
       {
+        path: 'menu',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/FINANZAS.1/finanzas-menu/finanzas-menu')
+            .then((m) => m.FinanzasMenuComponent),
+        title: 'Menu - FinanceUp',
+      },
+
+      {
         path: 'admin',
         canActivateChild: [adminGuard],
         children: [
@@ -182,6 +191,11 @@ export const routes: Routes = [
   {
     path: 'Finanzas',
     redirectTo: 'finanzas',
+    pathMatch: 'full',
+  },
+  {
+    path: 'Menu',
+    redirectTo: 'menu',
     pathMatch: 'full',
   },
 ];
