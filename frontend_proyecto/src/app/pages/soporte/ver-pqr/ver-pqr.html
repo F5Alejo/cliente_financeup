@@ -1,69 +1,78 @@
-<div class="detalle-pqr-container">
-  <!-- ===== Card izquierda: detalle del PQR ===== -->
-  <div class="pqr-card">
-    <button class="btn-volver" type="button" (click)="volver()" aria-label="Volver">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-
-    <header class="pqr-header">
-      <h1 class="pqr-title">{{ titulo }}</h1>
-      <p class="pqr-meta">{{ labelNumeroPeticion }} {{ numeroPeticion }}</p>
-      <p class="pqr-meta">{{ labelUsuario }} {{ usuario }}</p>
-    </header>
-
-    <div class="pqr-divider">
-      <span class="pqr-divider-dot"></span>
-      <span class="pqr-divider-line"></span>
-      <span class="pqr-divider-arrow">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<ng-container *ngIf="pqr; else sinDatos">
+  <div class="detalle-pqr-container">
+    <!-- ===== Card izquierda: detalle del PQR ===== -->
+    <div class="pqr-card">
+      <button class="btn-volver" type="button" (click)="volver()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-      </span>
-    </div>
+        <span>{{ textoVolver }}</span>
+      </button>
 
-    <div class="pqr-form-grid">
-      <div class="pqr-form-fields">
-        <label class="pqr-label">{{ labelAsunto }}</label>
-        <div class="pqr-input">{{ asunto }}</div>
+      <span class="pqr-badge">{{ badgeTexto }}</span>
 
-        <label class="pqr-label">{{ labelDescripcion }}</label>
-        <div class="pqr-textarea">{{ descripcion }}</div>
+      <header class="pqr-header">
+        <h1 class="pqr-title">{{ pqr.titulo }}</h1>
+        <p class="pqr-subtitulo">{{ subtitulo }}</p>
+      </header>
+
+      <div class="pqr-info-pills">
+        <span class="pqr-pill">
+          {{ labelNumeroPeticion }} <strong>{{ pqr.numero }}</strong>
+        </span>
+        <span class="pqr-pill">
+          {{ labelUsuario }} <strong>{{ pqr.usuario }}</strong>
+        </span>
       </div>
 
-      <div class="pqr-adjuntos">
-        <button
-          type="button"
-          class="pqr-adjunto-item"
-          *ngFor="let archivo of archivosAdjuntos"
-          (click)="verArchivo(archivo)"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-            <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-          </svg>
-          <span class="pqr-adjunto-nombre">{{ archivo }}</span>
+      <div class="pqr-form-grid">
+        <div class="pqr-form-fields">
+          <label class="pqr-label">{{ labelAsunto }}</label>
+          <div class="pqr-input">{{ pqr.titulo }}</div>
+
+          <label class="pqr-label">{{ labelDescripcion }}</label>
+          <div class="pqr-textarea">{{ pqr.descripcion }}</div>
+        </div>
+
+        <div class="pqr-adjuntos" *ngIf="pqr.archivosAdjuntos?.length">
+          <button
+            type="button"
+            class="pqr-adjunto-item"
+            *ngFor="let archivo of pqr.archivosAdjuntos"
+            (click)="verArchivo(archivo)"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            <span class="pqr-adjunto-nombre">{{ archivo }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pqr-actions">
+        <button type="button" class="btn-enviar" (click)="enviarNuevoPqr()">
+          {{ textoBotonEnviar }}
         </button>
       </div>
     </div>
 
-    <div class="pqr-actions">
-      <button type="button" class="btn-enviar" (click)="enviarNuevoPqr()">
-        {{ textoBotonEnviar }}
-      </button>
+    <!-- ===== Columna derecha: estado y respuesta ===== -->
+    <div class="estado-columna">
+      <div class="estado-card">
+        <span class="estado-label">{{ labelEstado }}</span>
+        <span class="estado-badge" [ngClass]="obtenerClaseEstado()">{{ pqr.estado }}</span>
+      </div>
+
+      <div class="mensaje-card">
+        <p class="mensaje-texto">{{ pqr.mensajeRespuesta }}</p>
+      </div>
     </div>
   </div>
+</ng-container>
 
-  <!-- ===== Columna derecha: estado y respuesta ===== -->
-  <div class="estado-columna">
-    <div class="estado-card">
-      <span class="estado-label">{{ labelEstado }}</span>
-      <span class="estado-badge">{{ estado }}</span>
-    </div>
-
-    <div class="mensaje-card">
-      <p class="mensaje-texto">{{ mensajeRespuesta }}</p>
-    </div>
+<ng-template #sinDatos>
+  <div class="pqr-vacio">
+    <p>No se encontró información de este PQR.</p>
   </div>
-</div>
+</ng-template>
