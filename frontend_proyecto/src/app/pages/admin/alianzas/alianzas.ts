@@ -40,6 +40,12 @@ export class AdminAlianzasComponent {
       destacada: false,
       etiquetas: [],
       requisitos: [],
+      familia: 'Créditos',
+      promesa: '',
+      caracteristicas: [],
+      documentos: [],
+      tarifas: [],
+      preguntas: [],
     };
   }
 

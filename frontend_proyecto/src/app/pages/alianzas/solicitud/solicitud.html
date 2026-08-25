@@ -1,0 +1,355 @@
+@if (producto(); as producto) {
+  <div class="tramite">
+
+    <!-- Confirmación -->
+    @if (radicado(); as solicitud) {
+      <section class="acuse">
+        <p class="eyebrow">Solicitud radicada</p>
+        <h1 class="acuse__titulo">Quedó en estudio con {{ solicitud.aliado }}</h1>
+        <p class="acuse__texto">
+          Guarda este número. Con él puedes preguntar por el estado de tu solicitud
+          en cualquier canal de atención.
+        </p>
+
+        <dl class="acuse__datos">
+          <div>
+            <dt>Radicado</dt>
+            <dd class="acuse__radicado">{{ solicitud.radicado }}</dd>
+          </div>
+          <div>
+            <dt>Producto</dt>
+            <dd>{{ solicitud.producto }}</dd>
+          </div>
+          @if (solicitud.monto) {
+            <div>
+              <dt>Monto solicitado</dt>
+              <dd>{{ formatCOP(solicitud.monto) }}</dd>
+            </div>
+            <div>
+              <dt>Plazo</dt>
+              <dd>{{ solicitud.plazoMeses }} meses</dd>
+            </div>
+          }
+          <div>
+            <dt>Fecha</dt>
+            <dd>{{ solicitud.fecha }}</dd>
+          </div>
+          <div>
+            <dt>Estado</dt>
+            <dd>{{ solicitud.estado }}</dd>
+          </div>
+        </dl>
+
+        <h2 class="acuse__sub">Qué sigue</h2>
+        <ol class="ruta">
+          <li class="ruta__hito ruta__hito--hecho">
+            <span class="ruta__marca" aria-hidden="true"></span>
+            <div>
+              <p class="ruta__titulo">Recibimos tu solicitud</p>
+              <p class="ruta__detalle">{{ solicitud.fecha }}</p>
+            </div>
+          </li>
+          <li class="ruta__hito">
+            <span class="ruta__marca" aria-hidden="true"></span>
+            <div>
+              <p class="ruta__titulo">{{ producto.aliado }} estudia tu perfil</p>
+              <p class="ruta__detalle">Consulta en centrales de riesgo y verificación de ingresos</p>
+            </div>
+          </li>
+          <li class="ruta__hito">
+            <span class="ruta__marca" aria-hidden="true"></span>
+            <div>
+              <p class="ruta__titulo">Te avisamos por correo</p>
+              <p class="ruta__detalle">Respuesta en {{ producto.aprobacion }} a {{ solicitud.correo }}</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="acuse__acciones">
+          <button type="button" class="btn btn--solido" (click)="volverAAlianzas()">
+            Ver otros productos
+          </button>
+          <button type="button" class="btn btn--linea" (click)="volverAlProducto()">
+            Volver al producto
+          </button>
+        </div>
+      </section>
+    } @else {
+
+      <!-- Formulario -->
+      <button type="button" class="volver" (click)="atras()">
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+          <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        {{ paso() === 0 ? 'Volver al producto' : 'Paso anterior' }}
+      </button>
+
+      <header class="tramite__head">
+        <p class="eyebrow">{{ producto.aliado }} · {{ producto.categoria }}</p>
+        <h1 class="tramite__titulo">Solicita tu producto</h1>
+      </header>
+
+      <ol class="pasos">
+        @for (nombrePaso of pasos; track nombrePaso; let i = $index) {
+          <li
+            class="paso"
+            [class.paso--activo]="paso() === i"
+            [class.paso--hecho]="paso() > i"
+          >
+            <span class="paso__n">{{ i + 1 }}</span>
+            {{ nombrePaso }}
+          </li>
+        }
+      </ol>
+
+      <div class="tramite__grid">
+        <form class="formulario" (ngSubmit)="siguiente()">
+
+          @if (paso() === 0) {
+            <fieldset class="grupo">
+              <legend class="grupo__titulo">Tus datos</legend>
+
+              <label class="campo">
+                <span class="campo__label">Nombre completo</span>
+                <input
+                  type="text"
+                  name="nombre"
+                  [(ngModel)]="nombre"
+                  [class.campo--error]="error('nombre')"
+                  placeholder="Como aparece en tu cédula"
+                />
+                @if (error('nombre')) {
+                  <span class="campo__error">{{ error('nombre') }}</span>
+                }
+              </label>
+
+              <label class="campo">
+                <span class="campo__label">Número de documento</span>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  name="documento"
+                  [(ngModel)]="documento"
+                  [class.campo--error]="error('documento')"
+                  placeholder="1032456789"
+                />
+                @if (error('documento')) {
+                  <span class="campo__error">{{ error('documento') }}</span>
+                }
+              </label>
+
+              <label class="campo">
+                <span class="campo__label">Correo electrónico</span>
+                <input
+                  type="email"
+                  name="correo"
+                  [(ngModel)]="correo"
+                  [class.campo--error]="error('correo')"
+                  placeholder="nombre@correo.com"
+                />
+                @if (error('correo')) {
+                  <span class="campo__error">{{ error('correo') }}</span>
+                }
+              </label>
+
+              <label class="campo">
+                <span class="campo__label">Celular</span>
+                <input
+                  type="tel"
+                  inputmode="numeric"
+                  name="celular"
+                  [(ngModel)]="celular"
+                  [class.campo--error]="error('celular')"
+                  placeholder="3104728841"
+                />
+                @if (error('celular')) {
+                  <span class="campo__error">{{ error('celular') }}</span>
+                }
+              </label>
+            </fieldset>
+          }
+
+          @if (paso() === 1) {
+            <fieldset class="grupo">
+              <legend class="grupo__titulo">Condiciones</legend>
+
+              @if (pideMonto()) {
+                <label class="campo">
+                  <span class="campo__label">¿Cuánto necesitas?</span>
+                  <span class="campo__cifra">{{ formatCOP(monto) }}</span>
+                  <input
+                    type="range"
+                    name="monto"
+                    [min]="producto.montoMaximo / 20"
+                    [max]="producto.montoMaximo"
+                    [step]="producto.montoMaximo / 40"
+                    [(ngModel)]="monto"
+                  />
+                  <span class="campo__ayuda">
+                    Máximo aprobable: {{ formatCOP(producto.montoMaximo) }}
+                  </span>
+                  @if (error('monto')) {
+                    <span class="campo__error">{{ error('monto') }}</span>
+                  }
+                </label>
+
+                <div class="campo">
+                  <span class="campo__label">Plazo en meses</span>
+                  <div class="plazos">
+                    @for (plazo of plazosDisponibles(); track plazo) {
+                      <button
+                        type="button"
+                        class="plazo"
+                        [class.plazo--on]="plazoMeses === plazo"
+                        (click)="seleccionarPlazo(plazo)"
+                      >
+                        {{ plazo }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              <label class="campo">
+                <span class="campo__label">Ingreso mensual comprobable</span>
+                <input
+                  type="number"
+                  name="ingresos"
+                  [(ngModel)]="ingresos"
+                  [class.campo--error]="error('ingresos')"
+                  placeholder="2800000"
+                />
+                <span class="campo__ayuda">
+                  Antes de descuentos, incluye ingresos adicionales fijos.
+                </span>
+                @if (error('ingresos')) {
+                  <span class="campo__error">{{ error('ingresos') }}</span>
+                }
+              </label>
+
+              @if (cargaIngreso() > 0) {
+                <p class="aviso" [class.aviso--alerta]="cargaIngreso() > 40">
+                  La cuota estimada representa el {{ cargaIngreso() }}% de tu ingreso.
+                  @if (cargaIngreso() > 40) {
+                    Por encima del 40% suele haber negativa; considera bajar el monto
+                    o alargar el plazo.
+                  } @else {
+                    Está dentro del rango que suelen aprobar los aliados.
+                  }
+                </p>
+              }
+            </fieldset>
+          }
+
+          @if (paso() === 2) {
+            <fieldset class="grupo">
+              <legend class="grupo__titulo">Revisa antes de enviar</legend>
+
+              <dl class="revision">
+                <div>
+                  <dt>Nombre</dt>
+                  <dd>{{ nombre }}</dd>
+                </div>
+                <div>
+                  <dt>Documento</dt>
+                  <dd>{{ documento }}</dd>
+                </div>
+                <div>
+                  <dt>Correo</dt>
+                  <dd>{{ correo }}</dd>
+                </div>
+                <div>
+                  <dt>Celular</dt>
+                  <dd>{{ celular }}</dd>
+                </div>
+                <div>
+                  <dt>Ingreso declarado</dt>
+                  <dd>{{ formatCOP(ingresos) }}</dd>
+                </div>
+                @if (pideMonto()) {
+                  <div>
+                    <dt>Monto</dt>
+                    <dd>{{ formatCOP(monto) }}</dd>
+                  </div>
+                  <div>
+                    <dt>Plazo</dt>
+                    <dd>{{ plazoMeses }} meses</dd>
+                  </div>
+                }
+              </dl>
+
+              <label class="acepta" [class.acepta--error]="error('terminos')">
+                <input type="checkbox" name="terminos" [(ngModel)]="aceptaTerminos" />
+                <span>
+                  Autorizo a {{ producto.aliado }} a consultar y reportar mi comportamiento
+                  crediticio en centrales de riesgo, y a tratar mis datos personales para
+                  el estudio de esta solicitud.
+                </span>
+              </label>
+              @if (error('terminos')) {
+                <span class="campo__error">{{ error('terminos') }}</span>
+              }
+            </fieldset>
+          }
+
+          <div class="formulario__acciones">
+            <button type="button" class="btn btn--linea" (click)="atras()">
+              {{ paso() === 0 ? 'Cancelar' : 'Atrás' }}
+            </button>
+            <button type="submit" class="btn btn--solido" [disabled]="enviando()">
+              @if (enviando()) {
+                Radicando…
+              } @else {
+                {{ paso() === 2 ? 'Radicar solicitud' : 'Continuar' }}
+              }
+            </button>
+          </div>
+        </form>
+
+        <!-- Resumen del producto -->
+        <aside class="resumen">
+          <div class="resumen__aliado">
+            <span class="marca" [style.background]="producto.logoBg">{{ producto.logoText }}</span>
+            <div>
+              <p class="resumen__nombre">{{ producto.aliado }}</p>
+              <p class="resumen__cat">{{ producto.categoria }}</p>
+            </div>
+          </div>
+
+          <dl class="resumen__datos">
+            <div>
+              <dt>Tasa</dt>
+              <dd>{{ formatTasa(producto.tasaDesde) }}</dd>
+            </div>
+            @if (pideMonto()) {
+              <div>
+                <dt>Cuota estimada</dt>
+                <dd class="resumen__fuerte">{{ formatCOP(cuotaEstimada()) }}</dd>
+              </div>
+            }
+            <div>
+              <dt>Respuesta</dt>
+              <dd>{{ producto.aprobacion }}</dd>
+            </div>
+          </dl>
+
+          <h3 class="resumen__sub">Ten a la mano</h3>
+          <ul class="resumen__docs">
+            @for (documento of producto.documentos; track documento) {
+              <li>{{ documento }}</li>
+            }
+          </ul>
+        </aside>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="tramite tramite--vacio">
+    <h1>No podemos abrir esa solicitud</h1>
+    <p>El producto ya no está vigente en la vitrina de alianzas.</p>
+    <button type="button" class="btn btn--solido" (click)="volverAAlianzas()">
+      Ver alianzas
+    </button>
+  </div>
+}

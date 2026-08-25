@@ -1,0 +1,233 @@
+@if (producto(); as producto) {
+  <div class="ficha-producto">
+
+    <nav class="miga" aria-label="Ruta de navegación">
+      <button type="button" (click)="volver()">Alianzas</button>
+      <span aria-hidden="true">/</span>
+      <span>{{ producto.familia }}</span>
+      <span aria-hidden="true">/</span>
+      <span class="miga__actual">{{ producto.aliado }}</span>
+    </nav>
+
+    <!-- Encabezado del producto -->
+    <header class="cabecera">
+      <div class="cabecera__copy">
+        <div class="cabecera__aliado">
+          <span class="marca" [style.background]="producto.logoBg">{{ producto.logoText }}</span>
+          <div>
+            <p class="cabecera__nombre">{{ producto.aliado }}</p>
+            <p class="cabecera__categoria">{{ producto.categoria }}</p>
+          </div>
+        </div>
+
+        <h1 class="cabecera__titulo">{{ producto.promesa }}</h1>
+        <p class="cabecera__texto">{{ producto.descripcion }}</p>
+
+        <div class="cabecera__acciones">
+          <button type="button" class="btn btn--solido" (click)="solicitar()">
+            {{ producto.ctaPrimaria }}
+          </button>
+          <span class="cabecera__respuesta">Respuesta en {{ producto.aprobacion }}</span>
+        </div>
+      </div>
+
+      <dl class="condiciones">
+        <div>
+          <dt>Tasa de interés</dt>
+          <dd>{{ formatTasa(producto.tasaDesde) }}</dd>
+        </div>
+        <div>
+          <dt>Monto máximo</dt>
+          <dd>{{ producto.montoMaximo ? formatCOP(producto.montoMaximo) : 'Sin tope' }}</dd>
+        </div>
+        <div>
+          <dt>Plazo máximo</dt>
+          <dd>{{ formatPlazo(producto.plazoMaximo) }}</dd>
+        </div>
+        <div>
+          <dt>Calificación</dt>
+          <dd>{{ producto.calificacion }} / 5</dd>
+        </div>
+      </dl>
+    </header>
+
+    <div class="cuerpo">
+      <main>
+        <!-- Pestañas -->
+        <nav class="pestanas" aria-label="Información del producto">
+          @for (pestana of pestanas; track pestana) {
+            <button
+              type="button"
+              class="pestana"
+              [class.pestana--on]="pestanaActiva() === pestana"
+              (click)="seleccionarPestana(pestana)"
+            >
+              {{ pestana }}
+            </button>
+          }
+        </nav>
+
+        <section class="panel">
+          @switch (pestanaActiva()) {
+            @case ('Características') {
+              <h2 class="panel__titulo">Cómo funciona este producto</h2>
+              <ul class="lista-check">
+                @for (caracteristica of producto.caracteristicas; track caracteristica) {
+                  <li>
+                    <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                      <path d="M4 12.5l5 5 11-11" fill="none" stroke="currentColor"
+                            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    {{ caracteristica }}
+                  </li>
+                }
+              </ul>
+
+              <h3 class="panel__sub">Para quién es</h3>
+              <p class="panel__texto">
+                Está pensado para el perfil
+                <strong>{{ producto.perfiles.join(' e ') }}</strong>.
+                Hoy lo tienen {{ producto.usuarios | number }} personas en FinanceUp.
+              </p>
+            }
+
+            @case ('Requisitos') {
+              <h2 class="panel__titulo">Qué necesitas para aplicar</h2>
+              <ul class="lista-num">
+                @for (requisito of producto.requisitos; track requisito) {
+                  <li>{{ requisito }}</li>
+                }
+              </ul>
+
+              <h3 class="panel__sub">Documentos que vas a adjuntar</h3>
+              <ul class="lista-punto">
+                @for (documento of producto.documentos; track documento) {
+                  <li>{{ documento }}</li>
+                }
+              </ul>
+            }
+
+            @case ('Tarifas') {
+              <h2 class="panel__titulo">Tarifas y costos vigentes</h2>
+              <table class="tabla">
+                <tbody>
+                  @for (tarifa of producto.tarifas; track tarifa.concepto) {
+                    <tr>
+                      <th scope="row">{{ tarifa.concepto }}</th>
+                      <td>{{ tarifa.valor }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+              <p class="panel__nota">
+                Las tarifas las define {{ producto.aliado }} y pueden cambiar con previo aviso.
+                {{ producto.meta }}
+              </p>
+            }
+
+            @case ('Preguntas') {
+              <h2 class="panel__titulo">Preguntas frecuentes</h2>
+              <div class="faq">
+                @for (item of producto.preguntas; track item.pregunta) {
+                  <div class="faq__item" [class.faq__item--on]="preguntaAbierta() === item.pregunta">
+                    <button type="button" class="faq__btn" (click)="alternarPregunta(item.pregunta)">
+                      {{ item.pregunta }}
+                      <span class="faq__signo" aria-hidden="true"></span>
+                    </button>
+                    @if (preguntaAbierta() === item.pregunta) {
+                      <p class="faq__respuesta">{{ item.respuesta }}</p>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+        </section>
+      </main>
+
+      <!-- Simulador -->
+      <aside class="lateral">
+        @if (simulable()) {
+          <section class="simulador">
+            <h2 class="simulador__titulo">Simula tu cuota</h2>
+            <p class="simulador__nota">
+              Cálculo con la tasa mínima del producto. La tasa final depende del estudio.
+            </p>
+
+            <label class="campo">
+              <span class="campo__label">Monto</span>
+              <span class="campo__valor">{{ formatCOP(monto()) }}</span>
+              <input
+                type="range"
+                [min]="producto.montoMaximo / 20"
+                [max]="producto.montoMaximo"
+                [step]="producto.montoMaximo / 40"
+                [value]="monto()"
+                (input)="onMontoChange($event)"
+              />
+            </label>
+
+            <span class="campo__label">Plazo</span>
+            <div class="plazos">
+              @for (plazo of plazosDisponibles(); track plazo) {
+                <button
+                  type="button"
+                  class="plazo"
+                  [class.plazo--on]="plazoMeses() === plazo"
+                  (click)="seleccionarPlazo(plazo)"
+                >
+                  {{ plazo }}
+                </button>
+              }
+            </div>
+
+            <dl class="resultado">
+              <div>
+                <dt>Cuota mensual</dt>
+                <dd class="resultado__fuerte">{{ formatCOP(cuotaMensual()) }}</dd>
+              </div>
+              <div>
+                <dt>Intereses del período</dt>
+                <dd>{{ formatCOP(interesesTotales()) }}</dd>
+              </div>
+              <div>
+                <dt>Total a pagar</dt>
+                <dd>{{ formatCOP(cuotaMensual() * plazoMeses()) }}</dd>
+              </div>
+            </dl>
+
+            <button type="button" class="btn btn--solido btn--ancho" (click)="solicitar()">
+              Solicitar con estas condiciones
+            </button>
+          </section>
+        } @else {
+          <section class="simulador">
+            <h2 class="simulador__titulo">Sin cuotas que simular</h2>
+            <p class="simulador__nota">
+              Este producto no maneja monto ni plazo. Puedes abrirlo y empezar a usarlo
+              apenas te confirmen.
+            </p>
+            <button type="button" class="btn btn--solido btn--ancho" (click)="solicitar()">
+              {{ producto.ctaPrimaria }}
+            </button>
+          </section>
+        }
+
+        <section class="apoyo">
+          <h3>Lo que dice la letra menuda</h3>
+          <ul>
+            <li>El estudio de crédito lo hace {{ producto.aliado }}, no FinanceUp.</li>
+            <li>Radicar la solicitud no te compromete a aceptar el producto.</li>
+            <li>Te avisamos por correo cada vez que cambie el estado.</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </div>
+} @else {
+  <div class="ficha-producto ficha-producto--vacia">
+    <h1>Este producto ya no está vigente</h1>
+    <p>La alianza pudo haber terminado. Revisa los productos disponibles hoy.</p>
+    <button type="button" class="btn btn--solido" (click)="volver()">Ver alianzas</button>
+  </div>
+}
