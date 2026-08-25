@@ -47,7 +47,7 @@ export class PqrService {
       respuestas: 3,
       adjuntos: 1,
       progreso: 60,
-      usuario: 'Harold Arciniegas',
+      usuario: 'Usuario Demo',
       archivosAdjuntos: ['evidencia_llamada.jpg'],
       mensajeRespuesta:
         'Estamos revisando tu caso, en caso de alguna novedad se te notificará por este mismo medio.',
@@ -67,7 +67,7 @@ export class PqrService {
       respuestas: 1,
       adjuntos: 2,
       progreso: 35,
-      usuario: 'Harold Arciniegas',
+      usuario: 'Usuario Demo',
       archivosAdjuntos: ['captura_error_1.png', 'captura_error_2.png'],
       mensajeRespuesta:
         'Nuestro equipo técnico ya está revisando el problema reportado. Te avisaremos apenas tengamos novedades.',
@@ -87,7 +87,7 @@ export class PqrService {
       respuestas: 5,
       adjuntos: 3,
       progreso: 100,
-      usuario: 'Harold Arciniegas',
+      usuario: 'Usuario Demo',
       archivosAdjuntos: [
         'comprobante_transferencia.pdf',
         'soporte_banco.pdf',
