@@ -2,6 +2,10 @@
 <div class="metas">
     <header class="metas-header">
         <h1>Metas</h1>
+        <div>
+            <h1>Hola, {{ usuario }}</h1>
+            <p class="mes-actual">{{ mesActual }}</p>
+        </div>
         <div class="header-acciones">
             <button type="button" class="btn-primario" (click)="toggleFormularioMeta()">+ Crear Nueva Meta</button>
             <button type="button" class="btn-icono" (click)="masOpciones()" aria-label="Más opciones" title="Más opciones">⋯</button>
