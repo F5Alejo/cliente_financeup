@@ -48,6 +48,10 @@ export class PqrComponent {
     'Rechazado',
   ];
 
+  get pqrs(): Pqr[] {
+    return this.pqrService.pqrs;
+  }
+
   get filteredPqrs(): Pqr[] {
     const search = this.searchText.toLowerCase().trim();
 
