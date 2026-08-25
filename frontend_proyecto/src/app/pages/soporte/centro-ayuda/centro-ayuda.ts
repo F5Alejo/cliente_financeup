@@ -1,5 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToastService } from '../../../shared/services/toast';
 
 interface CategoriaAyuda {
   icono: string;
@@ -40,8 +42,10 @@ interface SupportBlock {
   styleUrl: './centro-ayuda.css',
 })
 export class CentroAyudaConponent {
-  constructor(private readonly router: Router) {}
-  
+  constructor(
+    private readonly router: Router,
+    private readonly toastService: ToastService,
+  ) {}
 
   // Encabezado
   title: string = '¿En qué podemos ayudarte?';

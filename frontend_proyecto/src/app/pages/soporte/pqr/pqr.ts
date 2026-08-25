@@ -48,6 +48,10 @@ export class PqrComponent {
     'Rechazado',
   ];
 
+  get pqrs(): Pqr[] {
+    return this.pqrService.pqrs;
+  }
+
   get filteredPqrs(): Pqr[] {
     const search = this.searchText.toLowerCase().trim();
 
@@ -112,8 +116,8 @@ export class PqrComponent {
   // ACCIONES
   // =========================
 
-  verPqr(pqr: any): void {
-    this.router.navigate(['/ver-pqr']);
+  verPqr(pqr: Pqr): void {
+    this.router.navigate(['/ver-pqr', pqr.numero]);
   }
 
   crearNuevaPqr(): void {
