@@ -16,8 +16,11 @@ interface FaqItem {
   templateUrl: './linea-ayuda.html',
   styleUrl: './linea-ayuda.css',
 })
-export class LineaAyudaComponent {
-  constructor(private toastService: ToastService) {}
+export class LineaAyudaComponent implements OnInit {
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly toastService: ToastService,
+  ) {}
 
   // Banner
   bannerTitle: string = 'Línea de Ayuda';

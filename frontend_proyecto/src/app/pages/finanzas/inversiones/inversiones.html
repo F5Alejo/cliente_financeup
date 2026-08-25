@@ -2,6 +2,10 @@
 <div class="inversiones">
     <header class="inversiones-header">
         <h1><span class="icono-titulo" aria-hidden="true">📈</span> Inversiones</h1>
+        <div>
+            <h1>Hola, {{ usuario }}</h1>
+            <p class="mes-actual">{{ mesActual }}</p>
+        </div>
         <div class="header-acciones">
             <button type="button" class="btn-secundario" (click)="toggleFormularioInversion()">+ Nueva inversión</button>
             <button type="button" class="btn-primario" (click)="exportar()">⭳ Exportar</button>
