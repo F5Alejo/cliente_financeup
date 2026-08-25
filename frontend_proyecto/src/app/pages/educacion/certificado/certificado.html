@@ -1,0 +1,67 @@
+@if (curso(); as curso) {
+  <div class="entrega">
+
+    <header class="entrega__head">
+      <p class="eyebrow">Curso completado</p>
+      <h1>Terminaste {{ curso.titulo }}</h1>
+      <p class="entrega__sub">
+        Viste las {{ curso.lecciones.length }} clases y {{ minutos() }} minutos de contenido.
+        Tu certificado queda asociado a tu cuenta.
+      </p>
+    </header>
+
+    <!-- Certificado -->
+    <article class="diploma">
+      <div class="diploma__marco">
+        <header class="diploma__head">
+          <span class="diploma__marca">FinanceUp</span>
+          <span class="diploma__escuela">{{ escuela()?.nombre }}</span>
+        </header>
+
+        <p class="diploma__leyenda">Certifica que</p>
+        <p class="diploma__nombre">{{ estudiante }}</p>
+        <p class="diploma__leyenda">completó satisfactoriamente el curso</p>
+        <p class="diploma__curso">{{ curso.titulo }}</p>
+
+        <dl class="diploma__pie">
+          <div>
+            <dt>Fecha</dt>
+            <dd>{{ fecha }}</dd>
+          </div>
+          <div>
+            <dt>Duración</dt>
+            <dd>{{ minutos() }} minutos</dd>
+          </div>
+          <div>
+            <dt>Instructor</dt>
+            <dd>{{ curso.instructor.nombre }}</dd>
+          </div>
+          <div>
+            <dt>Código</dt>
+            <dd>{{ codigo() }}</dd>
+          </div>
+        </dl>
+      </div>
+    </article>
+
+    <div class="entrega__acciones">
+      <button type="button" class="btn btn--play" (click)="descargar()">
+        Descargar certificado
+      </button>
+      <button type="button" class="btn btn--ghost" (click)="volverAlCurso()">
+        Volver al curso
+      </button>
+      <button type="button" class="btn btn--ghost" (click)="seguirAprendiendo()">
+        Elegir otro curso
+      </button>
+    </div>
+  </div>
+} @else {
+  <div class="entrega entrega--vacia">
+    <h1>No encontramos ese certificado</h1>
+    <p>El curso ya no está disponible en el catálogo.</p>
+    <button type="button" class="btn btn--play" (click)="seguirAprendiendo()">
+      Ver el catálogo
+    </button>
+  </div>
+}

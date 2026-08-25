@@ -35,6 +35,13 @@ export class AdminEducacionComponent {
       descripcion: '',
       progreso: 0,
       contenido: [],
+      instructor: { nombre: '', cargo: '', iniciales: '' },
+      estudiantes: 0,
+      calificacion: 0,
+      actualizado: '',
+      aprenderas: [],
+      requisitos: [],
+      lecciones: [],
     };
   }
 
