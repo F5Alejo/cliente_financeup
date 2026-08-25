@@ -64,7 +64,11 @@ export class FinanzasComponent implements OnInit {
   }
 
   usuario: string = '';
-  mesActual: string = 'Marzo 2026';
+
+  mesActual: string = new Date().toLocaleDateString('es-CO', {
+  month: 'long',
+  year: 'numeric'
+});
 
   /** Radio y circunferencia usados por los anillos de metas (SVG) */
   radioAnillo = 30;

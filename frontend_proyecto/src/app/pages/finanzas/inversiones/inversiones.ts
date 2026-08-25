@@ -28,6 +28,14 @@ export class InversionesComponent {
     private toastService: ToastService
   ) {}
 
+  usuario: string = '';
+
+  mesActual: string = new Date().toLocaleDateString('es-CO', {
+  month: 'long',
+  year: 'numeric'
+});
+
+
   /** ----- Tarjetas superiores ----- */
   get balanceInversiones() { return this.inversionesService.balanceInversiones; }
   get balanceSemana() { return this.inversionesService.balanceSemana; }
