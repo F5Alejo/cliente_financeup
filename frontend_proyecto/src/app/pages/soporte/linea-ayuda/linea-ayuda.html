@@ -2,35 +2,81 @@
 
   <!-- Banner -->
   <div class="banner">
-    <h1 class="banner__title">{{ bannerTitle }}</h1>
-    <p class="banner__description">{{ bannerDescription }}</p>
+    <div class="banner__copy">
+      <span class="banner__badge">ATENCIÓN AL CLIENTE</span>
+      <h1 class="banner__title">{{ bannerTitle }}</h1>
+      <p class="banner__description">{{ bannerDescription }}</p>
 
-    <div class="banner__footer">
-      <p class="banner__phone">
-        <span class="banner__phone-dot">•</span>
-        {{ phoneNumber }}
-      </p>
-      <button class="btn btn--dark" (click)="onChatClick()">
-        {{ chatButtonLabel }}
-      </button>
+      <div class="banner__footer">
+        <a class="banner__phone" [href]="'tel:' + phoneNumber">
+          <span class="banner__phone-dot" aria-hidden="true"></span>
+          {{ phoneNumber }}
+        </a>
+        <button class="btn btn--green" (click)="onChatClick()">
+          {{ chatButtonLabel }}
+        </button>
+      </div>
+    </div>
+
+    <div class="banner__stats">
+      @for (dato of bannerDatos; track dato.etiqueta) {
+        <div class="banner__stat">
+          <span class="banner__stat-value">{{ dato.valor }}</span>
+          <span class="banner__stat-label">{{ dato.etiqueta }}</span>
+        </div>
+      }
     </div>
   </div>
 
   <!-- Título de sección -->
   <h2 class="linea-ayuda__section-title">{{ sectionTitle }}</h2>
 
+  <!-- Filtros por categoría -->
+  <div class="categoria-tabs">
+    @for (categoria of categorias; track categoria) {
+      <button
+        type="button"
+        class="categoria-tab"
+        [class.active]="categoriaSeleccionada() === categoria"
+        (click)="seleccionarCategoria(categoria)"
+      >
+        {{ categoria }}
+      </button>
+    }
+  </div>
+
   <!-- Acordeón de preguntas -->
   <div class="faq-list">
-    @for (item of faqItems; track item.question) {
-      <div class="faq-item" [class.faq-item--open]="item.expanded">
+    @for (item of faqFiltradas(); track item.question; let i = $index) {
+      <div
+        class="faq-item"
+        [class.faq-item--open]="item.expanded"
+        [style.animation-delay]="i * 60 + 'ms'"
+      >
         <button class="faq-item__header" (click)="toggleFaq(item)">
-          <span class="faq-item__question">{{ item.question }}</span>
-          <span class="faq-item__icon">{{ item.expanded ? '–' : '+' }}</span>
+          <span class="faq-item__main">
+            <span class="faq-item__categoria">{{ item.categoria }}</span>
+            <span class="faq-item__question">{{ item.question }}</span>
+          </span>
+
+          <span class="faq-item__right">
+            <span class="faq-item__lectura">{{ item.lecturaMin }} min</span>
+            <span class="faq-item__icon" aria-hidden="true"></span>
+          </span>
         </button>
 
         @if (item.expanded) {
           <div class="faq-item__answer-wrap">
             <p class="faq-item__answer">{{ item.answer }}</p>
+
+            <div class="faq-item__foot">
+              <span class="faq-item__utilidad">
+                {{ item.utilidad }}% de los usuarios encontró útil esta respuesta
+              </span>
+              <button type="button" class="btn btn--soft" (click)="marcarUtil(item)">
+                Me sirvió
+              </button>
+            </div>
           </div>
         }
       </div>

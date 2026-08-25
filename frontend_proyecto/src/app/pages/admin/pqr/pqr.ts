@@ -13,7 +13,7 @@ import { PqrService } from '../../../services/pqr';
 export class AdminPqrComponent {
   constructor(public pqrService: PqrService) {}
 
-  estados = ['En revisión', 'Resuelto', 'Rechazado'];
+  estados = ['Radicado', 'En revisión', 'Resuelto', 'Rechazado'];
 
   cambiarEstado(numero: string, event: Event): void {
     const nuevoEstado = (event.target as HTMLSelectElement).value;
