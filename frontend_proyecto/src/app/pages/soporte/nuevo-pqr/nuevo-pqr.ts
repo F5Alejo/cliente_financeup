@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { PqrService, PrioridadPqr } from '../../../services/pqr';
+import { ToastService } from '../../../shared/services/toast';
 
 @Component({
   selector: 'app-nuevo-pqr',
@@ -9,27 +11,62 @@ import { Router } from '@angular/router';
   styleUrl: './nuevo-pqr.css',
 })
 export class NuevoPqrComponent {
-  constructor(private readonly router: Router) {}
-  // Textos de la interfaz (quemados)
+  constructor(
+    private pqrService: PqrService,
+    private toastService: ToastService,
+    private router: Router
+  ) {}
+
+  // Textos de la interfaz
   titulo: string = 'Nuevo PQR';
+  subtitulo: string =
+    'Cuéntanos qué pasó. Entre más detalles nos des, más rápido resolvemos tu caso.';
+  labelTipo: string = 'Tipo de solicitud:';
+  labelCategoria: string = 'Categoría:';
+  labelPrioridad: string = 'Prioridad:';
   labelAsunto: string = 'Asunto:';
-  labelDescripcion: string = 'Descripcion:';
-  placeholderAsunto: string = 'Escribe tu mensaje aquí...';
-  placeholderDescripcion: string = 'Escribe tu mensaje aquí...';
+  labelDescripcion: string = 'Descripción:';
+  placeholderAsunto: string = 'Resume tu solicitud en una frase';
+  placeholderDescripcion: string = 'Describe con detalle lo que ocurrió...';
   textoAdjuntar: string = 'Adjuntar archivo';
-  textoBotonEnviar: string = 'Enviar';
+  textoAdjuntarAyuda: string = 'PDF, JPG o PNG hasta 5 MB';
+  textoBotonEnviar: string = 'Enviar PQR';
 
   // Datos quemados (mock) del PQR actual
   numeroPeticion: string = '132132385';
   usuario: string = 'Harold Arciniegas';
-  labelNumeroPeticion: string = 'Numero de Peticion:';
+  labelNumeroPeticion: string = 'Número de petición:';
   labelUsuario: string = 'Usuario:';
 
+  // Opciones del formulario
+  readonly tipos = ['Petición', 'Queja', 'Reclamo'];
+  readonly categorias = [
+    'Atención al cliente',
+    'Movimientos y pagos',
+    'Plataforma',
+    'Alianzas y beneficios',
+  ];
+  readonly prioridades: PrioridadPqr[] = ['Alta', 'Media', 'Baja'];
+
+  // Pasos informativos del proceso
+  readonly pasos = [
+    { titulo: 'Radicas', detalle: 'Envías tu solicitud' },
+    { titulo: 'Revisamos', detalle: 'Un asesor toma el caso' },
+    { titulo: 'Respondemos', detalle: 'Máximo 48 horas hábiles' },
+  ];
+
   // Modelo del formulario
+  tipo: string = 'Petición';
+  categoria: string = 'Atención al cliente';
+  prioridad: PrioridadPqr = 'Media';
   asunto: string = '';
   descripcion: string = '';
   archivoAdjunto: File | null = null;
   nombreArchivo: string = '';
+
+  get caracteresRestantes(): number {
+    return 600 - this.descripcion.length;
+  }
 
   volver(): void {
     this.router.navigate(['/pqr']);
@@ -45,18 +82,31 @@ export class NuevoPqrComponent {
 
   enviar(): void {
     if (!this.asunto.trim() || !this.descripcion.trim()) {
-      console.warn('Asunto y descripción son obligatorios');
+      this.toastService.info('El asunto y la descripción son obligatorios.');
       return;
     }
 
-    console.log('Enviando PQR', {
-      numeroPeticion: this.numeroPeticion,
-      usuario: this.usuario,
-      asunto: this.asunto,
-      descripcion: this.descripcion,
-      archivo: this.nombreArchivo,
+    this.pqrService.agregarPqr({
+      titulo: this.asunto.trim(),
+      numero: Math.floor(1000000 + Math.random() * 9000000).toString(),
+      estado: 'Radicado',
+      tipo: this.tipo,
+      categoria: this.categoria,
+      descripcion: this.descripcion.trim(),
+      prioridad: this.prioridad,
+      fechaCreacion: new Date().toLocaleDateString('es-CO', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      ultimaActualizacion: 'Hace un momento',
+      asesor: 'Por asignar',
+      respuestas: 0,
+      adjuntos: this.nombreArchivo ? 1 : 0,
+      progreso: 10,
     });
 
+    this.toastService.success('PQR radicada correctamente.');
     this.router.navigate(['/pqr']);
   }
 }
