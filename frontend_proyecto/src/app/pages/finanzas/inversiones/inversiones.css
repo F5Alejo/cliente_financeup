@@ -21,16 +21,26 @@
 .inversiones-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
+    align-items: flex-start;
+    margin-bottom: 26px;
 }
 
 .inversiones-header h1 {
-    font-size: 20px;
+    font-size: 24px;
     color: #0f172a;
     font-weight: 700;
+    line-height: 1.2;
+}
+
+.inversiones-header .mes-actual {
+    color: #64748b;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.header-acciones {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
 }
 
