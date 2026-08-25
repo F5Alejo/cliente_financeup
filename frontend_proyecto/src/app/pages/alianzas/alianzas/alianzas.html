@@ -1,122 +1,262 @@
 <section class="hero">
   <div class="hero-left">
-    <span class="hero-badge">✅ BENEFICIOS EXCLUSIVOS</span>
+    <span class="hero-badge">BENEFICIOS EXCLUSIVOS</span>
     <h1 class="hero-title">
       <span class="hero-title-dark">Tu Crédito Ideal,</span>
-      <span class="hero-title-accent">Aprobado en</span>
-      <span class="hero-title-accent">Minutos</span>
+      <span class="hero-title-accent">Aprobado en Minutos</span>
     </h1>
     <p class="hero-subtitle">
       Accede a ofertas preferenciales de los mejores bancos y fintechs de Colombia.
       Mejora tu perfil y ahorra en intereses hoy mismo.
     </p>
     <div class="hero-actions">
-      <button type="button" class="btn btn-hero">Ver mis elegibles →</button>
-      <button type="button" class="btn btn-outline">Explorar Todo</button>
+      <button type="button" class="btn btn-hero">Ver mis elegibles</button>
+      <button type="button" class="btn btn-outline" (click)="limpiarFiltros()">
+        Explorar todo
+      </button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-value">{{ totalAliados() }}</span>
+        <span class="hero-stat-label">Aliados activos</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">{{ formatTasa(tasaMinima()) }}</span>
+        <span class="hero-stat-label">Tasa desde E.A.</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">{{ formatUsuarios(usuariosTotales()) }}</span>
+        <span class="hero-stat-label">Usuarios beneficiados</span>
+      </div>
     </div>
   </div>
 
   <div class="hero-card-wrapper">
     <div class="credit-card">
+      <span class="card-brand">FinanceUp</span>
       <div class="card-chip"></div>
       <p class="card-number">•••• •••• •••• 8842</p>
-      <p class="card-tier">PLATINUM</p>
+      <div class="card-footer">
+        <p class="card-tier">PLATINUM</p>
+        <p class="card-exp">12/29</p>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="content-grid">
-  <!-- Filtros -->
-  <aside class="filters-panel">
-    <h2 class="panel-title">☰ Filtrar ofertas</h2>
+<!-- Barra de filtros -->
+<section class="toolbar">
+  <div class="search-box">
+    <span class="search-icon" aria-hidden="true"></span>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Busca por aliado, producto o beneficio..."
+      [value]="busqueda()"
+      (input)="busqueda.set($any($event.target).value)"
+    />
+  </div>
 
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input
-        type="text"
-        class="search-input"
-        placeholder="Bancos, fintechs..."
-        [value]="busqueda()"
-        (input)="busqueda.set($any($event.target).value)"
-      />
-    </div>
-
+  <div class="toolbar-filters">
     <div class="filter-group">
-      <p class="filter-label">Tipo de Aliado</p>
+      <span class="filter-label">Aliado</span>
       <div class="filter-tags">
-        <button
-          type="button"
-          class="tag"
-          *ngFor="let tipo of tiposAliado"
-          [class.active]="tipoAliadoSeleccionado() === tipo"
-          (click)="seleccionarTipoAliado(tipo)"
-        >
-          {{ tipo }}
-        </button>
-      </div>
-    </div>
-
-    <div class="filter-group">
-      <p class="filter-label">Beneficio Principal</p>
-      <div class="filter-tags">
-        <button
-          type="button"
-          class="tag"
-          *ngFor="let beneficio of beneficios"
-          [class.active]="beneficioSeleccionado() === beneficio"
-          (click)="seleccionarBeneficio(beneficio)"
-        >
-          {{ beneficio }}
-        </button>
-      </div>
-    </div>
-
-    <div class="filter-group">
-      <p class="filter-label">Tu Perfil</p>
-      <div class="filter-tags">
-        <button
-          type="button"
-          class="tag"
-          *ngFor="let perfil of perfiles"
-          [class.active]="perfilSeleccionado() === perfil"
-          (click)="seleccionarPerfil(perfil)"
-        >
-          {{ perfil }}
-        </button>
-      </div>
-    </div>
-
-    <div class="bonus-card">
-      <p class="bonus-title">Bonos por buen hábito</p>
-      <button type="button" class="btn btn-bonus">Conoce Cómo</button>
-    </div>
-  </aside>
-
-  <!-- Ofertas -->
-  <main class="offers-panel">
-    <h2 class="section-title">Ofertas recomendadas</h2>
-
-    <article class="offer-card" *ngFor="let oferta of ofertas">
-      <div class="offer-info">
-        <h3 class="offer-name">{{ oferta.aliado }}</h3>
-        <p class="offer-desc">{{ oferta.descripcion }}</p>
-        <p class="offer-meta">{{ oferta.meta }}</p>
-        <div class="offer-actions">
-          <button type="button" class="btn btn-primary">{{ oferta.ctaPrimaria }}</button>
-          <button type="button" class="btn btn-secondary" *ngIf="oferta.ctaSecundaria">
-            {{ oferta.ctaSecundaria }}
+        @for (tipo of tiposAliado; track tipo) {
+          <button
+            type="button"
+            class="tag"
+            [class.active]="tipoAliadoSeleccionado() === tipo"
+            (click)="seleccionarTipoAliado(tipo)"
+          >
+            {{ tipo }}
           </button>
-        </div>
+        }
       </div>
-      <div class="offer-logo" [style.background]="oferta.logoBg">
-        {{ oferta.logoText }}
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Beneficio</span>
+      <div class="filter-tags">
+        @for (beneficio of beneficios; track beneficio) {
+          <button
+            type="button"
+            class="tag"
+            [class.active]="beneficioSeleccionado() === beneficio"
+            (click)="seleccionarBeneficio(beneficio)"
+          >
+            {{ beneficio }}
+          </button>
+        }
       </div>
-    </article>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Tu perfil</span>
+      <div class="filter-tags">
+        @for (perfil of perfiles; track perfil) {
+          <button
+            type="button"
+            class="tag"
+            [class.active]="perfilSeleccionado() === perfil"
+            (click)="seleccionarPerfil(perfil)"
+          >
+            {{ perfil }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (hayFiltrosActivos()) {
+      <button type="button" class="btn-clear" (click)="limpiarFiltros()">
+        Limpiar filtros
+      </button>
+    }
+  </div>
+</section>
+
+<section class="content-grid">
+  <main class="offers-panel">
+    <header class="offers-header">
+      <div>
+        <h2 class="section-title">Ofertas recomendadas</h2>
+        <p class="section-subtitle">
+          {{ ofertasFiltradas().length }} resultados ·
+          {{ ofertasDestacadas().length }} destacadas para tu perfil
+        </p>
+      </div>
+
+      <div class="sort-tabs">
+        @for (orden of ordenes; track orden) {
+          <button
+            type="button"
+            class="sort-tab"
+            [class.active]="ordenSeleccionado() === orden"
+            (click)="seleccionarOrden(orden)"
+          >
+            {{ orden }}
+          </button>
+        }
+      </div>
+    </header>
+
+    @if (ofertasFiltradas().length === 0) {
+      <div class="empty-state">
+        <p class="empty-title">No encontramos ofertas con esos filtros</p>
+        <p class="empty-text">Prueba con otra combinación o limpia los filtros activos.</p>
+        <button type="button" class="btn btn-primary" (click)="limpiarFiltros()">
+          Limpiar filtros
+        </button>
+      </div>
+    } @else {
+      <div class="offers-grid">
+        @for (oferta of ofertasFiltradas(); track oferta.id; let i = $index) {
+          <article
+            class="offer-card"
+            [class.expanded]="ofertaExpandida() === oferta.id"
+            [style.animation-delay]="i * 60 + 'ms'"
+          >
+            <div class="offer-cover" [style.background]="oferta.logoBg">
+              <div class="offer-cover-top">
+                <span class="offer-type">{{ oferta.tipo }}</span>
+                @if (oferta.destacada) {
+                  <span class="offer-flag">Destacado</span>
+                }
+              </div>
+
+              <div class="offer-cover-bottom">
+                <div class="offer-logo">{{ oferta.logoText }}</div>
+                <div class="offer-match">
+                  <span class="offer-match-value">{{ oferta.compatibilidad }}%</span>
+                  <span class="offer-match-label">compatible</span>
+                </div>
+              </div>
+
+              <div class="offer-match-track">
+                <span
+                  class="offer-match-fill"
+                  [style.width]="oferta.compatibilidad + '%'"
+                ></span>
+              </div>
+            </div>
+
+            <div class="offer-body">
+              <p class="offer-category">{{ oferta.categoria }}</p>
+              <h3 class="offer-name">{{ oferta.aliado }}</h3>
+              <p class="offer-desc">{{ oferta.descripcion }}</p>
+
+              <dl class="offer-stats">
+                <div class="offer-stat">
+                  <dt>Tasa desde</dt>
+                  <dd>{{ formatTasa(oferta.tasaDesde) }}</dd>
+                </div>
+                <div class="offer-stat">
+                  <dt>Monto máx.</dt>
+                  <dd>{{ oferta.montoMaximo ? formatMontoCorto(oferta.montoMaximo) : '—' }}</dd>
+                </div>
+                <div class="offer-stat">
+                  <dt>Plazo</dt>
+                  <dd>{{ formatPlazo(oferta.plazoMaximo) }}</dd>
+                </div>
+              </dl>
+
+              <div class="offer-tags">
+                @for (etiqueta of oferta.etiquetas; track etiqueta) {
+                  <span class="offer-tag">{{ etiqueta }}</span>
+                }
+              </div>
+
+              <div class="offer-meta">
+                <span class="offer-meta-item offer-rating">
+                  <span class="star" aria-hidden="true">★</span>
+                  {{ oferta.calificacion }}
+                </span>
+                <span class="offer-meta-item">
+                  {{ formatUsuarios(oferta.usuarios) }} usuarios
+                </span>
+                <span class="offer-meta-item">
+                  Aprobación en {{ oferta.aprobacion }}
+                </span>
+              </div>
+
+              @if (ofertaExpandida() === oferta.id) {
+                <div class="offer-details">
+                  <p class="offer-details-title">Requisitos principales</p>
+                  <ul class="offer-requisitos">
+                    @for (requisito of oferta.requisitos; track requisito) {
+                      <li>{{ requisito }}</li>
+                    }
+                  </ul>
+                  <p class="offer-vigencia">{{ oferta.meta }}</p>
+                </div>
+              }
+
+              <div class="offer-actions">
+                <button type="button" class="btn btn-primary">{{ oferta.ctaPrimaria }}</button>
+                @if (oferta.ctaSecundaria) {
+                  <button type="button" class="btn btn-secondary">
+                    {{ oferta.ctaSecundaria }}
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="btn-detalle"
+                  (click)="toggleDetalle(oferta.id)"
+                >
+                  {{ ofertaExpandida() === oferta.id ? 'Ocultar' : 'Detalles' }}
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
   </main>
 
   <!-- Simulador -->
   <aside class="simulator-panel">
-    <h2 class="panel-title">📊 Simulador Pro</h2>
+    <h2 class="panel-title">Simulador Pro</h2>
+    <p class="panel-subtitle">Calcula tu cuota antes de aplicar</p>
 
     <div class="sim-row">
       <span class="sim-label">¿Cuánto necesitas?</span>
@@ -138,25 +278,24 @@
     </div>
 
     <p class="sim-label">Plazo (meses)</p>
-    <p class="sim-value-lg">{{ plazoMeses() }}</p>
-
     <div class="plazo-buttons">
-      <button
-        type="button"
-        class="plazo-btn"
-        *ngFor="let plazo of plazosDisponibles"
-        [class.active]="plazoMeses() === plazo"
-        (click)="seleccionarPlazo(plazo)"
-      >
-        {{ plazo }}
-      </button>
+      @for (plazo of plazosDisponibles; track plazo) {
+        <button
+          type="button"
+          class="plazo-btn"
+          [class.active]="plazoMeses() === plazo"
+          (click)="seleccionarPlazo(plazo)"
+        >
+          {{ plazo }}
+        </button>
+      }
     </div>
 
     <p class="sim-label">Pago mensual estimado</p>
     <p class="sim-value-xl">{{ formatCOP(pagoMensual()) }}</p>
 
     <div class="ahorro-box">
-      <span class="ahorro-icon">↓</span>
+      <span class="ahorro-icon" aria-hidden="true">↓</span>
       <div>
         <p class="ahorro-label">AHORRO POTENCIAL</p>
         <p class="ahorro-value">-{{ formatCOP(ahorroPotencial()) }} en intereses</p>
@@ -164,5 +303,13 @@
     </div>
 
     <button type="button" class="btn btn-solicitar">Solicitar este crédito</button>
+
+    <div class="bonus-card">
+      <p class="bonus-title">Bonos por buen hábito</p>
+      <p class="bonus-text">
+        Completa tus módulos de educación financiera y desbloquea mejores tasas.
+      </p>
+      <button type="button" class="btn btn-bonus">Conoce cómo</button>
+    </div>
   </aside>
 </section>
