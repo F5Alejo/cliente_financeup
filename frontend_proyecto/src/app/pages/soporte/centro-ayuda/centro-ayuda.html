@@ -1,63 +1,126 @@
 <section class="help-center">
 
-  <h1 class="help-center__title">{{ title }}</h1>
+  <!-- Encabezado -->
+  <header class="help-hero">
+    <span class="help-hero__badge">CENTRO DE AYUDA</span>
+    <h1 class="help-hero__title">{{ title }}</h1>
+    <p class="help-hero__subtitle">{{ subtitle }}</p>
 
-  <div class="help-center__search">
-    <input
-      type="text"
-      class="help-center__search-input"
-      [placeholder]="searchPlaceholder"
-    />
-  </div>
+    <div class="help-search">
+      <span class="help-search__icon" aria-hidden="true"></span>
+      <input
+        type="text"
+        class="help-search__input"
+        [placeholder]="searchPlaceholder"
+        [value]="busqueda()"
+        (input)="busqueda.set($any($event.target).value)"
+      />
+      <span class="help-search__count">{{ totalArticulos() }} artículos</span>
+    </div>
 
-  <div class="help-center__cards">
-
-    <!-- Tarjeta de preguntas frecuentes -->
-    <article class="card">
-      <h2 class="card__title">{{ faqCardTitle }}</h2>
-      <ul class="card__list">
-        @for (question of faqQuestions; track question) {
-          <li>{{ question }}</li>
-        }
-      </ul>
-      <button class="btn btn--dark" (click)="onVerMasFaq()">
-        {{ faqButtonLabel }}
-      </button>
-    </article>
-
-    <!-- Tarjetas de acción (Asesor / PQR) -->
-    @for (card of actionCards; track card.title) {
-      <article class="card">
-        <h2 class="card__title">{{ card.title }}</h2>
-        <p class="card__text">{{ card.description }}</p>
-        <button
-          class="btn"
-          [class.btn--green]="card.variant === 'green'"
-          [class.btn--dark]="card.variant === 'dark'"
-          (click)="card.variant === 'green' ? onIniciarChat() : onCrearPqr()"
-        >
-          {{ card.buttonLabel }}
-        </button>
-      </article>
-    }
-
-  </div>
-
-  <div class="help-center__support">
-    <h3 class="help-center__support-title">{{ supportTitle }}</h3>
-
-    <div class="help-center__support-grid">
-      @for (block of supportBlocks; track $index) {
-        <div class="support-block">
-          @for (contact of block.contacts; track contact.label) {
-            <p>
-              <span class="support-block__label">{{ contact.label }}</span>
-              <span class="support-block__value">{{ contact.value }}</span>
-            </p>
-          }
+    <div class="help-hero__stats">
+      @for (indicador of indicadores; track indicador.etiqueta) {
+        <div class="help-stat">
+          <span class="help-stat__value">{{ indicador.valor }}</span>
+          <span class="help-stat__label">{{ indicador.etiqueta }}</span>
         </div>
       }
     </div>
+  </header>
+
+  <!-- Categorías -->
+  <h2 class="help-section-title">Explora por tema</h2>
+
+  @if (categoriasFiltradas().length === 0) {
+    <div class="help-empty">
+      <p class="help-empty__title">Sin resultados para tu búsqueda</p>
+      <p class="help-empty__text">Intenta con otras palabras o escríbenos por uno de nuestros canales.</p>
+    </div>
+  } @else {
+    <div class="help-categories">
+      @for (categoria of categoriasFiltradas(); track categoria.titulo; let i = $index) {
+        <article
+          class="category-card"
+          [style.animation-delay]="i * 70 + 'ms'"
+          (click)="abrirCategoria(categoria)"
+        >
+          <div class="category-card__head">
+            <span class="category-card__icon" aria-hidden="true">{{ categoria.icono }}</span>
+            <span class="category-card__count">{{ categoria.articulos }} artículos</span>
+          </div>
+
+          <h3 class="category-card__title">{{ categoria.titulo }}</h3>
+          <p class="category-card__desc">{{ categoria.descripcion }}</p>
+
+          <ul class="category-card__list">
+            @for (tema of categoria.temas; track tema) {
+              <li>{{ tema }}</li>
+            }
+          </ul>
+
+          <span class="category-card__link">Ver todos los artículos →</span>
+        </article>
+      }
+    </div>
+  }
+
+  <!-- Canales de atención -->
+  <h2 class="help-section-title">{{ canalesTitle }}</h2>
+
+  <div class="help-channels">
+    @for (canal of canales; track canal.titulo; let i = $index) {
+      <article class="channel-card" [style.animation-delay]="i * 70 + 'ms'">
+        <div class="channel-card__head">
+          <span class="channel-card__icon" aria-hidden="true">{{ canal.icono }}</span>
+          <span class="channel-card__status" [class.offline]="!canal.enLinea">
+            <span class="channel-card__dot" aria-hidden="true"></span>
+            {{ canal.enLinea ? 'En línea' : 'Fuera de horario' }}
+          </span>
+        </div>
+
+        <h3 class="channel-card__title">{{ canal.titulo }}</h3>
+        <p class="channel-card__desc">{{ canal.descripcion }}</p>
+
+        <dl class="channel-card__meta">
+          <div>
+            <dt>Disponibilidad</dt>
+            <dd>{{ canal.disponibilidad }}</dd>
+          </div>
+          <div>
+            <dt>Tiempo de respuesta</dt>
+            <dd>{{ canal.tiempoRespuesta }}</dd>
+          </div>
+        </dl>
+
+        <button
+          class="btn"
+          [class.btn--green]="canal.variant === 'green'"
+          [class.btn--dark]="canal.variant === 'dark'"
+          (click)="ejecutarCanal(canal)"
+        >
+          {{ canal.buttonLabel }}
+        </button>
+      </article>
+    }
+  </div>
+
+  <!-- Contactos -->
+  <h2 class="help-section-title">{{ supportTitle }}</h2>
+
+  <div class="help-support">
+    @for (block of supportBlocks; track block.titulo) {
+      <div class="support-block">
+        <h3 class="support-block__title">{{ block.titulo }}</h3>
+        <p class="support-block__horario">{{ block.horario }}</p>
+
+        @for (contact of block.contacts; track contact.label) {
+          <p class="support-block__row">
+            <span class="support-block__label">{{ contact.label }}</span>
+            <span class="support-block__value">{{ contact.value }}</span>
+          </p>
+        }
+      </div>
+    }
   </div>
 
 </section>

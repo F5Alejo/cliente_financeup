@@ -3,12 +3,32 @@
   <div class="habla-card">
 
     <div class="habla-card__content">
+      <span class="habla-card__badge">
+        <span class="habla-card__dot" aria-hidden="true"></span>
+        Asesores en línea
+      </span>
+
       <h2 class="habla-card__title">{{ title }}</h2>
       <p class="habla-card__description">{{ description }}</p>
+
+      <ul class="habla-card__temas">
+        @for (tema of temas; track tema) {
+          <li>{{ tema }}</li>
+        }
+      </ul>
 
       <button class="btn-whatsapp" (click)="onWhatsappClick()">
         {{ buttonLabel }}
       </button>
+
+      <div class="habla-card__stats">
+        @for (dato of datosAtencion; track dato.etiqueta) {
+          <div class="habla-stat">
+            <span class="habla-stat__value">{{ dato.valor }}</span>
+            <span class="habla-stat__label">{{ dato.etiqueta }}</span>
+          </div>
+        }
+      </div>
     </div>
 
     <div
