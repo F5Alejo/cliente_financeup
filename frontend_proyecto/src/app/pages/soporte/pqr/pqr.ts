@@ -1,8 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+<<<<<<< HEAD
+import { Router } from '@angular/router';
+=======
 import { PqrService, Pqr } from '../../../services/pqr';
 import { ToastService } from '../../../shared/services/toast';
+>>>>>>> 792e7540e6b6f66917aa15833892238441882664
 
 @Component({
   selector: 'app-pqr',
@@ -11,6 +15,9 @@ import { ToastService } from '../../../shared/services/toast';
   styleUrl: './pqr.css',
 })
 export class PqrComponent {
+<<<<<<< HEAD
+  constructor(private readonly router: Router) {}
+=======
   constructor(
     private pqrService: PqrService,
     private toastService: ToastService
@@ -19,6 +26,7 @@ export class PqrComponent {
   get pqrs() {
     return this.pqrService.pqrs;
   }
+>>>>>>> 792e7540e6b6f66917aa15833892238441882664
 
   // =========================
   // TEXTOS DEL COMPONENTE
@@ -42,6 +50,24 @@ export class PqrComponent {
   // =========================
 
   searchText: string = '';
+
+
+  // =========================
+  // PQR QUEMADAS
+  // =========================
+
+  pqrs = [
+    {
+      titulo: 'Queja asesor',
+      numero: '1121313131',
+      estado: 'En revisión'
+    },
+    {
+      titulo: 'Bug en la plataforma',
+      numero: '1516655',
+      estado: 'En revisión'
+    }
+  ];
 
 
   // =========================
@@ -78,6 +104,14 @@ export class PqrComponent {
   // ACCIONES
   // =========================
 
+<<<<<<< HEAD
+  verPqr(pqr: any): void {
+    this.router.navigate(['/ver-pqr']);
+  }
+
+  crearNuevaPqr(): void {
+    this.router.navigate(['/nuevo-pqr']);
+=======
   verPqr(pqr: Pqr): void {
     this.toastService.info(`${pqr.titulo} · N° ${pqr.numero} · Estado: ${pqr.estado}`);
   }
@@ -90,5 +124,6 @@ export class PqrComponent {
       estado: 'En revisión',
     });
     this.toastService.success('PQR creada correctamente.');
+>>>>>>> 792e7540e6b6f66917aa15833892238441882664
   }
 }

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-nuevo-pqr',
@@ -8,6 +9,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './nuevo-pqr.css',
 })
 export class NuevoPqrComponent {
+  constructor(private readonly router: Router) {}
   // Textos de la interfaz (quemados)
   titulo: string = 'Nuevo PQR';
   labelAsunto: string = 'Asunto:';
@@ -30,8 +32,7 @@ export class NuevoPqrComponent {
   nombreArchivo: string = '';
 
   volver(): void {
-    console.log('Volver al listado');
-    // Aquí iría history.back() o router.navigate([...])
+    this.router.navigate(['/pqr']);
   }
 
   onArchivoSeleccionado(event: Event): void {
@@ -55,5 +56,7 @@ export class NuevoPqrComponent {
       descripcion: this.descripcion,
       archivo: this.nombreArchivo,
     });
+
+    this.router.navigate(['/pqr']);
   }
 }

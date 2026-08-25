@@ -1,5 +1,10 @@
+<<<<<<< HEAD
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+=======
 import { Component } from '@angular/core';
 import { ToastService } from '../../../shared/services/toast';
+>>>>>>> 792e7540e6b6f66917aa15833892238441882664
 
 interface FaqItem {
   question: string;
@@ -13,14 +18,22 @@ interface FaqItem {
   templateUrl: './linea-ayuda.html',
   styleUrl: './linea-ayuda.css',
 })
+<<<<<<< HEAD
+export class LineaAyudaComponent implements OnInit {
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+  ) {}
+=======
 export class LineaAyudaComponent {
   constructor(private toastService: ToastService) {}
+>>>>>>> 792e7540e6b6f66917aa15833892238441882664
 
   // Banner
   bannerTitle: string = 'Línea de Ayuda';
   bannerDescription: string =
     'Resuelve tus dudas, consulta sobre operaciones o productos y recibe la atención especializada que necesitas a través de nuestros canales de atención al cliente.';
-  phoneNumber: string = '607 630 40 00';
+  phoneNumber: string = '+57 3102257759';
   chatButtonLabel: string = 'Chat';
 
   // Sección de preguntas
@@ -69,7 +82,41 @@ export class LineaAyudaComponent {
     item.expanded = !wasExpanded;
   }
 
+<<<<<<< HEAD
+  ngOnInit(): void {
+    this.route.queryParamMap.subscribe((params) => {
+      const pregunta = params.get('pregunta');
+
+      if (!pregunta) {
+        return;
+      }
+
+      const consulta = this.normalizarTexto(pregunta);
+      const preguntaEncontrada = this.faqItems.find((item) => {
+        const titulo = this.normalizarTexto(item.question);
+        return titulo.includes(consulta) || consulta.includes(titulo);
+      });
+
+      if (preguntaEncontrada) {
+        this.toggleFaq(preguntaEncontrada);
+      }
+    });
+=======
   onChatClick(): void {
     this.toastService.info('El chat en vivo estará disponible próximamente.');
+>>>>>>> 792e7540e6b6f66917aa15833892238441882664
+  }
+
+  private normalizarTexto(texto: string): string {
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .trim();
+  }
+
+  onChatClick(): void {
+    this.router.navigate(['/habla-con-nosostros']);
   }
 }
