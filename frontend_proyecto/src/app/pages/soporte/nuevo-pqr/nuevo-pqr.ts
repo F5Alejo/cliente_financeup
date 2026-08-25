@@ -104,6 +104,9 @@ export class NuevoPqrComponent {
       respuestas: 0,
       adjuntos: this.nombreArchivo ? 1 : 0,
       progreso: 10,
+      usuario: this.usuario,
+      archivosAdjuntos: this.nombreArchivo ? [this.nombreArchivo] : [],
+      mensajeRespuesta: 'Tu solicitud fue radicada. Un asesor la revisará pronto.',
     });
 
     this.toastService.success('PQR radicada correctamente.');

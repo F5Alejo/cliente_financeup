@@ -116,8 +116,8 @@ export class PqrComponent {
   // ACCIONES
   // =========================
 
-  verPqr(pqr: any): void {
-    this.router.navigate(['/ver-pqr']);
+  verPqr(pqr: Pqr): void {
+    this.router.navigate(['/ver-pqr', pqr.numero]);
   }
 
   crearNuevaPqr(): void {
