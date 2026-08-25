@@ -7,7 +7,17 @@
       type="text"
       class="help-center__search-input"
       [placeholder]="searchPlaceholder"
+      [(ngModel)]="searchText"
+      (keyup.enter)="buscarPregunta()"
     />
+    <button
+      type="button"
+      class="help-center__search-button"
+      (click)="buscarPregunta()"
+      aria-label="Buscar"
+    >
+      <span class="help-center__search-icon" aria-hidden="true"></span>
+    </button>
   </div>
 
   <div class="help-center__cards">
