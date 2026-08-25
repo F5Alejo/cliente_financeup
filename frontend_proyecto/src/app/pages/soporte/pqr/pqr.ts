@@ -20,10 +20,6 @@ export class PqrComponent {
     private router: Router
   ) {}
 
-  get pqrs() {
-    return this.pqrService.pqrs;
-  }
-
   // =========================
   // TEXTOS DEL COMPONENTE
   // =========================
@@ -116,8 +112,8 @@ export class PqrComponent {
   // ACCIONES
   // =========================
 
-  verPqr(pqr: Pqr): void {
-    this.toastService.info(`${pqr.titulo} · N° ${pqr.numero} · Estado: ${pqr.estado}`);
+  verPqr(pqr: any): void {
+    this.router.navigate(['/ver-pqr']);
   }
 
   crearNuevaPqr(): void {
