@@ -94,6 +94,20 @@
 }
 
 /* =========================
+   AVISO DE SESIÓN REQUERIDA
+========================= */
+
+.pqr-sin-sesion {
+  margin: 0 0 24px;
+  padding: 14px 20px;
+  background: #fff8e1;
+  border: 1px solid #f5deb3;
+  border-radius: 12px;
+  font-size: 13.5px;
+  color: #7a5c00;
+}
+
+/* =========================
    BUSCADOR Y FILTROS
 ========================= */
 

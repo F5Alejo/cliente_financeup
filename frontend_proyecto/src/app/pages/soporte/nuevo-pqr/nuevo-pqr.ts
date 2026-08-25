@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PqrService, PrioridadPqr } from '../../../services/pqr';
 import { ToastService } from '../../../shared/services/toast';
+import { AuthService } from '../../../services/auth';
+
+// TODO: ajustar esta ruta si tu página de login no está en '/login'.
+const RUTA_LOGIN = '/login';
 
 @Component({
   selector: 'app-nuevo-pqr',
@@ -10,12 +14,21 @@ import { ToastService } from '../../../shared/services/toast';
   templateUrl: './nuevo-pqr.html',
   styleUrl: './nuevo-pqr.css',
 })
-export class NuevoPqrComponent {
+export class NuevoPqrComponent implements OnInit {
   constructor(
     private pqrService: PqrService,
     private toastService: ToastService,
+    private authService: AuthService,
     private router: Router
   ) {}
+
+  ngOnInit(): void {
+    // Si alguien entra directo por URL sin sesión, lo mandamos al login.
+    if (!this.authService.estaAutenticado()) {
+      this.toastService.info('Inicia sesión para radicar una nueva PQR.');
+      this.router.navigate([RUTA_LOGIN]);
+    }
+  }
 
   // Textos de la interfaz
   titulo: string = 'Nuevo PQR';
@@ -32,11 +45,16 @@ export class NuevoPqrComponent {
   textoAdjuntarAyuda: string = 'PDF, JPG o PNG hasta 5 MB';
   textoBotonEnviar: string = 'Enviar PQR';
 
-  // Datos quemados (mock) del PQR actual
-  numeroPeticion: string = '132132385';
-  usuario: string = 'Harold Arciniegas';
   labelNumeroPeticion: string = 'Número de petición:';
   labelUsuario: string = 'Usuario:';
+
+  // Número de petición mock (se genera real al enviar); el usuario ya no
+  // está quemado, se toma de la sesión activa.
+  numeroPeticion: string = '132132385';
+
+  get usuario(): string {
+    return this.authService.obtenerNombre();
+  }
 
   // Opciones del formulario
   readonly tipos = ['Petición', 'Queja', 'Reclamo'];
@@ -81,6 +99,12 @@ export class NuevoPqrComponent {
   }
 
   enviar(): void {
+    if (!this.authService.estaAutenticado()) {
+      this.toastService.info('Inicia sesión para radicar una nueva PQR.');
+      this.router.navigate([RUTA_LOGIN]);
+      return;
+    }
+
     if (!this.asunto.trim() || !this.descripcion.trim()) {
       this.toastService.info('El asunto y la descripción son obligatorios.');
       return;
