@@ -104,6 +104,12 @@ export const routes: Routes = [
         title: 'Linea de ayuda - FinanceUp',
       },
       {
+        path: 'ver-pqr',
+        loadComponent: () =>
+          import('./pages/soporte/ver-pqr/ver-pqr').then((m) => m.VerPqrComponent),
+        title: 'Detalle PQR - FinanceUp',
+      },
+      {
         path: 'cookis',
         loadComponent: () =>
           import('./pages/soporte/banner-cookies/banner-cookies').then((m) => m.BannerCookiesComponent),
