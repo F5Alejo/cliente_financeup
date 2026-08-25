@@ -1,11 +1,6 @@
 import { Component } from '@angular/core';
-<<<<<<< HEAD
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-=======
-import { Router } from '@angular/router';
-import { ToastService } from '../../../shared/services/toast';
->>>>>>> 792e7540e6b6f66917aa15833892238441882664
 
 interface ActionCard {
   title: string;
@@ -30,15 +25,8 @@ interface SupportBlock {
   styleUrl: './centro-ayuda.css',
 })
 export class CentroAyudaConponent {
-<<<<<<< HEAD
   constructor(private readonly router: Router) {}
   
-=======
-  constructor(
-    private router: Router,
-    private toastService: ToastService
-  ) {}
->>>>>>> 792e7540e6b6f66917aa15833892238441882664
 
   // Encabezado
   title: string = '¿En qué podemos ayudarte?';
@@ -91,7 +79,6 @@ export class CentroAyudaConponent {
  
   onVerMasFaq(): void {
     this.router.navigate(['/linea-ayuda']);
-<<<<<<< HEAD
   }
 
   buscarPregunta(): void {
@@ -100,17 +87,10 @@ export class CentroAyudaConponent {
     this.router.navigate(['/linea-ayuda'], {
       queryParams: pregunta ? { pregunta } : undefined,
     });
-=======
->>>>>>> 792e7540e6b6f66917aa15833892238441882664
   }
 
   onIniciarChat(): void {
-<<<<<<< HEAD
     this.router.navigate(['/habla-con-nosostros']);
-=======
-    this.toastService.info('Conectando con un asesor (simulado)...');
-    this.router.navigate(['/linea-ayuda']);
->>>>>>> 792e7540e6b6f66917aa15833892238441882664
   }
 
   onCrearPqr(): void {
