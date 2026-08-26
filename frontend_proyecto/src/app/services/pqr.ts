@@ -19,6 +19,11 @@ export interface Pqr {
   respuestas: number;
   adjuntos: number;
   progreso: number;
+
+  // Datos usados en el detalle (ver-pqr)
+  usuario: string;
+  archivosAdjuntos: string[];
+  mensajeRespuesta: string;
 }
 
 @Injectable({
@@ -42,6 +47,10 @@ export class PqrService {
       respuestas: 3,
       adjuntos: 1,
       progreso: 60,
+      usuario: 'Usuario Demo',
+      archivosAdjuntos: ['evidencia_llamada.jpg'],
+      mensajeRespuesta:
+        'Estamos revisando tu caso, en caso de alguna novedad se te notificará por este mismo medio.',
     },
     {
       titulo: 'Bug en la plataforma',
@@ -58,6 +67,10 @@ export class PqrService {
       respuestas: 1,
       adjuntos: 2,
       progreso: 35,
+      usuario: 'Usuario Demo',
+      archivosAdjuntos: ['captura_error_1.png', 'captura_error_2.png'],
+      mensajeRespuesta:
+        'Nuestro equipo técnico ya está revisando el problema reportado. Te avisaremos apenas tengamos novedades.',
     },
     {
       titulo: 'Cobro duplicado en transferencia',
@@ -74,11 +87,19 @@ export class PqrService {
       respuestas: 5,
       adjuntos: 3,
       progreso: 100,
+      usuario: 'Usuario Demo',
+      archivosAdjuntos: [
+        'comprobante_transferencia.pdf',
+        'soporte_banco.pdf',
+        'captura_movimientos.png',
+      ],
+      mensajeRespuesta:
+        'Confirmamos el reintegro del cobro duplicado a tu cuenta. Tu caso ha sido cerrado exitosamente.',
     },
   ];
 
   agregarPqr(pqr: Pqr): void {
-    this.pqrs.push(pqr);
+    this.pqrs.unshift(pqr);
   }
 
   cambiarEstado(numero: string, nuevoEstado: string): void {

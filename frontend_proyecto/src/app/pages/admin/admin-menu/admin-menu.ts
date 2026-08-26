@@ -19,6 +19,8 @@ export class AdminMenuComponent {
     { nombre: 'Alianzas', ruta: '/admin/alianzas' },
     { nombre: 'Educación', ruta: '/admin/educacion' },
     { nombre: 'Finanzas', ruta: '/admin/finanzas' },
+    { nombre: 'Inversiones', ruta: '/admin/inversiones' },
+    { nombre: 'Metas', ruta: '/admin/metas' },
     { nombre: 'PQR', ruta: '/admin/pqr' },
   ];
 }

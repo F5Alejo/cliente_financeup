@@ -143,7 +143,7 @@ export const routes: Routes = [
         title: 'Linea de ayuda - FinanceUp',
       },
       {
-        path: 'ver-pqr',
+        path: 'ver-pqr/:numero',
         loadComponent: () =>
           import('./pages/soporte/ver-pqr/ver-pqr').then((m) => m.VerPqrComponent),
         title: 'Detalle PQR - FinanceUp',
@@ -216,6 +216,20 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./pages/admin/finanzas/finanzas').then((m) => m.AdminFinanzasComponent),
             title: 'Admin Finanzas - FinanceUp',
+          },
+          {
+            path: 'inversiones',
+            loadComponent: () =>
+              import('./pages//admin/inversiones/inversiones')
+            .then((m) => m.AdminInversionesComponent),
+            title: 'Admin Inversiones - FinanceUp',
+          },
+          {
+            path: 'metas',
+            loadComponent: () =>
+              import('./pages//admin/metas/metas')
+            .then((m) => m.AdminMetasComponent),
+            title: 'Admin Metas - FinanceUp',
           },
           {
             path: 'pqr',

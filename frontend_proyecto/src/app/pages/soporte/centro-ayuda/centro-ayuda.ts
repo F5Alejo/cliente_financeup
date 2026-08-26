@@ -175,7 +175,7 @@ export class CentroAyudaConponent {
       titulo: 'Soporte general',
       horario: 'Lunes a viernes, 8:00 a.m. – 6:00 p.m.',
       contacts: [
-        { label: 'Número de soporte', value: '+57 300 456 7890' },
+        { label: 'Número de soporte', value: '+57 300 735 7662' },
         { label: 'Correo electrónico', value: 'soporte@financeup.com' },
       ],
     },
@@ -183,7 +183,7 @@ export class CentroAyudaConponent {
       titulo: 'Atención prioritaria',
       horario: 'Sábados y festivos, 9:00 a.m. – 2:00 p.m.',
       contacts: [
-        { label: 'Número alternativo', value: '+57 301 987 6543' },
+        { label: 'Número alternativo', value: '+57 310 225 7759' },
         { label: 'Correo', value: 'ayuda@financeup.com' },
       ],
     },
