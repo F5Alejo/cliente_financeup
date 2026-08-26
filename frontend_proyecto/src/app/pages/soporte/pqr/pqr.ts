@@ -4,8 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EstadoPqr, Pqr, PqrService } from '../../../services/pqr';
 import { ToastService } from '../../../shared/services/toast';
+import { AuthService } from '../../../services/auth';
 
 type FiltroEstado = 'Todas' | EstadoPqr;
+
+// TODO: ajustar esta ruta si tu página de login no está en '/login'.
+const RUTA_LOGIN = '/login';
 
 @Component({
   selector: 'app-pqr',
@@ -17,6 +21,7 @@ export class PqrComponent {
   constructor(
     private pqrService: PqrService,
     private toastService: ToastService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
@@ -33,6 +38,8 @@ export class PqrComponent {
   textoCrearNuevo: string =
     'Radica una petición, queja o reclamo y haz seguimiento en tiempo real.';
   botonCrearNuevo: string = 'Radicar PQR';
+  mensajeSinSesion: string =
+    'Inicia sesión para consultar el estado de tus PQR. Aún puedes radicar una nueva solicitud.';
 
   // =========================
   // BUSCADOR Y FILTROS
@@ -47,6 +54,28 @@ export class PqrComponent {
     'Resuelto',
     'Rechazado',
   ];
+
+  // =========================
+  // SESIÓN
+  // =========================
+
+  get estaAutenticado(): boolean {
+    return this.authService.estaAutenticado();
+  }
+
+  /**
+   * Solo devuelve los PQR del usuario que tiene la sesión activa.
+   * Si no hay sesión, devuelve un arreglo vacío (el listado se muestra
+   * vacío, pero la tarjeta de "Crear nueva PQR" sigue visible).
+   */
+  get pqrs(): Pqr[] {
+    if (!this.estaAutenticado) {
+      return [];
+    }
+
+    const nombreUsuario = this.authService.obtenerNombre();
+    return this.pqrService.pqrs.filter((pqr) => pqr.usuario === nombreUsuario);
+  }
 
   get filteredPqrs(): Pqr[] {
     const search = this.searchText.toLowerCase().trim();
@@ -112,11 +141,20 @@ export class PqrComponent {
   // ACCIONES
   // =========================
 
-  verPqr(pqr: any): void {
-    this.router.navigate(['/ver-pqr']);
+  verPqr(pqr: Pqr): void {
+    if (!this.estaAutenticado) {
+      this.router.navigate([RUTA_LOGIN]);
+      return;
+    }
+    this.router.navigate(['/ver-pqr', pqr.numero]);
   }
 
   crearNuevaPqr(): void {
+    if (!this.estaAutenticado) {
+      this.toastService.info('Inicia sesión para radicar una nueva PQR.');
+      this.router.navigate([RUTA_LOGIN]);
+      return;
+    }
     this.router.navigate(['/nuevo-pqr']);
   }
 }

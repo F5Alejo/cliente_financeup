@@ -1,5 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToastService } from '../../../shared/services/toast';
 
 interface CategoriaAyuda {
   icono: string;
@@ -40,7 +42,10 @@ interface SupportBlock {
   styleUrl: './centro-ayuda.css',
 })
 export class CentroAyudaConponent {
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly router: Router,
+    private readonly toastService: ToastService,
+  ) {}
   
 
   // Encabezado
@@ -171,7 +176,7 @@ export class CentroAyudaConponent {
       titulo: 'Soporte general',
       horario: 'Lunes a viernes, 8:00 a.m. – 6:00 p.m.',
       contacts: [
-        { label: 'Número de soporte', value: '+57 300 456 7890' },
+        { label: 'Número de soporte', value: '+57 300 735 7662' },
         { label: 'Correo electrónico', value: 'soporte@financeup.com' },
       ],
     },
@@ -179,7 +184,7 @@ export class CentroAyudaConponent {
       titulo: 'Atención prioritaria',
       horario: 'Sábados y festivos, 9:00 a.m. – 2:00 p.m.',
       contacts: [
-        { label: 'Número alternativo', value: '+57 301 987 6543' },
+        { label: 'Número alternativo', value: '+57 310 225 7759' },
         { label: 'Correo', value: 'ayuda@financeup.com' },
       ],
     },

@@ -204,12 +204,13 @@ export class FinanzasComponent implements OnInit {
     return this.registros[this.tipoActivo()];
   }
 
-  agregarRegistro(): void {
+agregarRegistro(): void {
     const nombre = this.nombreNuevoRegistro.trim();
     const monto = this.montoNuevoRegistro;
 
     if (!nombre || monto === null || monto <= 0) {
-      return; // validación mínima: no agrega registros vacíos o con monto inválido
+      this.toastService.info('Ingresa un nombre y un monto válido para agregar el registro.');
+      return;
     }
 
     this.registros[this.tipoActivo()].push({
@@ -218,14 +219,21 @@ export class FinanzasComponent implements OnInit {
       monto,
     });
 
+    this.toastService.success('Registro agregado correctamente.');
+
     this.nombreNuevoRegistro = '';
     this.montoNuevoRegistro = null;
-  }
+}
 
-  eliminarRegistro(id: number): void {
+eliminarRegistro(id: number): void {
     const tipo = this.tipoActivo();
+    const registro = this.registros[tipo].find((r) => r.id === id);
+    const confirmado = confirm(`¿Eliminar "${registro?.nombre}"?`);
+    if (!confirmado) return;
+
     this.registros[tipo] = this.registros[tipo].filter(r => r.id !== id);
-  }
+    this.toastService.info('Registro eliminado.');
+}
 
   totalPorTipo(tipo: TipoRegistro): number {
     return this.registros[tipo].reduce((suma, r) => suma + r.monto, 0);

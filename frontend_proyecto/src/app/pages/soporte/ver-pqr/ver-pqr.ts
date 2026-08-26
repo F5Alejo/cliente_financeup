@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Pqr, PqrService } from '../../../services/pqr';
 
 @Component({
   selector: 'app-ver-pqr',
@@ -8,38 +9,57 @@ import { Router } from '@angular/router';
   templateUrl: './ver-pqr.html',
   styleUrl: './ver-pqr.css',
 })
-export class VerPqrComponent {
-  constructor(private readonly router: Router) {}
+export class VerPqrComponent implements OnInit {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private pqrService: PqrService
+  ) {}
 
-  // ===== Datos del PQR (quemados) =====
-  titulo: string = 'Queja Del Asesor';
-  numeroPeticion: string = '132132385';
-  usuario: string = 'Harold Arciniegas';
+  // ===== Dato del PQR actual (se carga según el número en la ruta) =====
+  pqr: Pqr | null = null;
 
-  labelNumeroPeticion: string = 'Numero de Peticion:';
+  // ===== Textos fijos de la interfaz =====
+  textoVolver: string = 'Volver a mis PQR';
+  badgeTexto: string = 'DETALLE DE SOLICITUD';
+  subtitulo: string = 'Aquí puedes ver el estado y los detalles de tu solicitud.';
+
+  labelNumeroPeticion: string = 'Número de petición:';
   labelUsuario: string = 'Usuario:';
   labelAsunto: string = 'Asunto:';
-  labelDescripcion: string = 'Descripcion:';
+  labelDescripcion: string = 'Descripción:';
+  labelEstado: string = 'Estado:';
 
-  asunto: string = 'Queja del Asesor';
-  descripcion: string = 'El asesor no me atudo en nada y fur grosero';
-
-  // ===== Archivos adjuntos (quemados) =====
-  archivosAdjuntos: string[] = ['nombre_archivo.jpg', 'nombre_archivo.jpg'];
-
-  // ===== Botón =====
   textoBotonEnviar: string = 'Enviar un nuevo pqr';
 
-  // ===== Estado del PQR =====
-  labelEstado: string = 'Estado:';
-  estado: string = 'En Revision';
+  ngOnInit(): void {
+    // La ruta se navega como: this.router.navigate(['/ver-pqr', pqr.numero])
+    // (ver pqr.ts -> verPqr()), así que aquí leemos ese mismo parámetro.
+    this.route.paramMap.subscribe((params) => {
+      const numero = params.get('numero');
+      this.pqr = this.pqrService.pqrs.find((p) => p.numero === numero) ?? null;
+    });
+  }
 
-  // ===== Mensaje / respuesta del asesor =====
-  mensajeRespuesta: string =
-    'estamos revisando tu caso, en caso de algunma novedad, sete notificara por este mismo medio';
+  /**
+   * Devuelve una clase CSS distinta según el estado del PQR,
+   * así el color del badge cambia automáticamente.
+   */
+  obtenerClaseEstado(): string {
+    switch (this.pqr?.estado) {
+      case 'En revisión':
+        return 'estado-amarillo';
+      case 'Resuelto':
+        return 'estado-verde';
+      case 'Rechazado':
+        return 'estado-rojo';
+      default:
+        return 'estado-gris';
+    }
+  }
 
   volver(): void {
-    console.log('Volver al listado de PQR');
+    this.router.navigate(['/pqr']);
   }
 
   verArchivo(nombreArchivo: string): void {
