@@ -1,21 +1,23 @@
-/* Radicar PQR: formulario sobrio, los pasos numerados son el tramite real. */
+/* Radicar PQR: formulario con aire, los pasos numerados son el tramite real. */
 
 :host {
-  --papel: #ffffff;
-  --fondo: #f4f6f5;
-  --linea: #dde5e0;
-  --linea-fuerte: #c3d2c9;
-  --texto: #16211c;
-  --texto-2: #5c7266;
+  --lienzo: #f2f6f4;
+  --panel: #ffffff;
+  --tinta: #14231c;
+  --tinta-2: #5a6f65;
+  --borde: #e6ece9;
   --verde: var(--green-primary);
   --verde-hondo: #0a5c28;
+  --verde-noche: #0b3a22;
   --verde-humo: #eef7f1;
+
+  --sombra: 0 1px 2px rgba(20, 35, 28, 0.04), 0 4px 12px rgba(20, 35, 28, 0.05);
 
   display: block;
   width: 100%;
   min-height: 100vh;
-  background: var(--fondo);
-  color: var(--texto);
+  background: var(--lienzo);
+  color: var(--tinta);
   font-family: var(--font-family-base);
 }
 
@@ -25,76 +27,78 @@
 
 .pqr-wrapper {
   width: 100%;
-  max-width: 940px;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 40px clamp(18px, 4vw, 48px) 88px;
+  padding: 36px clamp(18px, 4vw, 44px) 96px;
 }
 
 .pqr-card {
-  padding: clamp(24px, 4vw, 40px);
-  background: var(--papel);
-  border: 1px solid var(--linea);
-  border-radius: 14px;
+  padding: clamp(28px, 4vw, 48px);
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 22px;
+  box-shadow: var(--sombra);
 }
 
 /* ---------- Volver ---------- */
 .btn-volver {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  margin-bottom: 24px;
-  padding: 0;
-  background: none;
+  gap: 8px;
+  margin-bottom: 28px;
+  padding: 9px 18px 9px 14px;
+  background: var(--verde-humo);
   border: none;
+  border-radius: 999px;
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--texto-2);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--verde-hondo);
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .btn-volver:hover {
-  color: var(--verde-hondo);
+  background: var(--verde-hondo);
+  color: #ffffff;
 }
 
 /* ---------- Encabezado ---------- */
 .pqr-header {
-  padding-bottom: 24px;
-  margin-bottom: 28px;
-  border-bottom: 2px solid var(--texto);
+  margin-bottom: 34px;
 }
 
 .pqr-badge {
   display: inline-block;
-  margin-bottom: 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: var(--verde-humo);
+  font-size: 12px;
+  font-weight: 600;
   color: var(--verde-hondo);
 }
 
 .pqr-title {
-  margin: 0 0 10px;
-  font-size: clamp(24px, 3.2vw, 34px);
+  margin: 0 0 12px;
+  font-size: clamp(26px, 3.6vw, 38px);
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  line-height: 1.14;
+  letter-spacing: -0.02em;
 }
 
 .pqr-subtitle {
-  margin: 0 0 22px;
-  max-width: 60ch;
-  font-size: 14.5px;
-  line-height: 1.7;
-  color: var(--texto-2);
+  margin: 0 0 26px;
+  max-width: 58ch;
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: var(--tinta-2);
 }
 
 /* Datos del radicado */
 .pqr-datos {
   display: flex;
-  gap: 34px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -103,18 +107,19 @@
   flex-direction: column;
   gap: 3px;
   margin: 0;
+  padding: 14px 20px;
+  background: var(--verde-humo);
+  border-radius: 14px;
 }
 
 .pqr-meta span {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--texto-2);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tinta-2);
 }
 
 .pqr-meta strong {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--verde-hondo);
@@ -123,86 +128,82 @@
 /* ---------- Pasos del tramite ---------- */
 .pqr-pasos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 1px;
-  margin: 0 0 32px;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: 14px;
+  margin: 0 0 38px;
   padding: 0;
   list-style: none;
-  background: var(--linea);
-  border: 1px solid var(--linea);
-  border-radius: 10px;
-  overflow: hidden;
 }
 
 .pqr-paso {
   display: grid;
-  gap: 5px;
-  padding: 16px 18px;
-  background: var(--verde-humo);
+  gap: 7px;
+  padding: 20px;
+  background: var(--lienzo);
+  border-radius: 16px;
 }
 
 .pqr-paso__num {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--verde-hondo);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: #ffffff;
 }
 
 .pqr-paso__titulo {
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 .pqr-paso__detalle {
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--texto-2);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--tinta-2);
 }
 
 /* ---------- Formulario ---------- */
 .pqr-form {
   display: grid;
-  gap: 24px;
+  gap: 28px;
 }
 
 .pqr-selects {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 18px;
 }
 
 .pqr-field {
   display: grid;
-  gap: 7px;
+  gap: 8px;
 }
 
 .pqr-label {
   display: block;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--texto-2);
+  letter-spacing: -0.01em;
+  color: var(--tinta);
 }
 
 .pqr-select,
 .pqr-input,
 .pqr-textarea {
   width: 100%;
-  padding: 12px 14px;
-  background: var(--papel);
-  border: 1px solid var(--linea-fuerte);
-  border-radius: 8px;
+  padding: 14px 16px;
+  background: var(--panel);
+  border: 1px solid #d8e3dd;
+  border-radius: 12px;
   font-family: inherit;
-  font-size: 14px;
-  color: var(--texto);
+  font-size: 15px;
+  color: var(--tinta);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -210,43 +211,42 @@
 .pqr-input:focus,
 .pqr-textarea:focus {
   outline: none;
-  border-color: var(--verde-hondo);
-  box-shadow: 0 0 0 3px rgba(10, 92, 40, 0.12);
+  border-color: var(--verde);
+  box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.14);
 }
 
 .pqr-input::placeholder,
 .pqr-textarea::placeholder {
-  color: var(--texto-2);
+  color: #8a9c93;
 }
 
 .pqr-form-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 260px;
-  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  gap: 24px;
   align-items: start;
 }
 
 .pqr-form-fields {
   display: grid;
-  gap: 7px;
+  gap: 8px;
 }
 
-/* Separacion entre el primer campo y la etiqueta siguiente */
 .pqr-form-fields .pqr-input + .pqr-label {
-  margin-top: 12px;
+  margin-top: 16px;
 }
 
 .pqr-textarea {
-  min-height: 168px;
-  line-height: 1.6;
+  min-height: 180px;
+  line-height: 1.65;
   resize: vertical;
 }
 
 .pqr-contador {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-variant-numeric: tabular-nums;
   text-align: right;
-  color: var(--texto-2);
+  color: var(--tinta-2);
 }
 
 /* ---------- Adjuntos ---------- */
@@ -257,23 +257,24 @@
 .pqr-dropzone {
   display: grid;
   justify-items: center;
-  gap: 8px;
-  padding: 28px 18px;
+  gap: 10px;
+  padding: 34px 22px;
   background: var(--verde-humo);
-  border: 1px dashed var(--linea-fuerte);
-  border-radius: 10px;
+  border: 1px dashed #bfd8c9;
+  border-radius: 16px;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .pqr-dropzone:hover {
-  border-color: var(--verde-hondo);
+  border-color: var(--verde);
+  background: #e5f3ea;
 }
 
 .pqr-dropzone:focus-within {
-  border-color: var(--verde-hondo);
-  box-shadow: 0 0 0 3px rgba(10, 92, 40, 0.12);
+  border-color: var(--verde);
+  box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.14);
 }
 
 .pqr-dropzone-icon {
@@ -281,16 +282,16 @@
 }
 
 .pqr-dropzone-text {
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 700;
   overflow-wrap: anywhere;
-  color: var(--texto);
+  color: var(--tinta);
 }
 
 .pqr-dropzone-help {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
-  color: var(--texto-2);
+  color: var(--tinta-2);
 }
 
 .pqr-dropzone-input {
@@ -302,38 +303,33 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-  padding-top: 22px;
-  border-top: 1px solid var(--linea);
+  padding-top: 26px;
+  border-top: 1px solid var(--borde);
 }
 
 .btn-cancelar,
 .btn-enviar {
-  padding: 12px 24px;
+  padding: 14px 30px;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 999px;
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-}
-
-.btn-cancelar:active,
-.btn-enviar:active {
-  transform: translateY(1px);
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-cancelar {
-  background: var(--papel);
-  border-color: var(--linea-fuerte);
-  color: var(--texto-2);
+  background: var(--panel);
+  border-color: #d8e3dd;
+  color: var(--tinta-2);
 }
 
 .btn-cancelar:hover {
-  border-color: var(--texto-2);
-  color: var(--texto);
+  border-color: var(--tinta-2);
+  color: var(--tinta);
 }
 
 .btn-enviar {
@@ -342,7 +338,8 @@
 }
 
 .btn-enviar:hover {
-  background: var(--texto);
+  background: var(--verde-noche);
+  box-shadow: 0 8px 22px rgba(10, 92, 40, 0.26);
 }
 
 /* ---------- Responsive ---------- */
@@ -354,7 +351,11 @@
 
 @media (max-width: 640px) {
   .pqr-wrapper {
-    padding: 28px 16px 56px;
+    padding: 24px 16px 60px;
+  }
+
+  .pqr-card {
+    border-radius: 18px;
   }
 
   .pqr-actions {
