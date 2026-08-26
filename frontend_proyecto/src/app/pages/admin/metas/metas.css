@@ -5,13 +5,13 @@
     font-family: 'Segoe UI', sans-serif;
 }
 
-.admin-finanzas {
+.admin-metas {
     padding: 28px 32px;
     max-width: 1100px;
     margin: 0 auto;
 }
 
-.admin-finanzas h1 {
+.admin-metas h1 {
     font-size: 24px;
     color: #0f172a;
     font-weight: 700;
@@ -21,6 +21,46 @@
     color: #64748b;
     font-size: 13px;
     margin: 4px 0 24px;
+}
+
+.resumen-admin {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.resumen-item {
+    background: white;
+    border: 1px solid #eef2f6;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.resumen-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.resumen-valor {
+    font-size: 19px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.resumen-valor.positivo { color: #0f766e; }
+
+.buscador {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 14px;
 }
 
 table {
@@ -48,14 +88,25 @@ tbody td {
     color: #334155;
 }
 
-td.positivo {
-    color: #0f766e;
-    font-weight: 700;
+.fila-vacia {
+    text-align: center;
+    color: #94a3b8;
+    padding: 20px !important;
 }
 
-td.negativo {
-    color: #dc2626;
+.estado {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
     font-weight: 700;
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.estado.cumplida {
+    background: #dcfce7;
+    color: #16a34a;
 }
 
 .acciones {
@@ -138,61 +189,14 @@ td.negativo {
     cursor: pointer;
 }
 
-.resumen-admin {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 20px;
-}
-
-.resumen-item {
-    background: white;
-    border: 1px solid #eef2f6;
-    border-radius: 14px;
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.resumen-label {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 600;
-}
-
-.resumen-valor {
-    font-size: 19px;
-    font-weight: 700;
-    color: #0f172a;
-}
-
-.resumen-valor.positivo { color: #0f766e; }
-.resumen-valor.negativo { color: #dc2626; }
-
-.buscador {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 13px;
-    margin-bottom: 14px;
-}
-
-.fila-vacia {
-    text-align: center;
-    color: #94a3b8;
-    padding: 20px !important;
-}
-
-@media (max-width: 700px) {
+@media (max-width: 900px) {
     .resumen-admin {
         grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 560px) {
-    .admin-finanzas {
+    .admin-metas {
         padding: 20px;
     }
 

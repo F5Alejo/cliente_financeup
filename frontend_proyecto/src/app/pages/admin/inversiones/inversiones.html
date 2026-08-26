@@ -1,0 +1,90 @@
+<app-admin-menu></app-admin-menu>
+<div class="admin-inversiones">
+    <h1>Inversiones</h1>
+    <p class="admin-sub">Agrega, edita o elimina las inversiones que ven los usuarios.</p>
+
+    <section class="resumen-admin">
+        <div class="resumen-item">
+            <span class="resumen-label">Total invertido</span>
+            <span class="resumen-valor">{{ formatearCOP(totalInvertido) }}</span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Rendimiento total</span>
+            <span class="resumen-valor" [class.positivo]="totalRendimiento >= 0" [class.negativo]="totalRendimiento < 0">
+                {{ formatearCOP(totalRendimiento) }}
+            </span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Inversiones de alto riesgo</span>
+            <span class="resumen-valor">{{ inversionesAltoRiesgo }}</span>
+        </div>
+    </section>
+
+    <input
+        type="text"
+        class="buscador"
+        placeholder="Buscar por nombre..."
+        [ngModel]="busqueda()"
+        (ngModelChange)="actualizarBusqueda($event)"
+        name="busqueda" />
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Monto</th>
+                <th>Rendimiento</th>
+                <th>Riesgo</th>
+                <th>Duración</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (inv of inversionesFiltradas; track inv.id) {
+                <tr>
+                    <td>{{ inv.nombre }}</td>
+                    <td>{{ formatearCOP(inv.monto) }}</td>
+                    <td [class.negativo]="inv.rendimiento < 0" [class.positivo]="inv.rendimiento >= 0">
+                        {{ formatearCOP(inv.rendimiento) }}
+                    </td>
+                    <td><span class="riesgo" [class]="'riesgo-' + inv.riesgo.toLowerCase()">{{ inv.riesgo }}</span></td>
+                    <td>{{ inv.duracion }}</td>
+                    <td class="acciones">
+                        <button type="button" (click)="editarInversion(inv)">Editar</button>
+                        <button type="button" class="btn-eliminar" (click)="eliminarInversion(inv.id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+            @if (inversionesFiltradas.length === 0) {
+                <tr>
+                    <td colspan="6" class="fila-vacia">No hay inversiones que coincidan con la búsqueda.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <section class="panel-form">
+        <h2>{{ editandoId ? 'Editar inversión' : 'Agregar inversión' }}</h2>
+        <form (ngSubmit)="guardarInversion()">
+            <div class="form-row">
+                <input type="text" [(ngModel)]="formInversion.nombre" name="nombre" placeholder="Nombre" required>
+                <input type="number" [(ngModel)]="formInversion.monto" name="monto" placeholder="Monto" required>
+                <input type="number" [(ngModel)]="formInversion.rendimiento" name="rendimiento" placeholder="Rendimiento">
+            </div>
+            <div class="form-row">
+                <select [(ngModel)]="formInversion.riesgo" name="riesgo">
+                    <option value="Bajo">Bajo</option>
+                    <option value="Medio">Medio</option>
+                    <option value="Alto">Alto</option>
+                </select>
+                <input type="text" [(ngModel)]="formInversion.duracion" name="duracion" placeholder="Duración (ej: 1 año)" required>
+            </div>
+            <div class="form-acciones">
+                <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar inversión' }}</button>
+                @if (editandoId) {
+                    <button type="button" (click)="cancelarEdicion()">Cancelar</button>
+                }
+            </div>
+        </form>
+    </section>
+</div>
