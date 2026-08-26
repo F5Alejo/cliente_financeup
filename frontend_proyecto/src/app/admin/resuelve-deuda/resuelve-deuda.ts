@@ -23,8 +23,8 @@ const SOLICITUDES_EJEMPLO: SolicitudConsolidacion[] = [
   selector: 'app-admin-resuelve-deuda',
   standalone: true,
   imports: [],
-  templateUrl: './admin-resuelve-deuda.html',
-  styleUrl: './admin-resuelve-deuda.css',
+  templateUrl: './resuelve-deuda.html',
+  styleUrl: './resuelve-deuda.css',
 })
 export class AdminResuelveDeudaComponent {
   constructor(private toastService: ToastService) {}

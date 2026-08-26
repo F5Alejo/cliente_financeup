@@ -44,8 +44,8 @@ const LIBROS_EJEMPLO: LibroDeUsuario[] = [
   selector: 'app-admin-libro-mayor',
   standalone: true,
   imports: [FormsModule],
-  templateUrl: './admin-libro-mayor.html',
-  styleUrl: './admin-libro-mayor.css',
+  templateUrl: './libro-mayor.html',
+  styleUrl: './libro-mayor.css',
 })
 export class AdminLibroMayorComponent {
   constructor(private toastService: ToastService) {}
