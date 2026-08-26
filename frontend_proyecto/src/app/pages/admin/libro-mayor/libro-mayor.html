@@ -1,0 +1,71 @@
+<div class="admin-libro-mayor">
+    <header class="admin-header">
+        <div>
+            <h1>Libro Mayor — Administración</h1>
+            <p class="subtitulo">Consulta y audita los registros financieros de los usuarios.</p>
+        </div>
+        <button type="button" class="btn-secundario" (click)="exportarConsolidado()">⎘ Exportar consolidado</button>
+    </header>
+
+    <section class="cards-resumen">
+        <div class="card-resumen">
+            <span class="card-titulo">Usuarios con registros</span>
+            <span class="card-valor">{{ usuariosActivos() }}</span>
+        </div>
+        <div class="card-resumen">
+            <span class="card-titulo">Ingresos totales (plataforma)</span>
+            <span class="card-valor positivo">{{ formatearCOP(totalIngresosPlataforma()) }}</span>
+        </div>
+        <div class="card-resumen">
+            <span class="card-titulo">Egresos totales (plataforma)</span>
+            <span class="card-valor negativo">{{ formatearCOP(totalEgresosPlataforma()) }}</span>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Libro mayor por usuario</h2>
+            <select class="selector-usuario" [ngModel]="usuarioSeleccionadoId()" (ngModelChange)="seleccionarUsuario($event)">
+                @for (l of libros(); track l.usuarioId) {
+                    <option [value]="l.usuarioId">{{ l.nombreUsuario }}</option>
+                }
+            </select>
+        </div>
+
+        @if (libroSeleccionado(); as libro) {
+            <div class="tabla-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Concepto</th>
+                            <th>Categoría</th>
+                            <th>Ingreso</th>
+                            <th>Egreso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (fila of libro.filas; track fila.id) {
+                            <tr>
+                                <td>{{ fila.fecha }}</td>
+                                <td>{{ fila.concepto }}</td>
+                                <td>{{ fila.categoria }}</td>
+                                <td class="positivo">{{ fila.ingreso ? formatearCOP(fila.ingreso) : '—' }}</td>
+                                <td class="negativo">{{ fila.egreso ? formatearCOP(fila.egreso) : '—' }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="resumen-usuario">
+                <div><span class="resumen-label">Ingresos</span><span class="resumen-valor positivo">{{ formatearCOP(totalIngresosUsuario()) }}</span></div>
+                <div><span class="resumen-label">Egresos</span><span class="resumen-valor negativo">{{ formatearCOP(totalEgresosUsuario()) }}</span></div>
+                <div><span class="resumen-label">Resultado</span><span class="resumen-valor" [class.positivo]="resultadoUsuario() >= 0" [class.negativo]="resultadoUsuario() < 0">{{ formatearCOP(resultadoUsuario()) }}</span></div>
+                <button type="button" class="link-boton" (click)="exportarLibro()">⎘ Exportar este libro</button>
+            </div>
+        }
+    </section>
+
+    <p class="nota-legal">Esta vista es de solo lectura: la edición de celdas, colores y fuentes es exclusiva del usuario dueño del registro.</p>
+</div>
