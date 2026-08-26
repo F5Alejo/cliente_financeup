@@ -173,6 +173,20 @@ export const routes: Routes = [
             title: 'Admin Finanzas - FinanceUp',
           },
           {
+            path: 'inversiones',
+            loadComponent: () =>
+              import('./pages//admin/inversiones/inversiones')
+            .then((m) => m.AdminInversionesComponent),
+            title: 'Admin Inversiones - FinanceUp',
+          },
+          {
+            path: 'metas',
+            loadComponent: () =>
+              import('./pages//admin/metas/metas')
+            .then((m) => m.AdminMetasComponent),
+            title: 'Admin Metas - FinanceUp',
+          },
+          {
             path: 'pqr',
             loadComponent: () =>
               import('./pages/admin/pqr/pqr').then((m) => m.AdminPqrComponent),

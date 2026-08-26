@@ -138,6 +138,59 @@ td.negativo {
     cursor: pointer;
 }
 
+.resumen-admin {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.resumen-item {
+    background: white;
+    border: 1px solid #eef2f6;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.resumen-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.resumen-valor {
+    font-size: 19px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.resumen-valor.positivo { color: #0f766e; }
+.resumen-valor.negativo { color: #dc2626; }
+
+.buscador {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.fila-vacia {
+    text-align: center;
+    color: #94a3b8;
+    padding: 20px !important;
+}
+
+@media (max-width: 700px) {
+    .resumen-admin {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 560px) {
     .admin-finanzas {
         padding: 20px;
