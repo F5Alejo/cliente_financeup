@@ -1,95 +1,157 @@
-<app-cookie-consent></app-cookie-consent>
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-bokeh" aria-hidden="true">
+    <span class="bokeh b1"></span>
+    <span class="bokeh b2"></span>
+    <span class="bokeh b3"></span>
+    <span class="bokeh b4"></span>
+    <span class="bokeh b5"></span>
+    <span class="bokeh b6"></span>
+    <span class="bokeh b7"></span>
+    <span class="bokeh b8"></span>
+    <span class="bokeh b9"></span>
+  </div>
 
-<div class="home">
+  <div class="hero-content">
+    <h1 class="hero-titulo">
+      {{ heroTituloPre }} <span class="hero-titulo-destacado">{{ heroTituloDestacado }}</span><br />
+      {{ heroTituloPost }}
+    </h1>
+    <p class="hero-subtitulo">{{ heroSubtitulo }}</p>
+    <button type="button" class="btn btn-hero" (click)="onComenzarAhora()">
+      {{ heroBoton }}
+    </button>
+  </div>
+</section>
 
-  <!-- ===== Hero ===== -->
-  <section class="hero">
-    
-    <div class="hero-content">
-      <h1 class="hero-title">
-        Gestiona tus <span class="hero-title-accent">Finanzas</span>
-        <span class="hero-title-block">con Inteligencia</span>
-      </h1>
-      <p class="hero-subtitle">
-        Plataforma integral para el control financiero personal y empresarial.
-        Toma decisiones inteligentes con datos en tiempo real.
-      </p>
-      <button type="button" class="btn-hero" routerLink="/register" (click)="interactuar()">
-        Comenzar Ahora
+<!-- ===== CARACTERÍSTICAS ===== -->
+<section class="features">
+  <div class="section-heading">
+    <h2 class="section-title">
+      {{ featuresTituloPre }} <span class="text-accent">{{ featuresTituloDestacado }}</span>
+    </h2>
+    <p class="section-subtitle">{{ featuresSubtitulo }}</p>
+  </div>
+
+  <div class="features-grid">
+    <article class="feature-card" *ngFor="let feature of features">
+      <div class="feature-icon">
+        <!-- Dashboard -->
+        <svg *ngIf="feature.icono === 'dashboard'" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+          <rect x="14" y="3" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+          <rect x="14" y="12" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+          <rect x="3" y="16" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+        </svg>
+        <!-- Seguridad -->
+        <svg *ngIf="feature.icono === 'seguridad'" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l8 3.5v5c0 5-3.4 8.9-8 10.5-4.6-1.6-8-5.5-8-10.5v-5L12 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <!-- Bancos -->
+        <svg *ngIf="feature.icono === 'bancos'" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M3 10l9-6 9 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 10v9M9.5 10v9M14.5 10v9M19 10v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M3 20h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <!-- Presupuesto -->
+        <svg *ngIf="feature.icono === 'presupuesto'" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M3 9h18" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="8" cy="14" r="1.4" fill="currentColor"/>
+        </svg>
+        <!-- Monedas -->
+        <svg *ngIf="feature.icono === 'monedas'" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="15" cy="15" r="6" stroke="currentColor" stroke-width="1.6"/>
+        </svg>
+        <!-- Mundo -->
+        <svg *ngIf="feature.icono === 'mundo'" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9s1.3-6.4 3.8-9z" stroke="currentColor" stroke-width="1.6"/>
+        </svg>
+      </div>
+
+      <h3 class="feature-title">{{ feature.titulo }}</h3>
+      <p class="feature-description">{{ feature.descripcion }}</p>
+    </article>
+  </div>
+</section>
+
+<!-- ===== SERVICIOS ===== -->
+<section class="services">
+  <div class="section-heading">
+    <h2 class="section-title">
+      {{ serviciosTituloPre }} <span class="text-accent">{{ serviciosTituloDestacado }}</span>
+    </h2>
+    <p class="section-subtitle">{{ serviciosSubtitulo }}</p>
+  </div>
+
+  <!-- Finanzas Personales: imagen izquierda, texto derecha -->
+  <div class="service-row">
+    <div class="service-media">
+      <div class="service-illustration illustration-personal" aria-hidden="true">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3c2 2.2 3 4.4 3 6.5 0 2.5-1.3 4.5-3 4.5s-3-2-3-4.5c0-2.1 1-4.3 3-6.5z" fill="white" opacity="0.9"/>
+          <rect x="6" y="14" width="12" height="6" rx="1.5" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+    </div>
+    <div class="service-info">
+      <h3 class="service-title">{{ finanzasPersonalesTitulo }}</h3>
+      <p class="service-description">{{ finanzasPersonalesDescripcion }}</p>
+      <ul class="service-list">
+        <li *ngFor="let item of finanzasPersonalesItems">{{ item.texto }}</li>
+      </ul>
+      <button type="button" class="btn btn-service" (click)="onConocerFinanzasPersonales()">
+        {{ finanzasPersonalesBoton }}
       </button>
     </div>
-  </section>
+  </div>
 
-  <!-- ===== Características ===== -->
-  <section class="caracteristicas" id="caracteristicas">
-    <div class="seccion-encabezado">
-      <h2>Características <span class="texto-accent">Poderosas</span></h2>
-      <p>Todo lo que necesitas para tomar el control total de tus finanzas personales y empresariales.</p>
+  <!-- Gestión Empresarial: texto izquierda, imagen derecha -->
+  <div class="service-row service-row-reverse">
+    <div class="service-info">
+      <h3 class="service-title">{{ gestionEmpresarialTitulo }}</h3>
+      <p class="service-description">{{ gestionEmpresarialDescripcion }}</p>
+      <ul class="service-list">
+        <li *ngFor="let item of gestionEmpresarialItems">{{ item.texto }}</li>
+      </ul>
+      <button type="button" class="btn btn-service" (click)="onConocerGestionEmpresarial()">
+        {{ gestionEmpresarialBoton }}
+      </button>
     </div>
-
-    <div class="caracteristicas-grid">
-      @for (car of caracteristicas; track car.titulo) {
-        <div class="caracteristica-card">
-          <span class="caracteristica-icono" aria-hidden="true">{{ car.icono }}</span>
-          <h3>{{ car.titulo }}</h3>
-          <p>{{ car.descripcion }}</p>
-        </div>
-      }
-    </div>
-  </section>
-
-  <!-- ===== Servicios ===== -->
-  <section class="servicios">
-    <div class="seccion-encabezado">
-      <h2>Nuestros <span class="texto-accent">Servicios</span></h2>
-      <p>Soluciones financieras adaptadas a cada necesidad, desde usuarios individuales hasta grandes empresas.</p>
-    </div>
-
-    <div class="servicio-bloque">
-      <div class="servicio-ilustracion" aria-hidden="true">
-        <span class="servicio-icono-grande">💰</span>
-        <span class="servicio-icono-flotante">📈</span>
-      </div>
-      <div class="servicio-info">
-        <h3>Finanzas Personales</h3>
-        <p>Controla tus ingresos, gastos y ahorros con herramientas diseñadas para individuos y familias. Obtén una visión clara de tu salud financiera.</p>
-        <ul>
-          <li>Seguimiento automático de gastos</li>
-          <li>Establecimiento de metas de ahorro</li>
-          <li>Reportes mensuales detallados</li>
-        </ul>
-        <button type="button" class="btn-outline" routerLink="/register" (click)="interactuar()">Conocer Más</button>
+    <div class="service-media">
+      <div class="service-illustration illustration-empresarial" aria-hidden="true">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+          <path d="M4 19l6-7 4 4 6-8" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 8h6v6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="servicio-bloque servicio-bloque-invertido">
-      <div class="servicio-info">
-        <h3>Gestión Empresarial</h3>
-        <p>Conecta con bancos aliados en cualquier parte del mundo y ten acceso a:</p>
-        <ul>
-          <li>Comunicación directa con los bancos</li>
-          <li>Control centralizado de finanzas</li>
-          <li>Análisis de rentabilidad</li>
-        </ul>
-        <button type="button" class="btn-outline" routerLink="/register" (click)="interactuar()">Conocer Más</button>
-      </div>
-      <div class="servicio-ilustracion" aria-hidden="true">
-        <span class="servicio-icono-grande">📑</span>
-        <span class="servicio-icono-flotante">🖊️</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== CTA final ===== -->
-  <section class="cta-final">
-    <div class="cta-texto">
-      <h2>Comienza a Gestionar tus Finanzas Hoy</h2>
-      <p>Únete a más de 50,000 usuarios que están tomando el control de su futuro financiero con nuestra plataforma inteligente.</p>
-      <div class="cta-acciones">
-        <button type="button" class="btn-cta-primario" routerLink="/register" (click)="interactuar()">Crear Cuenta Gratis</button>
-        <button type="button" class="btn-cta-secundario" (click)="verCaracteristicas()">Conocer más</button>
+<!-- ===== CTA FINAL ===== -->
+<section class="cta">
+  <div class="cta-panel">
+    <div class="cta-info">
+      <h2 class="cta-title">{{ ctaTitulo }}</h2>
+      <p class="cta-subtitle">{{ ctaSubtitulo }}</p>
+      <div class="cta-actions">
+        <button type="button" class="btn btn-cta-primary" (click)="onCrearCuenta()">
+          {{ ctaBotonPrimario }}
+        </button>
+        <button type="button" class="btn btn-cta-secondary" (click)="onConocerMasCta()">
+          {{ ctaBotonSecundario }}
+        </button>
       </div>
     </div>
-  </section>
-
-</div>
+    <div class="cta-media" aria-hidden="true">
+      <svg width="120" height="120" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.4" opacity="0.85"/>
+        <path d="M12 3v9l7 3" stroke="white" stroke-width="1.4" opacity="0.85"/>
+      </svg>
+    </div>
+  </div>
+</section>
