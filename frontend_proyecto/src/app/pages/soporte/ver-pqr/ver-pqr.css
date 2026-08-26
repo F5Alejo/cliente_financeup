@@ -1,350 +1,355 @@
+/* Detalle del PQR: expediente en solo lectura, con el estado y la respuesta a un costado. */
+
 :host {
-  --verde-fuerte: #15803d;
-  --verde-texto: #166534;
-  --verde-brand: #16a34a;
-  --verde-brand-hover: #128a3e;
-  --verde-suave: #ecfdf5;
-  --verde-suave-borde: #bbf0d0;
-  --gris-borde: #e5e7eb;
-  --gris-texto: #6b7280;
-  --texto-oscuro: #14181c;
-  --blanco: #ffffff;
-  --pqr-radius: 10px;
+  --papel: #ffffff;
+  --fondo: #f4f6f5;
+  --linea: #dde5e0;
+  --linea-fuerte: #c3d2c9;
+  --texto: #16211c;
+  --texto-2: #5c7266;
+  --verde: var(--green-primary);
+  --verde-hondo: #0a5c28;
+  --verde-humo: #eef7f1;
+
+  --estado-ok-fondo: #e8f5ec;
+  --estado-ok-texto: #0a5c28;
+  --estado-espera-fondo: #fdf4e3;
+  --estado-espera-texto: #8a5a12;
+  --estado-alto-fondo: #fdeeec;
+  --estado-alto-texto: #a3271f;
 
   display: block;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--font-family-base);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 .detalle-pqr-container {
   display: grid;
-  grid-template-columns: 1fr 0.55fr;
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 20px;
   align-items: start;
-  max-width: 1000px;
+  width: 100%;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 48px 24px;
-  box-sizing: border-box;
+  padding: 40px clamp(18px, 4vw, 48px) 88px;
 }
 
-/* =========================================
-   CARD IZQUIERDA: DETALLE DEL PQR
-========================================= */
+/* ---------- Expediente ---------- */
 .pqr-card {
-  position: relative;
-  padding: 24px 28px 28px;
-  background: var(--blanco);
-  border: 1px solid var(--gris-borde);
-  border-radius: 16px;
-  box-sizing: border-box;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  padding: clamp(22px, 3.5vw, 36px);
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: 14px;
 }
 
 .btn-volver {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  margin-bottom: 18px;
-  background: var(--blanco);
-  border: 1px solid var(--gris-borde);
-  border-radius: 999px;
-  color: var(--texto-oscuro);
-  font-size: 13px;
-  font-weight: 500;
+  gap: 7px;
+  margin-bottom: 22px;
+  padding: 0;
+  background: none;
+  border: none;
   font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texto-2);
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.2s ease;
 }
 
 .btn-volver:hover {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
-}
-
-.btn-volver:focus-visible {
-  outline: 2px solid var(--verde-brand);
-  outline-offset: 2px;
+  color: var(--verde-hondo);
 }
 
 .pqr-badge {
   display: inline-block;
-  margin-bottom: 14px;
-  padding: 5px 12px;
-  background: var(--verde-suave);
-  color: var(--verde-texto);
+  margin-bottom: 12px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  border-radius: 999px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--verde-hondo);
 }
 
 .pqr-header {
-  margin-bottom: 18px;
+  padding-bottom: 22px;
+  margin-bottom: 22px;
+  border-bottom: 2px solid var(--texto);
 }
 
 .pqr-title {
-  margin: 0 0 8px;
-  font-size: 26px;
+  margin: 0 0 9px;
+  font-size: clamp(23px, 3vw, 32px);
   font-weight: 800;
-  color: var(--verde-fuerte);
-  letter-spacing: -0.01em;
+  line-height: 1.18;
+  letter-spacing: -0.03em;
 }
 
 .pqr-subtitulo {
   margin: 0;
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--gris-texto);
-  max-width: 460px;
+  max-width: 60ch;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--texto-2);
 }
 
-/* Pills de número de petición / usuario */
+/* Datos del radicado */
 .pqr-info-pills {
   display: flex;
-  flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 22px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
 }
 
 .pqr-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 7px;
   padding: 8px 14px;
-  background: var(--verde-suave);
-  border: 1px solid var(--verde-suave-borde);
-  border-radius: 999px;
-  font-size: 12.5px;
-  color: var(--verde-texto);
+  background: var(--verde-humo);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto-2);
 }
 
 .pqr-pill strong {
-  color: var(--verde-fuerte);
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--verde-hondo);
 }
 
-/* =========================================
-   FORMULARIO / CAMPOS
-========================================= */
+/* ---------- Campos en solo lectura ---------- */
 .pqr-form-grid {
   display: grid;
-  grid-template-columns: 1fr 165px;
-  gap: 18px;
-  align-items: start;
+  gap: 22px;
+  margin-bottom: 26px;
 }
 
 .pqr-form-fields {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  gap: 7px;
 }
 
 .pqr-label {
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--texto-oscuro);
-  margin-bottom: 8px;
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--texto-2);
 }
 
 .pqr-input,
 .pqr-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  background: #ffffff;
-  border: 1px solid var(--gris-borde);
-  border-radius: var(--pqr-radius);
-  padding: 10px 12px;
-  font-size: 13px;
-  color: var(--texto-oscuro);
-  font-family: inherit;
-  margin-bottom: 16px;
+  padding: 13px 15px;
+  background: #fbfdfc;
+  border: 1px solid var(--linea);
+  border-left: 3px solid var(--verde);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--texto);
 }
 
 .pqr-input {
-  height: 42px;
-  display: flex;
-  align-items: center;
+  font-weight: 700;
 }
 
 .pqr-textarea {
-  height: 130px;
-  margin-bottom: 0;
-  line-height: 1.5;
+  min-height: 130px;
+  color: var(--texto-2);
+  white-space: pre-line;
 }
 
-/* =========================================
-   ARCHIVOS ADJUNTOS
-========================================= */
+/* Separacion entre el campo y la etiqueta siguiente */
+.pqr-form-fields .pqr-input + .pqr-label {
+  margin-top: 12px;
+}
+
+/* ---------- Adjuntos ---------- */
 .pqr-adjuntos {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  gap: 8px;
 }
 
 .pqr-adjunto-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: var(--verde-suave);
-  border: 1px solid var(--verde-suave-borde);
-  border-radius: var(--pqr-radius);
-  color: var(--verde-texto);
-  cursor: pointer;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: 8px;
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--texto);
   text-align: left;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .pqr-adjunto-item:hover {
-  background-color: #d9f7e5;
-  border-color: #9de6bb;
+  border-color: var(--verde-hondo);
+  background: var(--verde-humo);
+}
+
+.pqr-adjunto-item svg {
+  flex-shrink: 0;
+  color: var(--verde-hondo);
 }
 
 .pqr-adjunto-nombre {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* =========================================
-   ACCIONES
-========================================= */
+/* ---------- Acciones ---------- */
 .pqr-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--linea);
 }
 
 .btn-enviar {
-  min-width: 130px;
-  padding: 12px 26px;
-  background: var(--verde-brand);
-  color: var(--blanco);
-  font-size: 14px;
-  font-weight: 600;
+  padding: 12px 24px;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
+  background: var(--verde-hondo);
   font-family: inherit;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .btn-enviar:hover {
-  background: var(--verde-brand-hover);
+  background: var(--texto);
 }
 
 .btn-enviar:active {
   transform: translateY(1px);
 }
 
-.btn-enviar:focus-visible {
-  outline: 2px solid var(--verde-brand);
-  outline-offset: 2px;
-}
-
-/* =========================================
-   COLUMNA DERECHA: ESTADO Y RESPUESTA
-========================================= */
+/* ---------- Columna de estado ---------- */
 .estado-columna {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  position: sticky;
+  top: 24px;
+  display: grid;
+  gap: 14px;
 }
 
 .estado-card {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 14px;
-  padding: 18px 24px;
-  background: var(--blanco);
-  border: 1px solid var(--gris-borde);
-  border-radius: 14px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  padding: 18px 20px;
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
 }
 
 .estado-label {
-  font-size: 14px;
-  color: var(--texto-oscuro);
-  font-weight: 500;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--texto-2);
 }
 
 .estado-badge {
-  padding: 8px 18px;
-  border-radius: 999px;
-  font-size: 13px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.estado-amarillo {
-  background: #fde047;
-  color: #7a5c00;
+.estado-badge.estado-verde {
+  background: var(--estado-ok-fondo);
+  color: var(--estado-ok-texto);
 }
 
-.estado-verde {
-  background: #bbf0d0;
-  color: var(--verde-fuerte);
+.estado-badge.estado-amarillo {
+  background: var(--estado-espera-fondo);
+  color: var(--estado-espera-texto);
 }
 
-.estado-rojo {
-  background: #fecaca;
-  color: #991b1b;
+.estado-badge.estado-rojo {
+  background: var(--estado-alto-fondo);
+  color: var(--estado-alto-texto);
 }
 
-.estado-gris {
-  background: #e5e7eb;
-  color: #374151;
+.estado-badge.estado-gris {
+  background: #eef1f0;
+  color: var(--texto-2);
 }
 
+/* Respuesta del asesor */
 .mensaje-card {
   padding: 20px;
-  background: var(--blanco);
-  border: 1px solid var(--gris-borde);
-  border-radius: 14px;
-  min-height: 220px;
-  box-sizing: border-box;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  background: var(--verde-humo);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
 }
 
 .mensaje-texto {
   margin: 0;
-  padding: 16px;
-  background: var(--verde-suave);
-  border: 1px solid var(--verde-suave-borde);
-  border-radius: 10px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--texto-oscuro);
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--texto-2);
+  white-space: pre-line;
 }
 
-/* =========================================
-   ESTADO SIN DATOS
-========================================= */
+/* ---------- Sin datos ---------- */
 .pqr-vacio {
-  max-width: 1000px;
+  max-width: 520px;
   margin: 0 auto;
-  padding: 60px 24px;
+  padding: 88px 24px;
   text-align: center;
-  color: var(--gris-texto);
-  font-size: 14px;
 }
 
-/* =========================================
-   RESPONSIVE
-========================================= */
-@media (max-width: 800px) {
+.pqr-vacio p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--texto-2);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 940px) {
   .detalle-pqr-container {
     grid-template-columns: 1fr;
   }
 
-  .pqr-form-grid {
-    grid-template-columns: 1fr;
+  .estado-columna {
+    position: static;
+    order: -1;
   }
 }
 
-@media (max-width: 480px) {
-  .pqr-card {
-    padding: 20px 18px 22px;
+@media (max-width: 640px) {
+  .detalle-pqr-container {
+    padding: 28px 16px 56px;
   }
 }
