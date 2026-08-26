@@ -3,6 +3,31 @@
     <h1>Movimientos financieros</h1>
     <p class="admin-sub">Agrega, edita o elimina los movimientos que ven los usuarios.</p>
 
+    <section class="resumen-admin">
+        <div class="resumen-item">
+            <span class="resumen-label">Total ingresos</span>
+            <span class="resumen-valor positivo">{{ formatearCOP(totalIngresos) }}</span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Total gastos</span>
+            <span class="resumen-valor negativo">{{ formatearCOP(totalGastos) }}</span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Balance neto</span>
+            <span class="resumen-valor" [class.positivo]="balanceNeto >= 0" [class.negativo]="balanceNeto < 0">
+                {{ formatearCOP(balanceNeto) }}
+            </span>
+        </div>
+    </section>
+
+    <input
+        type="text"
+        class="buscador"
+        placeholder="Buscar por categoría..."
+        [ngModel]="busqueda()"
+        (ngModelChange)="actualizarBusqueda($event)"
+        name="busqueda" />
+
     <table>
         <thead>
             <tr>
@@ -13,7 +38,7 @@
             </tr>
         </thead>
         <tbody>
-            @for (mov of finanzasService.movimientos; track mov.id) {
+            @for (mov of movimientosFiltrados; track mov.id) {
                 <tr>
                     <td>{{ mov.icono }} {{ mov.categoria }}</td>
                     <td>{{ mov.fecha }}</td>
@@ -26,6 +51,11 @@
                     </td>
                 </tr>
             }
+            @if (movimientosFiltrados.length === 0) {
+                <tr>
+                    <td colspan="4" class="fila-vacia">No hay movimientos que coincidan con la búsqueda.</td>
+                </tr>
+            }
         </tbody>
     </table>
 
@@ -35,8 +65,8 @@
             <div class="form-row">
                 <input type="text" [(ngModel)]="formMovimiento.icono" name="icono" placeholder="Emoji" maxlength="2">
                 <input type="text" [(ngModel)]="formMovimiento.categoria" name="categoria" placeholder="Categoría" required>
-                <input type="text" [(ngModel)]="formMovimiento.fecha" name="fecha" placeholder="Fecha (ej: 10 mar 2026)">
-                <input type="number" [(ngModel)]="formMovimiento.monto" name="monto" placeholder="Monto (negativo si es gasto)">
+                <input type="text" [(ngModel)]="formMovimiento.fecha" name="fecha" placeholder="Fecha (ej: 10 mar 2026)" required>
+                <input type="number" [(ngModel)]="formMovimiento.monto" name="monto" placeholder="Monto (negativo si es gasto)" required>
             </div>
             <div class="form-acciones">
                 <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar movimiento' }}</button>
