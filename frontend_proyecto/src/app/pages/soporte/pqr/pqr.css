@@ -1,28 +1,31 @@
-/* Mis PQR: cada tarjeta es un expediente, el radicado y las fechas mandan sobre el adorno. */
+/* Mis PQR: cada caso en una tarjeta amable, con su estado y su avance a la vista. */
 
 :host {
-  --papel: #ffffff;
-  --fondo: #f4f6f5;
-  --linea: #dde5e0;
-  --linea-fuerte: #c3d2c9;
-  --texto: #16211c;
-  --texto-2: #5c7266;
+  --lienzo: #f2f6f4;
+  --panel: #ffffff;
+  --tinta: #14231c;
+  --tinta-2: #5a6f65;
+  --borde: #e6ece9;
   --verde: var(--green-primary);
   --verde-hondo: #0a5c28;
+  --verde-noche: #0b3a22;
   --verde-humo: #eef7f1;
 
-  --estado-ok-fondo: #e8f5ec;
-  --estado-ok-texto: #0a5c28;
-  --estado-espera-fondo: #fdf4e3;
-  --estado-espera-texto: #8a5a12;
-  --estado-alto-fondo: #fdeeec;
-  --estado-alto-texto: #a3271f;
+  --ok-fondo: #e8f5ec;
+  --ok-texto: #0a5c28;
+  --espera-fondo: #fdf3e0;
+  --espera-texto: #8a5a12;
+  --alto-fondo: #fdeeeb;
+  --alto-texto: #a3271f;
+
+  --sombra: 0 1px 2px rgba(20, 35, 28, 0.04), 0 4px 12px rgba(20, 35, 28, 0.05);
+  --sombra-alta: 0 2px 4px rgba(20, 35, 28, 0.05), 0 14px 30px rgba(20, 35, 28, 0.09);
 
   display: block;
   width: 100%;
   min-height: 100vh;
-  background: var(--fondo);
-  color: var(--texto);
+  background: var(--lienzo);
+  color: var(--tinta);
   font-family: var(--font-family-base);
 }
 
@@ -32,20 +35,18 @@
 
 .pqr-container {
   width: 100%;
-  max-width: 1180px;
+  max-width: 1160px;
   margin: 0 auto;
-  padding: 40px clamp(18px, 4vw, 48px) 88px;
+  padding: 40px clamp(18px, 4vw, 44px) 96px;
 }
 
 /* ---------- Encabezado ---------- */
 .pqr-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 40px;
-  align-items: end;
-  padding-bottom: 28px;
-  margin-bottom: 28px;
-  border-bottom: 2px solid var(--texto);
+  gap: 48px;
+  align-items: center;
+  margin-bottom: 36px;
 }
 
 .pqr-hero__copy {
@@ -54,45 +55,52 @@
 
 .pqr-hero__badge {
   display: inline-block;
-  margin-bottom: 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: var(--verde-humo);
+  font-size: 12px;
+  font-weight: 600;
   color: var(--verde-hondo);
 }
 
 .pqr-hero__title {
-  margin: 0 0 10px;
-  font-size: clamp(26px, 3.4vw, 38px);
+  margin: 0 0 12px;
+  font-size: clamp(28px, 3.8vw, 42px);
   font-weight: 800;
-  line-height: 1.14;
-  letter-spacing: -0.03em;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
 }
 
 .pqr-hero__subtitle {
   margin: 0;
-  max-width: 58ch;
-  font-size: 14.5px;
-  line-height: 1.7;
-  color: var(--texto-2);
+  max-width: 56ch;
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: var(--tinta-2);
 }
 
-/* Resumen de casos: registro alineado, no tarjetas */
+/* Resumen: tres fichas tenues */
 .pqr-hero__stats {
   display: flex;
-  gap: 34px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
 .pqr-stat {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+  min-width: 108px;
+  padding: 18px 20px;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  box-shadow: var(--sombra);
 }
 
 .pqr-stat__value {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -100,59 +108,59 @@
 }
 
 .pqr-stat__label {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--texto-2);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tinta-2);
 }
 
 /* ---------- Aviso de sesion ---------- */
 .pqr-sin-sesion {
-  margin: 0 0 22px;
-  padding: 13px 16px;
-  background: var(--estado-espera-fondo);
-  border-left: 3px solid var(--estado-espera-texto);
-  border-radius: 6px;
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: var(--estado-espera-texto);
+  display: flex;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 16px 20px;
+  background: var(--espera-fondo);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--espera-texto);
 }
 
-/* ---------- Barra de busqueda y filtros ---------- */
+/* ---------- Busqueda y filtros ---------- */
 .pqr-toolbar {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 22px;
+  margin-bottom: 28px;
 }
 
 .search-container {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
-  min-width: 270px;
-  max-width: 420px;
-  padding: 5px 6px 5px 14px;
-  background: var(--papel);
-  border: 1px solid var(--linea-fuerte);
-  border-radius: 8px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-width: 280px;
+  max-width: 440px;
+  padding: 6px 6px 6px 20px;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  box-shadow: var(--sombra);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .search-container:focus-within {
-  border-color: var(--verde-hondo);
-  box-shadow: 0 0 0 3px rgba(10, 92, 40, 0.12);
+  border-color: #bfe0cd;
+  box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.12), var(--sombra);
 }
 
 .search-icon {
   position: relative;
   flex-shrink: 0;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--texto-2);
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--verde-hondo);
   border-radius: 50%;
 }
 
@@ -164,33 +172,34 @@
   width: 8px;
   height: 2px;
   border-radius: 2px;
-  background: var(--texto-2);
+  background: var(--verde-hondo);
   transform: rotate(-45deg);
 }
 
 .search-container input {
   flex: 1;
   min-width: 0;
+  padding: 11px 0;
   border: none;
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: 14px;
-  color: var(--texto);
+  font-size: 14.5px;
+  color: var(--tinta);
 }
 
 .search-container input::placeholder {
-  color: var(--texto-2);
+  color: #8a9c93;
 }
 
 .search-button {
   flex-shrink: 0;
-  padding: 9px 16px;
+  padding: 11px 22px;
   border: none;
-  border-radius: 6px;
+  border-radius: 999px;
   background: var(--verde-hondo);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #ffffff;
   cursor: pointer;
@@ -198,174 +207,170 @@
 }
 
 .search-button:hover {
-  background: var(--texto);
+  background: var(--tinta);
 }
 
-/* Filtros de estado: pestanas con subrayado, lenguaje de tramite */
+/* Control segmentado */
 .estado-tabs {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
-  border-bottom: 1px solid var(--linea);
+  padding: 5px;
+  background: #e7ede9;
+  border-radius: 999px;
 }
 
 .estado-tab {
-  padding: 11px 15px;
-  margin-bottom: -1px;
+  padding: 10px 20px;
   background: none;
   border: none;
-  border-bottom: 3px solid transparent;
+  border-radius: 999px;
   font-family: inherit;
   font-size: 13.5px;
-  font-weight: 700;
-  color: var(--texto-2);
+  font-weight: 600;
+  color: var(--tinta-2);
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .estado-tab:hover {
-  color: var(--texto);
+  color: var(--tinta);
 }
 
 .estado-tab.active {
+  background: var(--panel);
+  font-weight: 700;
   color: var(--verde-hondo);
-  border-bottom-color: var(--verde);
+  box-shadow: 0 1px 3px rgba(20, 35, 28, 0.12);
 }
 
-/* ---------- Listado de expedientes ---------- */
+/* ---------- Listado ---------- */
 .pqr-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
 }
 
 .pqr-card {
   display: flex;
   flex-direction: column;
-  padding: 20px 22px;
-  background: var(--papel);
-  border: 1px solid var(--linea);
-  border-left: 3px solid var(--verde);
-  border-radius: 12px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 26px;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 18px;
+  box-shadow: var(--sombra);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .pqr-card:hover {
-  border-color: var(--linea-fuerte);
-  border-left-color: var(--verde-hondo);
-  box-shadow: 0 10px 26px rgba(22, 33, 28, 0.07);
+  border-color: #d3e3d9;
+  box-shadow: var(--sombra-alta);
 }
 
 .pqr-card__head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
-/* Sistema de estados: mismo lenguaje en todas las vistas de soporte */
+/* Chips de estado: unico lugar con versalitas, aqui si es funcional */
 .pqr-badge {
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 10.5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 .pqr-badge.is-resuelto {
-  background: var(--estado-ok-fondo);
-  color: var(--estado-ok-texto);
+  background: var(--ok-fondo);
+  color: var(--ok-texto);
 }
 
 .pqr-badge.is-revision {
-  background: var(--estado-espera-fondo);
-  color: var(--estado-espera-texto);
+  background: var(--espera-fondo);
+  color: var(--espera-texto);
 }
 
 .pqr-badge.is-rechazado {
-  background: var(--estado-alto-fondo);
-  color: var(--estado-alto-texto);
+  background: var(--alto-fondo);
+  color: var(--alto-texto);
 }
 
 .pqr-prioridad {
   margin-left: auto;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--texto-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--tinta-2);
 }
 
 .pqr-prioridad.is-alta {
-  color: var(--estado-alto-texto);
+  color: var(--alto-texto);
 }
 
 .pqr-prioridad.is-media {
-  color: var(--estado-espera-texto);
+  color: var(--espera-texto);
 }
 
 .pqr-card__categoria {
-  margin: 0 0 6px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--texto-2);
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tinta-2);
 }
 
 .pqr-card__title {
-  margin: 0 0 8px;
-  font-size: 16.5px;
+  margin: 0 0 10px;
+  font-size: 18.5px;
   font-weight: 800;
   line-height: 1.3;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
 }
 
 .pqr-card__desc {
-  margin: 0 0 16px;
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--texto-2);
+  margin: 0 0 20px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--tinta-2);
 }
 
-/* Ficha del caso: el registro de lineas capilares (elemento firma) */
+/* Datos del caso: bloque tenue redondeado */
 .pqr-card__data {
-  margin: 0 0 16px;
-  border-top: 1px solid var(--linea);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  margin: 0 0 20px;
+  padding: 18px 20px;
+  background: var(--verde-humo);
+  border-radius: 14px;
 }
 
 .pqr-card__data > div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 9px 0;
-  border-bottom: 1px solid var(--linea);
+  min-width: 0;
 }
 
 .pqr-card__data dt {
-  margin: 0;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--texto-2);
+  margin: 0 0 3px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tinta-2);
 }
 
 .pqr-card__data dd {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  text-align: right;
-  color: var(--texto);
+  color: var(--tinta);
+  overflow-wrap: anywhere;
 }
 
-/* ---------- Avance del caso ---------- */
+/* ---------- Avance ---------- */
 .pqr-progress {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .pqr-progress__head {
@@ -373,25 +378,23 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 7px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--texto-2);
+  margin-bottom: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tinta-2);
 }
 
 .pqr-progress__value {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
   color: var(--verde-hondo);
 }
 
 .pqr-progress__track {
-  height: 5px;
+  height: 7px;
   border-radius: 999px;
-  background: #eef1f0;
+  background: #e7ede9;
   overflow: hidden;
 }
 
@@ -403,7 +406,7 @@
   transition: width 0.5s ease;
 }
 
-/* ---------- Pie de la tarjeta ---------- */
+/* ---------- Pie ---------- */
 .pqr-card__footer {
   display: flex;
   align-items: center;
@@ -411,25 +414,25 @@
   gap: 12px;
   flex-wrap: wrap;
   margin-top: auto;
-  padding-top: 14px;
-  border-top: 1px solid var(--linea);
+  padding-top: 18px;
+  border-top: 1px solid var(--borde);
 }
 
 .pqr-card__meta {
   display: flex;
-  gap: 14px;
-  font-size: 12px;
+  gap: 16px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
-  color: var(--texto-2);
+  color: var(--tinta-2);
 }
 
 .view-button {
-  padding: 9px 16px;
-  border: 1px solid var(--linea-fuerte);
-  border-radius: 6px;
-  background: var(--papel);
+  padding: 11px 22px;
+  border: 1px solid #cfe3d8;
+  border-radius: 999px;
+  background: var(--panel);
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--verde-hondo);
   cursor: pointer;
@@ -442,84 +445,85 @@
   color: #ffffff;
 }
 
-/* ---------- Tarjeta para radicar ---------- */
+/* ---------- Radicar nueva ---------- */
 .new-pqr-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  padding: 26px 22px;
-  background: var(--verde-humo);
-  border: 1px dashed var(--linea-fuerte);
-  border-radius: 12px;
+  padding: 32px 28px;
+  background: var(--verde-noche);
+  border-radius: 18px;
+  color: #ffffff;
 }
 
 .plus-button {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
-  margin-bottom: 14px;
-  border-radius: 8px;
-  background: var(--papel);
-  border: 1px solid var(--linea);
-  font-size: 22px;
-  font-weight: 700;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 26px;
+  font-weight: 400;
   line-height: 1;
-  color: var(--verde-hondo);
+  color: #a7e9c2;
 }
 
 .new-pqr-card h2 {
-  margin: 0 0 7px;
-  font-size: 16px;
+  margin: 0 0 9px;
+  font-size: 19px;
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .new-pqr-card p {
-  margin: 0 0 18px;
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--texto-2);
+  margin: 0 0 24px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.74);
 }
 
 .create-button {
-  padding: 12px 22px;
+  padding: 13px 26px;
   border: none;
-  border-radius: 8px;
-  background: var(--verde-hondo);
+  border-radius: 999px;
+  background: var(--verde);
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 700;
   color: #ffffff;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .create-button:hover {
-  background: var(--texto);
-}
-
-.create-button:active {
-  transform: translateY(1px);
+  background: #ffffff;
+  color: var(--verde-hondo);
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .pqr-hero {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 28px;
     align-items: start;
   }
 
   .pqr-hero__stats {
-    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  .pqr-stat {
+    flex: 1;
+    min-width: 96px;
   }
 }
 
 @media (max-width: 640px) {
   .pqr-container {
-    padding: 28px 16px 56px;
+    padding: 28px 16px 60px;
   }
 
   .pqr-grid {
@@ -528,5 +532,14 @@
 
   .search-container {
     max-width: none;
+  }
+
+  .estado-tabs {
+    width: 100%;
+  }
+
+  .estado-tab {
+    flex: 1;
+    padding: 10px 12px;
   }
 }
