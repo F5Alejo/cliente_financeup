@@ -1,0 +1,300 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family-base);
+}
+
+.resuelve-deuda {
+    padding: 28px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.resuelve-deuda button:focus-visible,
+.resuelve-deuda input:focus-visible {
+    outline: 3px solid var(--green-primary);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+/* HERO */
+.deuda-hero {
+    background: #f0fdfa;
+    border-radius: 18px;
+    padding: 26px 28px;
+    margin-bottom: 22px;
+}
+
+.deuda-hero h1 {
+    font-size: 22px;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.deuda-hero p {
+    color: #475569;
+    font-size: 13.5px;
+    max-width: 560px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.flujo {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.paso {
+    flex: 1;
+    min-width: 160px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.numero {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--green-primary);
+    color: white;
+    font-size: 11.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* PANEL BASE (comparte convención con finanzas.css / metas.css) */
+.panel {
+    background: white;
+    border: 1px solid #eef2f6;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+.panel h2 {
+    font-size: 15px;
+    color: #0f172a;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+/* FORMULARIO DE DEUDA */
+.form-deuda {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.campo-monto {
+    max-width: 170px;
+}
+
+.campo label {
+    font-size: 12px;
+    color: #475569;
+    font-weight: 600;
+}
+
+.campo input {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13.5px;
+    outline: none;
+}
+
+.campo input:focus {
+    border-color: #0f766e;
+}
+
+.btn-agregar {
+    background: #0f766e;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+    white-space: nowrap;
+}
+
+.btn-agregar:hover {
+    background: #0d9488;
+}
+
+/* LISTA DE DEUDAS */
+.lista-deudas {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lista-deudas li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.deuda-entidad {
+    font-weight: 600;
+    color: #0f172a;
+    min-width: 110px;
+}
+
+.deuda-dato {
+    color: #475569;
+}
+
+.btn-eliminar {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    transition: .2s;
+}
+
+.btn-eliminar:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.lista-vacia {
+    color: #94a3b8;
+    text-align: center;
+    background: transparent !important;
+}
+
+/* COMPARACIÓN */
+.comparacion {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.comparacion-card {
+    text-align: center;
+}
+
+.comparacion-cifra {
+    display: block;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 4px 0;
+}
+
+.comparacion-cifra small {
+    font-size: 13px;
+    font-weight: 500;
+    color: #94a3b8;
+}
+
+.comparacion-card.actual .comparacion-cifra { color: #dc2626; }
+.comparacion-card.propuesta .comparacion-cifra { color: var(--green-primary); }
+
+.comparacion-detalle {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* AHORRO / CTA */
+.ahorro-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.resumen-label {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.resumen-valor {
+    display: block;
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.resumen-valor.positivo { color: var(--green-primary); }
+.resumen-valor.negativo { color: #dc2626; }
+
+.btn-primario {
+    background: var(--green-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 22px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-primario:hover {
+    background: var(--green-dark);
+}
+
+.nota-legal {
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+    .comparacion {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .resuelve-deuda {
+        padding: 20px;
+    }
+
+    .form-deuda {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .campo-monto {
+        max-width: none;
+    }
+}
