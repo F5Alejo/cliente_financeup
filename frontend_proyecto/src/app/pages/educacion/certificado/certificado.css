@@ -1,13 +1,13 @@
-/* Entrega del certificado: el único momento claro del aula oscura. */
+/* Entrega del certificado: superficie clara del aula. */
 
 :host {
-  --tinta: #0d1512;
-  --tinta-2: #131e19;
+  --tinta: #f4f6f5;
+  --tinta-2: #ffffff;
   --verde: var(--green-primary);
-  --verde-claro: #7ee2a2;
-  --humo: #e6efe9;
-  --humo-2: #93a89c;
-  --linea: rgba(230, 239, 233, 0.1);
+  --verde-claro: #0a5c28;
+  --humo: #16211c;
+  --humo-2: #5c7266;
+  --linea: #dde5e0;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   display: block;
