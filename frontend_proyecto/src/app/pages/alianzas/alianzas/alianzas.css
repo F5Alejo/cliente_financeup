@@ -10,7 +10,7 @@
   --verde: var(--green-primary);
   --verde-hondo: #0a5c28;
   --verde-humo: #eef7f1;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --mono: var(--font-family-base);
 
   display: block;
   min-height: 100vh;
@@ -52,15 +52,16 @@
   color: var(--verde-hondo);
 }
 
-/* Portada */
+/* Portada: banda promocional con degradado suave y tarjeta ilustrada */
 .portada {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
-  gap: 44px;
-  align-items: end;
-  padding-bottom: 34px;
-  margin-bottom: 30px;
-  border-bottom: 2px solid var(--texto);
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 40px;
+  align-items: center;
+  padding: 40px clamp(22px, 4vw, 52px);
+  margin-bottom: 34px;
+  background: linear-gradient(135deg, #e9fbf1 0%, #f4faf6 55%, #e2f5ea 100%);
+  border-radius: 24px;
   animation: fu-fade-up 0.45s ease both;
 }
 
@@ -68,8 +69,12 @@
   margin: 0 0 14px;
   font-size: clamp(27px, 3.6vw, 40px);
   font-weight: 800;
-  line-height: 1.12;
+  line-height: 1.16;
   letter-spacing: -0.03em;
+}
+
+.portada__accent {
+  color: var(--verde-hondo);
 }
 
 .portada__texto {
@@ -80,23 +85,55 @@
   color: var(--texto-2);
 }
 
-/* Cifras: una sola franja dividida por líneas, no tres tarjetas */
+/* Acciones del hero */
+.portada__acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 26px 0 30px;
+}
+
+.btn--hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  background: var(--verde);
+  color: #ffffff;
+}
+
+.btn--hero:hover {
+  background: var(--verde-hondo);
+}
+
+.btn--hero .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.btn--hero-ghost {
+  padding: 13px 22px;
+  border-radius: 999px;
+  background: #ffffff;
+  border-color: var(--linea-fuerte);
+  color: var(--texto);
+}
+
+.btn--hero-ghost:hover {
+  border-color: var(--verde-hondo);
+  color: var(--verde-hondo);
+}
+
+/* Cifras: franja de texto sin tarjeta, integrada al degradado */
 .cifras {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
   margin: 0;
-  border: 1px solid var(--linea);
-  background: var(--papel);
-}
-
-.cifras > div {
-  padding: 16px 18px;
-  border-right: 1px solid var(--linea);
-}
-
-.cifras > div:last-child {
-  border-right: none;
+  padding-top: 22px;
+  border-top: 1px solid rgba(22, 33, 28, 0.12);
 }
 
 .cifras dt {
@@ -113,6 +150,49 @@
   font-size: 17px;
   font-weight: 700;
   color: var(--verde-hondo);
+}
+
+/* Visual: tarjeta ilustrada del hero */
+.portada__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tarjeta-visual {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 1.6 / 1;
+  padding: 22px;
+  background: linear-gradient(150deg, #1f7a4c 0%, #0d3d24 100%);
+  border-radius: 20px;
+  box-shadow: 0 30px 60px rgba(10, 40, 20, 0.28);
+  color: #ffffff;
+  transform: rotate(-6deg);
+}
+
+.tarjeta-visual__chip {
+  width: 42px;
+  height: 30px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #f6cf6b, #e2a731);
+}
+
+.tarjeta-visual__numero {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.tarjeta-visual__marca {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 /* Familias de producto */
@@ -589,16 +669,12 @@
 
 @media (max-width: 560px) {
   .cifras {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 14px;
   }
 
-  .cifras > div {
-    border-right: none;
-    border-bottom: 1px solid var(--linea);
-  }
-
-  .cifras > div:last-child {
-    border-bottom: none;
+  .tarjeta-visual {
+    max-width: 240px;
   }
 
   .ficha {

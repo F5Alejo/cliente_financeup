@@ -11,33 +11,43 @@
     <div class="portada__copy">
       <p class="eyebrow">Productos de nuestros aliados</p>
       <h1 class="portada__titulo">
-        Compara antes de pedir.<br />
-        Solicita en un solo lugar.
+        Compara antes de pedir,<br />
+        <span class="portada__accent">solicita en un solo lugar</span>
       </h1>
       <p class="portada__texto">
         Reunimos los créditos, tarjetas y cuentas de los aliados de FinanceUp con sus
         condiciones completas: tasa, plazo, tarifas y requisitos. Sin letra menuda.
       </p>
+
+   
+
+      <dl class="cifras">
+        <div>
+          <dt>Aliados vigentes</dt>
+          <dd>{{ totalAliados() }}</dd>
+        </div>
+        <div>
+          <dt>Tasa más baja</dt>
+          <dd>{{ formatTasa(tasaMinima()) }}</dd>
+        </div>
+        <div>
+          <dt>Aprobación más rápida</dt>
+          <dd>{{ aprobacionRapida() }}</dd>
+        </div>
+      </dl>
     </div>
 
-    <dl class="cifras">
-      <div>
-        <dt>Aliados vigentes</dt>
-        <dd>{{ totalAliados() }}</dd>
+    <div class="portada__visual" aria-hidden="true">
+      <div class="tarjeta-visual">
+        <span class="tarjeta-visual__chip"></span>
+        <span class="tarjeta-visual__numero">•••• •••• •••• 8842</span>
+        <span class="tarjeta-visual__marca">Platinum</span>
       </div>
-      <div>
-        <dt>Tasa más baja</dt>
-        <dd>{{ formatTasa(tasaMinima()) }}</dd>
-      </div>
-      <div>
-        <dt>Aprobación más rápida</dt>
-        <dd>{{ aprobacionRapida() }}</dd>
-      </div>
-    </dl>
+    </div>
   </header>
 
   <!-- Familias de producto -->
-  <nav class="familias" aria-label="Tipo de producto">
+  <nav class="familias" id="catalogo" aria-label="Tipo de producto">
     @for (familia of familias; track familia) {
       <button
         type="button"
