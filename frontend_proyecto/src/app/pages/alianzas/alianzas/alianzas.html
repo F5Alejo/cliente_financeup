@@ -1,315 +1,247 @@
-<section class="hero">
-  <div class="hero-left">
-    <span class="hero-badge">BENEFICIOS EXCLUSIVOS</span>
-    <h1 class="hero-title">
-      <span class="hero-title-dark">Tu Crédito Ideal,</span>
-      <span class="hero-title-accent">Aprobado en Minutos</span>
-    </h1>
-    <p class="hero-subtitle">
-      Accede a ofertas preferenciales de los mejores bancos y fintechs de Colombia.
-      Mejora tu perfil y ahorra en intereses hoy mismo.
-    </p>
-    <div class="hero-actions">
-      <button type="button" class="btn btn-hero">Ver mis elegibles</button>
-      <button type="button" class="btn btn-outline" (click)="limpiarFiltros()">
-        Explorar todo
-      </button>
+<div class="vitrina">
+
+  <nav class="miga" aria-label="Ruta de navegación">
+    <span>Inicio</span>
+    <span aria-hidden="true">/</span>
+    <span class="miga__actual">Alianzas</span>
+  </nav>
+
+  <!-- Encabezado -->
+  <header class="portada">
+    <div class="portada__copy">
+      <p class="eyebrow">Productos de nuestros aliados</p>
+      <h1 class="portada__titulo">
+        Compara antes de pedir.<br />
+        Solicita en un solo lugar.
+      </h1>
+      <p class="portada__texto">
+        Reunimos los créditos, tarjetas y cuentas de los aliados de FinanceUp con sus
+        condiciones completas: tasa, plazo, tarifas y requisitos. Sin letra menuda.
+      </p>
     </div>
 
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <span class="hero-stat-value">{{ totalAliados() }}</span>
-        <span class="hero-stat-label">Aliados activos</span>
-      </div>
-      <div class="hero-stat">
-        <span class="hero-stat-value">{{ formatTasa(tasaMinima()) }}</span>
-        <span class="hero-stat-label">Tasa desde E.A.</span>
-      </div>
-      <div class="hero-stat">
-        <span class="hero-stat-value">{{ formatUsuarios(usuariosTotales()) }}</span>
-        <span class="hero-stat-label">Usuarios beneficiados</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="hero-card-wrapper">
-    <div class="credit-card">
-      <span class="card-brand">FinanceUp</span>
-      <div class="card-chip"></div>
-      <p class="card-number">•••• •••• •••• 8842</p>
-      <div class="card-footer">
-        <p class="card-tier">PLATINUM</p>
-        <p class="card-exp">12/29</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Barra de filtros -->
-<section class="toolbar">
-  <div class="search-box">
-    <span class="search-icon" aria-hidden="true"></span>
-    <input
-      type="text"
-      class="search-input"
-      placeholder="Busca por aliado, producto o beneficio..."
-      [value]="busqueda()"
-      (input)="busqueda.set($any($event.target).value)"
-    />
-  </div>
-
-  <div class="toolbar-filters">
-    <div class="filter-group">
-      <span class="filter-label">Aliado</span>
-      <div class="filter-tags">
-        @for (tipo of tiposAliado; track tipo) {
-          <button
-            type="button"
-            class="tag"
-            [class.active]="tipoAliadoSeleccionado() === tipo"
-            (click)="seleccionarTipoAliado(tipo)"
-          >
-            {{ tipo }}
-          </button>
-        }
-      </div>
-    </div>
-
-    <div class="filter-group">
-      <span class="filter-label">Beneficio</span>
-      <div class="filter-tags">
-        @for (beneficio of beneficios; track beneficio) {
-          <button
-            type="button"
-            class="tag"
-            [class.active]="beneficioSeleccionado() === beneficio"
-            (click)="seleccionarBeneficio(beneficio)"
-          >
-            {{ beneficio }}
-          </button>
-        }
-      </div>
-    </div>
-
-    <div class="filter-group">
-      <span class="filter-label">Tu perfil</span>
-      <div class="filter-tags">
-        @for (perfil of perfiles; track perfil) {
-          <button
-            type="button"
-            class="tag"
-            [class.active]="perfilSeleccionado() === perfil"
-            (click)="seleccionarPerfil(perfil)"
-          >
-            {{ perfil }}
-          </button>
-        }
-      </div>
-    </div>
-
-    @if (hayFiltrosActivos()) {
-      <button type="button" class="btn-clear" (click)="limpiarFiltros()">
-        Limpiar filtros
-      </button>
-    }
-  </div>
-</section>
-
-<section class="content-grid">
-  <main class="offers-panel">
-    <header class="offers-header">
+    <dl class="cifras">
       <div>
-        <h2 class="section-title">Ofertas recomendadas</h2>
-        <p class="section-subtitle">
-          {{ ofertasFiltradas().length }} resultados ·
-          {{ ofertasDestacadas().length }} destacadas para tu perfil
-        </p>
+        <dt>Aliados vigentes</dt>
+        <dd>{{ totalAliados() }}</dd>
       </div>
-
-      <div class="sort-tabs">
-        @for (orden of ordenes; track orden) {
-          <button
-            type="button"
-            class="sort-tab"
-            [class.active]="ordenSeleccionado() === orden"
-            (click)="seleccionarOrden(orden)"
-          >
-            {{ orden }}
-          </button>
-        }
+      <div>
+        <dt>Tasa más baja</dt>
+        <dd>{{ formatTasa(tasaMinima()) }}</dd>
       </div>
-    </header>
-
-    @if (ofertasFiltradas().length === 0) {
-      <div class="empty-state">
-        <p class="empty-title">No encontramos ofertas con esos filtros</p>
-        <p class="empty-text">Prueba con otra combinación o limpia los filtros activos.</p>
-        <button type="button" class="btn btn-primary" (click)="limpiarFiltros()">
-          Limpiar filtros
-        </button>
+      <div>
+        <dt>Aprobación más rápida</dt>
+        <dd>{{ aprobacionRapida() }}</dd>
       </div>
-    } @else {
-      <div class="offers-grid">
-        @for (oferta of ofertasFiltradas(); track oferta.id; let i = $index) {
-          <article
-            class="offer-card"
-            [class.expanded]="ofertaExpandida() === oferta.id"
-            [style.animation-delay]="i * 60 + 'ms'"
-          >
-            <div class="offer-cover" [style.background]="oferta.logoBg">
-              <div class="offer-cover-top">
-                <span class="offer-type">{{ oferta.tipo }}</span>
-                @if (oferta.destacada) {
-                  <span class="offer-flag">Destacado</span>
-                }
-              </div>
+    </dl>
+  </header>
 
-              <div class="offer-cover-bottom">
-                <div class="offer-logo">{{ oferta.logoText }}</div>
-                <div class="offer-match">
-                  <span class="offer-match-value">{{ oferta.compatibilidad }}%</span>
-                  <span class="offer-match-label">compatible</span>
-                </div>
-              </div>
-
-              <div class="offer-match-track">
-                <span
-                  class="offer-match-fill"
-                  [style.width]="oferta.compatibilidad + '%'"
-                ></span>
-              </div>
-            </div>
-
-            <div class="offer-body">
-              <p class="offer-category">{{ oferta.categoria }}</p>
-              <h3 class="offer-name">{{ oferta.aliado }}</h3>
-              <p class="offer-desc">{{ oferta.descripcion }}</p>
-
-              <dl class="offer-stats">
-                <div class="offer-stat">
-                  <dt>Tasa desde</dt>
-                  <dd>{{ formatTasa(oferta.tasaDesde) }}</dd>
-                </div>
-                <div class="offer-stat">
-                  <dt>Monto máx.</dt>
-                  <dd>{{ oferta.montoMaximo ? formatMontoCorto(oferta.montoMaximo) : '—' }}</dd>
-                </div>
-                <div class="offer-stat">
-                  <dt>Plazo</dt>
-                  <dd>{{ formatPlazo(oferta.plazoMaximo) }}</dd>
-                </div>
-              </dl>
-
-              <div class="offer-tags">
-                @for (etiqueta of oferta.etiquetas; track etiqueta) {
-                  <span class="offer-tag">{{ etiqueta }}</span>
-                }
-              </div>
-
-              <div class="offer-meta">
-                <span class="offer-meta-item offer-rating">
-                  <span class="star" aria-hidden="true">★</span>
-                  {{ oferta.calificacion }}
-                </span>
-                <span class="offer-meta-item">
-                  {{ formatUsuarios(oferta.usuarios) }} usuarios
-                </span>
-                <span class="offer-meta-item">
-                  Aprobación en {{ oferta.aprobacion }}
-                </span>
-              </div>
-
-              @if (ofertaExpandida() === oferta.id) {
-                <div class="offer-details">
-                  <p class="offer-details-title">Requisitos principales</p>
-                  <ul class="offer-requisitos">
-                    @for (requisito of oferta.requisitos; track requisito) {
-                      <li>{{ requisito }}</li>
-                    }
-                  </ul>
-                  <p class="offer-vigencia">{{ oferta.meta }}</p>
-                </div>
-              }
-
-              <div class="offer-actions">
-                <button type="button" class="btn btn-primary">{{ oferta.ctaPrimaria }}</button>
-                @if (oferta.ctaSecundaria) {
-                  <button type="button" class="btn btn-secondary">
-                    {{ oferta.ctaSecundaria }}
-                  </button>
-                }
-                <button
-                  type="button"
-                  class="btn-detalle"
-                  (click)="toggleDetalle(oferta.id)"
-                >
-                  {{ ofertaExpandida() === oferta.id ? 'Ocultar' : 'Detalles' }}
-                </button>
-              </div>
-            </div>
-          </article>
-        }
-      </div>
+  <!-- Familias de producto -->
+  <nav class="familias" aria-label="Tipo de producto">
+    @for (familia of familias; track familia) {
+      <button
+        type="button"
+        class="familia"
+        [class.familia--on]="familiaActiva() === familia"
+        (click)="seleccionarFamilia(familia)"
+      >
+        {{ familia }}
+        <span class="familia__n">{{ conteoFamilia(familia) }}</span>
+      </button>
     }
-  </main>
+  </nav>
 
-  <!-- Simulador -->
-  <aside class="simulator-panel">
-    <h2 class="panel-title">Simulador Pro</h2>
-    <p class="panel-subtitle">Calcula tu cuota antes de aplicar</p>
+  <!-- Filtros secundarios -->
+  <section class="filtros">
+    <label class="buscador">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      <input
+        type="text"
+        placeholder="Busca un aliado o un producto"
+        [value]="busqueda()"
+        (input)="busqueda.set($any($event.target).value)"
+      />
+    </label>
 
-    <div class="sim-row">
-      <span class="sim-label">¿Cuánto necesitas?</span>
-      <span class="sim-value">{{ formatCOP(monto()) }}</span>
-    </div>
-
-    <input
-      type="range"
-      class="sim-slider"
-      min="1000000"
-      max="100000000"
-      step="500000"
-      [value]="monto()"
-      (input)="onMontoChange($event)"
-    />
-    <div class="slider-labels">
-      <span>1M</span>
-      <span>100M</span>
-    </div>
-
-    <p class="sim-label">Plazo (meses)</p>
-    <div class="plazo-buttons">
-      @for (plazo of plazosDisponibles; track plazo) {
+    <div class="filtros__grupo">
+      <span class="filtros__label">Beneficio</span>
+      @for (beneficio of beneficios; track beneficio) {
         <button
           type="button"
-          class="plazo-btn"
-          [class.active]="plazoMeses() === plazo"
-          (click)="seleccionarPlazo(plazo)"
+          class="tag"
+          [class.tag--on]="beneficioSeleccionado() === beneficio"
+          (click)="alternarBeneficio(beneficio)"
         >
-          {{ plazo }}
+          {{ beneficio }}
         </button>
       }
     </div>
 
-    <p class="sim-label">Pago mensual estimado</p>
-    <p class="sim-value-xl">{{ formatCOP(pagoMensual()) }}</p>
+    <div class="filtros__grupo">
+      <span class="filtros__label">Tu perfil</span>
+      @for (perfil of perfiles; track perfil) {
+        <button
+          type="button"
+          class="tag"
+          [class.tag--on]="perfilSeleccionado() === perfil"
+          (click)="alternarPerfil(perfil)"
+        >
+          {{ perfil }}
+        </button>
+      }
+    </div>
 
-    <div class="ahorro-box">
-      <span class="ahorro-icon" aria-hidden="true">↓</span>
-      <div>
-        <p class="ahorro-label">AHORRO POTENCIAL</p>
-        <p class="ahorro-value">-{{ formatCOP(ahorroPotencial()) }} en intereses</p>
+    @if (hayFiltros()) {
+      <button type="button" class="limpiar" (click)="limpiarFiltros()">Quitar filtros</button>
+    }
+  </section>
+
+  <!-- Listado de productos -->
+  <p class="conteo">{{ productos().length }} productos disponibles</p>
+
+  <div class="lista">
+    @for (producto of productos(); track producto.id; let i = $index) {
+      <article class="producto" [style.animation-delay]="i * 60 + 'ms'">
+        <div class="producto__id">
+          <span class="marca" [style.background]="producto.logoBg">{{ producto.logoText }}</span>
+          <p class="producto__aliado">{{ producto.aliado }}</p>
+          <p class="producto__familia">{{ producto.categoria }}</p>
+          @if (producto.destacada) {
+            <span class="sello">Recomendado para ti</span>
+          }
+        </div>
+
+        <div class="producto__cuerpo">
+          <h2 class="producto__promesa">{{ producto.promesa }}</h2>
+          <p class="producto__desc">{{ producto.descripcion }}</p>
+
+          <ul class="beneficios">
+            @for (caracteristica of producto.caracteristicas; track caracteristica) {
+              <li>
+                <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                  <path d="M4 12.5l5 5 11-11" fill="none" stroke="currentColor"
+                        stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                {{ caracteristica }}
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="producto__ficha">
+          <dl class="ficha">
+            <div>
+              <dt>Tasa</dt>
+              <dd>{{ formatTasa(producto.tasaDesde) }}</dd>
+            </div>
+            <div>
+              <dt>Monto</dt>
+              <dd>{{ formatMonto(producto.montoMaximo) }}</dd>
+            </div>
+            <div>
+              <dt>Plazo</dt>
+              <dd>{{ formatPlazo(producto.plazoMaximo) }}</dd>
+            </div>
+            <div>
+              <dt>Respuesta</dt>
+              <dd>{{ producto.aprobacion }}</dd>
+            </div>
+          </dl>
+
+          <div class="producto__acciones">
+            <button type="button" class="btn btn--solido" (click)="solicitar(producto)">
+              {{ producto.ctaPrimaria }}
+            </button>
+            <button type="button" class="btn btn--enlace" (click)="verProducto(producto)">
+              Conocer el producto
+              <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </article>
+    } @empty {
+      <div class="sin-datos">
+        <h2>Ningún producto cumple esos filtros</h2>
+        <p>
+          Cambia el tipo de producto o quita algún filtro para ver las
+          {{ totalAliados() }} alianzas vigentes.
+        </p>
+        <button type="button" class="btn btn--solido" (click)="limpiarFiltros()">
+          Ver todos los productos
+        </button>
       </div>
-    </div>
+    }
+  </div>
 
-    <button type="button" class="btn btn-solicitar">Solicitar este crédito</button>
+  <!-- Comparativo -->
+  @if (comparables().length > 1) {
+    <section class="comparativo">
+      <h2 class="comparativo__titulo">Compara los productos de {{ familiaActiva() }}</h2>
 
-    <div class="bonus-card">
-      <p class="bonus-title">Bonos por buen hábito</p>
-      <p class="bonus-text">
-        Completa tus módulos de educación financiera y desbloquea mejores tasas.
-      </p>
-      <button type="button" class="btn btn-bonus">Conoce cómo</button>
-    </div>
-  </aside>
-</section>
+      <div class="comparativo__scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Condición</th>
+              @for (producto of comparables(); track producto.id) {
+                <th scope="col">
+                  {{ producto.aliado }}
+                  <span>{{ producto.categoria }}</span>
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Tasa de interés</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ formatTasa(producto.tasaDesde) }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row">Monto máximo</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ formatMonto(producto.montoMaximo) }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row">Plazo</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ formatPlazo(producto.plazoMaximo) }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row">Cuota de manejo</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ cuotaManejo(producto) }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row">Tiempo de respuesta</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ producto.aprobacion }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row"></th>
+              @for (producto of comparables(); track producto.id) {
+                <td>
+                  <button type="button" class="btn btn--solido btn--mini" (click)="solicitar(producto)">
+                    Solicitar
+                  </button>
+                </td>
+              }
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+</div>

@@ -46,7 +46,6 @@ export class CentroAyudaConponent {
     private readonly router: Router,
     private readonly toastService: ToastService,
   ) {}
-  
 
   // Encabezado
   title: string = '¿En qué podemos ayudarte?';
