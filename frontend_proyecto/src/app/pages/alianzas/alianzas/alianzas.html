@@ -1,168 +1,257 @@
-<section class="hero">
-  <div class="hero-left">
-    <span class="hero-badge">✅ BENEFICIOS EXCLUSIVOS</span>
-    <h1 class="hero-title">
-      <span class="hero-title-dark">Tu Crédito Ideal,</span>
-      <span class="hero-title-accent">Aprobado en</span>
-      <span class="hero-title-accent">Minutos</span>
-    </h1>
-    <p class="hero-subtitle">
-      Accede a ofertas preferenciales de los mejores bancos y fintechs de Colombia.
-      Mejora tu perfil y ahorra en intereses hoy mismo.
-    </p>
-    <div class="hero-actions">
-      <button type="button" class="btn btn-hero">Ver mis elegibles →</button>
-      <button type="button" class="btn btn-outline">Explorar Todo</button>
+<div class="vitrina">
+
+  <nav class="miga" aria-label="Ruta de navegación">
+    <span>Inicio</span>
+    <span aria-hidden="true">/</span>
+    <span class="miga__actual">Alianzas</span>
+  </nav>
+
+  <!-- Encabezado -->
+  <header class="portada">
+    <div class="portada__copy">
+      <p class="eyebrow">Productos de nuestros aliados</p>
+      <h1 class="portada__titulo">
+        Compara antes de pedir,<br />
+        <span class="portada__accent">solicita en un solo lugar</span>
+      </h1>
+      <p class="portada__texto">
+        Reunimos los créditos, tarjetas y cuentas de los aliados de FinanceUp con sus
+        condiciones completas: tasa, plazo, tarifas y requisitos. Sin letra menuda.
+      </p>
+
+   
+
+      <dl class="cifras">
+        <div>
+          <dt>Aliados vigentes</dt>
+          <dd>{{ totalAliados() }}</dd>
+        </div>
+        <div>
+          <dt>Tasa más baja</dt>
+          <dd>{{ formatTasa(tasaMinima()) }}</dd>
+        </div>
+        <div>
+          <dt>Aprobación más rápida</dt>
+          <dd>{{ aprobacionRapida() }}</dd>
+        </div>
+      </dl>
     </div>
-  </div>
 
-  <div class="hero-card-wrapper">
-    <div class="credit-card">
-      <div class="card-chip"></div>
-      <p class="card-number">•••• •••• •••• 8842</p>
-      <p class="card-tier">PLATINUM</p>
+    <div class="portada__visual" aria-hidden="true">
+      <div class="tarjeta-visual">
+        <span class="tarjeta-visual__chip"></span>
+        <span class="tarjeta-visual__numero">•••• •••• •••• 8842</span>
+        <span class="tarjeta-visual__marca">Platinum</span>
+      </div>
     </div>
-  </div>
-</section>
+  </header>
 
-<section class="content-grid">
-  <!-- Filtros -->
-  <aside class="filters-panel">
-    <h2 class="panel-title">☰ Filtrar ofertas</h2>
+  <!-- Familias de producto -->
+  <nav class="familias" id="catalogo" aria-label="Tipo de producto">
+    @for (familia of familias; track familia) {
+      <button
+        type="button"
+        class="familia"
+        [class.familia--on]="familiaActiva() === familia"
+        (click)="seleccionarFamilia(familia)"
+      >
+        {{ familia }}
+        <span class="familia__n">{{ conteoFamilia(familia) }}</span>
+      </button>
+    }
+  </nav>
 
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
+  <!-- Filtros secundarios -->
+  <section class="filtros">
+    <label class="buscador">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
       <input
         type="text"
-        class="search-input"
-        placeholder="Bancos, fintechs..."
+        placeholder="Busca un aliado o un producto"
         [value]="busqueda()"
         (input)="busqueda.set($any($event.target).value)"
       />
-    </div>
+    </label>
 
-    <div class="filter-group">
-      <p class="filter-label">Tipo de Aliado</p>
-      <div class="filter-tags">
+    <div class="filtros__grupo">
+      <span class="filtros__label">Beneficio</span>
+      @for (beneficio of beneficios; track beneficio) {
         <button
           type="button"
           class="tag"
-          *ngFor="let tipo of tiposAliado"
-          [class.active]="tipoAliadoSeleccionado() === tipo"
-          (click)="seleccionarTipoAliado(tipo)"
-        >
-          {{ tipo }}
-        </button>
-      </div>
-    </div>
-
-    <div class="filter-group">
-      <p class="filter-label">Beneficio Principal</p>
-      <div class="filter-tags">
-        <button
-          type="button"
-          class="tag"
-          *ngFor="let beneficio of beneficios"
-          [class.active]="beneficioSeleccionado() === beneficio"
-          (click)="seleccionarBeneficio(beneficio)"
+          [class.tag--on]="beneficioSeleccionado() === beneficio"
+          (click)="alternarBeneficio(beneficio)"
         >
           {{ beneficio }}
         </button>
-      </div>
+      }
     </div>
 
-    <div class="filter-group">
-      <p class="filter-label">Tu Perfil</p>
-      <div class="filter-tags">
+    <div class="filtros__grupo">
+      <span class="filtros__label">Tu perfil</span>
+      @for (perfil of perfiles; track perfil) {
         <button
           type="button"
           class="tag"
-          *ngFor="let perfil of perfiles"
-          [class.active]="perfilSeleccionado() === perfil"
-          (click)="seleccionarPerfil(perfil)"
+          [class.tag--on]="perfilSeleccionado() === perfil"
+          (click)="alternarPerfil(perfil)"
         >
           {{ perfil }}
         </button>
-      </div>
+      }
     </div>
 
-    <div class="bonus-card">
-      <p class="bonus-title">Bonos por buen hábito</p>
-      <button type="button" class="btn btn-bonus">Conoce Cómo</button>
-    </div>
-  </aside>
+    @if (hayFiltros()) {
+      <button type="button" class="limpiar" (click)="limpiarFiltros()">Quitar filtros</button>
+    }
+  </section>
 
-  <!-- Ofertas -->
-  <main class="offers-panel">
-    <h2 class="section-title">Ofertas recomendadas</h2>
+  <!-- Listado de productos -->
+  <p class="conteo">{{ productos().length }} productos disponibles</p>
 
-    <article class="offer-card" *ngFor="let oferta of ofertas">
-      <div class="offer-info">
-        <h3 class="offer-name">{{ oferta.aliado }}</h3>
-        <p class="offer-desc">{{ oferta.descripcion }}</p>
-        <p class="offer-meta">{{ oferta.meta }}</p>
-        <div class="offer-actions">
-          <button type="button" class="btn btn-primary">{{ oferta.ctaPrimaria }}</button>
-          <button type="button" class="btn btn-secondary" *ngIf="oferta.ctaSecundaria">
-            {{ oferta.ctaSecundaria }}
-          </button>
+  <div class="lista">
+    @for (producto of productos(); track producto.id; let i = $index) {
+      <article class="producto" [style.animation-delay]="i * 60 + 'ms'">
+        <div class="producto__id">
+          <span class="marca" [style.background]="producto.logoBg">{{ producto.logoText }}</span>
+          <p class="producto__aliado">{{ producto.aliado }}</p>
+          <p class="producto__familia">{{ producto.categoria }}</p>
+          @if (producto.destacada) {
+            <span class="sello">Recomendado para ti</span>
+          }
         </div>
+
+        <div class="producto__cuerpo">
+          <h2 class="producto__promesa">{{ producto.promesa }}</h2>
+          <p class="producto__desc">{{ producto.descripcion }}</p>
+
+          <ul class="beneficios">
+            @for (caracteristica of producto.caracteristicas; track caracteristica) {
+              <li>
+                <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                  <path d="M4 12.5l5 5 11-11" fill="none" stroke="currentColor"
+                        stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                {{ caracteristica }}
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="producto__ficha">
+          <dl class="ficha">
+            <div>
+              <dt>Tasa</dt>
+              <dd>{{ formatTasa(producto.tasaDesde) }}</dd>
+            </div>
+            <div>
+              <dt>Monto</dt>
+              <dd>{{ formatMonto(producto.montoMaximo) }}</dd>
+            </div>
+            <div>
+              <dt>Plazo</dt>
+              <dd>{{ formatPlazo(producto.plazoMaximo) }}</dd>
+            </div>
+            <div>
+              <dt>Respuesta</dt>
+              <dd>{{ producto.aprobacion }}</dd>
+            </div>
+          </dl>
+
+          <div class="producto__acciones">
+            <button type="button" class="btn btn--solido" (click)="solicitar(producto)">
+              {{ producto.ctaPrimaria }}
+            </button>
+            <button type="button" class="btn btn--enlace" (click)="verProducto(producto)">
+              Conocer el producto
+              <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </article>
+    } @empty {
+      <div class="sin-datos">
+        <h2>Ningún producto cumple esos filtros</h2>
+        <p>
+          Cambia el tipo de producto o quita algún filtro para ver las
+          {{ totalAliados() }} alianzas vigentes.
+        </p>
+        <button type="button" class="btn btn--solido" (click)="limpiarFiltros()">
+          Ver todos los productos
+        </button>
       </div>
-      <div class="offer-logo" [style.background]="oferta.logoBg">
-        {{ oferta.logoText }}
+    }
+  </div>
+
+  <!-- Comparativo -->
+  @if (comparables().length > 1) {
+    <section class="comparativo">
+      <h2 class="comparativo__titulo">Compara los productos de {{ familiaActiva() }}</h2>
+
+      <div class="comparativo__scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Condición</th>
+              @for (producto of comparables(); track producto.id) {
+                <th scope="col">
+                  {{ producto.aliado }}
+                  <span>{{ producto.categoria }}</span>
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Tasa de interés</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ formatTasa(producto.tasaDesde) }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row">Monto máximo</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ formatMonto(producto.montoMaximo) }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row">Plazo</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ formatPlazo(producto.plazoMaximo) }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row">Cuota de manejo</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ cuotaManejo(producto) }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row">Tiempo de respuesta</th>
+              @for (producto of comparables(); track producto.id) {
+                <td>{{ producto.aprobacion }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row"></th>
+              @for (producto of comparables(); track producto.id) {
+                <td>
+                  <button type="button" class="btn btn--solido btn--mini" (click)="solicitar(producto)">
+                    Solicitar
+                  </button>
+                </td>
+              }
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </article>
-  </main>
+    </section>
+  }
 
-  <!-- Simulador -->
-  <aside class="simulator-panel">
-    <h2 class="panel-title">📊 Simulador Pro</h2>
-
-    <div class="sim-row">
-      <span class="sim-label">¿Cuánto necesitas?</span>
-      <span class="sim-value">{{ formatCOP(monto()) }}</span>
-    </div>
-
-    <input
-      type="range"
-      class="sim-slider"
-      min="1000000"
-      max="100000000"
-      step="500000"
-      [value]="monto()"
-      (input)="onMontoChange($event)"
-    />
-    <div class="slider-labels">
-      <span>1M</span>
-      <span>100M</span>
-    </div>
-
-    <p class="sim-label">Plazo (meses)</p>
-    <p class="sim-value-lg">{{ plazoMeses() }}</p>
-
-    <div class="plazo-buttons">
-      <button
-        type="button"
-        class="plazo-btn"
-        *ngFor="let plazo of plazosDisponibles"
-        [class.active]="plazoMeses() === plazo"
-        (click)="seleccionarPlazo(plazo)"
-      >
-        {{ plazo }}
-      </button>
-    </div>
-
-    <p class="sim-label">Pago mensual estimado</p>
-    <p class="sim-value-xl">{{ formatCOP(pagoMensual()) }}</p>
-
-    <div class="ahorro-box">
-      <span class="ahorro-icon">↓</span>
-      <div>
-        <p class="ahorro-label">AHORRO POTENCIAL</p>
-        <p class="ahorro-value">-{{ formatCOP(ahorroPotencial()) }} en intereses</p>
-      </div>
-    </div>
-
-    <button type="button" class="btn btn-solicitar">Solicitar este crédito</button>
-  </aside>
-</section>
+</div>

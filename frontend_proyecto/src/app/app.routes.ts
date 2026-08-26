@@ -61,11 +61,50 @@ export const routes: Routes = [
       },
 
       {
+        path: 'educacion/curso/:cursoId',
+        loadComponent: () =>
+          import('./pages/educacion/curso-detalle/curso-detalle')
+            .then((m) => m.CursoDetalleComponent),
+        title: 'Curso - FinanceUp',
+      },
+
+      {
+        path: 'educacion/curso/:cursoId/clase/:leccionId',
+        loadComponent: () =>
+          import('./pages/educacion/clase/clase').then((m) => m.ClaseComponent),
+        title: 'Clase - FinanceUp',
+      },
+
+      {
+        path: 'educacion/curso/:cursoId/certificado',
+        loadComponent: () =>
+          import('./pages/educacion/certificado/certificado')
+            .then((m) => m.CertificadoComponent),
+        title: 'Certificado - FinanceUp',
+      },
+
+      {
         path: 'alianzas',
         loadComponent: () =>
           import('./pages/alianzas/alianzas/alianzas')
             .then((m) => m.AlianzasComponent),
         title: 'Alianzas - FinanceUp',
+      },
+
+      {
+        path: 'alianzas/producto/:productoId',
+        loadComponent: () =>
+          import('./pages/alianzas/producto-detalle/producto-detalle')
+            .then((m) => m.ProductoDetalleComponent),
+        title: 'Producto - FinanceUp',
+      },
+
+      {
+        path: 'alianzas/producto/:productoId/solicitud',
+        loadComponent: () =>
+          import('./pages/alianzas/solicitud/solicitud')
+            .then((m) => m.SolicitudComponent),
+        title: 'Solicitud - FinanceUp',
       },
 
       {
@@ -106,8 +145,7 @@ export const routes: Routes = [
       {
         path: 'ver-pqr/:numero',
         loadComponent: () =>
-          import('./pages/soporte/ver-pqr/ver-pqr')
-        .then((m) => m.PqrComponent),
+          import('./pages/soporte/ver-pqr/ver-pqr').then((m) => m.VerPqrComponent),
         title: 'Detalle PQR - FinanceUp',
       },
       {
