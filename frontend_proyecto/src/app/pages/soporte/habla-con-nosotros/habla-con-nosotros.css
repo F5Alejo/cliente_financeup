@@ -1,139 +1,145 @@
-/* ---------------------------------------------
-   Habla Con Nosotros
---------------------------------------------- */
+/* Habla con nosotros: panel de contacto directo, la imagen sostiene el lado derecho. */
+
+:host {
+  --papel: #ffffff;
+  --fondo: #f4f6f5;
+  --linea: #dde5e0;
+  --linea-fuerte: #c3d2c9;
+  --texto: #16211c;
+  --texto-2: #5c7266;
+  --verde: var(--green-primary);
+  --verde-hondo: #0a5c28;
+  --verde-humo: #eef7f1;
+
+  display: block;
+  width: 100%;
+  font-family: var(--font-family-base);
+  color: var(--texto);
+}
 
 * {
   box-sizing: border-box;
 }
 
-:host {
-  display: block;
-  width: 100%;
-  font-family: var(--font-family-base);
-}
-
 .habla-banner {
   width: 100%;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-page);
-  padding: clamp(20px, 3vw, 40px);
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px clamp(18px, 4vw, 48px);
 }
 
 .habla-card {
-  width: 100%;
-  max-width: 1120px;
   display: grid;
-  grid-template-columns: 56% 44%;
-  border-radius: 24px;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  animation: fu-fade-up 0.5s ease both;
 }
 
-/* Lado izquierdo: contenido */
 .habla-card__content {
-  background: linear-gradient(150deg, var(--green-primary) 0%, var(--green-dark) 70%, var(--green-deep) 100%);
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: clamp(32px, 5%, 56px);
+  padding: clamp(28px, 4vw, 44px);
 }
 
+/* Disponibilidad */
 .habla-card__badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  align-self: flex-start;
-  padding: 6px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50px;
-  background: rgba(255, 255, 255, 0.15);
-  font-size: 11px;
+  gap: 7px;
+  margin-bottom: 16px;
+  padding: 5px 12px;
+  background: var(--verde-humo);
+  border-radius: 4px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--verde-hondo);
 }
 
 .habla-card__dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #ffffff;
-  animation: fu-pulse 1.8s ease-in-out infinite;
+  background: var(--verde);
 }
 
 .habla-card__title {
-  font-size: clamp(28px, 3.4vw, 42px);
+  margin: 0 0 12px;
+  max-width: 20ch;
+  font-size: clamp(24px, 3.2vw, 34px);
   font-weight: 800;
-  line-height: 1.1;
-  margin: 20px 0 14px;
+  line-height: 1.16;
+  letter-spacing: -0.03em;
 }
 
 .habla-card__description {
-  font-size: 15px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 380px;
   margin: 0 0 22px;
+  max-width: 56ch;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--texto-2);
 }
 
+/* Temas que atiende el canal */
 .habla-card__temas {
-  list-style: none;
-  margin: 0 0 28px;
+  margin: 0 0 26px;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  list-style: none;
+  display: grid;
+  gap: 9px;
 }
 
 .habla-card__temas li {
   position: relative;
   padding-left: 22px;
   font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.55;
+  color: var(--texto-2);
 }
 
+/* Palomita dibujada en CSS */
 .habla-card__temas li::before {
   content: "";
   position: absolute;
-  left: 0;
+  left: 2px;
   top: 5px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid var(--verde);
+  border-bottom: 2px solid var(--verde);
+  transform: rotate(45deg);
 }
 
-/* Botón WhatsApp */
 .btn-whatsapp {
-  align-self: flex-start;
-  background: #ffffff;
-  color: var(--green-dark);
+  padding: 13px 24px;
   border: none;
-  border-radius: 12px;
-  padding: 16px 32px;
+  border-radius: 8px;
+  background: var(--verde-hondo);
   font-family: inherit;
-  font-size: 15px;
+  font-size: 13.5px;
   font-weight: 700;
+  color: #ffffff;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .btn-whatsapp:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 26px rgba(13, 31, 20, 0.28);
+  background: var(--texto);
 }
 
+.btn-whatsapp:active {
+  transform: translateY(1px);
+}
+
+/* Cifras de atencion */
 .habla-card__stats {
   display: flex;
+  gap: 34px;
   flex-wrap: wrap;
-  gap: 28px;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--linea);
 }
 
 .habla-stat {
@@ -143,27 +149,30 @@
 }
 
 .habla-stat__value {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--verde-hondo);
 }
 
 .habla-stat__label {
   font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--texto-2);
 }
 
 /* Lado derecho: imagen */
 .habla-card__image {
   position: relative;
+  min-height: 100%;
   background-image: url('./img/habla-nosotros.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: var(--green-deep); /* respaldo mientras carga la imagen */
-  min-height: 100%;
+  background-color: #0d3d24; /* respaldo mientras carga la imagen */
 }
 
 /* Responsive */
@@ -173,21 +182,17 @@
   }
 
   .habla-card__image {
-    min-height: 280px;
+    min-height: 260px;
     order: -1;
   }
 }
 
 @media (max-width: 480px) {
   .habla-banner {
-    padding: 16px;
-  }
-
-  .habla-card__content {
-    padding: 32px 24px;
+    padding: 28px 16px;
   }
 
   .habla-card__stats {
-    gap: 18px;
+    gap: 24px;
   }
 }
