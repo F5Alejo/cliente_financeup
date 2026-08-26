@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../shared/services/toast';
@@ -18,7 +18,11 @@ interface CanalAtencion {
   descripcion: string;
   disponibilidad: string;
   tiempoRespuesta: string;
-  enLinea: boolean;
+  estado: 'en-linea' | 'proximamente' | 'segun-horario';
+  horarioAtencion?: {
+    inicio: number;
+    fin: number;
+  };
   buttonLabel: string;
   accion: 'chat' | 'pqr' | 'whatsapp';
   variant: 'green' | 'dark';
@@ -41,7 +45,7 @@ interface SupportBlock {
   templateUrl: './centro-ayuda.html',
   styleUrl: './centro-ayuda.css',
 })
-export class CentroAyudaConponent {
+export class CentroAyudaConponent implements OnDestroy {
   constructor(
     private readonly router: Router,
     private readonly toastService: ToastService,
@@ -54,6 +58,11 @@ export class CentroAyudaConponent {
   searchPlaceholder: string = 'Buscar en preguntas frecuentes...';
 
   busqueda = signal('');
+  private readonly actualizacionHorario = signal(0);
+  private readonly horarioIntervalo = window.setInterval(
+    () => this.actualizacionHorario.update((valor) => valor + 1),
+    60_000,
+  );
 
   // Indicadores del encabezado
   readonly indicadores = [
@@ -139,7 +148,7 @@ export class CentroAyudaConponent {
       descripcion: '¿Necesitas ayuda personalizada? Chatea con uno de nuestros asesores.',
       disponibilidad: 'Lunes a sábado, 7:00 a.m. – 9:00 p.m.',
       tiempoRespuesta: 'Responde en ~3 minutos',
-      enLinea: true,
+      estado: 'proximamente',
       buttonLabel: 'Iniciar chat',
       accion: 'chat',
       variant: 'green',
@@ -150,7 +159,7 @@ export class CentroAyudaConponent {
       descripcion: '¿Tienes un problema? Envía un ticket y haz seguimiento a tu caso.',
       disponibilidad: 'Disponible 24/7',
       tiempoRespuesta: 'Respuesta en 48 horas hábiles',
-      enLinea: true,
+      estado: 'en-linea',
       buttonLabel: 'Crear PQR',
       accion: 'pqr',
       variant: 'dark',
@@ -159,9 +168,13 @@ export class CentroAyudaConponent {
       icono: '📱',
       titulo: 'WhatsApp FinanceUp',
       descripcion: 'Escríbenos desde tu celular y retoma la conversación cuando quieras.',
-      disponibilidad: 'Todos los días, 6:00 a.m. – 10:00 p.m.',
+      disponibilidad: 'Todos los días, 6:00 a.m. – 6:00 p.m.',
       tiempoRespuesta: 'Responde en ~10 minutos',
-      enLinea: false,
+      estado: 'segun-horario',
+      horarioAtencion: {
+        inicio: 6,
+        fin: 18,
+      },
       buttonLabel: 'Abrir WhatsApp',
       accion: 'whatsapp',
       variant: 'dark',
@@ -173,7 +186,7 @@ export class CentroAyudaConponent {
   supportBlocks: SupportBlock[] = [
     {
       titulo: 'Soporte general',
-      horario: 'Lunes a viernes, 8:00 a.m. – 6:00 p.m.',
+      horario: 'Lunes a viernes, 8:00 a.m. – 10:00 p.m.',
       contacts: [
         { label: 'Número de soporte', value: '+57 300 735 7662' },
         { label: 'Correo electrónico', value: 'soporte@financeup.com' },
@@ -191,6 +204,32 @@ export class CentroAyudaConponent {
 
   abrirCategoria(categoria: CategoriaAyuda): void {
     this.router.navigate([categoria.ruta]);
+  }
+
+  estadoCanal(canal: CanalAtencion): 'En línea' | 'Fuera de horario' | 'Próximamente' {
+    this.actualizacionHorario();
+
+    if (canal.estado === 'proximamente') return 'Próximamente';
+    if (canal.estado === 'en-linea') return 'En línea';
+
+    const horaEnColombia = Number(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Bogota',
+        hour: '2-digit',
+        hourCycle: 'h23',
+      }).format(new Date()),
+    );
+
+    const horario = canal.horarioAtencion;
+    if (!horario) return 'Fuera de horario';
+
+    return horaEnColombia >= horario.inicio && horaEnColombia < horario.fin
+      ? 'En línea'
+      : 'Fuera de horario';
+  }
+
+  ngOnDestroy(): void {
+    window.clearInterval(this.horarioIntervalo);
   }
 
   ejecutarCanal(canal: CanalAtencion): void {
