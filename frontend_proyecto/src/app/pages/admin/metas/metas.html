@@ -1,0 +1,85 @@
+<app-admin-menu></app-admin-menu>
+<div class="admin-metas">
+    <h1>Metas</h1>
+    <p class="admin-sub">Agrega, edita o elimina las metas que ven los usuarios.</p>
+
+    <section class="resumen-admin">
+        <div class="resumen-item">
+            <span class="resumen-label">Total de metas</span>
+            <span class="resumen-valor">{{ totalMetas }}</span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Metas cumplidas</span>
+            <span class="resumen-valor positivo">{{ metasCumplidas }} / {{ totalMetas }}</span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Total ahorrado</span>
+            <span class="resumen-valor">{{ formatearCOP(totalAhorrado) }}</span>
+        </div>
+    </section>
+
+    <input
+        type="text"
+        class="buscador"
+        placeholder="Buscar por nombre..."
+        [ngModel]="busqueda()"
+        (ngModelChange)="actualizarBusqueda($event)"
+        name="busqueda" />
+
+    <table>
+        <thead>
+            <tr>
+                <th>Meta</th>
+                <th>Actual</th>
+                <th>Objetivo</th>
+                <th>Progreso</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (meta of metasFiltradas; track meta.id) {
+                <tr>
+                    <td>{{ meta.icono }} {{ meta.nombre }}</td>
+                    <td>{{ formatearCOP(meta.actual) }}</td>
+                    <td>{{ formatearCOP(meta.objetivo) }}</td>
+                    <td>{{ meta.porcentaje }}%</td>
+                    <td>
+                        <span class="estado" [class.cumplida]="meta.cumplida">
+                            {{ meta.cumplida ? 'Cumplida' : 'En progreso' }}
+                        </span>
+                    </td>
+                    <td class="acciones">
+                        <button type="button" (click)="editarMeta(meta)">Editar</button>
+                        <button type="button" class="btn-eliminar" (click)="eliminarMeta(meta.id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+            @if (metasFiltradas.length === 0) {
+                <tr>
+                    <td colspan="6" class="fila-vacia">No hay metas que coincidan con la búsqueda.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <section class="panel-form">
+        <h2>{{ editandoId ? 'Editar meta' : 'Agregar meta' }}</h2>
+        <form (ngSubmit)="guardarMeta()">
+            <div class="form-row">
+                <input type="text" [(ngModel)]="formMeta.icono" name="icono" placeholder="Emoji" maxlength="2">
+                <input type="text" [(ngModel)]="formMeta.nombre" name="nombre" placeholder="Nombre de la meta" required>
+            </div>
+            <div class="form-row">
+                <input type="number" [(ngModel)]="formMeta.actual" name="actual" placeholder="Monto actual">
+                <input type="number" [(ngModel)]="formMeta.objetivo" name="objetivo" placeholder="Monto objetivo" required>
+            </div>
+            <div class="form-acciones">
+                <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar meta' }}</button>
+                @if (editandoId) {
+                    <button type="button" (click)="cancelarEdicion()">Cancelar</button>
+                }
+            </div>
+        </form>
+    </section>
+</div>
