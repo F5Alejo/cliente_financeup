@@ -1,5 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { PqrService, PrioridadPqr } from '../../../services/pqr';
+import { ToastService } from '../../../shared/services/toast';
+import { AuthService } from '../../../services/auth';
+
+// TODO: ajustar esta ruta si tu página de login no está en '/login'.
+const RUTA_LOGIN = '/login';
 
 @Component({
   selector: 'app-nuevo-pqr',
@@ -7,31 +14,80 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './nuevo-pqr.html',
   styleUrl: './nuevo-pqr.css',
 })
-export class NuevoPqrComponent {
-  // Textos de la interfaz (quemados)
-  titulo: string = 'Nuevo PQR';
-  labelAsunto: string = 'Asunto:';
-  labelDescripcion: string = 'Descripcion:';
-  placeholderAsunto: string = 'Escribe tu mensaje aquí...';
-  placeholderDescripcion: string = 'Escribe tu mensaje aquí...';
-  textoAdjuntar: string = 'Adjuntar archivo';
-  textoBotonEnviar: string = 'Enviar';
+export class NuevoPqrComponent implements OnInit {
+  constructor(
+    private pqrService: PqrService,
+    private toastService: ToastService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-  // Datos quemados (mock) del PQR actual
-  numeroPeticion: string = '132132385';
-  usuario: string = 'Harold Arciniegas';
-  labelNumeroPeticion: string = 'Numero de Peticion:';
+  ngOnInit(): void {
+    // Si alguien entra directo por URL sin sesión, lo mandamos al login.
+    if (!this.authService.estaAutenticado()) {
+      this.toastService.info('Inicia sesión para radicar una nueva PQR.');
+      this.router.navigate([RUTA_LOGIN]);
+    }
+  }
+
+  // Textos de la interfaz
+  titulo: string = 'Nuevo PQR';
+  subtitulo: string =
+    'Cuéntanos qué pasó. Entre más detalles nos des, más rápido resolvemos tu caso.';
+  labelTipo: string = 'Tipo de solicitud:';
+  labelCategoria: string = 'Categoría:';
+  labelPrioridad: string = 'Prioridad:';
+  labelAsunto: string = 'Asunto:';
+  labelDescripcion: string = 'Descripción:';
+  placeholderAsunto: string = 'Resume tu solicitud en una frase';
+  placeholderDescripcion: string = 'Describe con detalle lo que ocurrió...';
+  textoAdjuntar: string = 'Adjuntar archivo';
+  textoAdjuntarAyuda: string = 'PDF, JPG o PNG hasta 5 MB';
+  textoBotonEnviar: string = 'Enviar PQR';
+
+  labelNumeroPeticion: string = 'Número de petición:';
   labelUsuario: string = 'Usuario:';
 
+  // Número de petición mock (se genera real al enviar); el usuario ya no
+  // está quemado, se toma de la sesión activa.
+  numeroPeticion: string = '132132385';
+
+  get usuario(): string {
+    return this.authService.obtenerNombre();
+  }
+
+  // Opciones del formulario
+  readonly tipos = ['Petición', 'Queja', 'Reclamo'];
+  readonly categorias = [
+    'Atención al cliente',
+    'Movimientos y pagos',
+    'Plataforma',
+    'Alianzas y beneficios',
+  ];
+  readonly prioridades: PrioridadPqr[] = ['Alta', 'Media', 'Baja'];
+
+  // Pasos informativos del proceso
+  readonly pasos = [
+    { titulo: 'Radicas', detalle: 'Envías tu solicitud' },
+    { titulo: 'Revisamos', detalle: 'Un asesor toma el caso' },
+    { titulo: 'Respondemos', detalle: 'Máximo 48 horas hábiles' },
+  ];
+
   // Modelo del formulario
+  tipo: string = 'Petición';
+  categoria: string = 'Atención al cliente';
+  prioridad: PrioridadPqr = 'Media';
   asunto: string = '';
   descripcion: string = '';
   archivoAdjunto: File | null = null;
   nombreArchivo: string = '';
 
+  get caracteresRestantes(): number {
+    return 600 - this.descripcion.length;
+  }
+
   volver(): void {
-    console.log('Volver al listado');
-    // Aquí iría history.back() o router.navigate([...])
+    this.router.navigate(['/pqr']);
   }
 
   onArchivoSeleccionado(event: Event): void {
@@ -43,17 +99,41 @@ export class NuevoPqrComponent {
   }
 
   enviar(): void {
-    if (!this.asunto.trim() || !this.descripcion.trim()) {
-      console.warn('Asunto y descripción son obligatorios');
+    if (!this.authService.estaAutenticado()) {
+      this.toastService.info('Inicia sesión para radicar una nueva PQR.');
+      this.router.navigate([RUTA_LOGIN]);
       return;
     }
 
-    console.log('Enviando PQR', {
-      numeroPeticion: this.numeroPeticion,
+    if (!this.asunto.trim() || !this.descripcion.trim()) {
+      this.toastService.info('El asunto y la descripción son obligatorios.');
+      return;
+    }
+
+    this.pqrService.agregarPqr({
+      titulo: this.asunto.trim(),
+      numero: Math.floor(1000000 + Math.random() * 9000000).toString(),
+      estado: 'Radicado',
+      tipo: this.tipo,
+      categoria: this.categoria,
+      descripcion: this.descripcion.trim(),
+      prioridad: this.prioridad,
+      fechaCreacion: new Date().toLocaleDateString('es-CO', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      ultimaActualizacion: 'Hace un momento',
+      asesor: 'Por asignar',
+      respuestas: 0,
+      adjuntos: this.nombreArchivo ? 1 : 0,
+      progreso: 10,
       usuario: this.usuario,
-      asunto: this.asunto,
-      descripcion: this.descripcion,
-      archivo: this.nombreArchivo,
+      archivosAdjuntos: this.nombreArchivo ? [this.nombreArchivo] : [],
+      mensajeRespuesta: 'Tu solicitud fue radicada. Un asesor la revisará pronto.',
     });
+
+    this.toastService.success('PQR radicada correctamente.');
+    this.router.navigate(['/pqr']);
   }
 }

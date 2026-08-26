@@ -1,116 +1,128 @@
 <div class="pqr-container">
 
-  <!-- Título -->
-  <h1>{{ tituloPagina }}</h1>
-
-  <!-- Buscador -->
-  <div class="search-container">
-
-    <input
-      type="text"
-      [placeholder]="placeholderBuscador"
-      [(ngModel)]="searchText"
-    />
-
-    <button
-      type="button"
-      class="search-button"
-      (click)="buscar()"
-    >
-      <span class="search-icon"></span>
-    </button>
-
-  </div>
-
-
-  <!-- Contenido -->
-  <div class="pqr-content">
-
-    <!-- Lista de PQR -->
-    <div class="pqr-list">
-
-      <!-- PQR encontradas -->
-      <div
-        class="pqr-card"
-        *ngFor="let pqr of filteredPqrs"
-      >
-
-        <h2>{{ pqr.titulo }}</h2>
-
-        <p>
-          numero de peticion:
-          <span>{{ pqr.numero }}</span>
-        </p>
-
-        <p>
-          Estado:
-          <span>{{ pqr.estado }}</span>
-        </p>
-
-        <button
-          type="button"
-          class="view-button"
-          (click)="verPqr(pqr)"
-        >
-          {{ botonVerMas }}
-        </button>
-
-      </div>
-
-
-      <!-- Crear nuevo cuando NO hay PQR -->
-      <div
-        class="new-pqr-card no-results-card"
-        *ngIf="filteredPqrs.length === 0"
-      >
-
-        <h2>{{ tituloCrearNuevo }}</h2>
-
-        <button
-          type="button"
-          class="plus-button"
-          (click)="crearNuevaPqr()"
-        >
-          {{ botonAgregar }}
-        </button>
-
-        <button
-          type="button"
-          class="create-button"
-          (click)="crearNuevaPqr()"
-        >
-          {{ botonCrearNuevo }}
-        </button>
-
-      </div>
-
+  <!-- Encabezado -->
+  <header class="pqr-hero">
+    <div class="pqr-hero__copy">
+      <span class="pqr-hero__badge">SOPORTE</span>
+      <h1 class="pqr-hero__title">{{ tituloPagina }}</h1>
+      <p class="pqr-hero__subtitle">{{ subtituloPagina }}</p>
     </div>
 
+    <div class="pqr-hero__stats">
+      <div class="pqr-stat">
+        <span class="pqr-stat__value">{{ totalPqrs }}</span>
+        <span class="pqr-stat__label">Radicadas</span>
+      </div>
+      <div class="pqr-stat">
+        <span class="pqr-stat__value">{{ enRevision }}</span>
+        <span class="pqr-stat__label">En revisión</span>
+      </div>
+      <div class="pqr-stat">
+        <span class="pqr-stat__value">{{ resueltas }}</span>
+        <span class="pqr-stat__label">Resueltas</span>
+      </div>
+    </div>
+  </header>
 
-    <!-- Crear nuevo cuando SÍ hay PQR -->
+  <!-- Aviso de sesión requerida -->
+  <p class="pqr-sin-sesion" *ngIf="!estaAutenticado">
+    {{ mensajeSinSesion }}
+  </p>
+
+  <!-- Buscador y filtros -->
+  <div class="pqr-toolbar">
+    <div class="search-container">
+      <span class="search-icon" aria-hidden="true"></span>
+      <input
+        type="text"
+        [placeholder]="placeholderBuscador"
+        [(ngModel)]="searchText"
+      />
+      <button type="button" class="search-button" (click)="buscar()">Buscar</button>
+    </div>
+
+    <div class="estado-tabs">
+      @for (estado of estados; track estado) {
+        <button
+          type="button"
+          class="estado-tab"
+          [class.active]="filtroEstado === estado"
+          (click)="seleccionarEstado(estado)"
+        >
+          {{ estado }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Listado -->
+  <div class="pqr-grid">
+
     <div
-      class="new-pqr-card"
-      *ngIf="filteredPqrs.length > 0"
+      class="pqr-card"
+      *ngFor="let pqr of filteredPqrs; let i = index"
+      [style.animation-delay]="i * 70 + 'ms'"
     >
+      <div class="pqr-card__head">
+        <span class="pqr-badge" [ngClass]="claseEstado(pqr.estado)">{{ pqr.estado }}</span>
+        <span class="pqr-prioridad" [ngClass]="clasePrioridad(pqr.prioridad)">
+          Prioridad {{ pqr.prioridad }}
+        </span>
+      </div>
 
+      <p class="pqr-card__categoria">{{ pqr.tipo }} · {{ pqr.categoria }}</p>
+      <h2 class="pqr-card__title">{{ pqr.titulo }}</h2>
+      <p class="pqr-card__desc">{{ pqr.descripcion }}</p>
+
+      <dl class="pqr-card__data">
+        <div>
+          <dt>Radicado</dt>
+          <dd>N° {{ pqr.numero }}</dd>
+        </div>
+        <div>
+          <dt>Creada</dt>
+          <dd>{{ pqr.fechaCreacion }}</dd>
+        </div>
+        <div>
+          <dt>Responsable</dt>
+          <dd>{{ pqr.asesor }}</dd>
+        </div>
+        <div>
+          <dt>Actualización</dt>
+          <dd>{{ pqr.ultimaActualizacion }}</dd>
+        </div>
+      </dl>
+
+      <div class="pqr-progress">
+        <div class="pqr-progress__head">
+          <span>Avance del caso</span>
+          <span class="pqr-progress__value">{{ pqr.progreso }}%</span>
+        </div>
+        <div class="pqr-progress__track">
+          <span class="pqr-progress__fill" [style.width]="pqr.progreso + '%'"></span>
+        </div>
+      </div>
+
+      <div class="pqr-card__footer">
+        <div class="pqr-card__meta">
+          <span>{{ pqr.respuestas }} respuestas</span>
+          <span>{{ pqr.adjuntos }} adjuntos</span>
+        </div>
+
+        <button type="button" class="view-button" (click)="verPqr(pqr)">
+          {{ botonVerMas }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Tarjeta para crear una nueva PQR (siempre visible, con o sin sesión) -->
+    <div class="new-pqr-card">
+      <span class="plus-button" aria-hidden="true">+</span>
       <h2>{{ tituloCrearNuevo }}</h2>
-
-      <button
-        type="button"
-        class="plus-button"
-        (click)="crearNuevaPqr()"
-      >
-        {{ botonAgregar }}
-      </button>
-
-      <button
-        type="button"
-        class="create-button"
-        (click)="crearNuevaPqr()"
-      >
+      <p>{{ textoCrearNuevo }}</p>
+      <button type="button" class="create-button" (click)="crearNuevaPqr()">
         {{ botonCrearNuevo }}
       </button>
-
     </div>
 
   </div>

@@ -1,71 +1,119 @@
-<div class="pqr-card">
-  <button class="btn-volver" type="button" (click)="volver()" aria-label="Volver">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
-
-  <header class="pqr-header">
-    <h1 class="pqr-title">{{ titulo }}</h1>
-    <p class="pqr-meta">{{ labelNumeroPeticion }} {{ numeroPeticion }}</p>
-    <p class="pqr-meta">{{ labelUsuario }} {{ usuario }}</p>
-  </header>
-
-  <div class="pqr-divider">
-    <span class="pqr-divider-dot"></span>
-    <span class="pqr-divider-line"></span>
-    <span class="pqr-divider-arrow">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<div class="pqr-wrapper">
+  <div class="pqr-card">
+    <button class="btn-volver" type="button" (click)="volver()" aria-label="Volver">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-    </span>
-  </div>
+      Volver a mis PQR
+    </button>
 
-  <form class="pqr-form" (ngSubmit)="enviar()">
-    <div class="pqr-form-grid">
-      <div class="pqr-form-fields">
-        <label class="pqr-label" for="asunto">{{ labelAsunto }}</label>
-        <input
-          id="asunto"
-          name="asunto"
-          type="text"
-          class="pqr-input"
-          [placeholder]="placeholderAsunto"
-          [(ngModel)]="asunto"
-        />
+    <header class="pqr-header">
+      <span class="pqr-badge">NUEVA SOLICITUD</span>
+      <h1 class="pqr-title">{{ titulo }}</h1>
+      <p class="pqr-subtitle">{{ subtitulo }}</p>
 
-        <label class="pqr-label" for="descripcion">{{ labelDescripcion }}</label>
-        <textarea
-          id="descripcion"
-          name="descripcion"
-          class="pqr-textarea"
-          [placeholder]="placeholderDescripcion"
-          [(ngModel)]="descripcion"
-        ></textarea>
+      <div class="pqr-datos">
+        <p class="pqr-meta">
+          <span>{{ labelNumeroPeticion }}</span>
+          <strong>{{ numeroPeticion }}</strong>
+        </p>
+        <p class="pqr-meta">
+          <span>{{ labelUsuario }}</span>
+          <strong>{{ usuario }}</strong>
+        </p>
+      </div>
+    </header>
+
+    <!-- Pasos del proceso -->
+    <ol class="pqr-pasos">
+      @for (paso of pasos; track paso.titulo; let i = $index) {
+        <li class="pqr-paso">
+          <span class="pqr-paso__num">{{ i + 1 }}</span>
+          <span class="pqr-paso__titulo">{{ paso.titulo }}</span>
+          <span class="pqr-paso__detalle">{{ paso.detalle }}</span>
+        </li>
+      }
+    </ol>
+
+    <form class="pqr-form" (ngSubmit)="enviar()">
+      <div class="pqr-selects">
+        <div class="pqr-field">
+          <label class="pqr-label" for="tipo">{{ labelTipo }}</label>
+          <select id="tipo" name="tipo" class="pqr-select" [(ngModel)]="tipo">
+            @for (opcion of tipos; track opcion) {
+              <option [value]="opcion">{{ opcion }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="pqr-field">
+          <label class="pqr-label" for="categoria">{{ labelCategoria }}</label>
+          <select id="categoria" name="categoria" class="pqr-select" [(ngModel)]="categoria">
+            @for (opcion of categorias; track opcion) {
+              <option [value]="opcion">{{ opcion }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="pqr-field">
+          <label class="pqr-label" for="prioridad">{{ labelPrioridad }}</label>
+          <select id="prioridad" name="prioridad" class="pqr-select" [(ngModel)]="prioridad">
+            @for (opcion of prioridades; track opcion) {
+              <option [value]="opcion">{{ opcion }}</option>
+            }
+          </select>
+        </div>
       </div>
 
-      <div class="pqr-form-attach">
-        <label class="pqr-dropzone" for="archivo">
-          <span class="pqr-dropzone-text">
-            {{ nombreArchivo ? nombreArchivo : textoAdjuntar }}
-          </span>
-          <svg class="pqr-dropzone-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-            <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-          </svg>
+      <div class="pqr-form-grid">
+        <div class="pqr-form-fields">
+          <label class="pqr-label" for="asunto">{{ labelAsunto }}</label>
           <input
-            id="archivo"
-            name="archivo"
-            type="file"
-            class="pqr-dropzone-input"
-            (change)="onArchivoSeleccionado($event)"
+            id="asunto"
+            name="asunto"
+            type="text"
+            class="pqr-input"
+            [placeholder]="placeholderAsunto"
+            [(ngModel)]="asunto"
           />
-        </label>
-      </div>
-    </div>
 
-    <div class="pqr-actions">
-      <button type="submit" class="btn-enviar">{{ textoBotonEnviar }}</button>
-    </div>
-  </form>
+          <label class="pqr-label" for="descripcion">{{ labelDescripcion }}</label>
+          <textarea
+            id="descripcion"
+            name="descripcion"
+            class="pqr-textarea"
+            maxlength="600"
+            [placeholder]="placeholderDescripcion"
+            [(ngModel)]="descripcion"
+          ></textarea>
+          <span class="pqr-contador">{{ caracteresRestantes }} caracteres restantes</span>
+        </div>
+
+        <div class="pqr-form-attach">
+          <label class="pqr-dropzone" for="archivo">
+            <svg class="pqr-dropzone-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            <span class="pqr-dropzone-text">
+              {{ nombreArchivo ? nombreArchivo : textoAdjuntar }}
+            </span>
+            <span class="pqr-dropzone-help">{{ textoAdjuntarAyuda }}</span>
+            <input
+              id="archivo"
+              name="archivo"
+              type="file"
+              class="pqr-dropzone-input"
+              (change)="onArchivoSeleccionado($event)"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div class="pqr-actions">
+        <button type="button" class="btn-cancelar" (click)="volver()">Cancelar</button>
+        <button type="submit" class="btn-enviar">{{ textoBotonEnviar }}</button>
+      </div>
+    </form>
+  </div>
 </div>

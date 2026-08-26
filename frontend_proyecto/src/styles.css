@@ -1,20 +1,41 @@
 :root {
+  /* Verdes */
   --green-primary: #1db954;
   --green-dark: #0a5c28;
   --green-darkest: #0d1f14;
   --green-accent-text: #0f8c3b;
   --green-soft: #dfeee3;
-  --text-muted: #6b7c72;
-  --text-body: #666666;
-  --text-soft: #777777;
+  --green-mid: #17a34a;
+  --green-deep: #0f3d22;
+  --green-tint: #f0faf4;
+  --green-line: #c6efd4;
+
+  /* Grises */
+  --gray-50: #f7f9f8;
+  --gray-100: #eef1f0;
+  --gray-200: #e2e8e5;
+  --gray-300: #cbd5d0;
+  --gray-500: #6b7c72;
+  --gray-700: #3f4a44;
+  --gray-900: #1b2320;
+
+  /* Alias usados en los componentes */
+  --text-muted: var(--gray-500);
+  --text-body: var(--gray-700);
+  --text-soft: var(--gray-500);
   --border-soft: #e2ede6;
   --bg-panel: #ffffff;
-  --bg-page: #f3f4f6;
+  --bg-page: var(--gray-100);
   --bg-search: #f4faf6;
   --bg-ahorro: #e8f8ee;
   --color-error: #dc3545;
-  --color-info: #2563eb;
+  --color-info: var(--green-accent-text);
   --font-family-base: 'Plus Jakarta Sans', 'Inter', sans-serif;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px rgba(13, 31, 20, 0.06);
+  --shadow-md: 0 6px 18px rgba(13, 31, 20, 0.08);
+  --shadow-lg: 0 18px 40px rgba(13, 31, 20, 0.14);
 }
 
 html, body {
@@ -33,4 +54,44 @@ body {
 app-root {
   display: block;
   min-height: 100vh;
+}
+
+/* Animaciones compartidas por los componentes */
+@keyframes fu-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fu-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fu-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

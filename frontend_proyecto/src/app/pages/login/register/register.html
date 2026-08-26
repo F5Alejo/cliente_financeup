@@ -74,7 +74,7 @@
                   [class.input-error]="password?.invalid && password?.touched"
                 >
                 <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
-                  {{ showPassword ? '🙈' : '👁️' }}
+                  {{ showPassword ? '' : '' }}
                 </button>
               </div>
               <span class="field-error" *ngIf="password?.invalid && password?.touched">
@@ -92,7 +92,7 @@
                   [class.input-error]="confirmarPassword?.touched && (confirmarPassword?.invalid || registerForm.errors?.['passwordsNoCoinciden'])"
                 >
                 <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()">
-                  {{ showConfirmPassword ? '🙈' : '👁️' }}
+                  {{ showConfirmPassword ? '' : '' }}
                 </button>
               </div>
               <span class="field-error" *ngIf="confirmarPassword?.touched">

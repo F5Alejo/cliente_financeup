@@ -1,5 +1,5 @@
 /* ---------------------------------------------
-   Habla Con Nosotros component
+   Habla Con Nosotros
 --------------------------------------------- */
 
 * {
@@ -18,8 +18,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ececec;
-  padding: clamp(16px, 2.5vw, 32px);
+  background: var(--bg-page);
+  padding: clamp(20px, 3vw, 40px);
 }
 
 .habla-card {
@@ -29,51 +29,130 @@
   grid-template-columns: 56% 44%;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.12);
-  aspect-ratio: 1.7 / 1;
+  box-shadow: var(--shadow-lg);
+  animation: fu-fade-up 0.5s ease both;
 }
 
 /* Lado izquierdo: contenido */
 .habla-card__content {
-  background: #22b455;
+  background: linear-gradient(150deg, var(--green-primary) 0%, var(--green-dark) 70%, var(--green-deep) 100%);
   color: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 6% 7%;
+  padding: clamp(32px, 5%, 56px);
+}
+
+.habla-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+
+.habla-card__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: fu-pulse 1.8s ease-in-out infinite;
 }
 
 .habla-card__title {
-  font-size: clamp(30px, 3.4vw, 44px);
+  font-size: clamp(28px, 3.4vw, 42px);
   font-weight: 800;
   line-height: 1.1;
-  margin: 0 0 26px;
+  margin: 20px 0 14px;
 }
 
 .habla-card__description {
   font-size: 15px;
   line-height: 1.6;
-  color: #eafff0;
-  max-width: 360px;
-  margin: 0 0 32px;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 380px;
+  margin: 0 0 22px;
+}
+
+.habla-card__temas {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.habla-card__temas li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.habla-card__temas li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
 }
 
 /* Botón WhatsApp */
 .btn-whatsapp {
   align-self: flex-start;
   background: #ffffff;
-  color: #22b455;
+  color: var(--green-dark);
   border: none;
-  border-radius: 10px;
-  padding: 16px 34px;
+  border-radius: 12px;
+  padding: 16px 32px;
+  font-family: inherit;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-whatsapp:hover {
-  opacity: 0.9;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(13, 31, 20, 0.28);
+}
+
+.habla-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.habla-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.habla-stat__value {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.habla-stat__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 /* Lado derecho: imagen */
@@ -83,20 +162,19 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #1c2330; /* respaldo mientras carga la imagen */
+  background-color: var(--green-deep); /* respaldo mientras carga la imagen */
+  min-height: 100%;
 }
 
 /* Responsive */
 @media (max-width: 860px) {
   .habla-card {
     grid-template-columns: 1fr;
-    aspect-ratio: auto;
   }
+
   .habla-card__image {
     min-height: 280px;
-  }
-  .habla-card__title {
-    font-size: 34px;
+    order: -1;
   }
 }
 
@@ -104,10 +182,12 @@
   .habla-banner {
     padding: 16px;
   }
+
   .habla-card__content {
-    padding: 36px 28px;
+    padding: 32px 24px;
   }
-  .habla-card__title {
-    font-size: 28px;
+
+  .habla-card__stats {
+    gap: 18px;
   }
 }
