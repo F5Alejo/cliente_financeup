@@ -153,4 +153,18 @@ export class AlianzasComponent {
   solicitar(oferta: Oferta): void {
     this.router.navigate(['/alianzas/producto', oferta.id, 'solicitud']);
   }
+
+  // ---------- Encabezado ----------
+  verElegibles(): void {
+    this.irAlCatalogo();
+  }
+
+  explorarTodo(): void {
+    this.limpiarFiltros();
+    this.irAlCatalogo();
+  }
+
+  private irAlCatalogo(): void {
+    document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
