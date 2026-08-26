@@ -1,0 +1,167 @@
+@if (curso(); as curso) {
+  <div class="ficha">
+
+    <button type="button" class="volver" (click)="volver()">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      Todos los cursos
+    </button>
+
+    <div class="ficha__grid">
+      <main class="ficha__main">
+        <p class="eyebrow">{{ escuela()?.nombre }}</p>
+        <h1 class="ficha__titulo">{{ curso.titulo }}</h1>
+        <p class="ficha__desc">{{ curso.descripcion }}</p>
+
+        <dl class="datos">
+          <div>
+            <dt>Nivel</dt>
+            <dd>{{ curso.nivel }}</dd>
+          </div>
+          <div>
+            <dt>Duración</dt>
+            <dd>{{ minutosTotales() }} min</dd>
+          </div>
+          <div>
+            <dt>Clases</dt>
+            <dd>{{ curso.lecciones.length }}</dd>
+          </div>
+          <div>
+            <dt>Calificación</dt>
+            <dd>{{ curso.calificacion }}</dd>
+          </div>
+          <div>
+            <dt>Estudiantes</dt>
+            <dd>{{ curso.estudiantes | number }}</dd>
+          </div>
+          <div>
+            <dt>Actualizado</dt>
+            <dd>{{ curso.actualizado }}</dd>
+          </div>
+        </dl>
+
+        <section class="bloque">
+          <h2 class="bloque__titulo">Al terminar vas a poder</h2>
+          <ul class="lista-check">
+            @for (punto of curso.aprenderas; track punto) {
+              <li>
+                <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                  <path d="M4 12.5l5 5 11-11" fill="none" stroke="currentColor"
+                        stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                {{ punto }}
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section class="bloque">
+          <div class="bloque__head">
+            <h2 class="bloque__titulo">Temario</h2>
+            <span class="bloque__meta">
+              {{ leccionesHechas() }}/{{ curso.lecciones.length }} vistas ·
+              {{ minutosRestantes() }} min por ver
+            </span>
+          </div>
+
+          <ol class="temario">
+            @for (leccion of curso.lecciones; track leccion.id; let i = $index) {
+              <li
+                class="clase"
+                [class.clase--hecha]="leccion.completada"
+                [class.clase--siguiente]="esSiguiente(leccion)"
+              >
+                <button type="button" class="clase__btn" (click)="abrirLeccion(leccion)">
+                  <span class="clase__marca" aria-hidden="true">
+                    @if (leccion.completada) {
+                      <svg viewBox="0 0 24 24" class="icon">
+                        <path d="M4 12.5l5 5 11-11" fill="none" stroke="currentColor"
+                              stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    } @else {
+                      {{ i + 1 }}
+                    }
+                  </span>
+
+                  <span class="clase__texto">
+                    <span class="clase__titulo">{{ leccion.titulo }}</span>
+                    <span class="clase__resumen">{{ leccion.resumen }}</span>
+                  </span>
+
+                  <span class="clase__dur">{{ leccion.tipo }} · {{ leccion.duracionMin }} min</span>
+                </button>
+              </li>
+            }
+          </ol>
+        </section>
+
+        <section class="bloque">
+          <h2 class="bloque__titulo">Antes de empezar</h2>
+          <ul class="lista-simple">
+            @for (requisito of curso.requisitos; track requisito) {
+              <li>{{ requisito }}</li>
+            }
+          </ul>
+        </section>
+      </main>
+
+      <!-- Panel de acción -->
+      <aside class="panel">
+        <div class="panel__cover" [style.backgroundImage]="'url(' + curso.imagen + ')'"></div>
+
+        <div class="panel__body">
+          @if (curso.progreso > 0) {
+            <div class="panel__progreso">
+              <div class="panel__barra">
+                <i [style.width.%]="curso.progreso"></i>
+              </div>
+              <span class="panel__pct">{{ curso.progreso }}% completado</span>
+            </div>
+          }
+
+          <button type="button" class="btn btn--play" (click)="comenzar()">
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+              <path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor" />
+            </svg>
+            {{ textoAccion() }}
+          </button>
+
+          @if (curso.progreso === 100 && curso.certificado) {
+            <button type="button" class="btn btn--ghost" (click)="verCertificado()">
+              Ver mi certificado
+            </button>
+          }
+
+          @if (curso.progreso > 0) {
+            <button type="button" class="btn btn--texto" (click)="reiniciar()">
+              Reiniciar progreso
+            </button>
+          }
+
+          <ul class="incluye">
+            <li>{{ curso.lecciones.length }} clases en {{ curso.formato | lowercase }}</li>
+            <li>{{ minutosTotales() }} minutos de contenido</li>
+            <li>{{ curso.certificado ? 'Certificado al completar' : 'Sin certificado' }}</li>
+            <li>Acceso sin fecha de vencimiento</li>
+          </ul>
+
+          <div class="profe">
+            <span class="avatar" aria-hidden="true">{{ curso.instructor.iniciales }}</span>
+            <div>
+              <p class="profe__nombre">{{ curso.instructor.nombre }}</p>
+              <p class="profe__cargo">{{ curso.instructor.cargo }}</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+} @else {
+  <div class="ficha ficha--vacia">
+    <h1>Ese curso ya no está disponible</h1>
+    <p>Es posible que lo hayamos retirado del catálogo. Revisa los cursos vigentes.</p>
+    <button type="button" class="btn btn--play" (click)="volver()">Ver el catálogo</button>
+  </div>
+}
