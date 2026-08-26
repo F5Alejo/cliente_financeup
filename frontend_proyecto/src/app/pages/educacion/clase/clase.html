@@ -1,0 +1,165 @@
+@if (curso(); as curso) {
+  @if (leccion(); as leccion) {
+    <div class="sala">
+
+      <!-- Barra superior -->
+      <header class="barra">
+        <button type="button" class="barra__volver" (click)="volverAlCurso()">
+          <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+            <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          {{ curso.titulo }}
+        </button>
+
+        <span class="barra__conteo">
+          Clase {{ indice() + 1 }} de {{ curso.lecciones.length }} ·
+          {{ curso.progreso }}% del curso
+        </span>
+      </header>
+
+      <div class="sala__grid">
+        <main class="escenario">
+
+          <!-- Reproductor / lectura -->
+          @if (esVideo()) {
+            <div class="player" [style.backgroundImage]="'url(' + curso.imagen + ')'">
+              <span class="player__scrim"></span>
+
+              <button
+                type="button"
+                class="player__play"
+                [attr.aria-label]="reproduciendo() ? 'Pausar clase' : 'Reproducir clase'"
+                (click)="alternarPlay()"
+              >
+                @if (reproduciendo()) {
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M9 5h2.5v14H9zM14.5 5H17v14h-2.5z" fill="currentColor" />
+                  </svg>
+                } @else {
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor" />
+                  </svg>
+                }
+              </button>
+
+              <div class="player__pie">
+                <span class="player__tiempo">{{ tiempoActual() }}</span>
+                <div class="player__pista">
+                  <i [style.width.%]="avance()"></i>
+                </div>
+                <span class="player__tiempo">{{ tiempoTotal() }}</span>
+              </div>
+            </div>
+          } @else {
+            <article class="lectura">
+              <p class="lectura__tipo">{{ leccion.tipo }} · {{ leccion.duracionMin }} min</p>
+              <h2 class="lectura__titulo">{{ leccion.titulo }}</h2>
+              <p class="lectura__cuerpo">{{ leccion.resumen }}</p>
+              <p class="lectura__nota">
+                Cuando termines de leer, marca la clase para que quede en tu progreso.
+              </p>
+            </article>
+          }
+
+          <!-- Ficha de la clase -->
+          <div class="detalle">
+            <p class="eyebrow">Clase {{ indice() + 1 }}</p>
+            <h1 class="detalle__titulo">{{ leccion.titulo }}</h1>
+            <p class="detalle__resumen">{{ leccion.resumen }}</p>
+
+            <div class="detalle__profe">
+              <span class="avatar" aria-hidden="true">{{ curso.instructor.iniciales }}</span>
+              <div>
+                <p class="detalle__nombre">{{ curso.instructor.nombre }}</p>
+                <p class="detalle__cargo">{{ curso.instructor.cargo }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="acciones">
+            @if (anterior(); as prev) {
+              <button type="button" class="btn btn--ghost" (click)="irA(prev)">
+                Clase anterior
+              </button>
+            }
+
+            @if (leccion.completada) {
+              <span class="hecha">
+                <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                  <path d="M4 12.5l5 5 11-11" fill="none" stroke="currentColor"
+                        stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Clase vista
+              </span>
+            }
+
+            <button type="button" class="btn btn--play" (click)="completarYSeguir()">
+              @if (siguiente()) {
+                {{ leccion.completada ? 'Siguiente clase' : 'Marcar vista y continuar' }}
+              } @else {
+                {{ curso.certificado ? 'Terminar y ver certificado' : 'Terminar el curso' }}
+              }
+            </button>
+          </div>
+        </main>
+
+        <!-- Lista de clases -->
+        <aside class="indice">
+          <div class="indice__head">
+            <h2>Contenido del curso</h2>
+            <span>{{ leccionesHechas() }}/{{ curso.lecciones.length }}</span>
+          </div>
+
+          <ol class="indice__lista">
+            @for (item of curso.lecciones; track item.id; let i = $index) {
+              <li>
+                <button
+                  type="button"
+                  class="item"
+                  [class.item--activa]="item.id === leccion.id"
+                  [class.item--hecha]="item.completada"
+                  (click)="irA(item)"
+                >
+                  <span class="item__marca" aria-hidden="true">
+                    @if (item.completada) {
+                      <svg viewBox="0 0 24 24" class="icon">
+                        <path d="M4 12.5l5 5 11-11" fill="none" stroke="currentColor"
+                              stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    } @else {
+                      {{ i + 1 }}
+                    }
+                  </span>
+                  <span class="item__texto">{{ item.titulo }}</span>
+                  <span class="item__dur">{{ item.duracionMin }}m</span>
+                </button>
+              </li>
+            }
+          </ol>
+
+          <button type="button" class="btn btn--texto" (click)="volverAlCatalogo()">
+            Salir al catálogo
+          </button>
+        </aside>
+      </div>
+    </div>
+  } @else {
+    <div class="sala sala--vacia">
+      <h1>No encontramos esa clase</h1>
+      <p>Puede que haya cambiado el temario del curso.</p>
+      <button type="button" class="btn btn--play" (click)="volverAlCurso()">
+        Ver el temario
+      </button>
+    </div>
+  }
+} @else {
+  <div class="sala sala--vacia">
+    <h1>Ese curso ya no está disponible</h1>
+    <p>Revisa los cursos vigentes en el catálogo.</p>
+    <button type="button" class="btn btn--play" (click)="volverAlCatalogo()">
+      Ver el catálogo
+    </button>
+  </div>
+}
