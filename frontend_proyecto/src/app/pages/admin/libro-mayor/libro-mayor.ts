@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ToastService } from '../../shared/services/toast';
+import { ToastService } from '../../../shared/services/toast';
 
 export interface FilaLibroAdmin {
   id: number;

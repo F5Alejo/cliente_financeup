@@ -1,5 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
-import { ToastService } from '../../shared/services/toast';
+import { ToastService } from '../../../shared/services/toast';
 
 export type EstadoSolicitud = 'Pendiente' | 'Aprobada' | 'Rechazada';
 

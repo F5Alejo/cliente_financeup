@@ -33,12 +33,6 @@
     line-height: 1.2;
 }
 
-.metas-header .mes-actual {
-    color: #64748b;
-    font-size: 13px;
-    margin-top: 4px;
-}
-
 .header-acciones {
     display: flex;
     align-items: center;

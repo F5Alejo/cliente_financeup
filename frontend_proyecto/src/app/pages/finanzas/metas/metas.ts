@@ -16,14 +16,6 @@ export class MetasComponent {
     private toastService: ToastService
   ) {}
 
-  usuario: string = '';
-
-  mesActual: string = new Date().toLocaleDateString('es-CO', {
-  month: 'long',
-  year: 'numeric'
-});
-
-
   get metas(): Meta[] {
     return this.metasService.metas;
   }
