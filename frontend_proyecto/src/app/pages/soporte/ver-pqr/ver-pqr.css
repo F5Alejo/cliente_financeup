@@ -1,0 +1,350 @@
+:host {
+  --verde-fuerte: #15803d;
+  --verde-texto: #166534;
+  --verde-brand: #16a34a;
+  --verde-brand-hover: #128a3e;
+  --verde-suave: #ecfdf5;
+  --verde-suave-borde: #bbf0d0;
+  --gris-borde: #e5e7eb;
+  --gris-texto: #6b7280;
+  --texto-oscuro: #14181c;
+  --blanco: #ffffff;
+  --pqr-radius: 10px;
+
+  display: block;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.detalle-pqr-container {
+  display: grid;
+  grid-template-columns: 1fr 0.55fr;
+  gap: 20px;
+  align-items: start;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 48px 24px;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   CARD IZQUIERDA: DETALLE DEL PQR
+========================================= */
+.pqr-card {
+  position: relative;
+  padding: 24px 28px 28px;
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.btn-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-bottom: 18px;
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: 999px;
+  color: var(--texto-oscuro);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-volver:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.btn-volver:focus-visible {
+  outline: 2px solid var(--verde-brand);
+  outline-offset: 2px;
+}
+
+.pqr-badge {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 5px 12px;
+  background: var(--verde-suave);
+  color: var(--verde-texto);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+}
+
+.pqr-header {
+  margin-bottom: 18px;
+}
+
+.pqr-title {
+  margin: 0 0 8px;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--verde-fuerte);
+  letter-spacing: -0.01em;
+}
+
+.pqr-subtitulo {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--gris-texto);
+  max-width: 460px;
+}
+
+/* Pills de número de petición / usuario */
+.pqr-info-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.pqr-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  background: var(--verde-suave);
+  border: 1px solid var(--verde-suave-borde);
+  border-radius: 999px;
+  font-size: 12.5px;
+  color: var(--verde-texto);
+}
+
+.pqr-pill strong {
+  color: var(--verde-fuerte);
+}
+
+/* =========================================
+   FORMULARIO / CAMPOS
+========================================= */
+.pqr-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 165px;
+  gap: 18px;
+  align-items: start;
+}
+
+.pqr-form-fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.pqr-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--texto-oscuro);
+  margin-bottom: 8px;
+}
+
+.pqr-input,
+.pqr-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--pqr-radius);
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--texto-oscuro);
+  font-family: inherit;
+  margin-bottom: 16px;
+}
+
+.pqr-input {
+  height: 42px;
+  display: flex;
+  align-items: center;
+}
+
+.pqr-textarea {
+  height: 130px;
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+/* =========================================
+   ARCHIVOS ADJUNTOS
+========================================= */
+.pqr-adjuntos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pqr-adjunto-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--verde-suave);
+  border: 1px solid var(--verde-suave-borde);
+  border-radius: var(--pqr-radius);
+  color: var(--verde-texto);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.pqr-adjunto-item:hover {
+  background-color: #d9f7e5;
+  border-color: #9de6bb;
+}
+
+.pqr-adjunto-nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================
+   ACCIONES
+========================================= */
+.pqr-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.btn-enviar {
+  min-width: 130px;
+  padding: 12px 26px;
+  background: var(--verde-brand);
+  color: var(--blanco);
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-enviar:hover {
+  background: var(--verde-brand-hover);
+}
+
+.btn-enviar:active {
+  transform: translateY(1px);
+}
+
+.btn-enviar:focus-visible {
+  outline: 2px solid var(--verde-brand);
+  outline-offset: 2px;
+}
+
+/* =========================================
+   COLUMNA DERECHA: ESTADO Y RESPUESTA
+========================================= */
+.estado-columna {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.estado-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 18px 24px;
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.estado-label {
+  font-size: 14px;
+  color: var(--texto-oscuro);
+  font-weight: 500;
+}
+
+.estado-badge {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.estado-amarillo {
+  background: #fde047;
+  color: #7a5c00;
+}
+
+.estado-verde {
+  background: #bbf0d0;
+  color: var(--verde-fuerte);
+}
+
+.estado-rojo {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+.estado-gris {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.mensaje-card {
+  padding: 20px;
+  background: var(--blanco);
+  border: 1px solid var(--gris-borde);
+  border-radius: 14px;
+  min-height: 220px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.mensaje-texto {
+  margin: 0;
+  padding: 16px;
+  background: var(--verde-suave);
+  border: 1px solid var(--verde-suave-borde);
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--texto-oscuro);
+}
+
+/* =========================================
+   ESTADO SIN DATOS
+========================================= */
+.pqr-vacio {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--gris-texto);
+  font-size: 14px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+@media (max-width: 800px) {
+  .detalle-pqr-container {
+    grid-template-columns: 1fr;
+  }
+
+  .pqr-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .pqr-card {
+    padding: 20px 18px 22px;
+  }
+}
