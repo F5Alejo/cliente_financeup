@@ -27,7 +27,7 @@ export class HablaConNosotrosComponent {
   ];
 
   // Número al que se abrirá el chat de WhatsApp (formato internacional sin '+')
-  whatsappNumber: string = '573004567890';
+  whatsappNumber: string = '573102257759';
 
   onWhatsappClick(): void {
     const message = encodeURIComponent('Hola, tengo una duda sobre sus servicios.');

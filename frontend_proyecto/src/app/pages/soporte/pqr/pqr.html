@@ -24,6 +24,11 @@
     </div>
   </header>
 
+  <!-- Aviso de sesión requerida -->
+  <p class="pqr-sin-sesion" *ngIf="!estaAutenticado">
+    {{ mensajeSinSesion }}
+  </p>
+
   <!-- Buscador y filtros -->
   <div class="pqr-toolbar">
     <div class="search-container">
@@ -110,7 +115,7 @@
       </div>
     </div>
 
-    <!-- Tarjeta para crear una nueva PQR -->
+    <!-- Tarjeta para crear una nueva PQR (siempre visible, con o sin sesión) -->
     <div class="new-pqr-card">
       <span class="plus-button" aria-hidden="true">+</span>
       <h2>{{ tituloCrearNuevo }}</h2>
