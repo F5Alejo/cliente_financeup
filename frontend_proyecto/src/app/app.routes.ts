@@ -252,14 +252,14 @@ export const routes: Routes = [
           {
             path: 'libro-mayor',
             loadComponent: () =>
-              import('./admin/libro-mayor/libro-mayor')
+              import('./pages/admin/libro-mayor/libro-mayor')
             .then((m) => m.AdminLibroMayorComponent),
             title: 'Admin Libro mayor - FinanceUp',
           },
           {
             path: 'resuelve-deuda',
             loadComponent: () =>
-              import('./admin/resuelve-deuda/resuelve-deuda')
+              import('./pages/admin/resuelve-deuda/resuelve-deuda')
             .then((m) => m.AdminResuelveDeudaComponent),
             title: 'Admin Resuelve tu deuda - FinanceUp',
           },

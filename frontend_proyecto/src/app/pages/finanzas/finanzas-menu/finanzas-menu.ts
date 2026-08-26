@@ -18,7 +18,7 @@ export class FinanzasMenuComponent {
     { nombre: 'Finanzas', ruta: '/finanzas' },
     { nombre: 'Inversiones', ruta: '/inversiones' },
     { nombre: 'Metas', ruta: '/metas' },
-    { nombre: 'libro-mayor', ruta: '/libro-mayor' },
-    { nombre: 'resuelve-deuda', ruta: '/resuelve-deuda' },
+    { nombre: 'Libro-Mayor', ruta: '/libro-mayor' },
+    { nombre: 'Resuelve-Deuda', ruta: '/resuelve-deuda' },
   ];
 }
