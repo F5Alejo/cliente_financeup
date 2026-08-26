@@ -11,7 +11,7 @@
   --verde-hondo: #0a5c28;
   --verde-humo: #eef7f1;
   --alerta: #8a5a12;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --mono: var(--font-family-base);
 
   display: block;
   min-height: 100vh;
