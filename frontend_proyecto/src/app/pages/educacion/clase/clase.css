@@ -1,14 +1,14 @@
-/* Sala de clase: la vista más oscura del aula, todo cede ante el reproductor. */
+/* Sala de clase: superficie clara del aula; el reproductor conserva su fondo oscuro de video. */
 
 :host {
-  --tinta: #0a110e;
-  --tinta-2: #131e19;
-  --tinta-3: #1b2a23;
+  --tinta: #f4f6f5;
+  --tinta-2: #ffffff;
+  --tinta-3: #e2e8e5;
   --verde: var(--green-primary);
-  --verde-claro: #7ee2a2;
-  --humo: #e6efe9;
-  --humo-2: #93a89c;
-  --linea: rgba(230, 239, 233, 0.1);
+  --verde-claro: #0a5c28;
+  --humo: #16211c;
+  --humo-2: #5c7266;
+  --linea: #dde5e0;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   display: block;
@@ -80,7 +80,7 @@
   overflow: hidden;
   background-size: cover;
   background-position: center;
-  background-color: var(--tinta-3);
+  background-color: #1b2a23;
   animation: fu-fade-in 0.4s ease both;
 }
 
@@ -134,7 +134,7 @@
 .player__tiempo {
   font-family: var(--mono);
   font-size: 11.5px;
-  color: var(--humo);
+  color: #e6efe9;
 }
 
 .player__pista {
