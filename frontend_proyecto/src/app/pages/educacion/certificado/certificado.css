@@ -1,0 +1,217 @@
+/* Entrega del certificado: superficie clara del aula. */
+
+:host {
+  --tinta: #f4f6f5;
+  --tinta-2: #ffffff;
+  --verde: var(--green-primary);
+  --verde-claro: #0a5c28;
+  --humo: #16211c;
+  --humo-2: #5c7266;
+  --linea: #dde5e0;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  display: block;
+  min-height: 100vh;
+  background: var(--tinta);
+  color: var(--humo);
+  font-family: var(--font-family-base);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.entrega {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 56px clamp(18px, 4vw, 40px) 88px;
+  animation: fu-fade-up 0.45s ease both;
+}
+
+.entrega__head {
+  margin-bottom: 34px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--verde-claro);
+}
+
+.entrega__head h1 {
+  margin: 0 0 10px;
+  font-size: clamp(24px, 3.2vw, 33px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.entrega__sub {
+  margin: 0;
+  max-width: 58ch;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--humo-2);
+}
+
+/* Diploma en papel claro */
+.diploma {
+  padding: 10px;
+  background: linear-gradient(150deg, var(--verde) 0%, #0a5c28 100%);
+  border-radius: 18px;
+}
+
+.diploma__marco {
+  padding: clamp(28px, 5vw, 52px);
+  background: #f7faf8;
+  border-radius: 12px;
+  color: #16211c;
+  text-align: center;
+}
+
+.diploma__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 22px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #dfe8e2;
+}
+
+.diploma__marca {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.diploma__escuela {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5c7266;
+}
+
+.diploma__leyenda {
+  margin: 0;
+  font-size: 12.5px;
+  color: #5c7266;
+}
+
+.diploma__nombre {
+  margin: 10px 0 26px;
+  font-size: clamp(26px, 4.2vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.diploma__curso {
+  margin: 10px 0 34px;
+  font-size: clamp(17px, 2.4vw, 22px);
+  font-weight: 700;
+  color: #0a5c28;
+}
+
+.diploma__pie {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 18px;
+  margin: 0;
+  padding-top: 24px;
+  border-top: 1px solid #dfe8e2;
+  text-align: left;
+}
+
+.diploma__pie dt {
+  margin-bottom: 4px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5c7266;
+}
+
+.diploma__pie dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* Acciones */
+.entrega__acciones {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.btn {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 13px 22px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn--play {
+  background: var(--verde);
+  color: #06210f;
+}
+
+.btn--play:hover {
+  background: var(--verde-claro);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--linea);
+  color: var(--humo);
+}
+
+.btn--ghost:hover {
+  border-color: var(--verde);
+  color: var(--verde-claro);
+}
+
+.entrega--vacia h1 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.entrega--vacia p {
+  margin: 0 0 22px;
+  font-size: 14px;
+  color: var(--humo-2);
+}
+
+/* Al imprimir solo queda el diploma */
+@media print {
+  :host {
+    background: #ffffff;
+  }
+
+  .entrega__head,
+  .entrega__acciones {
+    display: none;
+  }
+
+  .diploma {
+    background: none;
+    padding: 0;
+  }
+
+  .diploma__marco {
+    border: 1px solid #dfe8e2;
+  }
+}
