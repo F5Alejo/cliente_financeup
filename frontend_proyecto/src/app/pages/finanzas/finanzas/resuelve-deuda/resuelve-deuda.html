@@ -1,0 +1,83 @@
+<app-finanzas-menu></app-finanzas-menu>
+<div class="resuelve-deuda">
+    <header class="deuda-hero">
+        <h1>Resuelve tu deuda</h1>
+        <p>
+            Registra las deudas con interés alto que tengas hoy. Nosotros las cubrimos directamente
+            con la entidad y tú nos pagas a nosotros, con una cuota más baja.
+        </p>
+        <div class="flujo">
+            <div class="paso"><span class="numero">1</span> Registras tus deudas actuales</div>
+            <div class="paso"><span class="numero">2</span> Negociamos con la entidad</div>
+            <div class="paso"><span class="numero">3</span> Cubrimos el saldo original</div>
+            <div class="paso"><span class="numero">4</span> Nos pagas a una tasa más baja</div>
+        </div>
+    </header>
+
+    <section class="panel">
+        <h2>Tus deudas registradas</h2>
+
+        <form class="form-deuda" (ngSubmit)="agregarDeuda()">
+            <div class="campo">
+                <label for="entidad">Entidad</label>
+                <input id="entidad" type="text" placeholder="Ej: Banco X" [(ngModel)]="nombreEntidad" name="entidad" required />
+            </div>
+            <div class="campo campo-monto">
+                <label for="saldo">Saldo actual</label>
+                <input id="saldo" type="number" placeholder="Ej: 8200000" [(ngModel)]="saldoDeuda" name="saldo" required />
+            </div>
+            <div class="campo campo-monto">
+                <label for="tasa">Tasa actual (% E.A.)</label>
+                <input id="tasa" type="number" placeholder="Ej: 28.5" [(ngModel)]="tasaDeuda" name="tasa" required />
+            </div>
+            <div class="campo campo-monto">
+                <label for="cuota">Cuota mensual actual</label>
+                <input id="cuota" type="number" placeholder="Ej: 620000" [(ngModel)]="cuotaDeuda" name="cuota" required />
+            </div>
+            <button type="submit" class="btn-agregar">+ Agregar deuda</button>
+        </form>
+
+        <ul class="lista-deudas">
+            @for (d of deudas(); track d.id) {
+                <li>
+                    <span class="deuda-entidad">{{ d.entidad }}</span>
+                    <span class="deuda-dato">{{ formatearCOP(d.saldo) }} de saldo</span>
+                    <span class="deuda-dato">{{ d.tasaActual }}% E.A.</span>
+                    <span class="deuda-dato">{{ formatearCOP(d.cuotaActual) }}/mes</span>
+                    <button type="button" class="btn-eliminar" (click)="eliminarDeuda(d.id)" aria-label="Eliminar deuda">✕</button>
+                </li>
+            }
+            @if (deudas().length === 0) {
+                <li class="lista-vacia">Aún no has registrado ninguna deuda.</li>
+            }
+        </ul>
+    </section>
+
+    <section class="comparacion">
+        <div class="panel comparacion-card actual">
+            <h2>Situación actual</h2>
+            <span class="comparacion-cifra">{{ formatearCOP(cuotaActualTotal()) }}<small>/mes</small></span>
+            <span class="comparacion-detalle">Saldo total: {{ formatearCOP(saldoTotal()) }}</span>
+        </div>
+        <div class="panel comparacion-card propuesta">
+            <h2>Propuesta FinanceUp</h2>
+            <span class="comparacion-cifra">{{ formatearCOP(cuotaEstimadaNueva()) }}<small>/mes</small></span>
+            <span class="comparacion-detalle">Tasa de referencia: {{ tasaPropuesta }}% E.A. a 24 meses</span>
+        </div>
+    </section>
+
+    <section class="panel ahorro-panel">
+        <div>
+            <span class="resumen-label">Ahorro mensual estimado</span>
+            <span class="resumen-valor" [class.positivo]="ahorroMensualEstimado() > 0" [class.negativo]="ahorroMensualEstimado() <= 0">
+                {{ formatearCOP(ahorroMensualEstimado()) }}
+            </span>
+        </div>
+        <button type="button" class="btn-primario" (click)="solicitarConsolidacion()">Solicitar consolidación</button>
+    </section>
+
+    <p class="nota-legal">
+        Esta es una estimación de referencia y no constituye una oferta en firme. La tasa y el plazo
+        finales dependen de la evaluación de riesgo de cada caso y de la negociación con la entidad original.
+    </p>
+</div>

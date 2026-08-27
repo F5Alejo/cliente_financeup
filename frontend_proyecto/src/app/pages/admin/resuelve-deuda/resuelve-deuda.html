@@ -1,0 +1,63 @@
+<div class="admin-resuelve-deuda">
+    <header class="admin-header">
+        <h1>Resuelve tu deuda — Solicitudes</h1>
+        <p class="subtitulo">Revisa y gestiona las solicitudes de consolidación de todos los usuarios.</p>
+    </header>
+
+    <section class="cards-resumen">
+        <div class="card-resumen">
+            <span class="card-titulo">Solicitudes pendientes</span>
+            <span class="card-valor">{{ pendientes().length }}</span>
+        </div>
+        <div class="card-resumen">
+            <span class="card-titulo">Saldo total en solicitudes pendientes</span>
+            <span class="card-valor">{{ formatearCOP(saldoTotalPendiente()) }}</span>
+        </div>
+        <div class="card-resumen">
+            <span class="card-titulo">Ahorro mensual total ofrecido</span>
+            <span class="card-valor positivo">{{ formatearCOP(ahorroTotalOfrecido()) }}</span>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Todas las solicitudes</h2>
+        <div class="tabla-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Saldo</th>
+                        <th>Cuota actual</th>
+                        <th>Cuota propuesta</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (s of solicitudes(); track s.id) {
+                        <tr>
+                            <td>{{ s.usuario }}</td>
+                            <td>{{ formatearCOP(s.saldoTotal) }}</td>
+                            <td class="negativo">{{ formatearCOP(s.cuotaActual) }}</td>
+                            <td class="positivo">{{ formatearCOP(s.cuotaPropuesta) }}</td>
+                            <td>
+                                <span class="estado" [class]="'estado-' + s.estado.toLowerCase()">{{ s.estado }}</span>
+                            </td>
+                            <td class="acciones">
+                                @if (s.estado === 'Pendiente') {
+                                    <button type="button" class="btn-aprobar" (click)="cambiarEstado(s.id, 'Aprobada')">Aprobar</button>
+                                    <button type="button" class="btn-rechazar" (click)="cambiarEstado(s.id, 'Rechazada')">Rechazar</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <p class="nota-legal">
+        Aprobar aquí es el primer paso administrativo; la cobertura real de la deuda con la entidad
+        original requiere la validación del equipo de riesgo antes de desembolsar.
+    </p>
+</div>
