@@ -190,6 +190,24 @@ export const routes: Routes = [
       },
 
       {
+        path: 'libro-mayor',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/finanzas/finanzas/libro-mayor/libro-mayor')
+            .then((m) => m.LibroMayorComponent),
+        title: 'Libro mayor - FinanceUp',
+      },
+
+      {
+        path: 'resuelve-deuda',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/finanzas/finanzas/resuelve-deuda/resuelve-deuda')
+            .then((m) => m.ResuelveDeudaComponent),
+        title: 'Resuelve tu deuda - FinanceUp',
+      },
+
+      {
         path: 'admin',
         canActivateChild: [adminGuard],
         children: [
@@ -220,16 +238,30 @@ export const routes: Routes = [
           {
             path: 'inversiones',
             loadComponent: () =>
-              import('./pages//admin/inversiones/inversiones')
+              import('./pages/admin/inversiones/inversiones')
             .then((m) => m.AdminInversionesComponent),
             title: 'Admin Inversiones - FinanceUp',
           },
           {
             path: 'metas',
             loadComponent: () =>
-              import('./pages//admin/metas/metas')
+              import('./pages/admin/metas/metas')
             .then((m) => m.AdminMetasComponent),
             title: 'Admin Metas - FinanceUp',
+          },
+          {
+            path: 'libro-mayor',
+            loadComponent: () =>
+              import('./pages/admin/libro-mayor/libro-mayor')
+            .then((m) => m.AdminLibroMayorComponent),
+            title: 'Admin Libro mayor - FinanceUp',
+          },
+          {
+            path: 'resuelve-deuda',
+            loadComponent: () =>
+              import('./pages/admin/resuelve-deuda/resuelve-deuda')
+            .then((m) => m.AdminResuelveDeudaComponent),
+            title: 'Admin Resuelve tu deuda - FinanceUp',
           },
           {
             path: 'pqr',

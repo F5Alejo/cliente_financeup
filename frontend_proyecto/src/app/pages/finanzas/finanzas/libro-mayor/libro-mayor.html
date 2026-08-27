@@ -1,0 +1,125 @@
+<app-finanzas-menu></app-finanzas-menu>
+<div class="libro-mayor">
+    <header class="libro-header">
+        <div>
+            <h1>Libro mayor</h1>
+            <p class="subtitulo">Tu tabla de movimientos, editable como un Excel.</p>
+        </div>
+        <div class="header-acciones">
+            <input #inputArchivo type="file" accept=".xlsx,.xls,.csv" hidden (change)="manejarArchivo($event)" />
+            <button type="button" class="btn-secundario" (click)="abrirSelectorArchivo()">⇪ Anexar Excel</button>
+            <button type="button" class="btn-primario" (click)="agregarFila()">+ Nueva fila</button>
+        </div>
+    </header>
+
+    <section class="panel toolbar-panel">
+        <div class="toolbar">
+            <span class="toolbar-label">Fila seleccionada:</span>
+            <div class="swatches">
+                @for (c of colores; track c) {
+                    <button type="button" class="swatch" [style.background]="c" (click)="aplicarColor(c)" [attr.aria-label]="'Aplicar color'"></button>
+                }
+            </div>
+            <select class="selector-fuente" (change)="aplicarFuente($any($event.target).value)">
+                <option value="" disabled selected>Cambiar fuente…</option>
+                @for (f of fuentes; track f.valor) {
+                    <option [value]="f.valor">{{ f.etiqueta }}</option>
+                }
+            </select>
+        </div>
+    </section>
+
+    <section class="panel tabla-panel">
+        <div class="tabla-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Concepto</th>
+                        <th>Categoría</th>
+                        <th>Ingreso</th>
+                        <th>Egreso</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (fila of filas(); track fila.id) {
+                        <tr
+                            [class.fila-activa]="filaSeleccionada() === fila.id"
+                            [style.background]="fila.color"
+                            [style.fontFamily]="fila.fuente"
+                            (click)="seleccionarFila(fila.id)">
+                            <td><input type="text" [(ngModel)]="fila.fecha" placeholder="AAAA-MM-DD" /></td>
+                            <td><input type="text" [(ngModel)]="fila.concepto" placeholder="Concepto" /></td>
+                            <td><input type="text" [(ngModel)]="fila.categoria" placeholder="Categoría" /></td>
+                            <td><input type="number" [(ngModel)]="fila.ingreso" (ngModelChange)="actualizarTotales()" class="celda-num" /></td>
+                            <td><input type="number" [(ngModel)]="fila.egreso" (ngModelChange)="actualizarTotales()" class="celda-num" /></td>
+                            <td>
+                                <button type="button" class="btn-eliminar" (click)="eliminarFila(fila.id); $event.stopPropagation()" aria-label="Eliminar fila">✕</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="paneles-resumen">
+        <div class="panel">
+            <h2>Ganancias y pérdidas <span class="tag-auto">automático</span></h2>
+            <div class="gyp-fila"><span>Total ingresos</span><strong class="positivo">{{ formatearCOP(totalIngresos()) }}</strong></div>
+            <div class="gyp-fila"><span>Total egresos</span><strong class="negativo">{{ formatearCOP(totalEgresos()) }}</strong></div>
+            <div class="gyp-total">
+                <span>Resultado</span>
+                <strong [class.positivo]="resultado() >= 0" [class.negativo]="resultado() < 0">{{ formatearCOP(resultado()) }}</strong>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Ingresos y egresos por categoría <span class="tag-auto">gráfica automática</span></h2>
+            <div class="barras" role="img" aria-label="Comparación de ingresos y egresos por categoría">
+                @for (c of resumenPorCategoria(); track c.categoria) {
+                    <div class="grupo-barra">
+                        <div class="par-barras">
+                            <div class="barra ingreso" [style.height.%]="c.altoIngreso"></div>
+                            <div class="barra egreso" [style.height.%]="c.altoEgreso"></div>
+                        </div>
+                        <span class="etiqueta-barra">{{ c.categoria }}</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="panel calculadora-panel">
+        <h2>Calculadora de interés</h2>
+        <div class="tabs-registros">
+            <button type="button" [class.activo]="modoInteres() === 'simple'" (click)="cambiarModoInteres('simple')">Interés simple</button>
+            <button type="button" [class.activo]="modoInteres() === 'compuesto'" (click)="cambiarModoInteres('compuesto')">Interés compuesto</button>
+        </div>
+        <div class="form-interes">
+            <div class="campo">
+                <label for="capital">Capital inicial</label>
+                <input id="capital" type="number" [ngModel]="capital()" (ngModelChange)="actualizarCapital($event)" />
+            </div>
+            <div class="campo">
+                <label for="tasa">Tasa anual (%)</label>
+                <input id="tasa" type="number" [ngModel]="tasaAnual()" (ngModelChange)="actualizarTasa($event)" />
+            </div>
+            <div class="campo">
+                <label for="plazo">Plazo (años)</label>
+                <input id="plazo" type="number" [ngModel]="plazoAnios()" (ngModelChange)="actualizarPlazo($event)" />
+            </div>
+        </div>
+        <div class="resultado-interes">
+            <div>
+                <span class="resumen-label">Monto final</span>
+                <span class="resumen-valor positivo">{{ formatearCOP(montoFinal()) }}</span>
+            </div>
+            <div>
+                <span class="resumen-label">Interés generado</span>
+                <span class="resumen-valor">{{ formatearCOP(interesGenerado()) }}</span>
+            </div>
+        </div>
+    </section>
+</div>

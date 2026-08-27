@@ -72,9 +72,9 @@
       <article class="channel-card" [style.animation-delay]="i * 70 + 'ms'">
         <div class="channel-card__head">
           <span class="channel-card__icon" aria-hidden="true">{{ canal.icono }}</span>
-          <span class="channel-card__status" [class.offline]="!canal.enLinea">
+          <span class="channel-card__status" [class.offline]="estadoCanal(canal) !== 'En línea'">
             <span class="channel-card__dot" aria-hidden="true"></span>
-            {{ canal.enLinea ? 'En línea' : 'Fuera de horario' }}
+            {{ estadoCanal(canal) }}
           </span>
         </div>
 

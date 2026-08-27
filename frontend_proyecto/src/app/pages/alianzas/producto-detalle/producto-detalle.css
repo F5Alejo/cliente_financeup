@@ -10,7 +10,7 @@
   --verde: var(--green-primary);
   --verde-hondo: #0a5c28;
   --verde-humo: #eef7f1;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --mono: var(--font-family-base);
 
   display: block;
   min-height: 100vh;

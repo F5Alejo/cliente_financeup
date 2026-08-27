@@ -1,14 +1,14 @@
-/* Aula FinanceUp: superficie oscura de estudio, acento verde, cifras en mono. */
+/* Aula FinanceUp: superficie clara acorde a la paleta del sitio, acento verde, cifras en mono. */
 
 :host {
-  --tinta: #0d1512;
-  --tinta-2: #131e19;
-  --tinta-3: #1b2a23;
+  --tinta: #f4f6f5;
+  --tinta-2: #ffffff;
+  --tinta-3: #e2e8e5;
   --verde: var(--green-primary);
-  --verde-claro: #7ee2a2;
-  --humo: #e6efe9;
-  --humo-2: #93a89c;
-  --linea: rgba(230, 239, 233, 0.1);
+  --verde-claro: #0a5c28;
+  --humo: #16211c;
+  --humo-2: #5c7266;
+  --linea: #dde5e0;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   display: block;
@@ -368,7 +368,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--humo);
+  color: #e6efe9;
   opacity: 0;
   transform: scale(0.85);
   transition: opacity 0.25s ease, transform 0.25s ease;
@@ -387,7 +387,7 @@
   bottom: 12px;
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--humo);
+  color: #e6efe9;
 }
 
 .curso__barra {
