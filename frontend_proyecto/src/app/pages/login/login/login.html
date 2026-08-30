@@ -1,228 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>FinanceUp — Vista previa del login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --green-primary: #1f7a45;
+    --green-dark: #145c34;
+    --green-darkest: #0b2418;
+    --color-error: #e11d48;
+    --font-family-base: 'Inter', sans-serif;
+  }
+  html, body { margin: 0; }
+</style>
+<link rel="stylesheet" href="login.css">
+</head>
+<body>
+
 <div class="login-container">
-
-
   <div class="login-content">
     <div class="login-row">
 
-    <!-- Tarjeta principal -->
-    <div class="login-card">
+      <div class="login-card">
+        <div class="brand-mark"><span class="brand-dot"></span>FinanceUp</div>
 
-      <!-- Logo / título -->
-      <div class="logo-section">
-
-        <p>{{ stage === 'credenciales' ? 'Iniciar Sesión' : 'Verificación en dos pasos' }}</p>
-      </div>
-
-      @if (stage === 'credenciales') {
-        <!-- Mensaje de error -->
-        <div class="alert alert-error" *ngIf="errorMessage">
-          {{ errorMessage }}
+        <div class="stage-heading">
+          <h1>Bienvenido de nuevo</h1>
+          <p>Ingresa tus datos para continuar.</p>
         </div>
 
-        <!-- Correo electrónico -->
         <div class="form-group">
-          <label>Correo Electrónico</label>
-          <input
-            type="email"
-            [(ngModel)]="email"
-            name="email"
-            placeholder="correo electrónico"
-          >
+          <label>Correo electrónico</label>
+          <input type="email" placeholder="tucorreo@ejemplo.com">
         </div>
 
-        <!-- Contraseña -->
         <div class="form-group">
           <label>Contraseña</label>
           <div class="password-wrapper">
-            <input
-              [type]="showPassword ? 'text' : 'password'"
-              [(ngModel)]="password"
-              name="password"
-              placeholder="contraseña"
-            >
-            <button
-              type="button"
-              class="toggle-password"
-              (click)="togglePasswordVisibility()"
-              [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
-            >
-              <svg *ngIf="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <input type="password" placeholder="Tu contraseña">
+            <button type="button" class="toggle-password" aria-label="Mostrar contraseña">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <svg *ngIf="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
               </svg>
             </button>
           </div>
         </div>
 
-        <!-- Recordarme / Olvidaste tu contraseña -->
         <div class="form-row">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
-            Recordarme
-          </label>
-          <a class="link" (click)="goToForgotPassword()">¿Olvidaste tu contraseña?</a>
+          <label class="checkbox-label"><input type="checkbox"> Recordarme</label>
+          <a class="link">¿Olvidaste tu contraseña?</a>
         </div>
 
-        <!-- Botón de ingresar -->
-        <button (click)="login()">
-          Ingresar
-        </button>
+        <button class="btn-primary">Ingresar</button>
+        <button type="button" class="register-button">Crear una cuenta</button>
 
-        <!-- Botón de registro -->
-        <button type="button" class="register-button" (click)="goToRegister()">
-          Registrarme
-        </button>
-
-        <!-- Login social -->
-        <div class="social-divider">
-          <span>O ingresar con</span>
-        </div>
+        <div class="social-divider"><span>O continúa con</span></div>
 
         <div class="social-buttons">
-          <button type="button" class="btn-social" (click)="loginWithGoogle()">
+          <button type="button" class="btn-social" aria-label="Google">
             <svg class="social-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
               <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
               <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 27 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.3 44 24 44z"/>
               <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.6 5.4C41.5 36.6 44 30.9 44 24c0-1.3-.1-2.7-.4-3.5z"/>
             </svg>
-            Gmail
           </button>
-          <button type="button" class="btn-social" (click)="loginWithApple()">
+          <button type="button" class="btn-social" aria-label="Apple">
             <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path fill="#000000" d="M17.05 12.536c-.03-3.017 2.463-4.467 2.575-4.535-1.404-2.05-3.588-2.332-4.365-2.363-1.86-.19-3.63 1.095-4.573 1.095-.943 0-2.4-1.068-3.947-1.04-2.03.03-3.902 1.18-4.947 3-2.11 3.66-.54 9.08 1.516 12.05 1.007 1.454 2.207 3.088 3.782 3.03 1.52-.062 2.09-.98 3.925-.98 1.835 0 2.35.98 3.955.95 1.634-.03 2.665-1.485 3.664-2.945 1.156-1.69 1.632-3.328 1.656-3.412-.036-.016-3.176-1.22-3.24-4.85z"/>
               <path fill="#000000" d="M14.72 3.71c.837-1.01 1.4-2.42 1.245-3.82-1.203.05-2.66.803-3.524 1.813-.775.895-1.454 2.328-1.272 3.7 1.34.104 2.71-.68 3.55-1.693z"/>
             </svg>
-            Apple
           </button>
-          <button type="button" class="btn-social" (click)="loginWithFacebook()">
+          <button type="button" class="btn-social" aria-label="Facebook">
             <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
             </svg>
-            Facebook
           </button>
         </div>
-      }
+      </div>
 
-      @if (stage === 'verificacion') {
-        <p class="verificacion-texto">
-          Enviamos un código de 6 dígitos a <strong>{{ email }}</strong> (simulado, usa <strong>123456</strong>).
-        </p>
+      <div class="login-showcase">
+        <div class="showcase-glow"></div>
+        <div class="showcase-inner">
+          <h2 class="showcase-title">Todo tu dinero,<br>en una sola vista.</h2>
+          <p class="showcase-subtitle">Ingresos, gastos y metas de ahorro, actualizados en tiempo real.</p>
 
-        <div class="form-group">
-          <label>Código de verificación</label>
-          <input
-            type="text"
-            inputmode="numeric"
-            maxlength="6"
-            [(ngModel)]="codigo"
-            name="codigo"
-            placeholder="123456"
-          >
+          <div class="demo-frame">
+            <div class="demo-chrome">
+              <span class="demo-chrome-dots"><i></i><i></i><i></i></span>
+              <span class="demo-live"><i class="demo-live-dot"></i>DEMO</span>
+              <span class="demo-time">00:07</span>
+            </div>
+
+            <div class="demo-screen">
+              <div class="demo-scene demo-scene-1">
+                <span class="demo-scene-label">Resumen del mes</span>
+                <div class="demo-total">
+                  <span class="demo-total-figure"><span class="tick">$</span><span class="tick">2</span><span class="tick">.</span><span class="tick">4</span><span class="tick">3</span><span class="tick">1</span><span class="tick">.</span><span class="tick">0</span><span class="tick">0</span><span class="tick">0</span></span>
+                </div>
+                <div class="demo-bars">
+                  <span class="demo-bar" style="--h:38%"></span>
+                  <span class="demo-bar" style="--h:62%"></span>
+                  <span class="demo-bar" style="--h:45%"></span>
+                  <span class="demo-bar" style="--h:80%"></span>
+                  <span class="demo-bar" style="--h:56%"></span>
+                  <span class="demo-bar" style="--h:70%"></span>
+                </div>
+              </div>
+
+              <div class="demo-scene demo-scene-2">
+                <span class="demo-scene-label">Nuevo movimiento</span>
+                <div class="demo-txn">
+                  <span class="demo-txn-icon">↓</span>
+                  <div class="demo-txn-body"><strong>Pago de nómina</strong><small>Hoy, 9:41 a.m.</small></div>
+                  <span class="demo-txn-amount">+$1.850.000</span>
+                </div>
+                <div class="demo-txn demo-txn-secondary">
+                  <span class="demo-txn-icon">↑</span>
+                  <div class="demo-txn-body"><strong>Suscripciones</strong><small>Ayer, 6:12 p.m.</small></div>
+                  <span class="demo-txn-amount demo-txn-amount-neg">-$45.900</span>
+                </div>
+              </div>
+
+              <div class="demo-scene demo-scene-3">
+                <span class="demo-scene-label">Meta: Vacaciones</span>
+                <div class="demo-ring">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="ring-track" cx="50" cy="50" r="42"></circle>
+                    <circle class="ring-progress" cx="50" cy="50" r="42"></circle>
+                  </svg>
+                  <span class="demo-ring-figure">72%</span>
+                </div>
+                <span class="demo-ring-caption">$3.600.000 de $5.000.000</span>
+              </div>
+            </div>
+
+            <div class="demo-scrubber"><span class="demo-progress"></span></div>
+          </div>
+
+          <div class="demo-captions">
+            <span class="demo-caption demo-caption-1">Gastos claros</span>
+            <span class="demo-caption demo-caption-2">Movimientos al día</span>
+            <span class="demo-caption demo-caption-3">Metas cumplidas</span>
+          </div>
         </div>
-
-        <button (click)="verificarCodigo()">
-          Verificar
-        </button>
-
-        <button type="button" class="register-button" (click)="reenviarCodigo()">
-          Reenviar código
-        </button>
-
-        <a class="link volver-link" (click)="volverACredenciales()">← Volver</a>
-      }
-    </div>
-
-    <!-- Panel de bienvenida -->
-    <div class="login-welcome">
-      <div class="welcome-logo">
-        <span class="welcome-logo-dot"></span>
-        FinanceUp <span class="welcome-logo-arrow">↗</span>
       </div>
-
-      <h2>Bienvenido a Finance Up</h2>
-      <p class="welcome-subtitle">Tu centro de control financiero en un solo lugar.</p>
-
-      <ul class="welcome-features">
-        <li>
-          <span class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="20" x2="4" y2="12"></line>
-              <line x1="10" y1="20" x2="10" y2="6"></line>
-              <line x1="16" y1="20" x2="16" y2="14"></line>
-              <line x1="21" y1="20" x2="21" y2="9"></line>
-            </svg>
-          </span>
-          <div>
-            <strong>Controla tus finanzas</strong>
-            <p>Visualiza ingresos y gastos en tiempo real.</p>
-          </div>
-        </li>
-        <li>
-          <span class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="9"></circle>
-              <circle cx="12" cy="12" r="5"></circle>
-              <circle cx="12" cy="12" r="1"></circle>
-            </svg>
-          </span>
-          <div>
-            <strong>Define tus metas</strong>
-            <p>Establece objetivos de ahorro y síguelos fácilmente.</p>
-          </div>
-        </li>
-        <li>
-          <span class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="5" y="11" width="14" height="9" rx="2"></rect>
-              <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
-            </svg>
-          </span>
-          <div>
-            <strong>Seguridad garantizada</strong>
-            <p>Tu información financiera siempre protegida.</p>
-          </div>
-        </li>
-        <li>
-          <span class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="9" height="14" rx="1.5"></rect>
-              <rect x="15" y="8" width="5" height="10" rx="1"></rect>
-              <line x1="8.5" y1="15.5" x2="8.5" y2="15.51"></line>
-            </svg>
-          </span>
-          <div>
-            <strong>Accede desde cualquier lugar</strong>
-            <p>Disponible en todos tus dispositivos.</p>
-          </div>
-        </li>
-      </ul>
-
-      <div class="illustration">
-        <svg class="illustration-svg" viewBox="0 0 320 150" preserveAspectRatio="xMidYMid meet">
-          <circle cx="160" cy="75" r="72" fill="#ffffff" opacity="0.35"></circle>
-          <circle cx="160" cy="75" r="50" fill="#ffffff" opacity="0.45"></circle>
-
-          <g transform="translate(96,96)">
-            <rect class="bar-1" x="0" y="30" width="18" height="24" rx="3" fill="#3b6d11"></rect>
-            <rect class="bar-2" x="24" y="18" width="18" height="36" rx="3" fill="#218838"></rect>
-            <rect class="bar-3" x="48" y="0" width="18" height="54" rx="3" fill="#12351b"></rect>
-          </g>
-
-          <g class="coin-group" transform="translate(178,40)">
-            <circle cx="24" cy="24" r="24" fill="#fac775"></circle>
-            <text x="24" y="31" text-anchor="middle" font-size="20" font-weight="700" fill="#633806">$</text>
-          </g>
-
-          <path d="M84 116 Q160 96 236 108" stroke="#12351b" stroke-width="1" stroke-dasharray="2 5" fill="none" opacity="0.3"></path>
-        </svg>
-      </div>
-    </div>
 
     </div>
   </div>
 </div>
+
+</body>
+</html>
