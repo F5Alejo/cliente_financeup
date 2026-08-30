@@ -6,10 +6,53 @@
             <p class="mes-actual">{{ mesActual }}</p>
         </div>
         <div class="header-acciones">
-            <button type="button" class="icono-accion" aria-label="Buscar" title="Buscar">🔍</button>
-            <button type="button" class="icono-accion" aria-label="Notificaciones" title="Notificaciones">🔔</button>
+            <button type="button" class="icono-accion" aria-label="Buscar" title="Buscar" (click)="alternarBusqueda()">🔍</button>
+            <a
+                class="icono-accion"
+                [routerLink]="['/educacion']"
+                [queryParams]="{ escuela: escuelaRecomendada }"
+                aria-label="Cursos recomendados para ti"
+                title="Cursos recomendados para ti">
+                🔔
+            </a>
         </div>
     </header>
+
+    @if (mostrarBusqueda()) {
+        <section class="barra-busqueda">
+            <input
+                type="text"
+                placeholder="Busca una sección, meta, inversión o movimiento..."
+                [ngModel]="terminoBusqueda()"
+                (ngModelChange)="terminoBusqueda.set($event)"
+                name="busquedaGlobal"
+                autofocus />
+
+            @if (terminoBusqueda().trim()) {
+                <ul class="resultados-busqueda">
+                    @for (r of resultadosBusqueda; track r.tipo + r.nombre) {
+                        <li>
+                            <a [routerLink]="r.ruta" (click)="alternarBusqueda()">
+                                <span class="resultado-icono" aria-hidden="true">{{ r.icono }}</span>
+                                <span class="resultado-nombre">{{ r.nombre }}</span>
+                                <span class="resultado-tipo">{{ r.tipo }}</span>
+                            </a>
+                        </li>
+                    }
+                    @if (resultadosBusqueda.length === 0) {
+                        <li class="sin-resultados">Sin resultados para "{{ terminoBusqueda() }}"</li>
+                    }
+                </ul>
+            }
+        </section>
+    }
+
+    <section class="salud-financiera"
+        [class.salud-orden]="salud.estado === 'En orden'"
+        [class.salud-atencion]="salud.estado === 'Atención'"
+        [class.salud-riesgo]="salud.estado === 'Alto riesgo'">
+        <strong>{{ salud.estado }}</strong> — {{ salud.mensaje }}
+    </section>
 
     <section class="cards-resumen" aria-label="Resumen financiero">
         @for (t of tarjetas; track t.titulo) {
@@ -193,4 +236,9 @@
             Total en {{ tipoActivo() }}: <strong>{{ formatearCOP(totalPorTipo(tipoActivo())) }}</strong>
         </div>
     </section>
+
+    <app-curso-banner
+        texto="Reparte tu sueldo en tres bolsillos y deja de improvisar cada mes, ¿cómo se hace?"
+        cursoId="presupuesto-50-30-20">
+    </app-curso-banner>
 </div>

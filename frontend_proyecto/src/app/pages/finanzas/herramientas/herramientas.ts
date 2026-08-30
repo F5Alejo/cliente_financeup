@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
+import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
 
 /**
  * COMPONENTE: Herramientas Financieras
@@ -31,7 +32,7 @@ interface Herramienta {
 
 @Component({
   selector: 'app-herramientas',
-  imports: [FinanzasMenuComponent, FormsModule],
+  imports: [FinanzasMenuComponent, FormsModule, CursoBannerComponent],
   templateUrl: './herramientas.html',
   styleUrl: './herramientas.css',
 })
@@ -42,6 +43,13 @@ export class HerramientasComponent {
     { id: 'interes-compuesto', icono: '📈', nombre: 'Interés Compuesto', descripcion: 'Proyecta el crecimiento con capitalización.' },
     { id: 'fondo-fiduciario', icono: '🏛️', nombre: 'Fondo Fiduciario', descripcion: 'Simula un fideicomiso con aportes periódicos.' },
   ];
+
+  /** Definición corta y directa de cada concepto, para quien no lo conoce todavía. */
+  definiciones: Record<IdHerramienta, string> = {
+    'interes-simple': 'Es la ganancia que se calcula solo sobre el capital inicial: siempre es el mismo valor cada periodo, sin importar cuánto tiempo pase.',
+    'interes-compuesto': 'Es la ganancia que se suma al capital y también empieza a generar su propio interés, por eso el dinero crece cada vez más rápido.',
+    'fondo-fiduciario': 'Es un fideicomiso: le entregas tu dinero (capital + aportes) a un administrador para que lo invierta y busque hacerlo crecer con el tiempo.',
+  };
 
   /** Cuál calculadora está visible actualmente. */
   herramientaActiva = signal<IdHerramienta>('interes-simple');
@@ -122,5 +130,46 @@ export class HerramientasComponent {
 
   get totalAportadoFiduciario(): number {
     return (this.capitalInicialFiduciario ?? 0) + (this.aporteMensualFiduciario ?? 0) * ((this.aniosFiduciario ?? 0) * 12);
+  }
+
+  /** ----- Gráfica: interés simple vs. compuesto, con el mismo capital y tasa -----
+   *  Sirve para VER por qué el compuesto termina ganando más: la línea
+   *  simple crece en línea recta, la compuesta se va curvando hacia arriba. */
+  get aniosGrafica(): number[] {
+    const n = this.aniosCompuesto ?? 5;
+    return Array.from({ length: n + 1 }, (_, i) => i);
+  }
+
+  get valoresSimpleGrafica(): number[] {
+    const capital = this.capitalCompuesto ?? 0;
+    const tasa = (this.tasaCompuesto ?? 0) / 100;
+    return this.aniosGrafica.map((anio) => capital + capital * tasa * anio);
+  }
+
+  get valoresCompuestoGrafica(): number[] {
+    const capital = this.capitalCompuesto ?? 0;
+    const tasa = (this.tasaCompuesto ?? 0) / 100;
+    return this.aniosGrafica.map((anio) => capital * Math.pow(1 + tasa, anio));
+  }
+
+  private aPuntosSvg(valores: number[]): string {
+    const max = Math.max(...this.valoresSimpleGrafica, ...this.valoresCompuestoGrafica, 1);
+    const ancho = 320;
+    const alto = 90;
+    return valores
+      .map((v, i) => {
+        const x = (i / (valores.length - 1 || 1)) * ancho;
+        const y = alto - (v / max) * alto;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(' ');
+  }
+
+  get puntosLineaSimple(): string {
+    return this.aPuntosSvg(this.valoresSimpleGrafica);
+  }
+
+  get puntosLineaCompuesta(): string {
+    return this.aPuntosSvg(this.valoresCompuestoGrafica);
   }
 }

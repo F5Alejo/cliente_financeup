@@ -1,11 +1,22 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth';
 import { FinanzasService } from '../../../services/finanzas';
 import { MetasService } from '../../../services/metas';
+import { InversionesService } from '../../../services/inversiones';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { MonedaPipe } from '../../../pipes/moneda.pipe';
 import { ToastService } from '../../../shared/services/toast';
+import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
+
+/** Un resultado de la barra de búsqueda: puede ser una sección, una meta, una inversión o un movimiento */
+interface ResultadoBusqueda {
+  icono: string;
+  nombre: string;
+  ruta: string;
+  tipo: string;
+}
 
 interface TarjetaResumen {
   icono: string;
@@ -44,7 +55,7 @@ type TipoRegistro = 'activos' | 'pasivos' | 'gastos';
 
 @Component({
   selector: 'app-finanzas',
-  imports: [FinanzasMenuComponent, FormsModule, MonedaPipe],
+  imports: [FinanzasMenuComponent, FormsModule, MonedaPipe, CursoBannerComponent, RouterLink],
   templateUrl: './finanzas.html',
   styleUrls: ['./finanzas.css'],
 })
@@ -53,6 +64,7 @@ export class FinanzasComponent implements OnInit {
     public authService: AuthService,
     private finanzasService: FinanzasService,
     private metasService: MetasService,
+    private inversionesService: InversionesService,
     private toastService: ToastService
   ) {}
 
@@ -78,24 +90,122 @@ export class FinanzasComponent implements OnInit {
     this.usuario = this.authService.obtenerNombre();
   }
 
-  /** ----- Tarjetas superiores ----- */
-  tarjetas: TarjetaResumen[] = [
-    { icono: '💰', titulo: 'Ingreso', valor: '$3.0M', tendencia: '↑ +12.4% vs feb' },
-    { icono: '💼', titulo: 'Presupuesto', valor: '$2.2M', tendencia: 'Sin cambios' },
-    { icono: '🏦', titulo: 'Disponible', valor: '+$800k', tendencia: '↑ +8.7% vs feb' },
-    { icono: '🐷', titulo: 'Ahorro', valor: '26%', tendencia: '↑ +2% vs feb' },
+  /** ----- Movimientos completos (sin recortar) y totales, para calcular todo lo de abajo ----- */
+  private get todosLosMovimientos() {
+    return this.finanzasService.movimientos;
+  }
+
+  private get totalIngresos(): number {
+    return this.todosLosMovimientos.filter(m => m.monto > 0).reduce((s, m) => s + m.monto, 0);
+  }
+
+  private get totalGastos(): number {
+    return this.todosLosMovimientos.filter(m => m.monto < 0).reduce((s, m) => s + Math.abs(m.monto), 0);
+  }
+
+  /** ----- Tarjetas superiores, calculadas desde los movimientos reales ----- */
+  get tarjetas(): TarjetaResumen[] {
+    const disponible = this.totalIngresos - this.totalGastos;
+    const ahorroPct = this.totalIngresos > 0 ? Math.round((disponible / this.totalIngresos) * 100) : 0;
+    return [
+      { icono: '💰', titulo: 'Ingreso', valor: this.formatearCOP(this.totalIngresos), tendencia: 'Total registrado' },
+      { icono: '💼', titulo: 'Gastos', valor: this.formatearCOP(this.totalGastos), tendencia: 'Total registrado' },
+      { icono: '🏦', titulo: 'Disponible', valor: this.formatearCOP(disponible), tendencia: disponible >= 0 ? 'Te queda dinero' : 'Gastas más de lo que entra' },
+      { icono: '🐷', titulo: 'Ahorro', valor: `${ahorroPct}%`, tendencia: 'De tus ingresos' },
+    ];
+  }
+
+  /** ----- Indicador de salud financiera: En orden / Atención / Alto riesgo ----- */
+  get salud(): { estado: string; mensaje: string } {
+    const disponible = this.totalIngresos - this.totalGastos;
+    const ahorroPct = this.totalIngresos > 0 ? (disponible / this.totalIngresos) * 100 : 0;
+
+    if (disponible < 0) {
+      return { estado: 'Alto riesgo', mensaje: 'Estás gastando más de lo que ganas.' };
+    }
+    if (ahorroPct < 10) {
+      return { estado: 'Atención', mensaje: 'Tu margen de ahorro es bajo, revisa tus gastos.' };
+    }
+    return { estado: 'En orden', mensaje: 'Tus finanzas van bien, sigue así.' };
+  }
+
+  /** ============================================================
+   *  NUEVO: Lupa como barra de navegación de toda la información
+   *  del usuario (secciones + metas + inversiones + movimientos)
+   * ============================================================ */
+  mostrarBusqueda = signal(false);
+  terminoBusqueda = signal('');
+
+  /** Todas las secciones a las que el usuario puede navegar desde Finanzas */
+  private secciones: ResultadoBusqueda[] = [
+    { icono: '📊', nombre: 'Finanzas', ruta: '/finanzas', tipo: 'Sección' },
+    { icono: '📒', nombre: 'Libro Mayor', ruta: '/libro-mayor', tipo: 'Sección' },
+    { icono: '📈', nombre: 'Inversiones', ruta: '/inversiones', tipo: 'Sección' },
+    { icono: '🎯', nombre: 'Metas', ruta: '/metas', tipo: 'Sección' },
+    { icono: '💳', nombre: 'Resuelve tu deuda', ruta: '/resuelve-deuda', tipo: 'Sección' },
+    { icono: '🧮', nombre: 'Herramientas', ruta: '/herramientas', tipo: 'Sección' },
   ];
 
-  /** ----- Distribución del salario (dona) ----- */
-  distribucion: SegmentoGasto[] = [
-    { etiqueta: 'Vivienda', porcentaje: 33, color: 'var(--green-primary)' },
-    { etiqueta: 'Alimento', porcentaje: 25, color: 'var(--green-accent-text)' },
-    { etiqueta: 'Transporte', porcentaje: 18, color: 'var(--green-soft)' },
-    { etiqueta: 'Ahorro', porcentaje: 15, color: 'var(--bg-ahorro)' },
-    { etiqueta: 'Ocio', porcentaje: 9, color: '#e2e8f0' },
-  ];
+  alternarBusqueda(): void {
+    this.mostrarBusqueda.update((v) => !v);
+    if (!this.mostrarBusqueda()) this.terminoBusqueda.set('');
+  }
+
+  /** Junta secciones + metas + inversiones + movimientos que coincidan con lo escrito */
+  get resultadosBusqueda(): ResultadoBusqueda[] {
+    const termino = this.terminoBusqueda().trim().toLowerCase();
+    if (!termino) return [];
+
+    const secciones = this.secciones.filter((s) => s.nombre.toLowerCase().includes(termino));
+
+    const metas: ResultadoBusqueda[] = this.metasService.metas
+      .filter((m) => m.nombre.toLowerCase().includes(termino))
+      .map((m) => ({ icono: m.icono, nombre: m.nombre, ruta: '/metas', tipo: 'Meta' }));
+
+    const inversiones: ResultadoBusqueda[] = this.inversionesService.inversiones
+      .filter((i) => i.nombre.toLowerCase().includes(termino))
+      .map((i) => ({ icono: '📈', nombre: i.nombre, ruta: '/inversiones', tipo: 'Inversión' }));
+
+    const movimientos: ResultadoBusqueda[] = this.todosLosMovimientos
+      .filter((m) => m.categoria.toLowerCase().includes(termino))
+      .slice(0, 5)
+      .map((m) => ({ icono: m.icono, nombre: m.categoria, ruta: '/finanzas', tipo: 'Movimiento' }));
+
+    return [...secciones, ...metas, ...inversiones, ...movimientos];
+  }
+
+  /** ============================================================
+   *  NUEVO: la campana recomienda cursos según lo que más usa el
+   *  usuario — si tiene más inversiones que movimientos/metas
+   *  juntos, le sugerimos la escuela de Inversión; si no, Finanzas
+   *  Personales (presupuesto, tarjetas, deuda).
+   * ============================================================ */
+  get escuelaRecomendada(): string {
+    const actividadInversion = this.inversionesService.inversiones.length;
+    const actividadPersonal = this.todosLosMovimientos.length + this.metasService.metas.length;
+    return actividadInversion > actividadPersonal ? 'inversion' : 'finanzas-personales';
+  }
+
+  /** ----- Distribución de gastos por categoría (dona), calculada desde los movimientos ----- */
+  private paletaDona = ['var(--green-primary)', 'var(--green-accent-text)', 'var(--green-soft)', 'var(--bg-ahorro)', '#e2e8f0', '#94a3b8'];
+
+  get distribucion(): SegmentoGasto[] {
+    const gastos = this.todosLosMovimientos.filter(m => m.monto < 0);
+    const total = this.totalGastos;
+    if (total === 0) return [];
+
+    const porCategoria = new Map<string, number>();
+    gastos.forEach(m => porCategoria.set(m.categoria, (porCategoria.get(m.categoria) ?? 0) + Math.abs(m.monto)));
+
+    return Array.from(porCategoria.entries()).map(([etiqueta, monto], i) => ({
+      etiqueta,
+      porcentaje: Math.round((monto / total) * 100),
+      color: this.paletaDona[i % this.paletaDona.length],
+    }));
+  }
 
   get gradienteDistribucion(): string {
+    if (this.distribucion.length === 0) return '#e2e8f0';
     let acumulado = 0;
     const partes = this.distribucion.map(seg => {
       const inicio = acumulado;

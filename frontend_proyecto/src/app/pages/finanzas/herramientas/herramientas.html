@@ -33,6 +33,7 @@
     @if (herramientaActiva() === 'interes-simple') {
         <section class="panel calculadora">
             <h2>➗ Interés Simple</h2>
+            <p class="definicion">{{ definiciones['interes-simple'] }}</p>
             <div class="calculadora-grid">
                 <div class="campo">
                     <label for="cap-simple">Capital inicial</label>
@@ -65,6 +66,7 @@
     @if (herramientaActiva() === 'interes-compuesto') {
         <section class="panel calculadora">
             <h2>📈 Interés Compuesto</h2>
+            <p class="definicion">{{ definiciones['interes-compuesto'] }}</p>
             <div class="calculadora-grid">
                 <div class="campo">
                     <label for="cap-compuesto">Capital inicial</label>
@@ -98,6 +100,17 @@
                     <strong class="positivo">{{ formatearCOP(montoCompuesto) }}</strong>
                 </div>
             </div>
+            <div class="grafica-comparacion">
+                <h3>Simple vs. compuesto, con el mismo capital y tasa</h3>
+                <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Comparación entre interés simple y compuesto">
+                    <polyline [attr.points]="puntosLineaSimple" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <polyline [attr.points]="puntosLineaCompuesta" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div class="leyenda-grafica">
+                    <span><span class="punto gris"></span> Interés simple</span>
+                    <span><span class="punto verde"></span> Interés compuesto</span>
+                </div>
+            </div>
             <p class="explicacion">El interés compuesto reinvierte las ganancias en cada periodo, por eso crece más rápido mientras más frecuente sea la capitalización.</p>
         </section>
     }
@@ -106,6 +119,7 @@
     @if (herramientaActiva() === 'fondo-fiduciario') {
         <section class="panel calculadora">
             <h2>🏛️ Fondo Fiduciario</h2>
+            <p class="definicion">{{ definiciones['fondo-fiduciario'] }}</p>
             <div class="calculadora-grid">
                 <div class="campo">
                     <label for="cap-fiduciario">Capital inicial</label>
@@ -139,4 +153,9 @@
             </p>
         </section>
     }
+
+    <app-curso-banner
+        texto="Con el interés compuesto ganas más que con el interés simple, ¿por qué?"
+        cursoId="intro-bolsa">
+    </app-curso-banner>
 </div>

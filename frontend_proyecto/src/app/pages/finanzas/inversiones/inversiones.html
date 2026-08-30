@@ -34,6 +34,12 @@
         </form>
     }
 
+    @if (alertaConcentracion.mostrar) {
+        <section class="alerta-riesgo">
+            ⚠️ {{ alertaConcentracion.mensaje }}
+        </section>
+    }
+
     <section class="cards-resumen" aria-label="Resumen de inversiones">
         <div class="card-resumen">
             <span class="card-titulo">Saldo en Inversiones</span>
@@ -163,4 +169,9 @@
             </tfoot>
         </table>
     </section>
+
+    <app-curso-banner
+        texto="¿Cómo se reparte y se rebalancea un portafolio sin perder plata en el intento?"
+        cursoId="gestion-portafolio">
+    </app-curso-banner>
 </div>

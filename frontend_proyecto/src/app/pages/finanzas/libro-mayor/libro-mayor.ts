@@ -1,7 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router'; // para el enlace "Ver mis deudas" (routerLink)
 import * as XLSX from 'xlsx'; // Librería para leer/escribir archivos Excel (.xlsx) en el navegador
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
+import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
 
 /**
  * COMPONENTE: Libro Mayor
@@ -17,7 +19,9 @@ import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
  * ------------------------------------------------------------------
  */
 
-/** Un movimiento individual del libro mayor (una fila de la tabla). */
+/** Un movimiento individual del libro mayor (una fila de la tabla).
+ *  metodoPago y observaciones son opcionales ("?") porque los movimientos
+ *  importados desde Excel no los traen (la plantilla no tiene esas columnas). */
 interface Movimiento {
   id: number;
   fecha: string; // formato YYYY-MM-DD
@@ -25,6 +29,8 @@ interface Movimiento {
   categoria: string;
   tipo: 'ingreso' | 'gasto';
   valor: number;
+  metodoPago?: string;
+  observaciones?: string;
 }
 
 /** Describe por qué una fila del Excel importado NO se pudo usar. */
@@ -38,7 +44,7 @@ type ColumnaOrden = 'fecha' | 'concepto' | 'categoria' | 'tipo' | 'valor';
 
 @Component({
   selector: 'app-libro-mayor',
-  imports: [FinanzasMenuComponent, FormsModule],
+  imports: [FinanzasMenuComponent, FormsModule, RouterLink, CursoBannerComponent],
   templateUrl: './libro-mayor.html',
   styleUrl: './libro-mayor.css',
 })
@@ -49,6 +55,9 @@ export class LibroMayorComponent {
     'Servicios', 'Educación', 'Gastos hormiga', 'Salario', 'Otros ingresos',
     'Ahorro', 'Otros',
   ];
+
+  /** Opciones para el campo "Método de pago" del formulario. */
+  metodosPago: string[] = ['Efectivo', 'Tarjeta débito', 'Tarjeta crédito', 'Transferencia', 'Otro'];
 
   // Contador simple para generar IDs únicos de movimientos nuevos.
   // (En una app real, el ID lo asignaría el backend/base de datos).
@@ -147,6 +156,35 @@ export class LibroMayorComponent {
     return this.totalIngresos > 0 ? Math.round((this.ahorro / this.totalIngresos) * 100) : 0;
   }
 
+  /** ----- Indicadores nuevos del módulo (todos reutilizan los totales de arriba) ----- */
+
+  /** Cuánto se ha ido en la categoría "Gastos hormiga". */
+  get gastosHormiga(): number {
+    return this.movimientosFiltrados.reduce((s, m) => (m.categoria === 'Gastos hormiga' ? s + m.valor : s), 0);
+  }
+
+  /** Cuánto se ha guardado en la categoría "Ahorro". */
+  get totalAhorros(): number {
+    return this.movimientosFiltrados.reduce((s, m) => (m.categoria === 'Ahorro' ? s + m.valor : s), 0);
+  }
+
+  /** El "otro lado" del % de ahorro: qué porcentaje de lo que entró ya se gastó. */
+  get porcentajeGastado(): number {
+    return 100 - this.porcentajeAhorro;
+  }
+
+  /** Lo que queda de los ingresos después de los gastos fijos (sin contar
+   *  gastos hormiga) — es decir, cuánto se podría ahorrar si se controlan
+   *  los gastos hormiga. */
+  get capacidadAhorro(): number {
+    return this.totalIngresos - (this.totalGastos - this.gastosHormiga);
+  }
+
+  /** Si el ahorro de este periodo se repitiera 12 veces, cuánto sería en un año. */
+  get proyeccionAhorroAnual(): number {
+    return this.ahorro * 12;
+  }
+
   /** Da formato de pesos colombianos a un número, ej: 1200000 -> "$1.200.000". */
   formatearCOP(valor: number): string {
     return `$${Math.abs(valor).toLocaleString('es-CO')}`;
@@ -165,6 +203,8 @@ export class LibroMayorComponent {
   formCategoria = 'Otros';
   formTipo: 'ingreso' | 'gasto' = 'gasto';
   formValor: number | null = null;
+  formMetodoPago = 'Efectivo';
+  formObservaciones = '';
 
   /** Abre el modal limpio, listo para crear un movimiento nuevo. */
   abrirFormularioNuevo(): void {
@@ -175,6 +215,8 @@ export class LibroMayorComponent {
     this.formCategoria = 'Otros';
     this.formTipo = 'gasto';
     this.formValor = null;
+    this.formMetodoPago = 'Efectivo';
+    this.formObservaciones = '';
     this.mostrarFormulario.set(true);
   }
 
@@ -187,6 +229,8 @@ export class LibroMayorComponent {
     this.formCategoria = movimiento.categoria;
     this.formTipo = movimiento.tipo;
     this.formValor = movimiento.valor;
+    this.formMetodoPago = movimiento.metodoPago ?? 'Efectivo';
+    this.formObservaciones = movimiento.observaciones ?? '';
     this.mostrarFormulario.set(true);
   }
 
@@ -214,6 +258,8 @@ export class LibroMayorComponent {
         movimiento.categoria = this.formCategoria;
         movimiento.tipo = this.formTipo;
         movimiento.valor = valor;
+        movimiento.metodoPago = this.formMetodoPago;
+        movimiento.observaciones = this.formObservaciones.trim();
       }
       this.emitirMensaje('exito', 'Movimiento actualizado correctamente.');
     } else {
@@ -224,6 +270,8 @@ export class LibroMayorComponent {
         categoria: this.formCategoria,
         tipo: this.formTipo,
         valor,
+        metodoPago: this.formMetodoPago,
+        observaciones: this.formObservaciones.trim(),
       });
       this.emitirMensaje('exito', 'Movimiento agregado correctamente.');
     }
@@ -395,15 +443,9 @@ export class LibroMayorComponent {
     this.mostrarCamposOpcionales.update(v => !v);
   }
 
-  // NOTA: antes había aquí un método "descargarPlantilla()" que generaba un
-  // Excel plano con código. Ya no hace falta: la plantilla real ahora es un
   // archivo fijo guardado en la carpeta "public/" del proyecto
-  // (public/plantilla-control-finanzas.xlsx). Angular sirve todo lo que hay
-  // en "public/" como si fueran archivos sueltos del sitio, así que en el
-  // HTML el botón "Descargar plantilla" es ahora un simple enlace
-  // (<a href="plantilla-control-finanzas.xlsx" download>), sin necesidad de
-  // escribir ningún código para generarlo.
-
+  // (public/plantilla-control-finanzas.xlsx). 
+  
   /** Se llama cuando el usuario elige un archivo en el <input type="file">. */
   onArchivoSeleccionado(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -459,6 +501,10 @@ export class LibroMayorComponent {
         encontrados.push({
           id: this.siguienteId++,
           // La plantilla no tiene columna de fecha, así que se usa la fecha de hoy.
+          // toISOString ("2026-08-30T19:42:10.123Z)
+          // z horario utc 
+          // t separador
+          // slice AAAA-MM-DD
           fecha: new Date().toISOString().slice(0, 10),
           concepto: String(celdaConcepto.v),
           categoria: categoriaPorDefecto,
