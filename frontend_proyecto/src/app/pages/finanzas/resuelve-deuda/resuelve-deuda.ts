@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ToastService } from '../../../../shared/services/toast';
-import { FinanzasMenuComponent } from '../../finanzas-menu/finanzas-menu';
+import { ToastService } from '../../../shared/services/toast';
+import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 
 export interface DeudaRegistrada {
   id: number;
