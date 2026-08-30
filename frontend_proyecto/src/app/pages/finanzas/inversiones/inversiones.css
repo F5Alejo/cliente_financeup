@@ -78,6 +78,16 @@
     background: var(--green-dark);
 }
 
+/* ALERTA DE CONCENTRACIÓN DE RIESGO */
+.alerta-riesgo {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    margin-bottom: 20px;
+}
+
 /* TARJETAS DE RESUMEN */
 .cards-resumen {
     display: grid;

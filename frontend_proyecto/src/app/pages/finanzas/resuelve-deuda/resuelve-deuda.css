@@ -272,6 +272,23 @@
     background: var(--green-dark);
 }
 
+.btn-primario:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+}
+
+/* ESTADO DE LA SOLICITUD DEL USUARIO */
+.estado-solicitud {
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    margin-bottom: 20px;
+}
+
+.estado-solicitud.estado-pendiente { background: #fef9c3; color: #92702a; }
+.estado-solicitud.estado-aprobada { background: #ccfbf1; color: var(--green-primary); }
+.estado-solicitud.estado-rechazada { background: #fee2e2; color: #dc2626; }
+
 .nota-legal {
     font-size: 11px;
     color: #94a3b8;

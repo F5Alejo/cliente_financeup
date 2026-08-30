@@ -4,6 +4,8 @@ import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { InversionesService, Inversion } from '../../../services/inversiones';
 import { ToastService } from '../../../shared/services/toast';
 import { MonedaPipe } from '../../../pipes/moneda.pipe';
+import * as XLSX from 'xlsx';
+import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
 
 interface SegmentoCartera {
   etiqueta: string;
@@ -18,7 +20,7 @@ interface PuntoRendimiento {
 
 @Component({
   selector: 'app-inversiones',
-  imports: [FinanzasMenuComponent, FormsModule, MonedaPipe],
+  imports: [FinanzasMenuComponent, FormsModule, MonedaPipe, CursoBannerComponent],
   templateUrl: './inversiones.html',
   styleUrl: './inversiones.css',
 })
@@ -29,13 +31,35 @@ export class InversionesComponent {
   ) {}
 
 
-  /** ----- Tarjetas superiores ----- */
-  get balanceInversiones() { return this.inversionesService.balanceInversiones; }
+  /** ----- Tarjetas superiores, calculadas sumando las inversiones reales ----- */
+  get balanceInversiones(): number {
+    return this.inversionesService.inversiones.reduce((s, i) => s + i.monto, 0);
+  }
   get balanceSemana() { return this.inversionesService.balanceSemana; }
-  get rendimientoTotal() { return this.inversionesService.rendimientoTotal; }
-  get rendimientoPorcentaje() { return this.inversionesService.rendimientoPorcentaje; }
+  get rendimientoTotal(): number {
+    return this.inversionesService.inversiones.reduce((s, i) => s + i.rendimiento, 0);
+  }
+  get rendimientoPorcentaje(): number {
+    return this.balanceInversiones > 0 ? Math.round((this.rendimientoTotal / this.balanceInversiones) * 1000) / 10 : 0;
+  }
   get proximoRetiro() { return this.inversionesService.proximoRetiro; }
   get progresoRetiro() { return this.inversionesService.progresoRetiro; }
+
+  /** ----- Alerta si el usuario tiene mucho dinero concentrado en riesgo Alto ----- */
+  get alertaConcentracion(): { mostrar: boolean; mensaje: string } {
+    const total = this.balanceInversiones;
+    if (total === 0) return { mostrar: false, mensaje: '' };
+
+    const enRiesgoAlto = this.inversionesService.inversiones
+      .filter(i => i.riesgo === 'Alto')
+      .reduce((s, i) => s + i.monto, 0);
+    const porcentaje = Math.round((enRiesgoAlto / total) * 100);
+
+    if (porcentaje >= 50) {
+      return { mostrar: true, mensaje: `El ${porcentaje}% de tu dinero invertido está en riesgo alto. Considera diversificar en opciones de menor riesgo.` };
+    }
+    return { mostrar: false, mensaje: '' };
+  }
 
   radioAnillo = 30;
   circunferencia = 2 * Math.PI * this.radioAnillo;
@@ -80,16 +104,21 @@ export class InversionesComponent {
     return this.crecimiento[this.crecimiento.length - 1];
   }
 
-  /** ----- Distribución de carteras (dona) ----- */
-  carteras: SegmentoCartera[] = [
-    { etiqueta: 'Bonos', porcentaje: 40, color: 'var(--green-primary)' },
-    { etiqueta: 'Fondos', porcentaje: 22, color: 'var(--green-accent-text)' },
-    { etiqueta: 'Acciones', porcentaje: 18, color: 'var(--green-soft)' },
-    { etiqueta: 'Bonos corporativos', porcentaje: 15, color: 'var(--bg-ahorro)' },
-    { etiqueta: 'Criptomonedas', porcentaje: 5, color: '#e2e8f0' },
-  ];
+  /** ----- Distribución de carteras (dona), calculada desde las inversiones reales ----- */
+  private paletaCarteras = ['var(--green-primary)', 'var(--green-accent-text)', 'var(--green-soft)', 'var(--bg-ahorro)', '#e2e8f0', '#94a3b8'];
+
+  get carteras(): SegmentoCartera[] {
+    const total = this.balanceInversiones;
+    if (total === 0) return [];
+    return this.inversionesService.inversiones.map((inv, i) => ({
+      etiqueta: inv.nombre,
+      porcentaje: Math.round((inv.monto / total) * 100),
+      color: this.paletaCarteras[i % this.paletaCarteras.length],
+    }));
+  }
 
   get gradienteCarteras(): string {
+    if (this.carteras.length === 0) return '#e2e8f0';
     let acumulado = 0;
     const partes = this.carteras.map(seg => {
       const inicio = acumulado;
@@ -129,8 +158,20 @@ export class InversionesComponent {
     return this.inversiones.reduce((suma, inv) => suma + inv.rendimiento, 0);
   }
 
+  /** Descarga un Excel real con todas las inversiones */
   exportar(): void {
-    this.toastService.info('Exportación simulada: el resumen de inversiones se generó correctamente.');
+    const datos = this.inversionesService.inversiones.map(inv => ({
+      Nombre: inv.nombre,
+      Monto: inv.monto,
+      Rendimiento: inv.rendimiento,
+      Riesgo: inv.riesgo,
+      Duracion: inv.duracion,
+    }));
+    const hoja = XLSX.utils.json_to_sheet(datos);
+    const libro = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(libro, hoja, 'Inversiones');
+    XLSX.writeFile(libro, 'mis-inversiones.xlsx');
+    this.toastService.success('Inversiones exportadas correctamente.');
   }
 
   /** ----- Formulario de nueva inversión (funcional) ----- */

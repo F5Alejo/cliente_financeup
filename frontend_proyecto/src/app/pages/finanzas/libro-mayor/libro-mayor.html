@@ -25,6 +25,7 @@
       <p class="subtitulo">Registra y controla tus ingresos y gastos.</p>
     </div>
     <div class="header-acciones">
+      <a routerLink="/resuelve-deuda" class="btn-secundario">💳 Ver mis deudas</a>
       <button type="button" class="btn-secundario" (click)="abrirImportador()">⇪ Importar Excel</button>
       <button type="button" class="btn-secundario" (click)="exportar()">⇩ Exportar</button>
       <button type="button" class="btn-primario" (click)="abrirFormularioNuevo()">+ Nuevo movimiento</button>
@@ -58,6 +59,28 @@
       <span class="card-titulo">% de ahorro</span>
       <span class="card-valor" [class.positivo]="porcentajeAhorro >= 0" [class.negativo]="porcentajeAhorro < 0">
         {{ porcentajeAhorro }}%
+      </span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Gastos hormiga</span>
+      <span class="card-valor negativo">{{ formatearCOP(gastosHormiga) }}</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Ahorros registrados</span>
+      <span class="card-valor positivo">{{ formatearCOP(totalAhorros) }}</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">% de ingresos gastados</span>
+      <span class="card-valor">{{ porcentajeGastado }}%</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Capacidad de ahorro</span>
+      <span class="card-valor">{{ formatearCOP(capacidadAhorro) }}</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Proyección de ahorro (anual)</span>
+      <span class="card-valor" [class.positivo]="proyeccionAhorroAnual >= 0" [class.negativo]="proyeccionAhorroAnual < 0">
+        {{ formatearCOP(proyeccionAhorroAnual) }}
       </span>
     </div>
   </section>
@@ -143,6 +166,8 @@
             <th class="ordenable" (click)="ordenarPor('valor')">
               Valor {{ columnaOrden() === 'valor' ? (direccionOrden() === 'asc' ? '↑' : '↓') : '' }}
             </th>
+            <th>Método</th>
+            <th>Obs.</th>
             <th></th>
           </tr>
         </thead>
@@ -156,6 +181,8 @@
               <td [class.positivo]="m.tipo === 'ingreso'" [class.negativo]="m.tipo === 'gasto'">
                 {{ m.tipo === 'ingreso' ? '+' : '-' }}{{ formatearCOP(m.valor) }}
               </td>
+              <td>{{ m.metodoPago || '—' }}</td>
+              <td [attr.title]="m.observaciones || ''">{{ m.observaciones || '—' }}</td>
               <td>
                 <div class="acciones-fila">
                   <button type="button" class="btn-icono-fila" (click)="abrirFormularioEditar(m)" aria-label="Editar movimiento">✎</button>
@@ -207,9 +234,23 @@
               </select>
             </div>
 
-            <div class="campo campo-ancho">
+            <div class="campo">
               <label for="form-valor">Valor</label>
               <input id="form-valor" type="number" min="1" placeholder="0" [(ngModel)]="formValor" name="formValor" required />
+            </div>
+
+            <div class="campo">
+              <label for="form-metodo">Método de pago</label>
+              <select id="form-metodo" [(ngModel)]="formMetodoPago" name="formMetodoPago">
+                @for (mp of metodosPago; track mp) {
+                  <option [value]="mp">{{ mp }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="campo campo-ancho">
+              <label for="form-observaciones">Observaciones (opcional)</label>
+              <input id="form-observaciones" type="text" placeholder="Notas adicionales…" [(ngModel)]="formObservaciones" name="formObservaciones" />
             </div>
           </form>
 
@@ -310,4 +351,8 @@
     </div>
   }
 
+  <app-curso-banner
+    texto="¿Sabes cuánto te cuesta pagar solo la cuota mínima de tu tarjeta?"
+    cursoId="tarjetas-responsable">
+  </app-curso-banner>
 </div>
