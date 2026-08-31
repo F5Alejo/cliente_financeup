@@ -193,7 +193,7 @@ export const routes: Routes = [
         path: 'libro-mayor',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('./pages/finanzas/finanzas/libro-mayor/libro-mayor')
+          import('./pages/finanzas/libro-mayor/libro-mayor')
             .then((m) => m.LibroMayorComponent),
         title: 'Libro mayor - FinanceUp',
       },
@@ -202,9 +202,18 @@ export const routes: Routes = [
         path: 'resuelve-deuda',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('./pages/finanzas/finanzas/resuelve-deuda/resuelve-deuda')
+          import('./pages/finanzas/resuelve-deuda/resuelve-deuda')
             .then((m) => m.ResuelveDeudaComponent),
         title: 'Resuelve tu deuda - FinanceUp',
+      },
+
+      {
+        path: 'herramientas',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/finanzas/herramientas/herramientas')
+            .then((m) => m.HerramientasComponent),
+        title: 'Herramientas - FinanceUp',
       },
 
       {

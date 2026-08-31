@@ -1,0 +1,241 @@
+<!--
+  HERRAMIENTAS FINANCIERAS
+  ------------------------
+  Muestra 3 calculadoras como tarjetas deslizables; al hacer clic en una,
+  `herramientaActiva()` cambia y solo el panel correspondiente se muestra
+  (los bloques @if de abajo).
+-->
+<app-finanzas-menu></app-finanzas-menu>
+<div class="herramientas">
+    <header class="herramientas-header">
+        <h1>Herramientas Financieras</h1>
+        <p>Desliza para ver las diferentes calculadoras disponibles.</p>
+    </header>
+
+    <!-- Carrusel de tarjetas: una por cada calculadora disponible -->
+    <div class="scroll-herramientas" role="tablist" aria-label="Selector de herramienta">
+        @for (h of herramientas; track h.id) {
+            <button
+                type="button"
+                role="tab"
+                class="tarjeta-herramienta"
+                [class.activa]="herramientaActiva() === h.id"
+                [attr.aria-selected]="herramientaActiva() === h.id"
+                (click)="seleccionarHerramienta(h.id)">
+                <span class="icono-herramienta" aria-hidden="true">{{ h.icono }}</span>
+                <span class="nombre-herramienta">{{ h.nombre }}</span>
+                <span class="descripcion-herramienta">{{ h.descripcion }}</span>
+            </button>
+        }
+    </div>
+
+    <!-- Calculadora: Interés Simple -->
+    @if (herramientaActiva() === 'interes-simple') {
+        <section class="panel calculadora">
+            <h2>➗ Interés Simple</h2>
+            <p class="definicion">{{ definiciones['interes-simple'] }}</p>
+            <div class="calculadora-grid">
+                <div class="campo">
+                    <label for="cap-simple">Capital inicial</label>
+                    <input id="cap-simple" type="number" min="1" [(ngModel)]="capitalSimple" name="capitalSimple" />
+                </div>
+                <div class="campo">
+                    <label for="tasa-simple">Tasa anual (%)</label>
+                    <input id="tasa-simple" type="number" min="0" step="0.1" [(ngModel)]="tasaSimple" name="tasaSimple" />
+                </div>
+                <div class="campo">
+                    <label for="tiempo-simple">Tiempo (meses)</label>
+                    <input id="tiempo-simple" type="number" min="1" [(ngModel)]="tiempoSimple" name="tiempoSimple" />
+                </div>
+            </div>
+            <div class="resultado-calculadora">
+                <div>
+                    <span>Interés generado</span>
+                    <strong>{{ formatearCOP(interesSimpleCalculado) }}</strong>
+                </div>
+                <div>
+                    <span>Total al final</span>
+                    <strong class="positivo">{{ formatearCOP(totalSimple) }}</strong>
+                </div>
+            </div>
+            <p class="explicacion">El interés simple se calcula siempre sobre el capital inicial, sin acumular sobre los intereses ya generados.</p>
+        </section>
+    }
+
+    <!-- Calculadora: Interés Compuesto -->
+    @if (herramientaActiva() === 'interes-compuesto') {
+        <section class="panel calculadora">
+            <h2>📈 Interés Compuesto</h2>
+            <p class="definicion">{{ definiciones['interes-compuesto'] }}</p>
+            <div class="calculadora-grid">
+                <div class="campo">
+                    <label for="cap-compuesto">Capital inicial</label>
+                    <input id="cap-compuesto" type="number" min="1" [(ngModel)]="capitalCompuesto" name="capitalCompuesto" />
+                </div>
+                <div class="campo">
+                    <label for="tasa-compuesto">Tasa anual (%)</label>
+                    <input id="tasa-compuesto" type="number" min="0" step="0.1" [(ngModel)]="tasaCompuesto" name="tasaCompuesto" />
+                </div>
+                <div class="campo">
+                    <label for="anios-compuesto">Tiempo (años)</label>
+                    <input id="anios-compuesto" type="number" min="1" [(ngModel)]="aniosCompuesto" name="aniosCompuesto" />
+                </div>
+                <div class="campo">
+                    <label for="frecuencia-compuesto">Capitalización</label>
+                    <select id="frecuencia-compuesto" [(ngModel)]="capitalizacionesPorAnio" name="capitalizacionesPorAnio">
+                        <option [value]="1">Anual</option>
+                        <option [value]="2">Semestral</option>
+                        <option [value]="4">Trimestral</option>
+                        <option [value]="12">Mensual</option>
+                    </select>
+                </div>
+            </div>
+            <div class="resultado-calculadora">
+                <div>
+                    <span>Ganancia total</span>
+                    <strong>{{ formatearCOP(gananciaCompuesta) }}</strong>
+                </div>
+                <div>
+                    <span>Monto final</span>
+                    <strong class="positivo">{{ formatearCOP(montoCompuesto) }}</strong>
+                </div>
+            </div>
+            <div class="grafica-comparacion">
+                <h3>Simple vs. compuesto, con el mismo capital y tasa</h3>
+                <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Comparación entre interés simple y compuesto">
+                    <polyline [attr.points]="puntosLineaSimple" fill="none" stroke="var(--sand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <polyline [attr.points]="puntosLineaCompuesta" fill="none" stroke="var(--sage)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div class="leyenda-grafica">
+                    <span><span class="punto gris"></span> Interés simple</span>
+                    <span><span class="punto verde"></span> Interés compuesto</span>
+                </div>
+            </div>
+            <p class="explicacion">El interés compuesto reinvierte las ganancias en cada periodo, por eso crece más rápido mientras más frecuente sea la capitalización.</p>
+        </section>
+    }
+
+    <!-- Calculadora: Fondo Fiduciario -->
+    @if (herramientaActiva() === 'fondo-fiduciario') {
+        <section class="panel calculadora">
+            <h2>🏛️ Fondo Fiduciario</h2>
+            <p class="definicion">{{ definiciones['fondo-fiduciario'] }}</p>
+            <div class="calculadora-grid">
+                <div class="campo">
+                    <label for="cap-fiduciario">Capital inicial</label>
+                    <input id="cap-fiduciario" type="number" min="0" [(ngModel)]="capitalInicialFiduciario" name="capitalInicialFiduciario" />
+                </div>
+                <div class="campo">
+                    <label for="aporte-fiduciario">Aporte mensual</label>
+                    <input id="aporte-fiduciario" type="number" min="0" [(ngModel)]="aporteMensualFiduciario" name="aporteMensualFiduciario" />
+                </div>
+                <div class="campo">
+                    <label for="tasa-fiduciario">Rentabilidad anual estimada (%)</label>
+                    <input id="tasa-fiduciario" type="number" min="0" step="0.1" [(ngModel)]="tasaFiduciaria" name="tasaFiduciaria" />
+                </div>
+                <div class="campo">
+                    <label for="anios-fiduciario">Plazo (años)</label>
+                    <input id="anios-fiduciario" type="number" min="1" [(ngModel)]="aniosFiduciario" name="aniosFiduciario" />
+                </div>
+            </div>
+            <div class="resultado-calculadora">
+                <div>
+                    <span>Total aportado</span>
+                    <strong>{{ formatearCOP(totalAportadoFiduciario) }}</strong>
+                </div>
+                <div>
+                    <span>Proyección estimada</span>
+                    <strong class="positivo">{{ formatearCOP(proyeccionFiduciaria) }}</strong>
+                </div>
+            </div>
+            <p class="explicacion aviso">
+                Esta es una proyección orientativa con rentabilidad fija supuesta — un fideicomiso real depende del administrador fiduciario, su portafolio y condiciones de mercado. No sustituye asesoría financiera o legal profesional.
+            </p>
+        </section>
+    }
+
+    <!-- Calculadora: Patrimonio (Activos y Pasivos) -->
+    @if (herramientaActiva() === 'patrimonio') {
+        <section class="panel calculadora">
+            <h2>🏦 Patrimonio (Activos y Pasivos)</h2>
+            <p class="definicion">{{ definiciones['patrimonio'] }}</p>
+
+            <div class="resumen-patrimonio">
+                <div>
+                    <span class="resumen-label">Total activos</span>
+                    <span class="resumen-valor positivo">{{ formatearCOP(totalActivosPatrimonio) }}</span>
+                </div>
+                <div>
+                    <span class="resumen-label">Total pasivos</span>
+                    <span class="resumen-valor negativo">{{ formatearCOP(totalPasivosPatrimonio) }}</span>
+                </div>
+                <div>
+                    <span class="resumen-label">Patrimonio neto</span>
+                    <span class="resumen-valor" [class.positivo]="patrimonioNeto >= 0" [class.negativo]="patrimonioNeto < 0">
+                        {{ formatearCOP(patrimonioNeto) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="tabs-registros" role="tablist" aria-label="Tipo de registro">
+                <button type="button" role="tab" [class.activo]="tipoPatrimonio() === 'activos'" (click)="cambiarTipoPatrimonio('activos')">
+                    Activos
+                </button>
+                <button type="button" role="tab" [class.activo]="tipoPatrimonio() === 'pasivos'" (click)="cambiarTipoPatrimonio('pasivos')">
+                    Pasivos
+                </button>
+            </div>
+
+            <form class="form-registro" (ngSubmit)="agregarRegistroPatrimonio()">
+                <div class="campo">
+                    <label for="nombre-patrimonio">Nombre</label>
+                    <input
+                        id="nombre-patrimonio"
+                        type="text"
+                        placeholder="Ej: Ahorros, Tarjeta de crédito..."
+                        [(ngModel)]="nombreNuevoRegistroPatrimonio"
+                        name="nombrePatrimonio"
+                        required />
+                </div>
+                <div class="campo campo-monto">
+                    <label for="monto-patrimonio">Monto</label>
+                    <input
+                        id="monto-patrimonio"
+                        type="number"
+                        min="1"
+                        placeholder="Ej: 500000"
+                        [(ngModel)]="montoNuevoRegistroPatrimonio"
+                        name="montoPatrimonio"
+                        required />
+                </div>
+                <button type="submit" class="btn-agregar">+ Agregar</button>
+            </form>
+
+            <ul class="lista-registros">
+                @for (registro of listaActivaPatrimonio; track registro.id) {
+                    <li>
+                        <span class="registro-nombre">{{ registro.nombre }}</span>
+                        <span class="registro-monto">{{ formatearCOP(registro.monto) }}</span>
+                        <button
+                            type="button"
+                            class="btn-eliminar"
+                            (click)="eliminarRegistroPatrimonio(registro.id)"
+                            [attr.aria-label]="'Eliminar ' + registro.nombre">
+                            ✕
+                        </button>
+                    </li>
+                }
+                @if (listaActivaPatrimonio.length === 0) {
+                    <li class="lista-vacia">Aún no has agregado ningún registro en esta categoría.</li>
+                }
+            </ul>
+
+            <p class="explicacion">Tu patrimonio neto es el número que de verdad importa: no cuánto dinero ves en una sola cuenta, sino cuánto te quedaría si pagaras todo lo que debes con todo lo que tienes.</p>
+        </section>
+    }
+
+    <app-curso-banner
+        texto="Con el interés compuesto ganas más que con el interés simple, ¿por qué?"
+        cursoId="intro-bolsa">
+    </app-curso-banner>
+</div>

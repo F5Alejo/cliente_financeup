@@ -140,7 +140,7 @@ td.negativo {
 
 .resumen-admin {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 14px;
     margin-bottom: 20px;
 }
@@ -177,6 +177,42 @@ td.negativo {
     border-radius: 10px;
     font-size: 13px;
     margin-bottom: 14px;
+}
+
+.filtros-riesgo {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 999px;
+    width: fit-content;
+    margin-bottom: 14px;
+}
+
+.filtros-riesgo button {
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.filtros-riesgo button.activo {
+    background: #0f766e;
+    color: white;
+}
+
+.th-ordenable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.th-ordenable:hover {
+    color: #0f766e;
 }
 
 .fila-vacia {

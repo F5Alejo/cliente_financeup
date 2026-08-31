@@ -15,8 +15,16 @@
             </span>
         </div>
         <div class="resumen-item">
-            <span class="resumen-label">Inversiones de alto riesgo</span>
-            <span class="resumen-valor">{{ inversionesAltoRiesgo }}</span>
+            <span class="resumen-label">Bajo riesgo</span>
+            <span class="resumen-valor">{{ formatearCOP(totalPorRiesgo('Bajo')) }}</span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Riesgo medio</span>
+            <span class="resumen-valor">{{ formatearCOP(totalPorRiesgo('Medio')) }}</span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Riesgo alto</span>
+            <span class="resumen-valor negativo">{{ formatearCOP(totalPorRiesgo('Alto')) }}</span>
         </div>
     </section>
 
@@ -28,14 +36,23 @@
         (ngModelChange)="actualizarBusqueda($event)"
         name="busqueda" />
 
+    <div class="filtros-riesgo" role="tablist" aria-label="Filtrar por riesgo">
+        @for (r of ['Todos', 'Bajo', 'Medio', 'Alto']; track r) {
+            <button type="button" role="tab" [class.activo]="riesgoFiltro() === r" (click)="filtrarPorRiesgo(r)">
+                {{ r }}
+            </button>
+        }
+    </div>
+
     <table>
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Monto</th>
-                <th>Rendimiento</th>
-                <th>Riesgo</th>
-                <th>Duración</th>
+                <th class="th-ordenable" (click)="ordenarPor('nombre')">Nombre {{ columnaOrden() === 'nombre' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                <th class="th-ordenable" (click)="ordenarPor('monto')">Monto {{ columnaOrden() === 'monto' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                <th class="th-ordenable" (click)="ordenarPor('rendimiento')">Rendimiento {{ columnaOrden() === 'rendimiento' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                <th>Rend. %</th>
+                <th class="th-ordenable" (click)="ordenarPor('riesgo')">Riesgo {{ columnaOrden() === 'riesgo' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                <th class="th-ordenable" (click)="ordenarPor('duracion')">Duración {{ columnaOrden() === 'duracion' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
                 <th></th>
             </tr>
         </thead>
@@ -47,6 +64,9 @@
                     <td [class.negativo]="inv.rendimiento < 0" [class.positivo]="inv.rendimiento >= 0">
                         {{ formatearCOP(inv.rendimiento) }}
                     </td>
+                    <td [class.negativo]="inv.rendimiento < 0" [class.positivo]="inv.rendimiento >= 0">
+                        {{ rendimientoPorcentaje(inv) }}%
+                    </td>
                     <td><span class="riesgo" [class]="'riesgo-' + inv.riesgo.toLowerCase()">{{ inv.riesgo }}</span></td>
                     <td>{{ inv.duracion }}</td>
                     <td class="acciones">
@@ -57,7 +77,7 @@
             }
             @if (inversionesFiltradas.length === 0) {
                 <tr>
-                    <td colspan="6" class="fila-vacia">No hay inversiones que coincidan con la búsqueda.</td>
+                    <td colspan="7" class="fila-vacia">No hay inversiones que coincidan con la búsqueda.</td>
                 </tr>
             }
         </tbody>

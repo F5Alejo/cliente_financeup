@@ -43,6 +43,16 @@
               Ver perfil
             </a>
 
+            @if (esAdmin) {
+              <a
+                routerLink="/admin"
+                class="perfil-item perfil-item-admin"
+                (click)="cerrarMenu()"
+              >
+                🛠️ Panel de administrador
+              </a>
+            }
+
             <button
               type="button"
               class="perfil-item perfil-item-boton"

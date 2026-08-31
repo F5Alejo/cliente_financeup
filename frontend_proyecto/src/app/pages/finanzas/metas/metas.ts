@@ -3,10 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { MetasService, Meta } from '../../../services/metas';
 import { ToastService } from '../../../shared/services/toast';
+import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
 
 @Component({
   selector: 'app-metas',
-  imports: [FormsModule, FinanzasMenuComponent],
+  imports: [FormsModule, FinanzasMenuComponent, CursoBannerComponent],
   templateUrl: './metas.html',
   styleUrl: './metas.css',
 })
@@ -17,7 +18,8 @@ export class MetasComponent {
   ) {}
 
   get metas(): Meta[] {
-    return this.metasService.metas;
+    const orden = this.ordenAscendente() ? 1 : -1;
+    return [...this.metasService.metas].sort((a, b) => (a.porcentaje - b.porcentaje) * orden);
   }
 
   get metasAlcanzadas(): number {
@@ -51,17 +53,45 @@ export class MetasComponent {
   }
 
   notaSecundaria(meta: Meta): string {
-    return meta.cumplida
-      ? '¡Felicidades!'
-      : `Faltan ${this.formatearCOP(meta.objetivo - meta.actual)}`;
+    if (meta.cumplida) return '¡Felicidades!';
+    const faltante = `Faltan ${this.formatearCOP(meta.objetivo - meta.actual)}`;
+    return meta.porcentaje >= 90 ? `¡Ya casi lo logras! ${faltante}` : faltante;
   }
 
   formatearCOP(valor: number): string {
     return `$${valor.toLocaleString('es-CO')}`;
   }
 
+  /** Ordena las metas por porcentaje de avance, para ver primero las que más lo necesitan */
+  ordenAscendente = signal(true);
+
   masOpciones(): void {
-    // Punto de extensión: menú de opciones (editar, eliminar, ordenar, etc.)
+    this.ordenAscendente.update((v) => !v);
+  }
+
+  /** ----- Abonar dinero a una meta existente ----- */
+  metaAbonando = signal<number | null>(null);
+  montoAbono: number | null = null;
+
+  abrirAbono(id: number): void {
+    this.metaAbonando.set(id);
+    this.montoAbono = null;
+  }
+
+  cancelarAbono(): void {
+    this.metaAbonando.set(null);
+    this.montoAbono = null;
+  }
+
+  confirmarAbono(meta: Meta): void {
+    if (!this.montoAbono || this.montoAbono <= 0) {
+      this.toastService.info('Ingresa un monto válido para abonar.');
+      return;
+    }
+
+    this.metasService.editarMeta(meta.id, { actual: meta.actual + this.montoAbono });
+    this.toastService.success(`Abonaste ${this.formatearCOP(this.montoAbono)} a "${meta.nombre}".`);
+    this.cancelarAbono();
   }
 
   /** ----- Formulario de nueva meta (funcional) ----- */
