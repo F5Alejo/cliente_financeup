@@ -1,5 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx'; // misma librería que usa el libro mayor del usuario, para exportar a .xlsx
 import { ToastService } from '../../../shared/services/toast';
 
 export interface FilaLibroAdmin {
@@ -80,14 +81,42 @@ export class AdminLibroMayorComponent {
   );
   usuariosActivos = computed(() => this.libros().length);
 
+  /** Descarga en .xlsx las filas del usuario que está seleccionado en el filtro. */
   exportarLibro(): void {
     const libro = this.libroSeleccionado();
     if (!libro) return;
-    // Punto de extensión: generar el archivo real (xlsx/csv) en vez de solo notificar.
+
+    const datos = libro.filas.map(f => ({
+      Fecha: f.fecha,
+      Concepto: f.concepto,
+      Categoria: f.categoria,
+      Ingreso: f.ingreso,
+      Egreso: f.egreso,
+    }));
+    const hoja = XLSX.utils.json_to_sheet(datos);
+    const archivo = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(archivo, hoja, 'Libro mayor');
+    XLSX.writeFile(archivo, `libro-mayor-${libro.nombreUsuario}.xlsx`);
     this.toastService.success(`Exportando el libro mayor de ${libro.nombreUsuario}…`);
   }
 
+  /** Descarga en .xlsx las filas de TODOS los usuarios juntas, con una
+   *  columna extra "Usuario" para saber de quién es cada movimiento. */
   exportarConsolidado(): void {
+    const datos = this.libros().flatMap(l =>
+      l.filas.map(f => ({
+        Usuario: l.nombreUsuario,
+        Fecha: f.fecha,
+        Concepto: f.concepto,
+        Categoria: f.categoria,
+        Ingreso: f.ingreso,
+        Egreso: f.egreso,
+      }))
+    );
+    const hoja = XLSX.utils.json_to_sheet(datos);
+    const archivo = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(archivo, hoja, 'Consolidado');
+    XLSX.writeFile(archivo, 'libro-mayor-consolidado.xlsx');
     this.toastService.success('Exportando el consolidado de todos los usuarios…');
   }
 
