@@ -10,6 +10,7 @@ interface CategoriaAyuda {
   articulos: number;
   temas: string[];
   ruta: string;
+  categoriaFaq: string;
 }
 
 interface CanalAtencion {
@@ -84,6 +85,7 @@ export class CentroAyudaConponent implements OnDestroy {
         'Activar doble factor',
       ],
       ruta: '/linea-ayuda',
+      categoriaFaq: 'Cuenta',
     },
     {
       icono: '↗',
@@ -96,6 +98,7 @@ export class CentroAyudaConponent implements OnDestroy {
         'Reportar un cobro duplicado',
       ],
       ruta: '/linea-ayuda',
+      categoriaFaq: 'PQR',
     },
     {
       icono: '▲',
@@ -108,6 +111,7 @@ export class CentroAyudaConponent implements OnDestroy {
         'Crear una meta de ahorro',
       ],
       ruta: '/linea-ayuda',
+      categoriaFaq: 'Educación',
     },
     {
       icono: '★',
@@ -119,7 +123,8 @@ export class CentroAyudaConponent implements OnDestroy {
         'Requisitos de una oferta',
         'Cómo mejorar mi tasa',
       ],
-      ruta: '/alianzas',
+      ruta: '/linea-ayuda',
+      categoriaFaq: 'Alianzas',
     },
   ];
 
@@ -203,7 +208,19 @@ export class CentroAyudaConponent implements OnDestroy {
   ];
 
   abrirCategoria(categoria: CategoriaAyuda): void {
-    this.router.navigate([categoria.ruta]);
+    this.router.navigate([categoria.ruta], {
+      queryParams: { categoria: categoria.categoriaFaq },
+    });
+  }
+
+  buscarPreguntasFrecuentes(): void {
+    const termino = this.busqueda().trim();
+
+    if (!termino) return;
+
+    this.router.navigate(['/linea-ayuda'], {
+      queryParams: { busqueda: termino },
+    });
   }
 
   estadoCanal(canal: CanalAtencion): 'En línea' | 'Fuera de horario' | 'Próximamente' {
