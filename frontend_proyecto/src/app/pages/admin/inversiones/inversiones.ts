@@ -15,7 +15,9 @@ import { ToastService } from '../../../shared/services/toast';
     constructor(
         public inversionesService: InversionesService,
         private toastService: ToastService
-    ) {}
+    ) {
+        console.log('Formulario Inversion:', this.formularioVacio());
+    }
 
     editandoId: number | null = null;
     busqueda = signal('');
