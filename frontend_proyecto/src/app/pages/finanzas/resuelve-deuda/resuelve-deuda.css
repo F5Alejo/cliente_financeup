@@ -6,6 +6,15 @@
 }
 
 .resuelve-deuda {
+    --sage: #24554C;
+    --sage-dark: #25312B;
+    --sage-tint: #E5EBEA;
+    --sage-tint-strong: #CAD6D4;
+    --black: #25312B;
+    --sand: #A3A7A9;
+    --floral-white: #E7E8E9;
+    --cloud: #C8CACB;
+
     padding: 28px 32px;
     max-width: 1100px;
     margin: 0 auto;
@@ -13,14 +22,14 @@
 
 .resuelve-deuda button:focus-visible,
 .resuelve-deuda input:focus-visible {
-    outline: 3px solid var(--green-primary);
+    outline: 3px solid var(--sage);
     outline-offset: 2px;
     border-radius: 8px;
 }
 
 /* HERO */
 .deuda-hero {
-    background: #f0fdfa;
+    background: var(--sage-tint);
     border-radius: 18px;
     padding: 26px 28px;
     margin-bottom: 22px;
@@ -28,12 +37,12 @@
 
 .deuda-hero h1 {
     font-size: 22px;
-    color: #0f172a;
+    color: var(--black);
     margin-bottom: 8px;
 }
 
 .deuda-hero p {
-    color: #475569;
+    color: rgba(0,0,0,.65);
     font-size: 13.5px;
     max-width: 560px;
     line-height: 1.5;
@@ -49,12 +58,12 @@
 .paso {
     flex: 1;
     min-width: 160px;
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--floral-white);
+    border: 1px solid var(--cloud);
     border-radius: 12px;
     padding: 12px 14px;
     font-size: 12.5px;
-    color: #334155;
+    color: rgba(0,0,0,.78);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -64,7 +73,7 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: var(--green-primary);
+    background: var(--sage);
     color: white;
     font-size: 11.5px;
     font-weight: 700;
@@ -76,8 +85,8 @@
 
 /* PANEL BASE (comparte convención con finanzas.css / metas.css) */
 .panel {
-    background: white;
-    border: 1px solid #eef2f6;
+    background: var(--floral-white);
+    border: 1px solid var(--cloud);
     border-radius: 18px;
     padding: 22px;
     margin-bottom: 20px;
@@ -85,7 +94,7 @@
 
 .panel h2 {
     font-size: 15px;
-    color: #0f172a;
+    color: var(--black);
     font-weight: 700;
     margin-bottom: 16px;
 }
@@ -113,12 +122,12 @@
 
 .campo label {
     font-size: 12px;
-    color: #475569;
+    color: rgba(0,0,0,.65);
     font-weight: 600;
 }
 
 .campo input {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--cloud);
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 13.5px;
@@ -126,11 +135,11 @@
 }
 
 .campo input:focus {
-    border-color: #0f766e;
+    border-color: var(--sage);
 }
 
 .btn-agregar {
-    background: #0f766e;
+    background: var(--sage);
     color: white;
     border: none;
     border-radius: 10px;
@@ -143,7 +152,7 @@
 }
 
 .btn-agregar:hover {
-    background: #0d9488;
+    background: var(--sage-dark);
 }
 
 /* LISTA DE DEUDAS */
@@ -159,26 +168,26 @@
     align-items: center;
     gap: 16px;
     padding: 12px 14px;
-    background: #f8fafc;
+    background: var(--floral-white);
     border-radius: 10px;
     font-size: 13px;
 }
 
 .deuda-entidad {
     font-weight: 600;
-    color: #0f172a;
+    color: var(--black);
     min-width: 110px;
 }
 
 .deuda-dato {
-    color: #475569;
+    color: rgba(0,0,0,.65);
 }
 
 .btn-eliminar {
     margin-left: auto;
     background: none;
     border: none;
-    color: #94a3b8;
+    color: rgba(0,0,0,.4);
     cursor: pointer;
     width: 26px;
     height: 26px;
@@ -192,7 +201,7 @@
 }
 
 .lista-vacia {
-    color: #94a3b8;
+    color: rgba(0,0,0,.4);
     text-align: center;
     background: transparent !important;
 }
@@ -212,22 +221,22 @@
     display: block;
     font-size: 26px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--black);
     margin: 4px 0;
 }
 
 .comparacion-cifra small {
     font-size: 13px;
     font-weight: 500;
-    color: #94a3b8;
+    color: rgba(0,0,0,.4);
 }
 
 .comparacion-card.actual .comparacion-cifra { color: #dc2626; }
-.comparacion-card.propuesta .comparacion-cifra { color: var(--green-primary); }
+.comparacion-card.propuesta .comparacion-cifra { color: var(--sage); }
 
 .comparacion-detalle {
     font-size: 12px;
-    color: #64748b;
+    color: rgba(0,0,0,.55);
 }
 
 /* AHORRO / CTA */
@@ -242,7 +251,7 @@
 .resumen-label {
     display: block;
     font-size: 12px;
-    color: #64748b;
+    color: rgba(0,0,0,.55);
     font-weight: 600;
 }
 
@@ -253,11 +262,11 @@
     margin-top: 2px;
 }
 
-.resumen-valor.positivo { color: var(--green-primary); }
+.resumen-valor.positivo { color: var(--sage); }
 .resumen-valor.negativo { color: #dc2626; }
 
 .btn-primario {
-    background: var(--green-primary);
+    background: var(--sage);
     color: white;
     border: none;
     border-radius: 10px;
@@ -269,12 +278,29 @@
 }
 
 .btn-primario:hover {
-    background: var(--green-dark);
+    background: var(--sage-dark);
 }
+
+.btn-primario:disabled {
+    background: var(--cloud);
+    cursor: not-allowed;
+}
+
+/* ESTADO DE LA SOLICITUD DEL USUARIO */
+.estado-solicitud {
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    margin-bottom: 20px;
+}
+
+.estado-solicitud.estado-pendiente { background: #fef9c3; color: #92702a; }
+.estado-solicitud.estado-aprobada { background: var(--sage-tint-strong); color: var(--sage); }
+.estado-solicitud.estado-rechazada { background: #fee2e2; color: #dc2626; }
 
 .nota-legal {
     font-size: 11px;
-    color: #94a3b8;
+    color: rgba(0,0,0,.4);
     line-height: 1.5;
 }
 

@@ -1,0 +1,358 @@
+<!--
+  LIBRO MAYOR
+  -----------
+  Esta pantalla le permite al usuario llevar el registro de sus movimientos
+  (ingresos y gastos). Todo lo que se ve aquí lee y llama métodos/propiedades
+  que están definidos en "libro-mayor.ts" (el "cerebro" del componente).
+
+  Estructura de la página:
+    1) Encabezado con botones de acción (nuevo, importar, exportar)
+    2) Mensaje de éxito/error (toast)
+    3) Tarjetas de resumen (ingresos, gastos, ahorro, % ahorro)
+    4) Filtros (buscar, categoría, tipo, rango de fechas)
+    5) Tabla de movimientos (ordenable) + confirmación de borrado
+    6) Modal para agregar/editar un movimiento
+    7) Modal para importar un Excel (3 pasos)
+-->
+<app-finanzas-menu></app-finanzas-menu>
+
+<div class="libro-mayor">
+
+  <!-- 1) ENCABEZADO -->
+  <header class="libro-header">
+    <div>
+      <h1>Libro mayor</h1>
+      <p class="subtitulo">Registra y controla tus ingresos y gastos.</p>
+    </div>
+    <div class="header-acciones">
+      <a routerLink="/resuelve-deuda" class="btn-secundario">💳 Ver mis deudas</a>
+      <button type="button" class="btn-secundario" (click)="abrirImportador()">⇪ Importar Excel</button>
+      <button type="button" class="btn-secundario" (click)="exportar()">⇩ Exportar</button>
+      <button type="button" class="btn-primario" (click)="abrirFormularioNuevo()">+ Nuevo movimiento</button>
+    </div>
+  </header>
+
+  <!-- 2) TOAST DE MENSAJE: aparece solo si mensaje() tiene un valor -->
+  @if (mensaje(); as m) {
+    <div class="toast" [class.exito]="m.tipo === 'exito'" [class.error]="m.tipo === 'error'" role="status">
+      {{ m.texto }}
+    </div>
+  }
+
+  <!-- 3) TARJETAS DE RESUMEN: se recalculan solas cuando cambian los filtros -->
+  <section class="cards-resumen">
+    <div class="card-resumen">
+      <span class="card-titulo">Total ingresos</span>
+      <span class="card-valor positivo">{{ formatearCOP(totalIngresos) }}</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Total gastos</span>
+      <span class="card-valor negativo">{{ formatearCOP(totalGastos) }}</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Ahorro</span>
+      <span class="card-valor" [class.positivo]="ahorro >= 0" [class.negativo]="ahorro < 0">
+        {{ ahorro >= 0 ? '' : '-' }}{{ formatearCOP(ahorro) }}
+      </span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">% de ahorro</span>
+      <span class="card-valor" [class.positivo]="porcentajeAhorro >= 0" [class.negativo]="porcentajeAhorro < 0">
+        {{ porcentajeAhorro }}%
+      </span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Gastos hormiga</span>
+      <span class="card-valor negativo">{{ formatearCOP(gastosHormiga) }}</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Ahorros registrados</span>
+      <span class="card-valor positivo">{{ formatearCOP(totalAhorros) }}</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">% de ingresos gastados</span>
+      <span class="card-valor">{{ porcentajeGastado }}%</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Capacidad de ahorro</span>
+      <span class="card-valor">{{ formatearCOP(capacidadAhorro) }}</span>
+    </div>
+    <div class="card-resumen">
+      <span class="card-titulo">Proyección de ahorro (anual)</span>
+      <span class="card-valor" [class.positivo]="proyeccionAhorroAnual >= 0" [class.negativo]="proyeccionAhorroAnual < 0">
+        {{ formatearCOP(proyeccionAhorroAnual) }}
+      </span>
+    </div>
+  </section>
+
+  <!-- 4) FILTROS: cada campo está enlazado (ngModel) a un signal en el .ts -->
+  <section class="panel filtros-panel">
+    <div class="campo">
+      <label for="filtro-texto" class="sr-only">Buscar por concepto</label>
+      <input
+        id="filtro-texto"
+        type="text"
+        placeholder="Buscar por concepto…"
+        [ngModel]="textoBusqueda()"
+        (ngModelChange)="textoBusqueda.set($event)" />
+    </div>
+
+    <div class="campo">
+      <label for="filtro-categoria" class="sr-only">Categoría</label>
+      <select id="filtro-categoria" [ngModel]="categoriaFiltro()" (ngModelChange)="categoriaFiltro.set($event)">
+        <option value="Todas">Todas las categorías</option>
+        @for (c of categoriasDisponibles; track c) {
+          <option [value]="c">{{ c }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="campo">
+      <label for="filtro-tipo" class="sr-only">Tipo</label>
+      <select id="filtro-tipo" [ngModel]="tipoFiltro()" (ngModelChange)="tipoFiltro.set($event)">
+        <option value="todos">Ingresos y gastos</option>
+        <option value="ingreso">Solo ingresos</option>
+        <option value="gasto">Solo gastos</option>
+      </select>
+    </div>
+
+    <div class="campo">
+      <label for="filtro-desde" class="sr-only">Desde</label>
+      <input id="filtro-desde" type="date" [ngModel]="fechaDesde()" (ngModelChange)="fechaDesde.set($event)" />
+    </div>
+
+    <div class="campo">
+      <label for="filtro-hasta" class="sr-only">Hasta</label>
+      <input id="filtro-hasta" type="date" [ngModel]="fechaHasta()" (ngModelChange)="fechaHasta.set($event)" />
+    </div>
+
+    <button type="button" class="link-boton" (click)="limpiarFiltros()">Limpiar filtros</button>
+  </section>
+
+  <!-- Aviso de confirmación antes de borrar un movimiento -->
+  @if (idAEliminar() !== null) {
+    <section class="panel confirmacion-eliminar">
+      <span>¿Seguro que quieres eliminar este movimiento? Esta acción no se puede deshacer.</span>
+      <div class="confirmacion-botones">
+        <button type="button" class="btn-secundario" (click)="cancelarEliminar()">Cancelar</button>
+        <button type="button" class="btn-eliminar-confirmar" (click)="confirmarEliminar()">Sí, eliminar</button>
+      </div>
+    </section>
+  }
+
+  <!-- 5) TABLA DE MOVIMIENTOS -->
+  <section class="panel">
+    @if (movimientosFiltrados.length === 0) {
+      <div class="estado-vacio">
+        <p>No hay movimientos que coincidan con los filtros.</p>
+        <p class="estado-vacio-ayuda">Prueba a limpiar los filtros o agrega un nuevo movimiento.</p>
+      </div>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th class="ordenable" (click)="ordenarPor('fecha')">
+              Fecha {{ columnaOrden() === 'fecha' ? (direccionOrden() === 'asc' ? '↑' : '↓') : '' }}
+            </th>
+            <th class="ordenable" (click)="ordenarPor('concepto')">
+              Concepto {{ columnaOrden() === 'concepto' ? (direccionOrden() === 'asc' ? '↑' : '↓') : '' }}
+            </th>
+            <th class="ordenable" (click)="ordenarPor('categoria')">
+              Categoría {{ columnaOrden() === 'categoria' ? (direccionOrden() === 'asc' ? '↑' : '↓') : '' }}
+            </th>
+            <th class="ordenable" (click)="ordenarPor('tipo')">
+              Tipo {{ columnaOrden() === 'tipo' ? (direccionOrden() === 'asc' ? '↑' : '↓') : '' }}
+            </th>
+            <th class="ordenable" (click)="ordenarPor('valor')">
+              Valor {{ columnaOrden() === 'valor' ? (direccionOrden() === 'asc' ? '↑' : '↓') : '' }}
+            </th>
+            <th>Método</th>
+            <th>Obs.</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of movimientosFiltrados; track m.id) {
+            <tr>
+              <td>{{ m.fecha }}</td>
+              <td>{{ m.concepto }}</td>
+              <td><span class="badge-categoria">{{ m.categoria }}</span></td>
+              <td><span class="badge-tipo" [class.ingreso]="m.tipo === 'ingreso'" [class.gasto]="m.tipo === 'gasto'">{{ m.tipo }}</span></td>
+              <td [class.positivo]="m.tipo === 'ingreso'" [class.negativo]="m.tipo === 'gasto'">
+                {{ m.tipo === 'ingreso' ? '+' : '-' }}{{ formatearCOP(m.valor) }}
+              </td>
+              <td>{{ m.metodoPago || '—' }}</td>
+              <td [attr.title]="m.observaciones || ''">{{ m.observaciones || '—' }}</td>
+              <td>
+                <div class="acciones-fila">
+                  <button type="button" class="btn-icono-fila" (click)="abrirFormularioEditar(m)" aria-label="Editar movimiento">✎</button>
+                  <button type="button" class="btn-icono-fila btn-eliminar" (click)="pedirConfirmacionEliminar(m.id)" aria-label="Eliminar movimiento">✕</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+
+  <!-- 6) MODAL: AGREGAR / EDITAR MOVIMIENTO -->
+  @if (mostrarFormulario()) {
+    <div class="overlay-importador" (click)="cerrarFormulario()">
+      <div class="modal-importador" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ modoEdicion() ? 'Editar movimiento' : 'Nuevo movimiento' }}</h2>
+          <button type="button" class="btn-cerrar" (click)="cerrarFormulario()" aria-label="Cerrar">✕</button>
+        </div>
+
+        <div class="modal-cuerpo">
+          <form class="form-grid" (ngSubmit)="guardarMovimiento()">
+            <div class="campo">
+              <label for="form-fecha">Fecha</label>
+              <input id="form-fecha" type="date" [(ngModel)]="formFecha" name="formFecha" required />
+            </div>
+
+            <div class="campo campo-ancho">
+              <label for="form-concepto">Concepto</label>
+              <input id="form-concepto" type="text" placeholder="Ej: Arriendo, Salario…" [(ngModel)]="formConcepto" name="formConcepto" required />
+            </div>
+
+            <div class="campo">
+              <label for="form-categoria">Categoría</label>
+              <select id="form-categoria" [(ngModel)]="formCategoria" name="formCategoria">
+                @for (c of categoriasDisponibles; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="form-tipo">Tipo</label>
+              <select id="form-tipo" [(ngModel)]="formTipo" name="formTipo">
+                <option value="ingreso">Ingreso</option>
+                <option value="gasto">Gasto</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="form-valor">Valor</label>
+              <input id="form-valor" type="number" min="1" placeholder="0" [(ngModel)]="formValor" name="formValor" required />
+            </div>
+
+            <div class="campo">
+              <label for="form-metodo">Método de pago</label>
+              <select id="form-metodo" [(ngModel)]="formMetodoPago" name="formMetodoPago">
+                @for (mp of metodosPago; track mp) {
+                  <option [value]="mp">{{ mp }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="campo campo-ancho">
+              <label for="form-observaciones">Observaciones (opcional)</label>
+              <input id="form-observaciones" type="text" placeholder="Notas adicionales…" [(ngModel)]="formObservaciones" name="formObservaciones" />
+            </div>
+          </form>
+
+          <div class="resultado-acciones">
+            <button type="button" class="btn-secundario" (click)="cerrarFormulario()">Cancelar</button>
+            <button type="button" class="btn-primario" (click)="guardarMovimiento()">
+              {{ modoEdicion() ? 'Guardar cambios' : 'Agregar movimiento' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 7) MODAL: IMPORTAR EXCEL (flujo de 3 pasos) -->
+  @if (mostrarImportador()) {
+    <div class="overlay-importador" (click)="cerrarImportador()">
+      <div class="modal-importador" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Importar Movimientos</h2>
+          <button type="button" class="btn-cerrar" (click)="cerrarImportador()" aria-label="Cerrar">✕</button>
+        </div>
+
+        <div class="banner banner-alerta">
+          Lea las instrucciones para evitar errores de importación, en caso de ser necesario active los
+          <button type="button" class="link-en-banner" (click)="alternarCamposOpcionales()">DETALLES DEL FORMATO</button>
+        </div>
+
+        <div class="banner banner-info">
+          No cambies el orden de las columnas ni el título de las secciones (INGRESOS, GASTOS MENSUALES - FIJOS, GASTOS DIARIOS - HORMIGA). Solo escribe tus datos debajo de "CONCEPTO" y "VALOR", empezando en la fila 8 de cada sección.
+        </div>
+
+        @if (mostrarCamposOpcionales()) {
+          <div class="campos-opcionales-panel">
+            <strong>Cómo se interpreta cada sección:</strong>
+            <p>La plantilla no tiene columna de fecha: cada movimiento importado se guarda con la fecha de hoy. La categoría se asigna sola según la sección: "Otros ingresos" para Ingresos, "Otros" para Gastos fijos y "Gastos hormiga" para Gastos hormiga. Si necesitas otra fecha o categoría, puedes editarlas después desde la tabla con el botón ✎.</p>
+          </div>
+        }
+
+        <div class="pasos-importacion">
+          <div class="paso-columna">
+            <h3>1. Llena la plantilla en Excel</h3>
+            <p>
+              Escribe el <strong>concepto</strong> y el <strong>valor</strong> de cada movimiento debajo de los encabezados de cada sección, empezando en la fila 8. No borres ni muevas la fila "TOTAL": el sistema la usa para saber dónde terminan tus datos.
+            </p>
+          </div>
+
+          <div class="paso-columna paso-centro">
+            <h3>2. Descargar Excel</h3>
+            <a href="plantilla-control-finanzas.xlsx" download class="btn-descargar-plantilla">
+              ⭳ Descargar plantilla
+            </a>
+          </div>
+
+          <div class="paso-columna">
+            <h3>3. Importar Excel</h3>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              (change)="onArchivoSeleccionado($event)"
+              aria-label="Seleccionar archivo Excel" />
+            <button type="button" class="btn-primario btn-validar" (click)="validarImportacion()">
+              Validar Importación
+            </button>
+          </div>
+        </div>
+
+        @if (resultadoImportacion(); as resultado) {
+          <div class="resultado-importacion">
+            <p class="resultado-resumen">
+              <span class="ok">{{ resultado.validos.length }} registro(s) válidos</span>
+              @if (resultado.errores.length > 0) {
+                <span class="fallo"> · {{ resultado.errores.length }} con errores</span>
+              }
+            </p>
+
+            @if (resultado.errores.length > 0) {
+              <ul class="lista-errores">
+                @for (err of resultado.errores; track err.fila) {
+                  <li>Fila {{ err.fila }}: {{ err.motivo }}</li>
+                }
+              </ul>
+            }
+
+            <div class="resultado-acciones">
+              <button type="button" class="btn-secundario" (click)="cerrarImportador()">Cancelar</button>
+              <button
+                type="button"
+                class="btn-primario"
+                [disabled]="resultado.validos.length === 0"
+                (click)="confirmarImportacion()">
+                Confirmar e importar {{ resultado.validos.length }} movimiento(s)
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <app-curso-banner
+    texto="¿Sabes cuánto te cuesta pagar solo la cuota mínima de tu tarjeta?"
+    cursoId="tarjetas-responsable">
+  </app-curso-banner>
+</div>

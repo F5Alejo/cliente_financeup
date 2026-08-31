@@ -1,7 +1,7 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Curso, EscuelaCursos, OpcionFiltro } from './educacion.model';
 import { EducacionService } from '../../../services/educacion';
 
@@ -12,11 +12,20 @@ import { EducacionService } from '../../../services/educacion';
   templateUrl: './educacion.html',
   styleUrls: ['./educacion.css'],
 })
-export class EducacionComponent {
+export class EducacionComponent implements OnInit {
   constructor(
     private educacionService: EducacionService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
+
+  /** Si se llega con ?escuela=... (ej. desde la campana de Finanzas), se preselecciona ese filtro */
+  ngOnInit(): void {
+    const escuela = this.route.snapshot.queryParamMap.get('escuela');
+    if (escuela) {
+      this.escuelaActiva.set(escuela);
+    }
+  }
 
   // ---------------------------------------------------------------------
   // FILTROS
