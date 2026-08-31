@@ -405,26 +405,77 @@
   display: flex;
   align-items: center;
 
-  background:
-    radial-gradient(circle at 85% 6%, rgba(255,255,255,0.5), transparent 32%),
-    linear-gradient(155deg, var(--panel-1) 0%, var(--panel-2) 45%, var(--panel-3) 100%);
+  background: linear-gradient(155deg, var(--panel-1) 0%, var(--panel-2) 45%, var(--panel-3) 100%);
 }
 
-.showcase-glow {
+/* Textura de puntos, muy sutil, para dar profundidad */
+.showcase-grid {
   position: absolute;
-  width: 320px;
-  height: 320px;
-  border-radius: 50%;
-  right: -120px;
-  top: -140px;
+  inset: 0;
+  z-index: 1;
 
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent 70%);
-  animation: glowPulse 7s ease-in-out infinite;
+  background-image: radial-gradient(rgba(18, 53, 27, 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+
+  mask-image: radial-gradient(circle at 70% 35%, black 0%, transparent 72%);
+  -webkit-mask-image: radial-gradient(circle at 70% 35%, black 0%, transparent 72%);
 }
 
-@keyframes glowPulse {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.12); opacity: 0.6; }
+/* Manchas de luz animadas ("aurora") */
+.showcase-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: 0.55;
+}
+
+.aurora-blob-1 {
+  width: 300px;
+  height: 300px;
+  top: -110px;
+  right: -80px;
+  background: radial-gradient(circle, rgba(255,255,255,0.65), transparent 70%);
+  animation: auroraDrift1 12s ease-in-out infinite;
+}
+
+.aurora-blob-2 {
+  width: 260px;
+  height: 260px;
+  bottom: -100px;
+  left: -70px;
+  background: radial-gradient(circle, rgba(123, 226, 160, 0.55), transparent 70%);
+  animation: auroraDrift2 15s ease-in-out infinite;
+}
+
+.aurora-blob-3 {
+  width: 200px;
+  height: 200px;
+  top: 40%;
+  left: 55%;
+  background: radial-gradient(circle, rgba(18, 53, 36, 0.18), transparent 70%);
+  animation: auroraDrift3 10s ease-in-out infinite;
+}
+
+@keyframes auroraDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 30px) scale(1.15); }
+}
+
+@keyframes auroraDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(25px, -20px) scale(1.1); }
+}
+
+@keyframes auroraDrift3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  50% { transform: translate(-20px, -25px) scale(1.25); opacity: 0.7; }
 }
 
 .showcase-inner {
@@ -433,16 +484,53 @@
   width: 100%;
 }
 
+.showcase-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--panel-ink);
+
+  padding: 6px 13px 6px 10px;
+  border-radius: 999px;
+
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.8);
+  backdrop-filter: blur(6px);
+
+  margin-bottom: 16px;
+
+  animation: showcaseUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+}
+
+.kicker-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--moss);
+  animation: livePulse 1.8s ease-in-out infinite;
+}
+
 .showcase-title {
   font-family: 'Manrope', var(--font-family-base), sans-serif;
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 800;
-  line-height: 1.18;
-  letter-spacing: -0.5px;
+  line-height: 1.16;
+  letter-spacing: -0.6px;
   color: var(--panel-ink);
   margin: 0 0 10px;
 
   animation: showcaseUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.showcase-title-accent {
+  background: linear-gradient(100deg, var(--forest) 15%, var(--moss) 55%, #3fae66 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .showcase-subtitle {
@@ -450,7 +538,7 @@
   line-height: 1.55;
   color: var(--panel-ink-soft);
   max-width: 380px;
-  margin: 0 0 26px;
+  margin: 0 0 30px;
 
   animation: showcaseUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both;
 }
@@ -461,15 +549,150 @@
 }
 
 /* =========================================================
+   CLUSTER — tarjetas flotantes alrededor del demo
+   ========================================================= */
+
+.demo-cluster {
+  position: relative;
+  width: 100%;
+  padding: 34px 10px 6px 0;
+}
+
+.demo-stat-card {
+  position: absolute;
+  top: -6px;
+  left: 4px;
+  z-index: 4;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 14px;
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.68);
+  border: 1px solid rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 28px rgba(18, 53, 27, 0.16);
+
+  animation:
+    showcaseUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both,
+    cardFloat 5s ease-in-out 1.3s infinite;
+}
+
+.demo-avatars { display: flex; }
+
+.demo-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  margin-left: -7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-avatar:first-child { margin-left: 0; }
+
+.demo-avatar-1 { background: linear-gradient(135deg, #f6c453, #e79a2b); }
+.demo-avatar-2 { background: linear-gradient(135deg, #6fb8ff, #3c86e0); }
+.demo-avatar-3 { background: linear-gradient(135deg, #ff9a8b, #ee5f7b); }
+
+.demo-avatar-more {
+  background: var(--forest);
+  color: var(--white);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.demo-stat-body strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--panel-ink);
+  letter-spacing: 0.02em;
+}
+
+.demo-stat-body small {
+  display: block;
+  font-size: 10.5px;
+  color: var(--panel-ink-soft);
+}
+
+.demo-badge {
+  position: absolute;
+  left: 18px;
+  bottom: 0;
+  z-index: 4;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--panel-ink);
+
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 24px rgba(18, 53, 27, 0.14);
+
+  animation:
+    showcaseUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.85s both,
+    cardFloat 5.5s ease-in-out 2s infinite;
+}
+
+.demo-badge-icon { font-size: 12px; }
+
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* =========================================================
    "VIDEO" PROMOCIONAL — escenario con navegador + teléfono flotante
    ========================================================= */
 
 .demo-stage {
   position: relative;
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
+  margin: 0 0 0 auto;
 
-  animation: showcaseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both;
+  animation:
+    showcaseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both,
+    stageSway 8s ease-in-out 1.2s infinite;
+}
+
+@keyframes stageSway {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(0.4deg); }
+}
+
+/* Pausa toda la animación del demo al pasar el mouse, para que el
+   usuario pueda "congelar" el video y mirarlo con calma */
+.demo-stage:hover,
+.demo-stage:hover * {
+  animation-play-state: paused !important;
+}
+
+/* Sombra elíptica difuminada debajo del frame, simula que "flota" */
+.demo-stage::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -22px;
+  height: 30px;
+  background: radial-gradient(ellipse, rgba(11, 36, 24, 0.35), transparent 70%);
+  filter: blur(10px);
+  z-index: -1;
 }
 
 .demo-frame {
@@ -483,9 +706,10 @@
   border: 1px solid rgba(255,255,255,0.16);
   box-shadow:
     0 30px 60px rgba(0,0,0,0.32),
-    0 8px 20px rgba(0,0,0,0.18);
+    0 8px 20px rgba(0,0,0,0.18),
+    0 0 70px -10px rgba(123, 226, 160, 0.35);
 
-  transform: perspective(900px) rotateX(1.5deg);
+  transform: perspective(900px) rotateX(1.5deg) rotateY(-1.5deg);
 }
 
 .demo-chrome {
@@ -522,6 +746,20 @@
   background: rgba(255,255,255,0.06);
   border-radius: 999px;
   padding: 4px 10px;
+
+  /* Efecto typewriter: el texto "se escribe" al inicio de cada ciclo */
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block;
+  max-width: 120px;
+  animation: urlType 10.5s steps(20, end) infinite;
+}
+
+@keyframes urlType {
+  0%   { max-width: 0; }
+  6%   { max-width: 120px; }
+  95%  { max-width: 120px; }
+  100% { max-width: 0; }
 }
 
 .demo-live {
@@ -549,6 +787,36 @@
   50% { opacity: 0.3; }
 }
 
+/* Indicadores de escena (dots tipo Stories) */
+
+.demo-dots {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 3;
+  display: flex;
+  gap: 5px;
+}
+
+.demo-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.28);
+  transition: background 0.3s ease;
+}
+
+.demo-dot-1 { animation: dotLight 10.5s ease-in-out 0s infinite; }
+.demo-dot-2 { animation: dotLight 10.5s ease-in-out -3.5s infinite; }
+.demo-dot-3 { animation: dotLight 10.5s ease-in-out -7s infinite; }
+
+@keyframes dotLight {
+  0%   { background: var(--mint); width: 14px; border-radius: 3px; }
+  28%  { background: var(--mint); width: 14px; border-radius: 3px; }
+  33%  { background: rgba(255,255,255,0.28); width: 5px; border-radius: 50%; }
+  100% { background: rgba(255,255,255,0.28); width: 5px; border-radius: 50%; }
+}
+
 .demo-screen {
   position: relative;
   height: 216px;
@@ -564,7 +832,7 @@
   animation: sceneCycle 10.5s ease-in-out infinite;
 }
 
-.demo-scene-1 { animation-delay: 0s; }
+.demo-scene-1 { animation-delay: 0s; position: relative; }
 .demo-scene-2 { animation-delay: -7s; }
 .demo-scene-3 { animation-delay: -3.5s; }
 
@@ -631,7 +899,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.demo-chart { width: 100%; height: 92px; }
+.demo-chart { position: relative; width: 100%; height: 92px; }
 
 .demo-chart svg { width: 100%; height: 100%; overflow: visible; }
 
@@ -671,7 +939,45 @@
   50% { r: 5.5; }
 }
 
-/* Brillo tipo cristal que recorre el marco */
+/* Tooltip que ancla el porcentaje al punto final del gráfico */
+
+.chart-tooltip {
+  position: absolute;
+  right: 4px;
+  top: 6px;
+  z-index: 3;
+
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--forest-deep);
+  background: var(--mint);
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+
+  opacity: 0;
+  transform: translateY(4px) scale(0.9);
+  animation: tooltipPop 0.4s ease 1.5s both;
+}
+
+.chart-tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  right: 14px;
+  width: 8px;
+  height: 8px;
+  background: var(--mint);
+  transform: rotate(45deg);
+}
+
+@keyframes tooltipPop {
+  from { opacity: 0; transform: translateY(4px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Brillo tipo cristal que recorre el marco, sincronizado con los cortes de escena */
 
 .demo-glare {
   position: absolute;
@@ -691,12 +997,13 @@
   transform: rotate(12deg);
   pointer-events: none;
 
-  animation: glareSweep 6s ease-in-out infinite;
+  animation: glareSweep 10.5s ease-in-out infinite;
 }
 
 @keyframes glareSweep {
-  0%, 55%, 100% { left: -30%; }
-  30% { left: 120%; }
+  0%, 28%   { left: -30%; opacity: 0; }
+  32%       { left: 40%;  opacity: 1; }
+  36%, 100% { left: 120%; opacity: 0; }
 }
 
 .demo-txn {
@@ -956,27 +1263,39 @@
   .login-row,
   .showcase-title,
   .showcase-subtitle,
+  .showcase-kicker,
+  .kicker-dot,
+  .aurora-blob,
+  .demo-stat-card,
+  .demo-badge,
   .demo-stage,
   .demo-frame,
   .demo-phone,
   .demo-glare,
   .demo-cursor,
   .demo-captions,
-  .showcase-glow,
   .demo-live-dot,
   .demo-scene,
   .chart-line,
   .chart-area,
   .chart-dot,
+  .chart-tooltip,
   .demo-txn,
   .ring-progress,
   .demo-progress,
-  .demo-total-figure .tick {
+  .demo-total-figure .tick,
+  .demo-dot,
+  .demo-dot-1,
+  .demo-dot-2,
+  .demo-dot-3,
+  .demo-url {
     animation: none !important;
   }
 
   .demo-frame { transform: none; }
   .chart-line { stroke-dashoffset: 0; }
+  .chart-tooltip { opacity: 1; transform: none; }
+  .demo-url { max-width: none; }
   .demo-scene { opacity: 1; position: relative; display: none; }
   .demo-scene-1 { display: block; }
 }
@@ -1017,12 +1336,23 @@
   .login-showcase { order: 1; }
   .login-card { order: 2; }
 
-  .demo-stage { max-width: 100%; }
+  .demo-stage { max-width: 100%; margin: 0; }
   .demo-phone { width: 108px; right: -10px; bottom: -18px; }
+  .demo-cluster { padding-top: 44px; }
+  .demo-stat-card { font-size: 11px; padding: 8px 12px; }
+  .demo-badge { font-size: 10px; padding: 7px 12px; left: 6px; }
 
   .form-row { flex-direction: column; align-items: flex-start; gap: 8px; }
 
   .social-buttons { gap: 8px; }
+
+  /* Reduce el costo de backdrop-filter en móviles gama baja */
+  .demo-stat-card,
+  .demo-badge,
+  .showcase-kicker {
+    backdrop-filter: none;
+    background: rgba(255,255,255,0.85);
+  }
 }
 
 @media (max-width: 420px) {
