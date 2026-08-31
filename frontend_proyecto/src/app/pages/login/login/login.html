@@ -2,8 +2,8 @@
   <div class="login-content">
     <div class="login-row">
 
+      <!-- ============== TARJETA DE ACCESO ============== -->
       <div class="login-card">
-        <div class="brand-mark"><span class="brand-dot"></span>FinanceUp</div>
 
         <!-- ETAPA 1: correo y contraseña -->
         @if (stage === 'credenciales') {
@@ -67,6 +67,7 @@
                 <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
               </svg>
             </button>
+
           </div>
         }
 
@@ -95,71 +96,319 @@
         }
       </div>
 
+      <!-- ============== PANEL PROMOCIONAL ============== -->
+
       <div class="login-showcase">
-        <div class="showcase-glow"></div>
+
+        <div class="showcase-aurora">
+          <span class="aurora-blob aurora-blob-1"></span>
+          <span class="aurora-blob aurora-blob-2"></span>
+          <span class="aurora-blob aurora-blob-3"></span>
+        </div>
+
+        <div class="showcase-grid"></div>
+
         <div class="showcase-inner">
-          <h2 class="showcase-title">Todo tu dinero,<br>en una sola vista.</h2>
-          <p class="showcase-subtitle">Ingresos, gastos y metas de ahorro, actualizados en tiempo real.</p>
 
-          <div class="demo-frame">
-            <div class="demo-chrome">
-              <span class="demo-chrome-dots"><i></i><i></i><i></i></span>
-              <span class="demo-live"><i class="demo-live-dot"></i>DEMO</span>
-              <span class="demo-time">00:07</span>
+          <span class="showcase-kicker">
+            <i class="kicker-dot"></i>
+            Panel financiero en vivo
+          </span>
+
+          <h2 class="showcase-title">
+            Todo tu dinero,<br>
+            <span class="showcase-title-accent">
+              en una sola vista.
+            </span>
+          </h2>
+
+          <p class="showcase-subtitle">
+            Ingresos, gastos y metas de ahorro, actualizados en tiempo real.
+          </p>
+
+          <!-- Cluster de tarjetas flotantes -->
+          <div class="demo-cluster">
+
+            <!-- Tarjeta de confianza social -->
+            <div class="demo-stat-card">
+
+              <div class="demo-avatars">
+                <span class="demo-avatar demo-avatar-1"></span>
+                <span class="demo-avatar demo-avatar-2"></span>
+                <span class="demo-avatar demo-avatar-3"></span>
+                <span class="demo-avatar demo-avatar-more">+9k</span>
+              </div>
+
+              <div class="demo-stat-body">
+                <strong>★★★★★ 4.9</strong>
+                <small>+12.400 usuarios activos</small>
+              </div>
+
             </div>
 
-            <div class="demo-screen">
-              <div class="demo-scene demo-scene-1">
-                <span class="demo-scene-label">Resumen del mes</span>
-                <div class="demo-total">
-                  <span class="demo-total-figure"><span class="tick">$</span><span class="tick">2</span><span class="tick">.</span><span class="tick">4</span><span class="tick">3</span><span class="tick">1</span><span class="tick">.</span><span class="tick">0</span><span class="tick">0</span><span class="tick">0</span></span>
+            <!-- "Video" promocional animado -->
+            <div class="demo-stage" aria-hidden="true">
+
+              <div class="demo-frame">
+
+                <div class="demo-chrome">
+
+                  <span class="demo-chrome-dots">
+                    <i class="dot-red"></i>
+                    <i class="dot-yellow"></i>
+                    <i class="dot-green"></i>
+                  </span>
+
+                  <span class="demo-url">
+                    app.financeup.co
+                  </span>
+
+                  <span class="demo-live">
+                    <i class="demo-live-dot"></i>
+                    DEMO
+                  </span>
+
                 </div>
-                <div class="demo-bars">
-                  <span class="demo-bar" style="--h:38%"></span>
-                  <span class="demo-bar" style="--h:62%"></span>
-                  <span class="demo-bar" style="--h:45%"></span>
-                  <span class="demo-bar" style="--h:80%"></span>
-                  <span class="demo-bar" style="--h:56%"></span>
-                  <span class="demo-bar" style="--h:70%"></span>
+
+                <!-- Indicadores de escena tipo Stories -->
+                <div class="demo-dots" aria-hidden="true">
+                  <span class="demo-dot demo-dot-1"></span>
+                  <span class="demo-dot demo-dot-2"></span>
+                  <span class="demo-dot demo-dot-3"></span>
                 </div>
+
+                <div class="demo-screen">
+
+                  <!-- Escena 1: gráfico en vivo -->
+                  <div class="demo-scene demo-scene-1">
+
+                    <div class="demo-scene-top">
+
+                      <span class="demo-scene-label">
+                        Balance total
+                      </span>
+
+                      <span class="demo-scene-pill">
+                        ▲ 18%
+                      </span>
+
+                    </div>
+
+                    <div class="demo-total-figure">
+                      <span class="tick">$</span>
+                      <span class="tick">2</span>
+                      <span class="tick">.</span>
+                      <span class="tick">4</span>
+                      <span class="tick">3</span>
+                      <span class="tick">1</span>
+                      <span class="tick">.</span>
+                      <span class="tick">0</span>
+                      <span class="tick">0</span>
+                      <span class="tick">0</span>
+                    </div>
+
+                    <div class="demo-chart">
+
+                      <svg
+                        viewBox="0 0 300 90"
+                        preserveAspectRatio="none"
+                      >
+
+                        <defs>
+
+                          <linearGradient
+                            id="chartFill"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+
+                            <stop
+                              offset="0%"
+                              stop-color="var(--mint)"
+                              stop-opacity="0.45"
+                            ></stop>
+
+                            <stop
+                              offset="100%"
+                              stop-color="var(--mint)"
+                              stop-opacity="0"
+                            ></stop>
+
+                          </linearGradient>
+
+                        </defs>
+
+                        <path
+                          class="chart-area"
+                          d="M0,68 C 30,60 45,72 70,58 C 95,44 110,66 140,50 C 170,34 185,56 215,40 C 245,24 260,42 300,20 L300,90 L0,90 Z"
+                          fill="url(#chartFill)"
+                        ></path>
+
+                        <path
+                          class="chart-line"
+                          d="M0,68 C 30,60 45,72 70,58 C 95,44 110,66 140,50 C 170,34 185,56 215,40 C 245,24 260,42 300,20"
+                          fill="none"
+                        ></path>
+
+                        <circle
+                          class="chart-dot"
+                          cx="300"
+                          cy="20"
+                          r="4"
+                        ></circle>
+
+                      </svg>
+
+                      <span class="chart-tooltip">+18% este mes</span>
+
+                    </div>
+
+                  </div>
+
+                  <!-- Escena 2: movimiento entrante -->
+                  <div class="demo-scene demo-scene-2">
+
+                    <span class="demo-scene-label">
+                      Nuevo movimiento
+                    </span>
+
+                    <div class="demo-txn">
+
+                      <span class="demo-txn-icon">
+                        ↓
+                      </span>
+
+                      <div class="demo-txn-body">
+                        <strong>Pago de nómina</strong>
+                        <small>Hoy, 9:41 a.m.</small>
+                      </div>
+
+                      <span class="demo-txn-amount">
+                        +$1.850.000
+                      </span>
+
+                    </div>
+
+                    <div class="demo-txn demo-txn-secondary">
+
+                      <span class="demo-txn-icon">
+                        ↑
+                      </span>
+
+                      <div class="demo-txn-body">
+                        <strong>Suscripciones</strong>
+                        <small>Ayer, 6:12 p.m.</small>
+                      </div>
+
+                      <span class="demo-txn-amount demo-txn-amount-neg">
+                        -$45.900
+                      </span>
+
+                    </div>
+
+                    <span class="demo-cursor"></span>
+
+                  </div>
+
+                  <!-- Escena 3: meta de ahorro -->
+                  <div class="demo-scene demo-scene-3">
+
+                    <span class="demo-scene-label">
+                      Meta: Vacaciones
+                    </span>
+
+                    <div class="demo-ring">
+
+                      <svg viewBox="0 0 100 100">
+
+                        <circle
+                          class="ring-track"
+                          cx="50"
+                          cy="50"
+                          r="42"
+                        ></circle>
+
+                        <circle
+                          class="ring-progress"
+                          cx="50"
+                          cy="50"
+                          r="42"
+                        ></circle>
+
+                      </svg>
+
+                      <span class="demo-ring-figure">
+                        72%
+                      </span>
+
+                    </div>
+
+                    <span class="demo-ring-caption">
+                      $3.600.000 de $5.000.000
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <div class="demo-scrubber">
+                  <span class="demo-progress"></span>
+                </div>
+
+                <span class="demo-glare"></span>
+
               </div>
 
-              <div class="demo-scene demo-scene-2">
-                <span class="demo-scene-label">Nuevo movimiento</span>
-                <div class="demo-txn">
-                  <span class="demo-txn-icon">↓</span>
-                  <div class="demo-txn-body"><strong>Pago de nómina</strong><small>Hoy, 9:41 a.m.</small></div>
-                  <span class="demo-txn-amount">+$1.850.000</span>
+              <!-- Teléfono flotante con notificación -->
+              <div class="demo-phone">
+
+                <div class="demo-phone-notch"></div>
+
+                <div class="demo-phone-notif">
+
+                  <span class="demo-phone-notif-icon">
+                    ✓
+                  </span>
+
+                  <div class="demo-phone-notif-body">
+                    <strong>FinanceUp</strong>
+                    <small>Pago recibido +$450.000</small>
+                  </div>
+
                 </div>
-                <div class="demo-txn demo-txn-secondary">
-                  <span class="demo-txn-icon">↑</span>
-                  <div class="demo-txn-body"><strong>Suscripciones</strong><small>Ayer, 6:12 p.m.</small></div>
-                  <span class="demo-txn-amount demo-txn-amount-neg">-$45.900</span>
-                </div>
+
               </div>
 
-              <div class="demo-scene demo-scene-3">
-                <span class="demo-scene-label">Meta: Vacaciones</span>
-                <div class="demo-ring">
-                  <svg viewBox="0 0 100 100">
-                    <circle class="ring-track" cx="50" cy="50" r="42"></circle>
-                    <circle class="ring-progress" cx="50" cy="50" r="42"></circle>
-                  </svg>
-                  <span class="demo-ring-figure">72%</span>
-                </div>
-                <span class="demo-ring-caption">$3.600.000 de $5.000.000</span>
-              </div>
             </div>
 
-            <div class="demo-scrubber"><span class="demo-progress"></span></div>
+            <!-- Insignia de seguridad -->
+            <div class="demo-badge">
+              <span class="demo-badge-icon">🔒</span>
+              Cifrado bancario de extremo a extremo
+            </div>
+
           </div>
 
           <div class="demo-captions">
-            <span class="demo-caption demo-caption-1">Gastos claros</span>
-            <span class="demo-caption demo-caption-2">Movimientos al día</span>
-            <span class="demo-caption demo-caption-3">Metas cumplidas</span>
+
+            <span class="demo-caption demo-caption-1">
+              Gastos claros
+            </span>
+
+            <span class="demo-caption demo-caption-2">
+              Movimientos al día
+            </span>
+
+            <span class="demo-caption demo-caption-3">
+              Metas cumplidas
+            </span>
+
           </div>
+
         </div>
+
       </div>
 
     </div>
