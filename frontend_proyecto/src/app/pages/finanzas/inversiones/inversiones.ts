@@ -105,7 +105,7 @@ export class InversionesComponent {
   }
 
   /** ----- Distribución de carteras (dona), calculada desde las inversiones reales ----- */
-  private paletaCarteras = ['var(--green-primary)', 'var(--green-accent-text)', 'var(--green-soft)', 'var(--bg-ahorro)', '#e2e8f0', '#94a3b8'];
+  private paletaCarteras = ['var(--sage)', 'var(--black)', 'var(--sand)', 'var(--cloud)', 'var(--sage-dark)', 'var(--sage-tint)'];
 
   get carteras(): SegmentoCartera[] {
     const total = this.balanceInversiones;
@@ -118,7 +118,7 @@ export class InversionesComponent {
   }
 
   get gradienteCarteras(): string {
-    if (this.carteras.length === 0) return '#e2e8f0';
+    if (this.carteras.length === 0) return 'var(--cloud)';
     let acumulado = 0;
     const partes = this.carteras.map(seg => {
       const inicio = acumulado;

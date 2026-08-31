@@ -55,9 +55,9 @@
             <span class="card-titulo">Próximo retiro</span>
             <span class="card-valor">{{ proximoRetiro }}</span>
             <svg class="anillo-retiro" width="46" height="46" viewBox="0 0 76 76" role="img" [attr.aria-label]="'Progreso del próximo retiro: ' + progresoRetiro + ' por ciento'">
-                <circle cx="38" cy="38" r="30" fill="none" stroke="#e2e8f0" stroke-width="7" />
+                <circle cx="38" cy="38" r="30" fill="none" stroke="var(--cloud)" stroke-width="7" />
                 <circle
-                    cx="38" cy="38" r="30" fill="none" stroke="var(--green-primary)" stroke-width="7"
+                    cx="38" cy="38" r="30" fill="none" stroke="var(--sage)" stroke-width="7"
                     stroke-linecap="round"
                     [attr.stroke-dasharray]="circunferencia"
                     [attr.stroke-dashoffset]="offsetRetiro"
@@ -84,7 +84,7 @@
                 </div>
             </div>
             <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Tendencia de rendimiento de la inversión">
-                <polyline [attr.points]="puntosLinea" fill="none" stroke="var(--green-primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline [attr.points]="puntosLinea" fill="none" stroke="var(--sage)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <div class="linea-rango">
                 <span>{{ crecimientoInicio.valor }}M COP</span>

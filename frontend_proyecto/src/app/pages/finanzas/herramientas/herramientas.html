@@ -103,8 +103,8 @@
             <div class="grafica-comparacion">
                 <h3>Simple vs. compuesto, con el mismo capital y tasa</h3>
                 <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Comparación entre interés simple y compuesto">
-                    <polyline [attr.points]="puntosLineaSimple" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                    <polyline [attr.points]="puntosLineaCompuesta" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                    <polyline [attr.points]="puntosLineaSimple" fill="none" stroke="var(--sand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <polyline [attr.points]="puntosLineaCompuesta" fill="none" stroke="var(--sage)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 <div class="leyenda-grafica">
                     <span><span class="punto gris"></span> Interés simple</span>
@@ -151,6 +151,86 @@
             <p class="explicacion aviso">
                 Esta es una proyección orientativa con rentabilidad fija supuesta — un fideicomiso real depende del administrador fiduciario, su portafolio y condiciones de mercado. No sustituye asesoría financiera o legal profesional.
             </p>
+        </section>
+    }
+
+    <!-- Calculadora: Patrimonio (Activos y Pasivos) -->
+    @if (herramientaActiva() === 'patrimonio') {
+        <section class="panel calculadora">
+            <h2>🏦 Patrimonio (Activos y Pasivos)</h2>
+            <p class="definicion">{{ definiciones['patrimonio'] }}</p>
+
+            <div class="resumen-patrimonio">
+                <div>
+                    <span class="resumen-label">Total activos</span>
+                    <span class="resumen-valor positivo">{{ formatearCOP(totalActivosPatrimonio) }}</span>
+                </div>
+                <div>
+                    <span class="resumen-label">Total pasivos</span>
+                    <span class="resumen-valor negativo">{{ formatearCOP(totalPasivosPatrimonio) }}</span>
+                </div>
+                <div>
+                    <span class="resumen-label">Patrimonio neto</span>
+                    <span class="resumen-valor" [class.positivo]="patrimonioNeto >= 0" [class.negativo]="patrimonioNeto < 0">
+                        {{ formatearCOP(patrimonioNeto) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="tabs-registros" role="tablist" aria-label="Tipo de registro">
+                <button type="button" role="tab" [class.activo]="tipoPatrimonio() === 'activos'" (click)="cambiarTipoPatrimonio('activos')">
+                    Activos
+                </button>
+                <button type="button" role="tab" [class.activo]="tipoPatrimonio() === 'pasivos'" (click)="cambiarTipoPatrimonio('pasivos')">
+                    Pasivos
+                </button>
+            </div>
+
+            <form class="form-registro" (ngSubmit)="agregarRegistroPatrimonio()">
+                <div class="campo">
+                    <label for="nombre-patrimonio">Nombre</label>
+                    <input
+                        id="nombre-patrimonio"
+                        type="text"
+                        placeholder="Ej: Ahorros, Tarjeta de crédito..."
+                        [(ngModel)]="nombreNuevoRegistroPatrimonio"
+                        name="nombrePatrimonio"
+                        required />
+                </div>
+                <div class="campo campo-monto">
+                    <label for="monto-patrimonio">Monto</label>
+                    <input
+                        id="monto-patrimonio"
+                        type="number"
+                        min="1"
+                        placeholder="Ej: 500000"
+                        [(ngModel)]="montoNuevoRegistroPatrimonio"
+                        name="montoPatrimonio"
+                        required />
+                </div>
+                <button type="submit" class="btn-agregar">+ Agregar</button>
+            </form>
+
+            <ul class="lista-registros">
+                @for (registro of listaActivaPatrimonio; track registro.id) {
+                    <li>
+                        <span class="registro-nombre">{{ registro.nombre }}</span>
+                        <span class="registro-monto">{{ formatearCOP(registro.monto) }}</span>
+                        <button
+                            type="button"
+                            class="btn-eliminar"
+                            (click)="eliminarRegistroPatrimonio(registro.id)"
+                            [attr.aria-label]="'Eliminar ' + registro.nombre">
+                            ✕
+                        </button>
+                    </li>
+                }
+                @if (listaActivaPatrimonio.length === 0) {
+                    <li class="lista-vacia">Aún no has agregado ningún registro en esta categoría.</li>
+                }
+            </ul>
+
+            <p class="explicacion">Tu patrimonio neto es el número que de verdad importa: no cuánto dinero ves en una sola cuenta, sino cuánto te quedaría si pagaras todo lo que debes con todo lo que tienes.</p>
         </section>
     }
 

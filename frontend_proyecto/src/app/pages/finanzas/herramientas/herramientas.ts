@@ -2,15 +2,19 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
+import { ToastService } from '../../../shared/services/toast';
 
 /**
  * COMPONENTE: Herramientas Financieras
  * ------------------------------------------------------------------
- * Página con 3 calculadoras educativas para que el usuario entienda y
+ * Página con 4 calculadoras educativas para que el usuario entienda y
  * proyecte distintos escenarios financieros:
  *   1) Interés simple
  *   2) Interés compuesto
  *   3) Fondo fiduciario (proyección estimada, no es asesoría real)
+ *   4) Patrimonio: Activos y Pasivos (antes vivía en Finanzas; se movió
+ *      aquí para que Finanzas quede solo como un resumen que redirige a
+ *      cada módulo, sin duplicar funcionalidad de administración).
  *
  * Solo se muestra una calculadora a la vez; `herramientaActiva` guarda
  * cuál está seleccionada, y cada calculadora tiene sus propios campos
@@ -20,7 +24,7 @@ import { CursoBannerComponent } from '../../../shared/components/curso-banner/cu
  */
 
 /** Identificador de cada calculadora disponible. */
-type IdHerramienta = 'interes-simple' | 'interes-compuesto' | 'fondo-fiduciario';
+type IdHerramienta = 'interes-simple' | 'interes-compuesto' | 'fondo-fiduciario' | 'patrimonio';
 
 /** Datos para dibujar la tarjeta de cada calculadora en el carrusel superior. */
 interface Herramienta {
@@ -30,6 +34,15 @@ interface Herramienta {
   descripcion: string;
 }
 
+/** ----- Tipos para la calculadora de Patrimonio (Activos y Pasivos) ----- */
+type TipoPatrimonio = 'activos' | 'pasivos';
+
+interface RegistroPatrimonio {
+  id: number;
+  nombre: string;
+  monto: number;
+}
+
 @Component({
   selector: 'app-herramientas',
   imports: [FinanzasMenuComponent, FormsModule, CursoBannerComponent],
@@ -37,11 +50,14 @@ interface Herramienta {
   styleUrl: './herramientas.css',
 })
 export class HerramientasComponent {
+  constructor(private toastService: ToastService) {}
+
   /** Lista de calculadoras que se muestran como tarjetas seleccionables. */
   herramientas: Herramienta[] = [
     { id: 'interes-simple', icono: '➗', nombre: 'Interés Simple', descripcion: 'Calcula el interés sobre un capital fijo.' },
     { id: 'interes-compuesto', icono: '📈', nombre: 'Interés Compuesto', descripcion: 'Proyecta el crecimiento con capitalización.' },
     { id: 'fondo-fiduciario', icono: '🏛️', nombre: 'Fondo Fiduciario', descripcion: 'Simula un fideicomiso con aportes periódicos.' },
+    { id: 'patrimonio', icono: '🏦', nombre: 'Patrimonio', descripcion: 'Registra tus activos y pasivos para ver tu patrimonio neto.' },
   ];
 
   /** Definición corta y directa de cada concepto, para quien no lo conoce todavía. */
@@ -49,6 +65,7 @@ export class HerramientasComponent {
     'interes-simple': 'Es la ganancia que se calcula solo sobre el capital inicial: siempre es el mismo valor cada periodo, sin importar cuánto tiempo pase.',
     'interes-compuesto': 'Es la ganancia que se suma al capital y también empieza a generar su propio interés, por eso el dinero crece cada vez más rápido.',
     'fondo-fiduciario': 'Es un fideicomiso: le entregas tu dinero (capital + aportes) a un administrador para que lo invierta y busque hacerlo crecer con el tiempo.',
+    'patrimonio': 'Tu patrimonio neto es lo que tienes (activos) menos lo que debes (pasivos): así sabes cuánto vale realmente tu bolsillo, no solo cuánto dinero ves en una cuenta.',
   };
 
   /** Cuál calculadora está visible actualmente. */
@@ -171,5 +188,85 @@ export class HerramientasComponent {
 
   get puntosLineaCompuesta(): string {
     return this.aPuntosSvg(this.valoresCompuestoGrafica);
+  }
+
+  /** ============================================================
+   *  Patrimonio: Activos y Pasivos (movido aquí desde Finanzas)
+   * ============================================================ */
+
+  /** Pestaña activa: Activos o Pasivos. */
+  tipoPatrimonio = signal<TipoPatrimonio>('activos');
+
+  private siguienteIdPatrimonio = 1000;
+
+  registrosPatrimonio: Record<TipoPatrimonio, RegistroPatrimonio[]> = {
+    activos: [
+      { id: 1, nombre: 'Ahorros en cuenta', monto: 4000000 },
+      { id: 2, nombre: 'Vehículo', monto: 12000000 },
+    ],
+    pasivos: [
+      { id: 1, nombre: 'Tarjeta de crédito', monto: 900000 },
+    ],
+  };
+
+  /** Campos del formulario para agregar un registro nuevo. */
+  nombreNuevoRegistroPatrimonio: string = '';
+  montoNuevoRegistroPatrimonio: number | null = null;
+
+  cambiarTipoPatrimonio(tipo: TipoPatrimonio): void {
+    this.tipoPatrimonio.set(tipo);
+    this.nombreNuevoRegistroPatrimonio = '';
+    this.montoNuevoRegistroPatrimonio = null;
+  }
+
+  get listaActivaPatrimonio(): RegistroPatrimonio[] {
+    return this.registrosPatrimonio[this.tipoPatrimonio()];
+  }
+
+  agregarRegistroPatrimonio(): void {
+    const nombre = this.nombreNuevoRegistroPatrimonio.trim();
+    const monto = this.montoNuevoRegistroPatrimonio;
+
+    if (!nombre || monto === null || monto <= 0) {
+      this.toastService.info('Ingresa un nombre y un monto válido para agregar el registro.');
+      return;
+    }
+
+    this.registrosPatrimonio[this.tipoPatrimonio()].push({
+      id: this.siguienteIdPatrimonio++,
+      nombre,
+      monto,
+    });
+
+    this.toastService.success('Registro agregado correctamente.');
+
+    this.nombreNuevoRegistroPatrimonio = '';
+    this.montoNuevoRegistroPatrimonio = null;
+  }
+
+  eliminarRegistroPatrimonio(id: number): void {
+    const tipo = this.tipoPatrimonio();
+    const registro = this.registrosPatrimonio[tipo].find((r) => r.id === id);
+    const confirmado = confirm(`¿Eliminar "${registro?.nombre}"?`);
+    if (!confirmado) return;
+
+    this.registrosPatrimonio[tipo] = this.registrosPatrimonio[tipo].filter(r => r.id !== id);
+    this.toastService.info('Registro eliminado.');
+  }
+
+  totalPorTipoPatrimonio(tipo: TipoPatrimonio): number {
+    return this.registrosPatrimonio[tipo].reduce((suma, r) => suma + r.monto, 0);
+  }
+
+  get totalActivosPatrimonio(): number {
+    return this.totalPorTipoPatrimonio('activos');
+  }
+
+  get totalPasivosPatrimonio(): number {
+    return this.totalPorTipoPatrimonio('pasivos');
+  }
+
+  get patrimonioNeto(): number {
+    return this.totalActivosPatrimonio - this.totalPasivosPatrimonio;
   }
 }

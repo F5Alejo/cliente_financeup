@@ -51,7 +51,8 @@
         [class.salud-orden]="salud.estado === 'En orden'"
         [class.salud-atencion]="salud.estado === 'Atención'"
         [class.salud-riesgo]="salud.estado === 'Alto riesgo'">
-        <strong>{{ salud.estado }}</strong> — {{ salud.mensaje }}
+        <span><strong>{{ salud.estado }}</strong> — {{ salud.mensaje }}</span>
+        <a class="link-salud" routerLink="/libro-mayor">Ver detalle →</a>
     </section>
 
     <section class="cards-resumen" aria-label="Resumen financiero">
@@ -61,6 +62,7 @@
                 <span class="card-titulo">{{ t.titulo }}</span>
                 <span class="card-valor">{{ t.valor }}</span>
                 <span class="card-tendencia">{{ t.tendencia }}</span>
+                <a class="card-boton" [routerLink]="t.ruta">Ver detalle →</a>
             </div>
         }
     </section>
@@ -81,6 +83,7 @@
                     }
                 </ul>
             </div>
+            <a class="link-boton" routerLink="/libro-mayor">Ver en Libro Mayor →</a>
         </div>
 
         <div class="panel">
@@ -89,27 +92,26 @@
                 <span class="crecimiento-badge">+{{ crecimientoPorcentaje }}%</span>
             </div>
             <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Tendencia de crecimiento de la inversión">
-                <polyline [attr.points]="puntosLinea" fill="none" stroke="var(--green-primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline [attr.points]="puntosLinea" fill="none" stroke="var(--sage)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <div class="linea-rango">
                 <span>{{ crecimientoInicio.valor }}M</span>
                 <span aria-hidden="true">→</span>
                 <span>{{ crecimientoFin.valor }}M COP</span>
             </div>
+            <a class="link-boton" routerLink="/inversiones">Ver en Inversiones →</a>
         </div>
     </section>
 
     <section class="panel tabla-panel">
         <div class="panel-header">
             <h2>Movimientos recientes</h2>
-            <button type="button" class="link-boton" (click)="verTodos()">
-              {{ mostrarTodosMovimientos ? 'Ver recientes' : 'Ver todos' }}
-            </button>
+            <a class="link-boton" routerLink="/libro-mayor">Ver todos en Libro Mayor →</a>
         </div>
         <table>
             <thead>
                 <tr>
-                    <th>Categoría</th>
+                    <th>Concepto</th>
                     <th>Fecha</th>
                     <th>Monto</th>
                 </tr>
@@ -118,13 +120,18 @@
                 @for (mov of movimientos; track mov.id) {
                     <tr>
                         <td>
-                            <span class="icono-fila" aria-hidden="true">{{ mov.icono }}</span>
-                            {{ mov.categoria }}
+                            <span class="icono-fila" aria-hidden="true">{{ iconoDe(mov) }}</span>
+                            {{ mov.concepto }}
                         </td>
-                        <td class="fecha-fila">{{ mov.fecha }}</td>
-                        <td [class.negativo]="mov.monto < 0" [class.positivo]="mov.monto >= 0">
-                            {{ formatearMonto(mov.monto) }}
+                        <td class="fecha-fila">{{ formatearFecha(mov.fecha) }}</td>
+                        <td [class.negativo]="mov.tipo === 'gasto'" [class.positivo]="mov.tipo === 'ingreso'">
+                            {{ formatearMonto(mov) }}
                         </td>
+                    </tr>
+                }
+                @if (movimientos.length === 0) {
+                    <tr>
+                        <td colspan="3" class="lista-vacia">Aún no tienes movimientos registrados.</td>
                     </tr>
                 }
             </tbody>
@@ -132,15 +139,18 @@
     </section>
 
     <section class="panel metas-panel">
-        <h2>Tus metas</h2>
+        <div class="panel-header">
+            <h2>Tus metas</h2>
+            <a class="link-boton" routerLink="/metas">Ver todas →</a>
+        </div>
         <div class="metas-grid">
             @for (meta of metas; track meta.nombre) {
                 <div class="meta-item">
                     <div class="meta-anillo">
                         <svg width="88" height="88" viewBox="0 0 88 88" role="img" [attr.aria-label]="meta.nombre + ': ' + meta.porcentaje + ' por ciento completado'">
-                            <circle cx="44" cy="44" r="30" fill="none" stroke="#e2e8f0" stroke-width="7" />
+                            <circle cx="44" cy="44" r="30" fill="none" stroke="var(--cloud)" stroke-width="7" />
                             <circle
-                                cx="44" cy="44" r="30" fill="none" stroke="var(--green-primary)" stroke-width="7"
+                                cx="44" cy="44" r="30" fill="none" stroke="var(--sage)" stroke-width="7"
                                 stroke-linecap="round"
                                 [attr.stroke-dasharray]="circunferencia"
                                 [attr.stroke-dashoffset]="obtenerOffset(meta.porcentaje)"
@@ -153,87 +163,6 @@
                     <span class="meta-montos">{{ meta.actual | moneda }} / {{ meta.objetivo | moneda }}</span>
                 </div>
             }
-        </div>
-    </section>
-
-    <section class="panel registros-panel">
-        <h2>Activos, Pasivos y Gastos</h2>
-
-        <div class="resumen-patrimonio">
-            <div>
-                <span class="resumen-label">Total activos</span>
-                <span class="resumen-valor positivo">{{ formatearCOP(totalActivos) }}</span>
-            </div>
-            <div>
-                <span class="resumen-label">Total pasivos</span>
-                <span class="resumen-valor negativo">{{ formatearCOP(totalPasivos) }}</span>
-            </div>
-            <div>
-                <span class="resumen-label">Patrimonio neto</span>
-                <span class="resumen-valor" [class.positivo]="patrimonioNeto >= 0" [class.negativo]="patrimonioNeto < 0">
-                    {{ formatearCOP(patrimonioNeto) }}
-                </span>
-            </div>
-        </div>
-
-        <div class="tabs-registros" role="tablist" aria-label="Tipo de registro">
-            <button type="button" role="tab" [class.activo]="tipoActivo() === 'activos'" (click)="cambiarTipoActivo('activos')">
-                Activos
-            </button>
-            <button type="button" role="tab" [class.activo]="tipoActivo() === 'pasivos'" (click)="cambiarTipoActivo('pasivos')">
-                Pasivos
-            </button>
-            <button type="button" role="tab" [class.activo]="tipoActivo() === 'gastos'" (click)="cambiarTipoActivo('gastos')">
-                Gastos
-            </button>
-        </div>
-
-        <form class="form-registro" (ngSubmit)="agregarRegistro()">
-            <div class="campo">
-                <label for="nombre-registro">Nombre</label>
-                <input
-                    id="nombre-registro"
-                    type="text"
-                    placeholder="Ej: Ahorros, Tarjeta de crédito, Arriendo..."
-                    [(ngModel)]="nombreNuevoRegistro"
-                    name="nombreRegistro"
-                    required />
-            </div>
-            <div class="campo campo-monto">
-                <label for="monto-registro">Monto</label>
-                <input
-                    id="monto-registro"
-                    type="number"
-                    min="1"
-                    placeholder="Ej: 500000"
-                    [(ngModel)]="montoNuevoRegistro"
-                    name="montoRegistro"
-                    required />
-            </div>
-            <button type="submit" class="btn-agregar">+ Agregar</button>
-        </form>
-
-        <ul class="lista-registros">
-            @for (registro of listaActiva; track registro.id) {
-                <li>
-                    <span class="registro-nombre">{{ registro.nombre }}</span>
-                    <span class="registro-monto">{{ formatearCOP(registro.monto) }}</span>
-                    <button
-                        type="button"
-                        class="btn-eliminar"
-                        (click)="eliminarRegistro(registro.id)"
-                        [attr.aria-label]="'Eliminar ' + registro.nombre">
-                        ✕
-                    </button>
-                </li>
-            }
-            @if (listaActiva.length === 0) {
-                <li class="lista-vacia">Aún no has agregado ningún registro en esta categoría.</li>
-            }
-        </ul>
-
-        <div class="total-tab">
-            Total en {{ tipoActivo() }}: <strong>{{ formatearCOP(totalPorTipo(tipoActivo())) }}</strong>
         </div>
     </section>
 

@@ -2,13 +2,23 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth';
-import { FinanzasService } from '../../../services/finanzas';
+import { FinanzasService, Movimiento } from '../../../services/finanzas';
 import { MetasService } from '../../../services/metas';
 import { InversionesService } from '../../../services/inversiones';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { MonedaPipe } from '../../../pipes/moneda.pipe';
-import { ToastService } from '../../../shared/services/toast';
 import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
+
+/**
+ * COMPONENTE: Finanzas (panel principal)
+ * ------------------------------------------------------------------
+ * Esta pantalla es única y exclusivamente un RESUMEN que redirige a cada
+ * módulo real: no tiene su propio CRUD de movimientos ni de activos/pasivos
+ * (eso vive en Libro Mayor y en Herramientas). Cada tarjeta, gráfica y panel
+ * de aquí lee datos reales de los services compartidos y tiene un botón
+ * que lleva al módulo donde esos datos se administran de verdad.
+ * ------------------------------------------------------------------
+ */
 
 /** Un resultado de la barra de búsqueda: puede ser una sección, una meta, una inversión o un movimiento */
 interface ResultadoBusqueda {
@@ -23,6 +33,8 @@ interface TarjetaResumen {
   titulo: string;
   valor: string;
   tendencia: string;
+  /** A qué módulo redirige el botón de esta tarjeta (dónde vive el dato real). */
+  ruta: string;
 }
 
 interface SegmentoGasto {
@@ -44,15 +56,6 @@ interface Meta {
   objetivo: number;
 }
 
-/** ----- Nuevo: Activos / Pasivos / Gastos ----- */
-interface RegistroFinanciero {
-  id: number;
-  nombre: string;
-  monto: number;
-}
-
-type TipoRegistro = 'activos' | 'pasivos' | 'gastos';
-
 @Component({
   selector: 'app-finanzas',
   imports: [FinanzasMenuComponent, FormsModule, MonedaPipe, CursoBannerComponent, RouterLink],
@@ -64,16 +67,8 @@ export class FinanzasComponent implements OnInit {
     public authService: AuthService,
     private finanzasService: FinanzasService,
     private metasService: MetasService,
-    private inversionesService: InversionesService,
-    private toastService: ToastService
+    private inversionesService: InversionesService
   ) {}
-
-  mostrarTodosMovimientos = false;
-
-  get movimientos() {
-    const todos = this.finanzasService.movimientos;
-    return this.mostrarTodosMovimientos ? todos : todos.slice(0, 5);
-  }
 
   usuario: string = '';
 
@@ -90,28 +85,49 @@ export class FinanzasComponent implements OnInit {
     this.usuario = this.authService.obtenerNombre();
   }
 
-  /** ----- Movimientos completos (sin recortar) y totales, para calcular todo lo de abajo ----- */
-  private get todosLosMovimientos() {
+  /** ----- Todos los movimientos reales (vienen del mismo service que usa Libro Mayor) ----- */
+  private get todosLosMovimientos(): Movimiento[] {
     return this.finanzasService.movimientos;
   }
 
+  /** Vista previa: solo los 5 más recientes. Para ver el resto, el botón de
+   *  la tabla redirige a Libro Mayor (ahí es donde se administran de verdad). */
+  get movimientos(): Movimiento[] {
+    return this.todosLosMovimientos.slice(0, 5);
+  }
+
+  /** Ícono de un movimiento, según su categoría (delegado al service). */
+  iconoDe(mov: Movimiento): string {
+    return this.finanzasService.iconoPorCategoria(mov.categoria);
+  }
+
+  /** Convierte "2026-03-01" en algo legible, ej: "1 mar 2026". */
+  formatearFecha(fecha: string): string {
+    const fechaValida = new Date(`${fecha}T00:00:00`);
+    if (isNaN(fechaValida.getTime())) return fecha;
+    return fechaValida.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
   private get totalIngresos(): number {
-    return this.todosLosMovimientos.filter(m => m.monto > 0).reduce((s, m) => s + m.monto, 0);
+    return this.todosLosMovimientos.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + m.valor, 0);
   }
 
   private get totalGastos(): number {
-    return this.todosLosMovimientos.filter(m => m.monto < 0).reduce((s, m) => s + Math.abs(m.monto), 0);
+    return this.todosLosMovimientos.filter(m => m.tipo === 'gasto').reduce((s, m) => s + m.valor, 0);
   }
 
-  /** ----- Tarjetas superiores, calculadas desde los movimientos reales ----- */
+  /** ----- Tarjetas superiores, calculadas desde los movimientos reales -----
+   *  Cada una redirige al módulo donde ese dato se administra: Ingreso,
+   *  Gastos y Disponible vienen de los movimientos -> Libro Mayor; Ahorro
+   *  se relaciona con las metas de ahorro -> Metas. */
   get tarjetas(): TarjetaResumen[] {
     const disponible = this.totalIngresos - this.totalGastos;
     const ahorroPct = this.totalIngresos > 0 ? Math.round((disponible / this.totalIngresos) * 100) : 0;
     return [
-      { icono: '💰', titulo: 'Ingreso', valor: this.formatearCOP(this.totalIngresos), tendencia: 'Total registrado' },
-      { icono: '💼', titulo: 'Gastos', valor: this.formatearCOP(this.totalGastos), tendencia: 'Total registrado' },
-      { icono: '🏦', titulo: 'Disponible', valor: this.formatearCOP(disponible), tendencia: disponible >= 0 ? 'Te queda dinero' : 'Gastas más de lo que entra' },
-      { icono: '🐷', titulo: 'Ahorro', valor: `${ahorroPct}%`, tendencia: 'De tus ingresos' },
+      { icono: '💰', titulo: 'Ingreso', valor: this.formatearCOP(this.totalIngresos), tendencia: 'Total registrado', ruta: '/libro-mayor' },
+      { icono: '💼', titulo: 'Gastos', valor: this.formatearCOP(this.totalGastos), tendencia: 'Total registrado', ruta: '/libro-mayor' },
+      { icono: '🏦', titulo: 'Disponible', valor: this.formatearCOP(disponible), tendencia: disponible >= 0 ? 'Te queda dinero' : 'Gastas más de lo que entra', ruta: '/libro-mayor' },
+      { icono: '🐷', titulo: 'Ahorro', valor: `${ahorroPct}%`, tendencia: 'De tus ingresos', ruta: '/metas' },
     ];
   }
 
@@ -130,7 +146,7 @@ export class FinanzasComponent implements OnInit {
   }
 
   /** ============================================================
-   *  NUEVO: Lupa como barra de navegación de toda la información
+   *  Lupa como barra de navegación de toda la información
    *  del usuario (secciones + metas + inversiones + movimientos)
    * ============================================================ */
   mostrarBusqueda = signal(false);
@@ -151,7 +167,8 @@ export class FinanzasComponent implements OnInit {
     if (!this.mostrarBusqueda()) this.terminoBusqueda.set('');
   }
 
-  /** Junta secciones + metas + inversiones + movimientos que coincidan con lo escrito */
+  /** Junta secciones + metas + inversiones + movimientos que coincidan con lo escrito.
+   *  Los movimientos redirigen a Libro Mayor: es ahí donde realmente viven. */
   get resultadosBusqueda(): ResultadoBusqueda[] {
     const termino = this.terminoBusqueda().trim().toLowerCase();
     if (!termino) return [];
@@ -167,15 +184,15 @@ export class FinanzasComponent implements OnInit {
       .map((i) => ({ icono: '📈', nombre: i.nombre, ruta: '/inversiones', tipo: 'Inversión' }));
 
     const movimientos: ResultadoBusqueda[] = this.todosLosMovimientos
-      .filter((m) => m.categoria.toLowerCase().includes(termino))
+      .filter((m) => m.concepto.toLowerCase().includes(termino) || m.categoria.toLowerCase().includes(termino))
       .slice(0, 5)
-      .map((m) => ({ icono: m.icono, nombre: m.categoria, ruta: '/finanzas', tipo: 'Movimiento' }));
+      .map((m) => ({ icono: this.iconoDe(m), nombre: m.concepto, ruta: '/libro-mayor', tipo: 'Movimiento' }));
 
     return [...secciones, ...metas, ...inversiones, ...movimientos];
   }
 
   /** ============================================================
-   *  NUEVO: la campana recomienda cursos según lo que más usa el
+   *  La campana recomienda cursos según lo que más usa el
    *  usuario — si tiene más inversiones que movimientos/metas
    *  juntos, le sugerimos la escuela de Inversión; si no, Finanzas
    *  Personales (presupuesto, tarjetas, deuda).
@@ -187,15 +204,15 @@ export class FinanzasComponent implements OnInit {
   }
 
   /** ----- Distribución de gastos por categoría (dona), calculada desde los movimientos ----- */
-  private paletaDona = ['var(--green-primary)', 'var(--green-accent-text)', 'var(--green-soft)', 'var(--bg-ahorro)', '#e2e8f0', '#94a3b8'];
+  private paletaDona = ['var(--sage)', 'var(--black)', 'var(--sand)', 'var(--cloud)', 'var(--sage-dark)', 'var(--sage-tint)'];
 
   get distribucion(): SegmentoGasto[] {
-    const gastos = this.todosLosMovimientos.filter(m => m.monto < 0);
+    const gastos = this.todosLosMovimientos.filter(m => m.tipo === 'gasto');
     const total = this.totalGastos;
     if (total === 0) return [];
 
     const porCategoria = new Map<string, number>();
-    gastos.forEach(m => porCategoria.set(m.categoria, (porCategoria.get(m.categoria) ?? 0) + Math.abs(m.monto)));
+    gastos.forEach(m => porCategoria.set(m.categoria, (porCategoria.get(m.categoria) ?? 0) + m.valor));
 
     return Array.from(porCategoria.entries()).map(([etiqueta, monto], i) => ({
       etiqueta,
@@ -205,7 +222,7 @@ export class FinanzasComponent implements OnInit {
   }
 
   get gradienteDistribucion(): string {
-    if (this.distribucion.length === 0) return '#e2e8f0';
+    if (this.distribucion.length === 0) return 'var(--cloud)';
     let acumulado = 0;
     const partes = this.distribucion.map(seg => {
       const inicio = acumulado;
@@ -250,9 +267,10 @@ export class FinanzasComponent implements OnInit {
       .join(' ');
   }
 
-  formatearMonto(valor: number): string {
-    const signo = valor < 0 ? '-' : '+';
-    return `${signo}$${Math.abs(valor).toLocaleString('es-CO')}`;
+  /** Muestra el signo (+ / -) y el monto de un movimiento, según su tipo. */
+  formatearMonto(mov: Movimiento): string {
+    const signo = mov.tipo === 'gasto' ? '-' : '+';
+    return `${signo}$${mov.valor.toLocaleString('es-CO')}`;
   }
 
   /** ----- Tus metas (anillos, vista previa de las primeras 4) ----- */
@@ -264,104 +282,7 @@ export class FinanzasComponent implements OnInit {
     return this.circunferencia * (1 - porcentaje / 100);
   }
 
-  verTodos(): void {
-    this.mostrarTodosMovimientos = !this.mostrarTodosMovimientos;
-    this.toastService.info(
-      this.mostrarTodosMovimientos
-        ? 'Mostrando todos los movimientos'
-        : 'Mostrando los movimientos más recientes'
-    );
-  }
-
   formatearCOP(valor: number): string {
     return `$${valor.toLocaleString('es-CO')}`;
-  }
-
-  /** ============================================================
-   *  NUEVO: Activos / Pasivos / Gastos (formulario funcional)
-   * ============================================================ */
-
-  /** Pestaña activa del bloque de registros */
-  tipoActivo = signal<TipoRegistro>('activos');
-
-  private siguienteId = 1000;
-
-  registros: Record<TipoRegistro, RegistroFinanciero[]> = {
-    activos: [
-      { id: 1, nombre: 'Ahorros en cuenta', monto: 4000000 },
-      { id: 2, nombre: 'Vehículo', monto: 12000000 },
-    ],
-    pasivos: [
-      { id: 1, nombre: 'Tarjeta de crédito', monto: 900000 },
-    ],
-    gastos: [
-      { id: 1, nombre: 'Arriendo', monto: 1200000 },
-      { id: 2, nombre: 'Servicios', monto: 250000 },
-    ],
-  };
-
-  /** Campos del formulario para agregar un registro nuevo */
-  nombreNuevoRegistro: string = '';
-  montoNuevoRegistro: number | null = null;
-
-  cambiarTipoActivo(tipo: TipoRegistro): void {
-    this.tipoActivo.set(tipo);
-    this.nombreNuevoRegistro = '';
-    this.montoNuevoRegistro = null;
-  }
-
-  get listaActiva(): RegistroFinanciero[] {
-    return this.registros[this.tipoActivo()];
-  }
-
-agregarRegistro(): void {
-    const nombre = this.nombreNuevoRegistro.trim();
-    const monto = this.montoNuevoRegistro;
-
-    if (!nombre || monto === null || monto <= 0) {
-      this.toastService.info('Ingresa un nombre y un monto válido para agregar el registro.');
-      return;
-    }
-
-    this.registros[this.tipoActivo()].push({
-      id: this.siguienteId++,
-      nombre,
-      monto,
-    });
-
-    this.toastService.success('Registro agregado correctamente.');
-
-    this.nombreNuevoRegistro = '';
-    this.montoNuevoRegistro = null;
-}
-
-eliminarRegistro(id: number): void {
-    const tipo = this.tipoActivo();
-    const registro = this.registros[tipo].find((r) => r.id === id);
-    const confirmado = confirm(`¿Eliminar "${registro?.nombre}"?`);
-    if (!confirmado) return;
-
-    this.registros[tipo] = this.registros[tipo].filter(r => r.id !== id);
-    this.toastService.info('Registro eliminado.');
-}
-
-  totalPorTipo(tipo: TipoRegistro): number {
-    return this.registros[tipo].reduce((suma, r) => suma + r.monto, 0);
-  }
-
-  get totalActivos(): number {
-    return this.totalPorTipo('activos');
-  }
-
-  get totalPasivos(): number {
-    return this.totalPorTipo('pasivos');
-  }
-
-  get totalGastosRegistrados(): number {
-    return this.totalPorTipo('gastos');
-  }
-
-  get patrimonioNeto(): number {
-    return this.totalActivos - this.totalPasivos;
   }
 }

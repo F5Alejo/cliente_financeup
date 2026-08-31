@@ -23,26 +23,28 @@ export class AdminFinanzasComponent {
   formMovimiento: Movimiento = this.formularioVacio();
 
   private formularioVacio(): Movimiento {
-    return { id: 0, icono: '💵', categoria: '', fecha: '', monto: 0 };
+    return { id: 0, fecha: '', concepto: '', categoria: '', tipo: 'gasto', valor: 0 };
   }
 
   get movimientosFiltrados(): Movimiento[] {
     const termino = this.busqueda().trim().toLowerCase();
     const todos = this.finanzasService.movimientos;
     if (!termino) return todos;
-    return todos.filter((m) => m.categoria.toLowerCase().includes(termino));
+    return todos.filter(
+      (m) => m.categoria.toLowerCase().includes(termino) || m.concepto.toLowerCase().includes(termino)
+    );
   }
 
   get totalIngresos(): number {
     return this.finanzasService.movimientos
-      .filter((m) => m.monto > 0)
-      .reduce((suma, m) => suma + m.monto, 0);
+      .filter((m) => m.tipo === 'ingreso')
+      .reduce((suma, m) => suma + m.valor, 0);
   }
 
   get totalGastos(): number {
     return this.finanzasService.movimientos
-      .filter((m) => m.monto < 0)
-      .reduce((suma, m) => suma + Math.abs(m.monto), 0);
+      .filter((m) => m.tipo === 'gasto')
+      .reduce((suma, m) => suma + m.valor, 0);
   }
 
   get balanceNeto(): number {
@@ -64,18 +66,27 @@ export class AdminFinanzasComponent {
   }
 
   guardarMovimiento(): void {
+    const concepto = this.formMovimiento.concepto.trim();
     const categoria = this.formMovimiento.categoria.trim();
-    if (!categoria || !this.formMovimiento.fecha.trim() || !this.formMovimiento.monto) {
-      this.toastService.info('Completa categoría, fecha y un monto distinto de cero.');
+
+    if (!concepto || !categoria || !this.formMovimiento.fecha.trim() || !this.formMovimiento.valor || this.formMovimiento.valor <= 0) {
+      this.toastService.info('Completa concepto, categoría, fecha y un valor mayor a 0.');
       return;
     }
 
+    const datos = {
+      fecha: this.formMovimiento.fecha,
+      concepto,
+      categoria,
+      tipo: this.formMovimiento.tipo,
+      valor: this.formMovimiento.valor,
+    };
+
     if (this.editandoId) {
-      this.finanzasService.editarMovimiento(this.editandoId, this.formMovimiento);
+      this.finanzasService.editarMovimiento(this.editandoId, datos);
       this.toastService.success('Movimiento actualizado correctamente.');
     } else {
-      this.formMovimiento.id = Date.now();
-      this.finanzasService.agregarMovimiento(this.formMovimiento);
+      this.finanzasService.agregarMovimiento(datos);
       this.toastService.success('Movimiento agregado correctamente.');
     }
 
@@ -84,7 +95,7 @@ export class AdminFinanzasComponent {
 
   eliminarMovimiento(id: number): void {
     const movimiento = this.finanzasService.movimientos.find((m) => m.id === id);
-    const confirmado = confirm(`¿Eliminar el movimiento "${movimiento?.categoria}"? Esta acción no se puede deshacer.`);
+    const confirmado = confirm(`¿Eliminar el movimiento "${movimiento?.concepto}"? Esta acción no se puede deshacer.`);
     if (!confirmado) return;
 
     this.finanzasService.eliminarMovimiento(id);
