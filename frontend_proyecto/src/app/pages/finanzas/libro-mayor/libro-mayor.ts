@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router'; // para el enlace "Ver mis deudas"
 import * as XLSX from 'xlsx'; // Librería para leer/escribir archivos Excel (.xlsx) en el navegador
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
+import { FinanzasService, Movimiento } from '../../../services/finanzas';
 
 /**
  * COMPONENTE: Libro Mayor
@@ -12,26 +13,18 @@ import { CursoBannerComponent } from '../../../shared/components/curso-banner/cu
  * (ingresos y gastos): agregarlos a mano, editarlos, borrarlos, filtrarlos,
  * exportarlos a Excel, o importarlos masivamente desde un archivo Excel.
  *
+ * Los movimientos viven en `FinanzasService` (no aquí adentro), porque el
+ * dashboard de Finanzas también los necesita para sus tarjetas y su tabla
+ * de "Movimientos recientes" — al compartir el mismo service, agregar,
+ * editar o borrar un movimiento en cualquiera de las dos pantallas se ve
+ * reflejado en la otra.
+ *
  * Angular usa "signals" (la función `signal(...)`) para guardar valores que
  * cambian con el tiempo. Un signal se LEE llamándolo como función (`algo()`)
  * y se ACTUALIZA con `.set(valor)` o `.update(fn)`. Cuando un signal cambia,
  * Angular vuelve a dibujar automáticamente la parte del HTML que lo usa.
  * ------------------------------------------------------------------
  */
-
-/** Un movimiento individual del libro mayor (una fila de la tabla).
- *  metodoPago y observaciones son opcionales ("?") porque los movimientos
- *  importados desde Excel no los traen (la plantilla no tiene esas columnas). */
-interface Movimiento {
-  id: number;
-  fecha: string; // formato YYYY-MM-DD
-  concepto: string;
-  categoria: string;
-  tipo: 'ingreso' | 'gasto';
-  valor: number;
-  metodoPago?: string;
-  observaciones?: string;
-}
 
 /** Describe por qué una fila del Excel importado NO se pudo usar. */
 interface ErrorImportacion {
@@ -49,6 +42,8 @@ type ColumnaOrden = 'fecha' | 'concepto' | 'categoria' | 'tipo' | 'valor';
   styleUrl: './libro-mayor.css',
 })
 export class LibroMayorComponent {
+  constructor(private finanzasService: FinanzasService) {}
+
   /** Categorías que el usuario puede elegir tanto en el formulario como en los filtros. */
   categoriasDisponibles: string[] = [
     'Vivienda', 'Alimentación', 'Transporte', 'Salud', 'Entretenimiento',
@@ -59,18 +54,11 @@ export class LibroMayorComponent {
   /** Opciones para el campo "Método de pago" del formulario. */
   metodosPago: string[] = ['Efectivo', 'Tarjeta débito', 'Tarjeta crédito', 'Transferencia', 'Otro'];
 
-  // Contador simple para generar IDs únicos de movimientos nuevos.
-  // (En una app real, el ID lo asignaría el backend/base de datos).
-  private siguienteId = 100;
-
-  // Datos de ejemplo, para que la pantalla no se vea vacía la primera vez.
-  movimientos: Movimiento[] = [
-    { id: 1, fecha: '2026-03-01', concepto: 'Salario', categoria: 'Salario', tipo: 'ingreso', valor: 3000000 },
-    { id: 2, fecha: '2026-03-02', concepto: 'Arriendo', categoria: 'Vivienda', tipo: 'gasto', valor: 1200000 },
-    { id: 3, fecha: '2026-03-03', concepto: 'Mercado', categoria: 'Alimentación', tipo: 'gasto', valor: 450000 },
-    { id: 4, fecha: '2026-03-05', concepto: 'Café diario', categoria: 'Gastos hormiga', tipo: 'gasto', valor: 60000 },
-    { id: 5, fecha: '2026-03-10', concepto: 'Freelance diseño', categoria: 'Otros ingresos', tipo: 'ingreso', valor: 500000 },
-  ];
+  /** Los movimientos reales viven en el service compartido con Finanzas;
+   *  este getter es solo una "ventana" de lectura hacia ellos. */
+  get movimientos(): Movimiento[] {
+    return this.finanzasService.movimientos;
+  }
 
   /** ----- Filtros y búsqueda -----
    *  Cada filtro es un signal independiente; el getter `movimientosFiltrados`
@@ -239,7 +227,7 @@ export class LibroMayorComponent {
   }
 
   /** Valida el formulario y, según `modoEdicion`, actualiza el movimiento
-   *  existente o agrega uno nuevo al arreglo `movimientos`. */
+   *  existente o agrega uno nuevo, siempre a través del service compartido. */
   guardarMovimiento(): void {
     const concepto = this.formConcepto.trim();
     const fecha = this.formFecha;
@@ -251,20 +239,18 @@ export class LibroMayorComponent {
     }
 
     if (this.modoEdicion() && this.idEnEdicion !== null) {
-      const movimiento = this.movimientos.find(m => m.id === this.idEnEdicion);
-      if (movimiento) {
-        movimiento.fecha = fecha;
-        movimiento.concepto = concepto;
-        movimiento.categoria = this.formCategoria;
-        movimiento.tipo = this.formTipo;
-        movimiento.valor = valor;
-        movimiento.metodoPago = this.formMetodoPago;
-        movimiento.observaciones = this.formObservaciones.trim();
-      }
+      this.finanzasService.editarMovimiento(this.idEnEdicion, {
+        fecha,
+        concepto,
+        categoria: this.formCategoria,
+        tipo: this.formTipo,
+        valor,
+        metodoPago: this.formMetodoPago,
+        observaciones: this.formObservaciones.trim(),
+      });
       this.emitirMensaje('exito', 'Movimiento actualizado correctamente.');
     } else {
-      this.movimientos.push({
-        id: this.siguienteId++,
+      this.finanzasService.agregarMovimiento({
         fecha,
         concepto,
         categoria: this.formCategoria,
@@ -295,7 +281,7 @@ export class LibroMayorComponent {
   confirmarEliminar(): void {
     const id = this.idAEliminar();
     if (id === null) return;
-    this.movimientos = this.movimientos.filter(m => m.id !== id);
+    this.finanzasService.eliminarMovimiento(id);
     this.idAEliminar.set(null);
     this.emitirMensaje('exito', 'Movimiento eliminado.');
   }
@@ -427,7 +413,7 @@ export class LibroMayorComponent {
   mostrarImportador = signal(false);
   mostrarCamposOpcionales = signal(false);
   archivoSeleccionado = signal<File | null>(null);
-  resultadoImportacion = signal<{ validos: Movimiento[]; errores: ErrorImportacion[] } | null>(null);
+  resultadoImportacion = signal<{ validos: Omit<Movimiento, 'id'>[]; errores: ErrorImportacion[] } | null>(null);
 
   abrirImportador(): void {
     this.mostrarImportador.set(true);
@@ -444,8 +430,8 @@ export class LibroMayorComponent {
   }
 
   // archivo fijo guardado en la carpeta "public/" del proyecto
-  // (public/plantilla-control-finanzas.xlsx). 
-  
+  // (public/plantilla-control-finanzas.xlsx).
+
   /** Se llama cuando el usuario elige un archivo en el <input type="file">. */
   onArchivoSeleccionado(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -459,6 +445,10 @@ export class LibroMayorComponent {
    *
    *  Se detiene apenas encuentra una celda de "Concepto" vacía, o que diga
    *  "TOTAL" — esa es la señal de que ya no hay más datos en esa columna.
+   *
+   *  Los movimientos encontrados NO se guardan todavía en el service (por
+   *  eso no traen `id` aquí): eso solo pasa cuando el usuario confirma la
+   *  importación, en `confirmarImportacion()`.
    *
    *  Parámetros:
    *    hoja               -> la hoja de Excel ya leída (objeto de SheetJS)
@@ -476,8 +466,8 @@ export class LibroMayorComponent {
     tipo: 'ingreso' | 'gasto',
     categoriaPorDefecto: string,
     errores: ErrorImportacion[]
-  ): Movimiento[] {
-    const encontrados: Movimiento[] = [];
+  ): Omit<Movimiento, 'id'>[] {
+    const encontrados: Omit<Movimiento, 'id'>[] = [];
     let fila = 8; // la plantilla siempre empieza los datos en la fila 8
 
     while (true) {
@@ -499,10 +489,9 @@ export class LibroMayorComponent {
         });
       } else {
         encontrados.push({
-          id: this.siguienteId++,
           // La plantilla no tiene columna de fecha, así que se usa la fecha de hoy.
           // toISOString ("2026-08-30T19:42:10.123Z)
-          // z horario utc 
+          // z horario utc
           // t separador
           // slice AAAA-MM-DD
           fecha: new Date().toISOString().slice(0, 10),
@@ -557,11 +546,11 @@ export class LibroMayorComponent {
     lector.readAsArrayBuffer(archivo);
   }
 
-  /** Agrega a `movimientos` solo los registros que pasaron la validación. */
+  /** Agrega al service compartido solo los registros que pasaron la validación. */
   confirmarImportacion(): void {
     const resultado = this.resultadoImportacion();
     if (!resultado || resultado.validos.length === 0) return;
-    this.movimientos.push(...resultado.validos);
+    this.finanzasService.agregarMovimientos(resultado.validos);
     this.emitirMensaje('exito', `${resultado.validos.length} movimiento(s) importado(s) correctamente.`);
     this.cerrarImportador();
   }

@@ -6,6 +6,15 @@
 }
 
 .metas {
+    --sage: #24554C;
+    --sage-dark: #25312B;
+    --sage-tint: #E5EBEA;
+    --sage-tint-strong: #CAD6D4;
+    --black: #25312B;
+    --sand: #A3A7A9;
+    --floral-white: #E7E8E9;
+    --cloud: #C8CACB;
+
     padding: 28px 32px;
     max-width: 1100px;
     margin: 0 auto;
@@ -13,7 +22,7 @@
 
 .metas button:focus-visible,
 .metas input:focus-visible {
-    outline: 3px solid #0f766e;
+    outline: 3px solid var(--sage);
     outline-offset: 2px;
     border-radius: 8px;
 }
@@ -28,7 +37,7 @@
 
 .metas-header h1 {
     font-size: 24px;
-    color: #0f172a;
+    color: var(--black);
     font-weight: 700;
     line-height: 1.2;
 }
@@ -41,7 +50,7 @@
 
 /* BOTÓN PRINCIPAL */
 .metas-header .btn-primario {
-    background: var(--green-primary);
+    background: var(--sage);
     color: white;
     border: none;
     border-radius: 10px;
@@ -53,7 +62,7 @@
 }
 
 .metas-header .btn-primario:hover {
-    background: var(--green-dark);
+    background: var(--sage-dark);
 }
 
 /* BOTÓN ICONO */
@@ -61,22 +70,22 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 1px solid #e2e8f0;
-    background: white;
+    border: 1px solid var(--cloud);
+    background: var(--floral-white);
     cursor: pointer;
     font-size: 15px;
-    color: #64748b;
+    color: rgba(0,0,0,.55);
     transition: .2s;
 }
 
 .btn-icono:hover {
-    background: #f1f5f9;
+    background: var(--cloud);
 }
 
 /* RESUMEN GENERAL */
 .resumen-panel {
-    background: white;
-    border: 1px solid #eef2f6;
+    background: var(--floral-white);
+    border: 1px solid var(--cloud);
     border-radius: 18px;
     padding: 22px 24px;
     margin-bottom: 22px;
@@ -92,12 +101,12 @@
 .resumen-total {
     font-size: 22px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--black);
 }
 
 .resumen-contador {
     font-size: 13px;
-    color: #64748b;
+    color: rgba(0,0,0,.55);
     font-weight: 600;
 }
 
@@ -105,7 +114,7 @@
 .barra-progreso {
     width: 100%;
     height: 10px;
-    background: #e2e8f0;
+    background: var(--cloud);
     border-radius: 999px;
     overflow: hidden;
 }
@@ -117,7 +126,7 @@
 
 .barra-relleno {
     height: 100%;
-    background: linear-gradient(90deg, #0f766e, #2dd4bf);
+    background: linear-gradient(90deg, var(--sage), var(--sand));
     border-radius: 999px;
     transition: width .4s ease;
 }
@@ -140,12 +149,12 @@
 
 .form-nueva-meta label {
     font-size: 12px;
-    color: #475569;
+    color: rgba(0,0,0,.65);
     font-weight: 600;
 }
 
 .form-nueva-meta input {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--cloud);
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 13.5px;
@@ -154,7 +163,7 @@
 }
 
 .form-nueva-meta input:focus {
-    border-color: #0f766e;
+    border-color: var(--sage);
 }
 
 /* TARJETAS DE METAS */
@@ -165,8 +174,8 @@
 }
 
 .meta-card {
-    background: white;
-    border: 1px solid #eef2f6;
+    background: var(--floral-white);
+    border: 1px solid var(--cloud);
     border-radius: 18px;
     padding: 22px 24px;
 }
@@ -174,45 +183,45 @@
 .meta-card h2 {
     font-size: 15px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--black);
     margin-bottom: 10px;
 }
 
 .meta-monto {
     font-size: 19px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--black);
 }
 
 .meta-objetivo {
     font-size: 15px;
     font-weight: 500;
-    color: #94a3b8;
+    color: rgba(0,0,0,.4);
 }
 
 .meta-nota-principal {
     font-size: 12.5px;
     font-weight: 700;
-    color: #0f766e;
+    color: var(--sage);
     margin-bottom: 2px;
 }
 
 .meta-card.cumplida .meta-nota-principal {
-    color: #16a34a;
+    color: var(--sage);
 }
 
 .meta-nota-secundaria {
     font-size: 11.5px;
-    color: #94a3b8;
+    color: rgba(0,0,0,.4);
 }
 
 /* ABONAR DINERO A UNA META */
 .btn-abonar {
     margin-top: 12px;
     width: 100%;
-    background: #f0fdfa;
-    color: #0f766e;
-    border: 1px dashed #0f766e;
+    background: var(--sage-tint);
+    color: var(--sage);
+    border: 1px dashed var(--sage);
     border-radius: 10px;
     padding: 9px;
     font-size: 12.5px;
@@ -222,7 +231,7 @@
 }
 
 .btn-abonar:hover {
-    background: #ccfbf1;
+    background: var(--sage-tint-strong);
 }
 
 .abono-form {
@@ -234,7 +243,7 @@
 .abono-form input {
     flex: 1;
     min-width: 0;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--cloud);
     border-radius: 8px;
     padding: 8px 10px;
     font-size: 12.5px;
@@ -251,13 +260,13 @@
 }
 
 .btn-guardar-abono {
-    background: #0f766e;
+    background: var(--sage);
     color: white;
 }
 
 .btn-cancelar-abono {
-    background: #f1f5f9;
-    color: #64748b;
+    background: var(--cloud);
+    color: rgba(0,0,0,.55);
 }
 
 @media (max-width: 700px) {
