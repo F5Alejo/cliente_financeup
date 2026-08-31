@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { PqrService, PrioridadPqr } from '../../../services/pqr';
+import { Pqr, PqrService, PrioridadPqr } from '../../../services/pqr';
 import { ToastService } from '../../../shared/services/toast';
 import { AuthService } from '../../../services/auth';
 
@@ -110,7 +110,7 @@ export class NuevoPqrComponent implements OnInit {
       return;
     }
 
-    this.pqrService.agregarPqr({
+    const nuevaPqr: Pqr = {
       titulo: this.asunto.trim(),
       numero: Math.floor(1000000 + Math.random() * 9000000).toString(),
       estado: 'Radicado',
@@ -131,7 +131,10 @@ export class NuevoPqrComponent implements OnInit {
       usuario: this.usuario,
       archivosAdjuntos: this.nombreArchivo ? [this.nombreArchivo] : [],
       mensajeRespuesta: 'Tu solicitud fue radicada. Un asesor la revisará pronto.',
-    });
+    };
+
+    console.log('Datos del formulario PQR:', nuevaPqr);
+    this.pqrService.agregarPqr(nuevaPqr);
 
     this.toastService.success('PQR radicada correctamente.');
     this.router.navigate(['/pqr']);
