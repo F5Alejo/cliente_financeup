@@ -1,7 +1,10 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ToastService } from '../../../../shared/services/toast';
-import { FinanzasMenuComponent } from '../../finanzas-menu/finanzas-menu';
+import { ToastService } from '../../../shared/services/toast';
+import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
+import { AuthService } from '../../../services/auth';
+import { ResuelveDeudaService } from '../../../services/resuelve-deuda';
+import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
 
 export interface DeudaRegistrada {
   id: number;
@@ -19,12 +22,22 @@ const TASA_PROPUESTA_REFERENCIA = 14.9;
 @Component({
   selector: 'app-resuelve-deuda',
   standalone: true,
-  imports: [FinanzasMenuComponent, FormsModule],
+  imports: [FinanzasMenuComponent, FormsModule, CursoBannerComponent],
   templateUrl: './resuelve-deuda.html',
   styleUrl: './resuelve-deuda.css',
 })
-export class ResuelveDeudaComponent {
-  constructor(private toastService: ToastService) {}
+export class ResuelveDeudaComponent implements OnInit {
+  constructor(
+    private toastService: ToastService,
+    private authService: AuthService,
+    private resuelveDeudaService: ResuelveDeudaService
+  ) {}
+
+  usuario = '';
+
+  ngOnInit(): void {
+    this.usuario = this.authService.obtenerNombre();
+  }
 
   private siguienteId = 1;
 
@@ -88,14 +101,28 @@ export class ResuelveDeudaComponent {
     return `$${Math.round(valor).toLocaleString('es-CO')}`;
   }
 
+  /** Solicitud más reciente de este usuario, para mostrar su estado (Pendiente/Aprobada/Rechazada) */
+  get miSolicitud() {
+    const propias = this.resuelveDeudaService.solicitudes().filter((s) => s.usuario === this.usuario);
+    return propias.length > 0 ? propias[propias.length - 1] : undefined;
+  }
+
   solicitarConsolidacion(): void {
     if (this.deudas().length === 0) {
       this.toastService.info('Agrega al menos una deuda antes de solicitar la consolidación.');
       return;
     }
-    // Punto de extensión: aquí se envía la solicitud al backend
-    // (equipo de riesgo / negociación con la entidad) en lugar de resolverse
-    // automáticamente en el cliente.
+    if (this.miSolicitud?.estado === 'Pendiente') {
+      this.toastService.info('Ya tienes una solicitud pendiente. Espera la revisión antes de enviar otra.');
+      return;
+    }
+
+    this.resuelveDeudaService.crearSolicitud({
+      usuario: this.usuario,
+      saldoTotal: this.saldoTotal(),
+      cuotaActual: this.cuotaActualTotal(),
+      cuotaPropuesta: this.cuotaEstimadaNueva(),
+    });
     this.toastService.success('Solicitud enviada. Nuestro equipo revisará tu caso y te contactará.');
   }
 }

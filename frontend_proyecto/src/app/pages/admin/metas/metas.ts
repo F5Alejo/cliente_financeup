@@ -20,6 +20,13 @@
     editandoId: number | null = null;
     busqueda = signal('');
 
+    /** Filtro rápido por estado (mayor control sobre el campo "cumplida") */
+    estadoFiltro = signal<'Todas' | 'Cumplidas' | 'En progreso'>('Todas');
+
+    /** Orden de la tabla: qué columna y en qué sentido */
+    columnaOrden = signal<'nombre' | 'actual' | 'objetivo' | 'porcentaje' | null>(null);
+    ordenAscendente = signal(true);
+
     formMeta: Meta = this.formularioVacio();
 
     private formularioVacio(): Meta {
@@ -28,9 +35,41 @@
 
     get metasFiltradas(): Meta[] {
         const termino = this.busqueda().trim().toLowerCase();
-        const todas = this.metasService.metas;
-        if (!termino) return todas;
-        return todas.filter((m) => m.nombre.toLowerCase().includes(termino));
+        let lista = this.metasService.metas;
+
+        if (termino) lista = lista.filter((m) => m.nombre.toLowerCase().includes(termino));
+        if (this.estadoFiltro() === 'Cumplidas') lista = lista.filter((m) => m.cumplida);
+        if (this.estadoFiltro() === 'En progreso') lista = lista.filter((m) => !m.cumplida);
+
+        const columna = this.columnaOrden();
+        if (columna) {
+            lista = [...lista].sort((a, b) => {
+                const valA = a[columna];
+                const valB = b[columna];
+                const comparacion = typeof valA === 'number' ? valA - (valB as number) : String(valA).localeCompare(String(valB));
+                return this.ordenAscendente() ? comparacion : -comparacion;
+            });
+        }
+
+        return lista;
+    }
+
+    /** Cuánto le falta a una meta para completarse */
+    faltante(meta: Meta): number {
+        return Math.max(0, meta.objetivo - meta.actual);
+    }
+
+    filtrarPorEstado(estado: string): void {
+        this.estadoFiltro.set(estado as 'Todas' | 'Cumplidas' | 'En progreso');
+    }
+
+    ordenarPor(columna: 'nombre' | 'actual' | 'objetivo' | 'porcentaje'): void {
+        if (this.columnaOrden() === columna) {
+            this.ordenAscendente.update((v) => !v);
+        } else {
+            this.columnaOrden.set(columna);
+            this.ordenAscendente.set(true);
+        }
     }
 
     get totalMetas(): number {
