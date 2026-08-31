@@ -73,6 +73,57 @@
     margin-bottom: 16px;
 }
 
+.buscador {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.filtros-estado {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 999px;
+    width: fit-content;
+    margin-bottom: 14px;
+}
+
+.filtros-estado button {
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.filtros-estado button.activo {
+    background: var(--green-primary);
+    color: white;
+}
+
+.th-ordenable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.th-ordenable:hover {
+    color: var(--green-primary);
+}
+
+.fila-vacia {
+    text-align: center;
+    color: #94a3b8;
+    padding: 20px !important;
+}
+
 .tabla-scroll {
     overflow-x: auto;
 }

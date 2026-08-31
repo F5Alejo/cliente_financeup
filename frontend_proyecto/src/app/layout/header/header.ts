@@ -45,6 +45,12 @@ export class HeaderComponent {
     return nombre.charAt(0).toUpperCase();
   }
 
+  /** true si el usuario logueado tiene rol de administrador — controla si se
+   *  muestra el link "Panel de administrador" en el desplegable del perfil. */
+  get esAdmin(): boolean {
+    return this.authService.obtenerUsuario()?.rol === 'admin';
+  }
+
   toggleMenu(): void {
     this.menuAbierto = !this.menuAbierto;
   }

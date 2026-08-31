@@ -114,7 +114,7 @@ export class HomeComponent {
 
   /** Botón "Comenzar Ahora" del hero: lleva a Mis PQR si hay sesión, o al login si no. */
   onComenzarAhora(): void {
-    this.router.navigate([this.authService.estaAutenticado() ? '/pqr' : '/login']);
+    this.router.navigate([this.authService.estaAutenticado() ? '/finanzas' : '/login']);
   }
 
   onConocerFinanzasPersonales(): void {
