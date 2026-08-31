@@ -21,20 +21,37 @@
 
     <section class="panel">
         <h2>Todas las solicitudes</h2>
+
+        <input
+            type="text"
+            class="buscador"
+            placeholder="Buscar por usuario..."
+            [ngModel]="busqueda()"
+            (ngModelChange)="actualizarBusqueda($event)"
+            name="busqueda" />
+
+        <div class="filtros-estado" role="tablist" aria-label="Filtrar por estado">
+            @for (e of ['Todas', 'Pendiente', 'Aprobada', 'Rechazada']; track e) {
+                <button type="button" role="tab" [class.activo]="estadoFiltro() === e" (click)="filtrarPorEstado(e)">
+                    {{ e }}
+                </button>
+            }
+        </div>
+
         <div class="tabla-scroll">
             <table>
                 <thead>
                     <tr>
-                        <th>Usuario</th>
-                        <th>Saldo</th>
-                        <th>Cuota actual</th>
-                        <th>Cuota propuesta</th>
+                        <th class="th-ordenable" (click)="ordenarPor('usuario')">Usuario {{ columnaOrden() === 'usuario' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                        <th class="th-ordenable" (click)="ordenarPor('saldoTotal')">Saldo {{ columnaOrden() === 'saldoTotal' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                        <th class="th-ordenable" (click)="ordenarPor('cuotaActual')">Cuota actual {{ columnaOrden() === 'cuotaActual' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                        <th class="th-ordenable" (click)="ordenarPor('cuotaPropuesta')">Cuota propuesta {{ columnaOrden() === 'cuotaPropuesta' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
                         <th>Estado</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @for (s of solicitudes(); track s.id) {
+                    @for (s of solicitudesFiltradas; track s.id) {
                         <tr>
                             <td>{{ s.usuario }}</td>
                             <td>{{ formatearCOP(s.saldoTotal) }}</td>
@@ -49,6 +66,11 @@
                                     <button type="button" class="btn-rechazar" (click)="cambiarEstado(s.id, 'Rechazada')">Rechazar</button>
                                 }
                             </td>
+                        </tr>
+                    }
+                    @if (solicitudesFiltradas.length === 0) {
+                        <tr>
+                            <td colspan="6" class="fila-vacia">No hay solicitudes que coincidan con la búsqueda.</td>
                         </tr>
                     }
                 </tbody>
