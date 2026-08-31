@@ -1,7 +1,5 @@
-/* =========================================================
-   FINANCE UP — LOGIN
-   Sistema visual: acceso a la izquierda, demo animado a la derecha
-   ========================================================= */
+/*FINANCE UP — LOGIN
+   Sistema visual: acceso a la izquierda, demo animado a la derecha*/
 
 :host {
   /* Colores heredados del sistema global de la app */
@@ -34,9 +32,7 @@
   box-sizing: border-box;
 }
 
-/* =========================================================
-   CONTENEDOR
-   ========================================================= */
+/* CONTENEDOR */
 
 .login-container {
   min-height: 100vh;
@@ -85,9 +81,7 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* =========================================================
-   TARJETA DE ACCESO
-   ========================================================= */
+/* TARJETA DE ACCESO*/
 
 .login-card {
   width: 44%;
@@ -140,9 +134,7 @@
   margin: 0;
 }
 
-/* =========================================================
-   ALERTAS Y TEXTO DE VERIFICACIÓN
-   ========================================================= */
+/* ALERTAS Y TEXTO DE VERIFICACIÓN */
 
 .alert {
   width: 100%;
@@ -171,9 +163,7 @@
   margin-top: 8px;
 }
 
-/* =========================================================
-   CAMPOS
-   ========================================================= */
+/* CAMPOS*/
 
 .form-group {
   width: 100%;
@@ -221,9 +211,7 @@
   text-align: center;
 }
 
-/* =========================================================
-   CONTRASEÑA
-   ========================================================= */
+/*CONTRASEÑA */
 
 .password-wrapper { position: relative; width: 100%; }
 
@@ -255,9 +243,7 @@
 .toggle-password:hover { background: #eef2ee; color: var(--forest); }
 .toggle-password:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
-/* =========================================================
-   RECORDAR / OLVIDASTE
-   ========================================================= */
+/* RECORDAR / OLVIDASTE*/
 
 .form-row {
   width: 100%;
@@ -294,9 +280,7 @@
 .link:hover { color: var(--forest); text-decoration: underline; }
 .link:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
-/* =========================================================
-   BOTONES
-   ========================================================= */
+/* BOTONES*/
 
 .btn-primary {
   width: 100%;
@@ -339,9 +323,7 @@
 .register-button:hover { background: #eef7f0; transform: translateY(-1px); }
 .register-button:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
 
-/* =========================================================
-   SEPARADOR + SOCIAL
-   ========================================================= */
+/*SEPARADOR + SOCIAL*/
 
 .social-divider {
   width: 100%;
@@ -391,9 +373,7 @@
 
 .social-icon { width: 18px; height: 18px; }
 
-/* =========================================================
-   PANEL PROMOCIONAL (derecha)
-   ========================================================= */
+/* PANEL PROMOCIONAL (derecha) */
 
 .login-showcase {
   width: 56%;
@@ -548,9 +528,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* =========================================================
-   CLUSTER — tarjetas flotantes alrededor del demo
-   ========================================================= */
+/* CLUSTER — tarjetas flotantes alrededor del demo*/
 
 .demo-cluster {
   position: relative;
@@ -655,9 +633,7 @@
   50% { transform: translateY(-6px); }
 }
 
-/* =========================================================
-   "VIDEO" PROMOCIONAL — escenario con navegador + teléfono flotante
-   ========================================================= */
+/* "VIDEO" PROMOCIONAL — escenario con navegador + teléfono flotante */
 
 .demo-stage {
   position: relative;
@@ -1255,9 +1231,7 @@
   border: 1px solid rgba(255,255,255,0.7);
 }
 
-/* =========================================================
-   MOTION REDUCIDO
-   ========================================================= */
+/*MOTION REDUCIDO*/
 
 @media (prefers-reduced-motion: reduce) {
   .login-row,
@@ -1300,9 +1274,7 @@
   .demo-scene-1 { display: block; }
 }
 
-/* =========================================================
-   RESPONSIVE — TABLET
-   ========================================================= */
+/*RESPONSIVE — TABLET*/
 
 @media (max-width: 940px) {
   .login-row { max-width: 640px; }
@@ -1315,9 +1287,7 @@
   .demo-screen { height: 170px; }
 }
 
-/* =========================================================
-   RESPONSIVE — MÓVIL
-   ========================================================= */
+/* RESPONSIVE — MÓVIL*/
 
 @media (max-width: 720px) {
   .login-container { padding: 16px 12px; }
