@@ -1,4 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ToastService } from '../../../shared/services/toast';
 
 interface FaqItem {
@@ -17,13 +18,24 @@ interface FaqItem {
   styleUrl: './linea-ayuda.css',
 })
 export class LineaAyudaComponent {
-  constructor(private readonly toastService: ToastService) {}
+  constructor(
+    private readonly toastService: ToastService,
+    private readonly route: ActivatedRoute,
+  ) {
+    this.route.queryParamMap.subscribe((params) => {
+      this.busqueda.set(params.get('busqueda') ?? '');
+      const categoria = params.get('categoria');
+      this.categoriaSeleccionada.set(
+        categoria && this.categorias.includes(categoria) ? categoria : 'Todas',
+      );
+    });
+  }
 
   // Banner
   bannerTitle: string = 'Línea de Ayuda';
   bannerDescription: string =
     'Resuelve tus dudas, consulta sobre operaciones o productos y recibe la atención especializada que necesitas a través de nuestros canales de atención al cliente.';
-  phoneNumber: string = '607 630 40 00';
+  phoneNumber: string = '+57 300 735 7662';
   chatButtonLabel: string = 'Iniciar chat';
 
   readonly bannerDatos = [
@@ -37,6 +49,7 @@ export class LineaAyudaComponent {
 
   readonly categorias = ['Todas', 'Cuenta', 'Seguridad', 'Educación', 'Alianzas', 'PQR'];
   readonly categoriaSeleccionada = signal('Todas');
+  readonly busqueda = signal('');
 
   faqItems: FaqItem[] = [
     {
@@ -97,9 +110,27 @@ export class LineaAyudaComponent {
 
   readonly faqFiltradas = computed(() => {
     const categoria = this.categoriaSeleccionada();
-    if (categoria === 'Todas') return this.faqItems;
-    return this.faqItems.filter((item) => item.categoria === categoria);
+    const termino = this.normalizarTexto(this.busqueda());
+
+    return this.faqItems.filter((item) => {
+      const coincideCategoria = categoria === 'Todas' || item.categoria === categoria;
+      const coincideBusqueda =
+        !termino ||
+        [item.question, item.answer, item.categoria].some((texto) =>
+          this.normalizarTexto(texto).includes(termino),
+        );
+
+      return coincideCategoria && coincideBusqueda;
+    });
   });
+
+  private normalizarTexto(texto: string): string {
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
 
   seleccionarCategoria(categoria: string): void {
     this.categoriaSeleccionada.set(categoria);
