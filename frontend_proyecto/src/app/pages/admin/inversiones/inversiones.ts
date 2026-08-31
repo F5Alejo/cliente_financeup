@@ -20,6 +20,13 @@ import { ToastService } from '../../../shared/services/toast';
     editandoId: number | null = null;
     busqueda = signal('');
 
+    /** Filtro rápido por nivel de riesgo (mayor control sobre el campo "riesgo") */
+    riesgoFiltro = signal<'Todos' | 'Bajo' | 'Medio' | 'Alto'>('Todos');
+
+    /** Orden de la tabla: qué columna y en qué sentido (mayor control sobre cada campo) */
+    columnaOrden = signal<'nombre' | 'monto' | 'rendimiento' | 'riesgo' | 'duracion' | null>(null);
+    ordenAscendente = signal(true);
+
     formInversion: Inversion = this.formularioVacio();
 
     private formularioVacio(): Inversion {
@@ -28,9 +35,22 @@ import { ToastService } from '../../../shared/services/toast';
 
     get inversionesFiltradas(): Inversion[] {
         const termino = this.busqueda().trim().toLowerCase();
-        const todas = this.inversionesService.inversiones;
-        if (!termino) return todas;
-        return todas.filter((i) => i.nombre.toLowerCase().includes(termino));
+        let lista = this.inversionesService.inversiones;
+
+        if (termino) lista = lista.filter((i) => i.nombre.toLowerCase().includes(termino));
+        if (this.riesgoFiltro() !== 'Todos') lista = lista.filter((i) => i.riesgo === this.riesgoFiltro());
+
+        const columna = this.columnaOrden();
+        if (columna) {
+            lista = [...lista].sort((a, b) => {
+                const valA = a[columna];
+                const valB = b[columna];
+                const comparacion = typeof valA === 'number' ? valA - (valB as number) : String(valA).localeCompare(String(valB));
+                return this.ordenAscendente() ? comparacion : -comparacion;
+            });
+        }
+
+        return lista;
     }
 
     get totalInvertido(): number {
@@ -41,12 +61,33 @@ import { ToastService } from '../../../shared/services/toast';
         return this.inversionesService.inversiones.reduce((suma, i) => suma + i.rendimiento, 0);
     }
 
-    get inversionesAltoRiesgo(): number {
-        return this.inversionesService.inversiones.filter((i) => i.riesgo === 'Alto').length;
+    /** Cuánto dinero hay invertido en cada nivel de riesgo */
+    totalPorRiesgo(riesgo: 'Bajo' | 'Medio' | 'Alto'): number {
+        return this.inversionesService.inversiones
+            .filter((i) => i.riesgo === riesgo)
+            .reduce((suma, i) => suma + i.monto, 0);
+    }
+
+    /** Rendimiento de una inversión como porcentaje de lo invertido */
+    rendimientoPorcentaje(inv: Inversion): number {
+        return inv.monto > 0 ? Math.round((inv.rendimiento / inv.monto) * 1000) / 10 : 0;
     }
 
     actualizarBusqueda(valor: string): void {
         this.busqueda.set(valor);
+    }
+
+    filtrarPorRiesgo(riesgo: string): void {
+        this.riesgoFiltro.set(riesgo as 'Todos' | 'Bajo' | 'Medio' | 'Alto');
+    }
+
+    ordenarPor(columna: 'nombre' | 'monto' | 'rendimiento' | 'riesgo' | 'duracion'): void {
+        if (this.columnaOrden() === columna) {
+            this.ordenAscendente.update((v) => !v);
+        } else {
+            this.columnaOrden.set(columna);
+            this.ordenAscendente.set(true);
+        }
     }
 
     editarInversion(inversion: Inversion): void {

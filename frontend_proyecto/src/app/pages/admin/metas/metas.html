@@ -26,13 +26,22 @@
         (ngModelChange)="actualizarBusqueda($event)"
         name="busqueda" />
 
+    <div class="filtros-estado" role="tablist" aria-label="Filtrar por estado">
+        @for (e of ['Todas', 'Cumplidas', 'En progreso']; track e) {
+            <button type="button" role="tab" [class.activo]="estadoFiltro() === e" (click)="filtrarPorEstado(e)">
+                {{ e }}
+            </button>
+        }
+    </div>
+
     <table>
         <thead>
             <tr>
-                <th>Meta</th>
-                <th>Actual</th>
-                <th>Objetivo</th>
-                <th>Progreso</th>
+                <th class="th-ordenable" (click)="ordenarPor('nombre')">Meta {{ columnaOrden() === 'nombre' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                <th class="th-ordenable" (click)="ordenarPor('actual')">Actual {{ columnaOrden() === 'actual' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                <th class="th-ordenable" (click)="ordenarPor('objetivo')">Objetivo {{ columnaOrden() === 'objetivo' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
+                <th>Falta</th>
+                <th class="th-ordenable" (click)="ordenarPor('porcentaje')">Progreso {{ columnaOrden() === 'porcentaje' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
                 <th>Estado</th>
                 <th></th>
             </tr>
@@ -43,6 +52,7 @@
                     <td>{{ meta.icono }} {{ meta.nombre }}</td>
                     <td>{{ formatearCOP(meta.actual) }}</td>
                     <td>{{ formatearCOP(meta.objetivo) }}</td>
+                    <td>{{ formatearCOP(faltante(meta)) }}</td>
                     <td>{{ meta.porcentaje }}%</td>
                     <td>
                         <span class="estado" [class.cumplida]="meta.cumplida">
@@ -57,7 +67,7 @@
             }
             @if (metasFiltradas.length === 0) {
                 <tr>
-                    <td colspan="6" class="fila-vacia">No hay metas que coincidan con la búsqueda.</td>
+                    <td colspan="7" class="fila-vacia">No hay metas que coincidan con la búsqueda.</td>
                 </tr>
             }
         </tbody>

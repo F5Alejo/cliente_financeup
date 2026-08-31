@@ -66,6 +66,12 @@
         </div>
     </section>
 
+    @if (miSolicitud) {
+        <section class="estado-solicitud" [class]="'estado-' + miSolicitud.estado.toLowerCase()">
+            Tu solicitud de consolidación está: <strong>{{ miSolicitud.estado }}</strong>
+        </section>
+    }
+
     <section class="panel ahorro-panel">
         <div>
             <span class="resumen-label">Ahorro mensual estimado</span>
@@ -73,11 +79,18 @@
                 {{ formatearCOP(ahorroMensualEstimado()) }}
             </span>
         </div>
-        <button type="button" class="btn-primario" (click)="solicitarConsolidacion()">Solicitar consolidación</button>
+        <button type="button" class="btn-primario" [disabled]="miSolicitud?.estado === 'Pendiente'" (click)="solicitarConsolidacion()">
+            {{ miSolicitud?.estado === 'Pendiente' ? 'Solicitud en revisión...' : 'Solicitar consolidación' }}
+        </button>
     </section>
 
     <p class="nota-legal">
         Esta es una estimación de referencia y no constituye una oferta en firme. La tasa y el plazo
         finales dependen de la evaluación de riesgo de cada caso y de la negociación con la entidad original.
     </p>
+
+    <app-curso-banner
+        texto="Ordena tus deudas y decide cuál pagar primero con el método bola de nieve"
+        cursoId="salir-de-deudas">
+    </app-curso-banner>
 </div>

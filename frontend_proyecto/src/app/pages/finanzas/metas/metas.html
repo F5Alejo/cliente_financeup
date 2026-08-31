@@ -4,7 +4,9 @@
         <h1>Metas</h1>
         <div class="header-acciones">
             <button type="button" class="btn-primario" (click)="toggleFormularioMeta()">+ Crear Nueva Meta</button>
-            <button type="button" class="btn-icono" (click)="masOpciones()" aria-label="Más opciones" title="Más opciones">⋯</button>
+            <button type="button" class="btn-icono" (click)="masOpciones()" aria-label="Ordenar por progreso" title="Ordenar por progreso">
+                {{ ordenAscendente() ? '🔼' : '🔽' }}
+            </button>
         </div>
     </header>
 
@@ -47,7 +49,24 @@
                 </div>
                 <p class="meta-nota-principal">{{ notaPrincipal(meta) }}</p>
                 <p class="meta-nota-secundaria">{{ notaSecundaria(meta) }}</p>
+
+                @if (!meta.cumplida) {
+                    @if (metaAbonando() === meta.id) {
+                        <div class="abono-form">
+                            <input type="number" min="1" placeholder="Monto a abonar" [(ngModel)]="montoAbono" name="abono-{{ meta.id }}" />
+                            <button type="button" class="btn-guardar-abono" (click)="confirmarAbono(meta)">Guardar</button>
+                            <button type="button" class="btn-cancelar-abono" (click)="cancelarAbono()">Cancelar</button>
+                        </div>
+                    } @else {
+                        <button type="button" class="btn-abonar" (click)="abrirAbono(meta.id)">+ Abonar dinero</button>
+                    }
+                }
             </article>
         }
     </section>
+
+    <app-curso-banner
+        texto="Separar un % de tu ingreso cada mes para tus metas es más fácil con una regla simple"
+        cursoId="presupuesto-50-30-20">
+    </app-curso-banner>
 </div>
