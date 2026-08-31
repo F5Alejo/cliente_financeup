@@ -461,51 +461,76 @@
 }
 
 /* =========================================================
-   "VIDEO" PROMOCIONAL — marco tipo reproductor
+   "VIDEO" PROMOCIONAL — escenario con navegador + teléfono flotante
    ========================================================= */
 
-.demo-frame {
+.demo-stage {
+  position: relative;
   width: 100%;
-  max-width: 380px;
-
-  border-radius: 14px;
-  overflow: hidden;
-
-  background: rgba(9, 26, 17, 0.55);
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 20px 46px rgba(0,0,0,0.28);
+  max-width: 420px;
 
   animation: showcaseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both;
+}
+
+.demo-frame {
+  position: relative;
+  width: 100%;
+
+  border-radius: 16px;
+  overflow: hidden;
+
+  background: linear-gradient(165deg, rgba(18, 44, 30, 0.7), rgba(6, 18, 12, 0.85));
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.32),
+    0 8px 20px rgba(0,0,0,0.18);
+
+  transform: perspective(900px) rotateX(1.5deg);
 }
 
 .demo-chrome {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 
-  padding: 9px 12px;
-  background: rgba(0,0,0,0.22);
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.28);
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.demo-chrome-dots { display: flex; gap: 5px; }
+.demo-chrome-dots { display: flex; gap: 6px; }
 
 .demo-chrome-dots i {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.28);
   display: inline-block;
 }
 
+.dot-red { background: #ff6259; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #29c940; }
+
+.demo-url {
+  flex: 1;
+  text-align: center;
+
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
 .demo-live {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 5px;
 
   font-family: 'IBM Plex Mono', 'Courier New', monospace;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--mint);
@@ -524,36 +549,30 @@
   50% { opacity: 0.3; }
 }
 
-.demo-time {
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
-  font-size: 10.5px;
-  color: rgba(255,255,255,0.45);
-}
-
 .demo-screen {
   position: relative;
-  height: 190px;
-  padding: 18px 20px;
+  height: 216px;
+  padding: 20px 22px;
 }
 
 .demo-scene {
   position: absolute;
   inset: 0;
-  padding: 18px 20px;
+  padding: 20px 22px;
 
   opacity: 0;
-  animation: sceneCycle 9s ease-in-out infinite;
+  animation: sceneCycle 10.5s ease-in-out infinite;
 }
 
 .demo-scene-1 { animation-delay: 0s; }
-.demo-scene-2 { animation-delay: -6s; }
-.demo-scene-3 { animation-delay: -3s; }
+.demo-scene-2 { animation-delay: -7s; }
+.demo-scene-3 { animation-delay: -3.5s; }
 
 @keyframes sceneCycle {
-  0%   { opacity: 0; transform: translateY(8px) scale(0.98); }
+  0%   { opacity: 0; transform: translateY(10px) scale(0.98); }
   4%   { opacity: 1; transform: translateY(0) scale(1); }
   29%  { opacity: 1; transform: translateY(0) scale(1); }
-  33%  { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  33%  { opacity: 0; transform: translateY(-10px) scale(0.98); }
   100% { opacity: 0; }
 }
 
@@ -563,18 +582,34 @@
   font-weight: 650;
   letter-spacing: 0.02em;
   color: rgba(255,255,255,0.55);
-  margin-bottom: 14px;
 }
 
-/* Escena 1: total + barras */
+/* Escena 1: balance + gráfico en vivo */
+
+.demo-scene-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.demo-scene-pill {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--mint);
+  background: rgba(123, 226, 160, 0.14);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
 
 .demo-total-figure {
   display: inline-flex;
   font-family: 'Manrope', sans-serif;
-  font-size: 26px;
+  font-size: 27px;
   font-weight: 800;
   color: var(--white);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .demo-total-figure .tick {
@@ -596,28 +631,73 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.demo-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  height: 64px;
+.demo-chart { width: 100%; height: 92px; }
+
+.demo-chart svg { width: 100%; height: 100%; overflow: visible; }
+
+.chart-area { animation: areaFade 1s ease 0.6s both; }
+
+@keyframes areaFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.demo-bar {
-  width: 100%;
-  height: var(--h);
-  border-radius: 4px 4px 0 0;
-  background: linear-gradient(180deg, var(--mint), var(--moss));
-  transform-origin: bottom;
-  animation: barGrow 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+.chart-line {
+  stroke: var(--mint);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: lineDraw 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
 }
 
-@keyframes barGrow {
-  from { transform: scaleY(0); opacity: 0; }
-  to   { transform: scaleY(1); opacity: 1; }
+@keyframes lineDraw {
+  to { stroke-dashoffset: 0; }
 }
 
-/* Escena 2: movimientos */
+.chart-dot {
+  fill: var(--mint);
+  filter: drop-shadow(0 0 6px rgba(123, 226, 160, 0.8));
+  animation: dotAppear 0.4s ease 1.5s both, dotPulse 1.8s ease-in-out 1.9s infinite;
+}
+
+@keyframes dotAppear {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes dotPulse {
+  0%, 100% { r: 4; }
+  50% { r: 5.5; }
+}
+
+/* Brillo tipo cristal que recorre el marco */
+
+.demo-glare {
+  position: absolute;
+  top: -60%;
+  left: -30%;
+  width: 40%;
+  height: 220%;
+
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255,255,255,0.12) 45%,
+    rgba(255,255,255,0.02) 60%,
+    transparent 80%
+  );
+
+  transform: rotate(12deg);
+  pointer-events: none;
+
+  animation: glareSweep 6s ease-in-out infinite;
+}
+
+@keyframes glareSweep {
+  0%, 55%, 100% { left: -30%; }
+  30% { left: 120%; }
+}
 
 .demo-txn {
   display: flex;
@@ -676,6 +756,28 @@
 
 .demo-txn-amount-neg { color: rgba(255,255,255,0.6); }
 
+.demo-cursor {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--mint);
+  background: rgba(123, 226, 160, 0.18);
+
+  left: 30px;
+  top: 66px;
+
+  opacity: 0;
+  animation: cursorTap 10.5s ease-in-out infinite;
+}
+
+@keyframes cursorTap {
+  0%, 40% { opacity: 0; transform: scale(0.6); }
+  46% { opacity: 1; transform: scale(1); }
+  52% { opacity: 1; transform: scale(0.85); }
+  60%, 100% { opacity: 0; transform: scale(1.3); }
+}
+
 /* Escena 3: meta de ahorro */
 
 .demo-ring {
@@ -729,6 +831,7 @@
 /* Barra de progreso del "video" */
 
 .demo-scrubber {
+  position: relative;
   height: 3px;
   background: rgba(255,255,255,0.1);
 }
@@ -738,12 +841,91 @@
   height: 100%;
   width: 0%;
   background: var(--mint);
-  animation: scrub 9s linear infinite;
+  animation: scrub 10.5s linear infinite;
 }
 
 @keyframes scrub {
   from { width: 0%; }
   to   { width: 100%; }
+}
+
+/* Teléfono flotante con notificación */
+
+.demo-phone {
+  position: absolute;
+  right: -18px;
+  bottom: -26px;
+  width: 128px;
+
+  padding: 10px 10px 14px;
+  border-radius: 20px;
+
+  background: linear-gradient(165deg, #1a3d29, #0c2016);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 18px 34px rgba(0,0,0,0.32);
+
+  animation:
+    showcaseUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.75s both,
+    phoneFloat 4.5s ease-in-out 1.6s infinite;
+}
+
+@keyframes phoneFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(-1deg); }
+}
+
+.demo-phone-notch {
+  width: 30px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.2);
+  margin: 0 auto 10px;
+}
+
+.demo-phone-notif {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+
+  animation: notifPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 2s both;
+}
+
+@keyframes notifPop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.demo-phone-notif-icon {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--mint);
+  color: var(--forest-deep);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.demo-phone-notif-body strong {
+  display: block;
+  font-size: 9px;
+  color: var(--white);
+}
+
+.demo-phone-notif-body small {
+  display: block;
+  font-size: 8.5px;
+  line-height: 1.3;
+  color: rgba(255,255,255,0.6);
 }
 
 /* Chips debajo del demo, sincronizados con cada escena */
@@ -774,12 +956,18 @@
   .login-row,
   .showcase-title,
   .showcase-subtitle,
+  .demo-stage,
   .demo-frame,
+  .demo-phone,
+  .demo-glare,
+  .demo-cursor,
   .demo-captions,
   .showcase-glow,
   .demo-live-dot,
   .demo-scene,
-  .demo-bar,
+  .chart-line,
+  .chart-area,
+  .chart-dot,
   .demo-txn,
   .ring-progress,
   .demo-progress,
@@ -787,6 +975,8 @@
     animation: none !important;
   }
 
+  .demo-frame { transform: none; }
+  .chart-line { stroke-dashoffset: 0; }
   .demo-scene { opacity: 1; position: relative; display: none; }
   .demo-scene-1 { display: block; }
 }
@@ -827,7 +1017,8 @@
   .login-showcase { order: 1; }
   .login-card { order: 2; }
 
-  .demo-frame { max-width: 100%; }
+  .demo-stage { max-width: 100%; }
+  .demo-phone { width: 108px; right: -10px; bottom: -18px; }
 
   .form-row { flex-direction: column; align-items: flex-start; gap: 8px; }
 
