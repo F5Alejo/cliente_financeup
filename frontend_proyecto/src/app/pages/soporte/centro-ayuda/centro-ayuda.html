@@ -14,6 +14,7 @@
         [placeholder]="searchPlaceholder"
         [value]="busqueda()"
         (input)="busqueda.set($any($event.target).value)"
+        (keyup.enter)="buscarPreguntasFrecuentes()"
       />
       <span class="help-search__count">{{ totalArticulos() }} artículos</span>
     </div>
