@@ -107,14 +107,19 @@ export class HomeComponent {
   ctaTitulo: string = 'Comienza a Gestionar tus Finanzas Hoy';
   ctaSubtitulo: string =
     'Únete a más de 50,000 usuarios que ya están tomando el control de su futuro financiero con nuestra plataforma inteligente.';
-  ctaBotonPrimario: string = 'Crear Cuenta Gratis';
+  
+  get ctaBotonPrimario(): string {
+  return this.authService.estaAutenticado() ? 'Finanzas' :
+  'Crear cuenta gratis';
+}
+
   ctaBotonSecundario: string = 'Conocer mas';
 
   // ===== Acciones =====
 
   /** Botón "Comenzar Ahora" del hero: lleva a Mis PQR si hay sesión, o al login si no. */
   onComenzarAhora(): void {
-    this.router.navigate([this.authService.estaAutenticado() ? '/finanzas' : '/login']);
+    this.router.navigate([this.authService.estaAutenticado() ? '/educacion' : '/login']);
   }
 
   onConocerFinanzasPersonales(): void {
@@ -126,9 +131,10 @@ export class HomeComponent {
   }
 
   /** Botón "Crear Cuenta Gratis" del CTA final: manda a registro. */
-  onCrearCuenta(): void {
-    this.router.navigate(['/registro']);
-  }
+onCrearCuenta(): void {
+  this.router.navigate([this.authService.estaAutenticado()
+    ? '/finanzas' : '/registro']);
+}
 
   onConocerMasCta(): void {
     console.log('Conocer más (CTA final)');

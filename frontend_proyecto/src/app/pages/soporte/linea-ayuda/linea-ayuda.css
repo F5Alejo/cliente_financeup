@@ -243,6 +243,12 @@
   gap: 14px;
 }
 
+.faq-empty {
+  margin: 24px 0;
+  color: #667085;
+  text-align: center;
+}
+
 .faq-item {
   background: var(--panel);
   border: 1px solid var(--borde);
