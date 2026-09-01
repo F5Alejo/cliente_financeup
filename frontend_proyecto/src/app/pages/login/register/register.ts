@@ -114,6 +114,8 @@ export class RegisterComponent {
 
     const { nombre, apellido, correo, password } = this.registerForm.value;
 
+    console.log('Datos de registro:', { nombre, apellido, correo});
+
     // TODO: reemplazar por llamada HTTP real al backend cuando esté listo.
     const resultado = this.authService.registrarUsuario(nombre, apellido, correo, password);
 
@@ -136,6 +138,9 @@ export class RegisterComponent {
 
   registerWithFacebook(): void {
     console.log('Registro con Facebook');
+  }
+  registrousu():void{
+    console.log(this.registerForm)
   }
 
   goToLogin(): void {

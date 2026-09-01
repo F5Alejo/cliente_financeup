@@ -15,8 +15,9 @@
     constructor(
         public metasService: MetasService,
         private toastService: ToastService
-    ) {}
-
+    ) {
+        console.log('Formulario Meta:', this.formularioVacio());
+    }
     editandoId: number | null = null;
     busqueda = signal('');
 
