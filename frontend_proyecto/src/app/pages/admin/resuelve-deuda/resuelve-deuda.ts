@@ -15,7 +15,9 @@ export class AdminResuelveDeudaComponent {
   constructor(
     private resuelveDeudaService: ResuelveDeudaService,
     private toastService: ToastService
-  ) {}
+  ) {
+    console.log('Formulario Consolidacion - Solicitudes:', this.resuelveDeudaService.solicitudes());
+  }
 
   busqueda = signal('');
   estadoFiltro = signal<'Todas' | EstadoSolicitud>('Todas');
