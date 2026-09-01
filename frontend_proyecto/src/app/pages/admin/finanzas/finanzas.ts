@@ -15,7 +15,9 @@ export class AdminFinanzasComponent {
   constructor(
     public finanzasService: FinanzasService,
     private toastService: ToastService
-  ) {}
+  ) {
+    console.log('Formulario Movimiento:', this.formularioVacio());
+  }
 
   editandoId: number | null = null;
   busqueda = signal('');
