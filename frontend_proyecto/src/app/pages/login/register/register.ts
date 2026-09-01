@@ -122,6 +122,12 @@ export class RegisterComponent {
       return;
     }
 
+    console.log('Usuario registrado correctamente:', {
+  nombre,
+  apellido,
+  correo, 
+});
+
     this.toastService.success(`Usuario registrado. ¡Bienvenido ${nombre}!`);
     this.router.navigate(['/home']);
   }
