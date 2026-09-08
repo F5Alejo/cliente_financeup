@@ -1,0 +1,10 @@
+<div class="esqueleto-grupo" aria-hidden="true">
+  @for (i of [].constructor(forma === 'texto' ? lineas : 1); track $index) {
+    <span
+      [class]="'esqueleto esqueleto-' + forma"
+      [style.height]="alto || null"
+      [style.width]="ancho || null"
+    ></span>
+  }
+</div>
+<span class="visualmente-oculto" role="status">Cargando contenido</span>
