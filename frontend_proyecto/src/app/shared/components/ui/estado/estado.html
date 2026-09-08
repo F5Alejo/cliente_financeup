@@ -1,0 +1,29 @@
+<div [class]="'estado estado-' + tipo" [attr.role]="tipo === 'error' ? 'alert' : null">
+  <span class="estado-icono" aria-hidden="true">
+    @if (tipo === 'error') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M12 8v5"></path>
+        <path d="M12 16.5v.01"></path>
+      </svg>
+    } @else {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <rect x="3.5" y="5" width="17" height="14" rx="2.5"></rect>
+        <path d="M3.5 10h17"></path>
+      </svg>
+    }
+  </span>
+
+  <h3 class="estado-titulo">{{ titulo }}</h3>
+
+  @if (descripcion) {
+    <p class="estado-descripcion">{{ descripcion }}</p>
+  }
+
+  @if (accion) {
+    <app-boton
+      [variante]="tipo === 'error' ? 'primario' : 'secundario'"
+      (accion)="accionar.emit()"
+    >{{ accion }}</app-boton>
+  }
+</div>

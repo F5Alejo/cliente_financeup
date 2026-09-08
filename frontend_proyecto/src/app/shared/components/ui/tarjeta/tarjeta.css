@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-lg);
+}
+
+.tarjeta-plana {
+  box-shadow: var(--sombra-sm);
+}
+
+.tarjeta-elevada {
+  box-shadow: var(--sombra-md);
+  transition:
+    box-shadow var(--dur-media) var(--curva),
+    transform var(--dur-media) var(--curva);
+}
+
+.tarjeta-elevada:hover {
+  box-shadow: var(--sombra-lg);
+  transform: translateY(-2px);
+}
+
+.tarjeta-relleno-sm { padding: var(--esp-4); }
+.tarjeta-relleno-md { padding: var(--esp-6); }
+.tarjeta-relleno-lg { padding: var(--esp-8); }
+
+.tarjeta-titulo {
+  margin: 0 0 var(--esp-4);
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}

@@ -1,0 +1,31 @@
+@if (abierto) {
+  <div class="modal-fondo" (click)="alPulsarFondo()">
+    <div
+      class="modal-caja"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="titulo ? idTitulo : null"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-cabecera">
+        @if (titulo) {
+          <h2 class="modal-titulo" [id]="idTitulo">{{ titulo }}</h2>
+        }
+        <button
+          type="button"
+          class="modal-cerrar"
+          aria-label="Cerrar"
+          (click)="cerrar.emit()"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18"></path>
+          </svg>
+        </button>
+      </header>
+
+      <div class="modal-cuerpo">
+        <ng-content />
+      </div>
+    </div>
+  </div>
+}
