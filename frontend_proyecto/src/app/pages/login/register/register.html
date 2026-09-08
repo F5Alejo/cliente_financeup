@@ -3,171 +3,825 @@
   <div class="register-content">
     <div class="register-row">
 
-      <!-- Tarjeta principal -->
+      <!-- ================= TARJETA PRINCIPAL ================= -->
       <div class="register-card">
 
         <div class="card-header">
-          <div>
-            <h1>Crear cuenta</h1>
-            <p class="subtitle">Regístrate para acceder a tu puntaje, educación financiera y recomendaciones personalizadas.</p>
+
+          <h1>Crear cuenta</h1>
+
+          <p class="subtitle">
+            Regístrate para acceder a tu puntaje, educación financiera
+            y recomendaciones personalizadas.
+          </p>
+
+          <!-- Stepper -->
+          <div class="stepper">
+
+            <div class="stepper-step active">
+              <span class="stepper-dot">1</span>
+              <span class="stepper-label">Datos</span>
+            </div>
+
+            <div class="stepper-line"></div>
+
+            <div class="stepper-step">
+              <span class="stepper-dot">2</span>
+              <span class="stepper-label">Verificación</span>
+            </div>
+
           </div>
-          <span class="step-badge">Paso 1 de 2</span>
+
+          <div class="trust-row">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5l-8-3Z"></path>
+            </svg>
+
+            <span>
+              Tus datos están cifrados y protegidos
+            </span>
+
+          </div>
+
         </div>
 
-        <form [formGroup]="registerForm" (ngSubmit)="registroUsuario()" novalidate>
 
-          <!-- Mensaje de error general -->
-          <div class="alert alert-error" *ngIf="errorMessage">
-            {{ errorMessage }}
-          </div>
+        <!-- ================= FORMULARIO ================= -->
+        <form
+          [formGroup]="registerForm"
+          (ngSubmit)="registroUsuario()"
+          novalidate
+        >
 
-          <!-- Nombre / Apellido -->
+          <!-- Error general -->
+          @if (errorMessage) {
+            <div class="alert alert-error">
+              {{ errorMessage }}
+            </div>
+          }
+
+
+          <!-- ================= NOMBRE Y APELLIDO ================= -->
           <div class="form-row-fields">
+
+            <!-- Nombre -->
             <div class="form-group">
-              <input
-                type="text"
-                formControlName="nombre"
-                placeholder="Nombre"
-                [class.input-error]="nombre?.invalid && nombre?.touched"
-              >
-              <span class="field-error" *ngIf="nombre?.invalid && nombre?.touched">
-                <span *ngIf="nombre?.errors?.['required']">El nombre es obligatorio.</span>
-                <span *ngIf="nombre?.errors?.['minlength']">Mínimo 3 caracteres.</span>
-              </span>
+
+              <div class="input-icon-field">
+
+                <svg
+                  class="field-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="8" r="4"></circle>
+                  <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"></path>
+                </svg>
+
+                <input
+                  type="text"
+                  formControlName="nombre"
+                  placeholder="Nombre"
+                  autocomplete="given-name"
+                  [class.input-error]="nombre?.invalid && nombre?.touched"
+                >
+
+              </div>
+
+              @if (nombre?.invalid && nombre?.touched) {
+
+                <span class="field-error">
+
+                  @if (nombre?.errors?.['required']) {
+                    <span>El nombre es obligatorio.</span>
+                  }
+
+                  @if (nombre?.errors?.['minlength']) {
+                    <span>Mínimo 3 caracteres.</span>
+                  }
+
+                </span>
+
+              }
+
             </div>
+
+
+            <!-- Apellido -->
             <div class="form-group">
-              <input
-                type="text"
-                formControlName="apellido"
-                placeholder="Apellido"
-                [class.input-error]="apellido?.invalid && apellido?.touched"
-              >
-              <span class="field-error" *ngIf="apellido?.invalid && apellido?.touched">
-                <span *ngIf="apellido?.errors?.['required']">El apellido es obligatorio.</span>
-                <span *ngIf="apellido?.errors?.['minlength']">Mínimo 3 caracteres.</span>
-              </span>
+
+              <div class="input-icon-field">
+
+                <svg
+                  class="field-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="8" r="4"></circle>
+                  <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"></path>
+                </svg>
+
+                <input
+                  type="text"
+                  formControlName="apellido"
+                  placeholder="Apellido"
+                  autocomplete="family-name"
+                  [class.input-error]="apellido?.invalid && apellido?.touched"
+                >
+
+              </div>
+
+              @if (apellido?.invalid && apellido?.touched) {
+
+                <span class="field-error">
+
+                  @if (apellido?.errors?.['required']) {
+                    <span>El apellido es obligatorio.</span>
+                  }
+
+                  @if (apellido?.errors?.['minlength']) {
+                    <span>Mínimo 3 caracteres.</span>
+                  }
+
+                </span>
+
+              }
+
             </div>
+
           </div>
 
-          <!-- Correo electrónico -->
+
+          <!-- ================= CORREO ================= -->
           <div class="form-group">
-            <input
-              type="email"
-              formControlName="correo"
-              placeholder="Correo electrónico"
-              [class.input-error]="correo?.invalid && correo?.touched"
-            >
-            <span class="field-error" *ngIf="correo?.invalid && correo?.touched">
-              <span *ngIf="correo?.errors?.['required']">El correo es obligatorio.</span>
-              <span *ngIf="correo?.errors?.['email']">Ingresa un correo válido.</span>
-            </span>
+
+            <div class="input-icon-field">
+
+              <svg
+                class="field-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect
+                  x="3"
+                  y="5"
+                  width="18"
+                  height="14"
+                  rx="2"
+                ></rect>
+
+                <path d="m3 7 9 6 9-6"></path>
+              </svg>
+
+              <input
+                type="email"
+                formControlName="correo"
+                placeholder="Correo electrónico"
+                autocomplete="email"
+                [class.input-error]="correo?.invalid && correo?.touched"
+              >
+
+            </div>
+
+            @if (correo?.invalid && correo?.touched) {
+
+              <span class="field-error">
+
+                @if (correo?.errors?.['required']) {
+                  <span>El correo es obligatorio.</span>
+                }
+
+                @if (correo?.errors?.['email']) {
+                  <span>Ingresa un correo válido.</span>
+                }
+
+              </span>
+
+            }
+
           </div>
 
-          <!-- Contraseña / Confirmar contraseña -->
+
+          <!-- ================= CONTRASEÑAS ================= -->
           <div class="form-row-fields">
+
+            <!-- Contraseña -->
             <div class="form-group">
+
               <div class="password-wrapper">
-                <input
-                  [type]="showPassword ? 'text' : 'password'"
-                  formControlName="password"
-                  placeholder="Mínimo 8 caracteres"
-                  [class.input-error]="password?.invalid && password?.touched"
+
+                <div class="input-icon-field">
+
+                  <svg
+                    class="field-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect
+                      x="4"
+                      y="10"
+                      width="16"
+                      height="10"
+                      rx="2"
+                    ></rect>
+
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                  </svg>
+
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    placeholder="Mínimo 8 caracteres"
+                    autocomplete="new-password"
+                    [class.input-error]="password?.invalid && password?.touched"
+                  >
+
+                </div>
+
+                <button
+                  type="button"
+                  class="toggle-password"
+                  (click)="togglePasswordVisibility()"
+                  [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
                 >
-                <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
-                  {{ showPassword ? '' : '' }}
+
+                  @if (showPassword) {
+
+                    <!-- Ojo cerrado -->
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M3 3l18 18"></path>
+                      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+                      <path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c7 0 10 8 10 8a17.7 17.7 0 0 1-2.1 3.3"></path>
+                      <path d="M6.2 6.2C3.6 8 2 12 2 12s3 8 10 8c1.4 0 2.7-.3 3.8-.7"></path>
+                    </svg>
+
+                  } @else {
+
+                    <!-- Ojo abierto -->
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8S2 12 2 12"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+
+                  }
+
                 </button>
+
               </div>
-              <span class="field-error" *ngIf="password?.invalid && password?.touched">
-                <span *ngIf="password?.errors?.['required']">La contraseña es obligatoria.</span>
-                <span *ngIf="password?.errors?.['minlength']">Mínimo 8 caracteres.</span>
-                <span *ngIf="password?.errors?.['pattern']">Debe tener mayúscula, minúscula y número.</span>
-              </span>
+
+
+              @if (password?.invalid && password?.touched) {
+
+                <span class="field-error">
+
+                  @if (password?.errors?.['required']) {
+                    <span>
+                      La contraseña es obligatoria.
+                    </span>
+                  }
+
+                  @if (password?.errors?.['minlength']) {
+                    <span>
+                      Mínimo 8 caracteres.
+                    </span>
+                  }
+
+                  @if (password?.errors?.['pattern']) {
+                    <span>
+                      Debe tener mayúscula, minúscula y número.
+                    </span>
+                  }
+
+                </span>
+
+              }
+
             </div>
+
+
+            <!-- Confirmar contraseña -->
             <div class="form-group">
+
               <div class="password-wrapper">
-                <input
-                  [type]="showConfirmPassword ? 'text' : 'password'"
-                  formControlName="confirmarPassword"
-                  placeholder="Vuelve a escribirla"
-                  [class.input-error]="confirmarPassword?.touched && (confirmarPassword?.invalid || registerForm.errors?.['passwordsNoCoinciden'])"
+
+                <div class="input-icon-field">
+
+                  <svg
+                    class="field-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect
+                      x="4"
+                      y="10"
+                      width="16"
+                      height="10"
+                      rx="2"
+                    ></rect>
+
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                  </svg>
+
+                  <input
+                    [type]="showConfirmPassword ? 'text' : 'password'"
+                    formControlName="confirmarPassword"
+                    placeholder="Vuelve a escribirla"
+                    autocomplete="new-password"
+                    [class.input-error]="
+                      confirmarPassword?.touched &&
+                      (
+                        confirmarPassword?.invalid ||
+                        registerForm.errors?.['passwordsNoCoinciden']
+                      )
+                    "
+                  >
+
+                </div>
+
+                <button
+                  type="button"
+                  class="toggle-password"
+                  (click)="toggleConfirmPasswordVisibility()"
+                  [attr.aria-label]="showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
                 >
-                <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()">
-                  {{ showConfirmPassword ? '' : '' }}
+
+                  @if (showConfirmPassword) {
+
+                    <!-- Ojo cerrado -->
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M3 3l18 18"></path>
+                      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+                      <path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c7 0 10 8 10 8a17.7 17.7 0 0 1-2.1 3.3"></path>
+                      <path d="M6.2 6.2C3.6 8 2 12 2 12s3 8 10 8c1.4 0 2.7-.3 3.8-.7"></path>
+                    </svg>
+
+                  } @else {
+
+                    <!-- Ojo abierto -->
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8S2 12 2 12"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+
+                  }
+
                 </button>
+
               </div>
-              <span class="field-error" *ngIf="confirmarPassword?.touched">
-                <span *ngIf="confirmarPassword?.errors?.['required']">Confirma tu contraseña.</span>
-                <span *ngIf="!confirmarPassword?.errors?.['required'] && registerForm.errors?.['passwordsNoCoinciden']">Las contraseñas no coinciden.</span>
-              </span>
+
+
+              @if (confirmarPassword?.touched) {
+
+                <span class="field-error">
+
+                  @if (confirmarPassword?.errors?.['required']) {
+
+                    <span>
+                      Confirma tu contraseña.
+                    </span>
+
+                  }
+
+                  @if (
+                    !confirmarPassword?.errors?.['required'] &&
+                    registerForm.errors?.['passwordsNoCoinciden']
+                  ) {
+
+                    <span>
+                      Las contraseñas no coinciden.
+                    </span>
+
+                  }
+
+                </span>
+
+              }
+
             </div>
+
           </div>
 
-          <!-- Aceptar términos -->
-          <label class="terms-label">
-            <input type="checkbox" formControlName="aceptaTerminos">
-            Al registrarte aceptas los Términos y la Política de Privacidad. Operamos en Colombia.
-          </label>
-          <span class="field-error" *ngIf="aceptaTerminos?.invalid && aceptaTerminos?.touched">
-            Debes aceptar los términos para continuar.
-          </span>
 
-          <!-- Botones -->
+          <!-- ================= TÉRMINOS ================= -->
+          <label class="terms-label">
+
+            <input
+              type="checkbox"
+              formControlName="aceptaTerminos"
+            >
+
+            <span>
+              Al registrarte aceptas los Términos y la Política de
+              Privacidad. Operamos en Colombia.
+            </span>
+
+          </label>
+
+
+          @if (aceptaTerminos?.invalid && aceptaTerminos?.touched) {
+
+            <span class="field-error">
+              Debes aceptar los términos para continuar.
+            </span>
+
+          }
+
+
+          <!-- ================= BOTONES ================= -->
           <div class="button-row">
-            <button type="submit" class="btn-primary">Crear cuenta</button>
-            <button type="button" class="btn-secondary" (click)="goToLogin()">Volver</button>
+
+            <button
+              type="submit"
+              class="btn-primary"
+            >
+              Crear cuenta
+            </button>
+
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="goToLogin()"
+            >
+              Volver
+            </button>
+
           </div>
 
         </form>
 
-        <!-- Registro social -->
+
+        <!-- ================= REGISTRO SOCIAL ================= -->
         <div class="social-divider">
           <span>O registrarte con</span>
         </div>
 
+
         <div class="social-buttons">
-          <button type="button" class="btn-social" (click)="registerWithGoogle()">
-            <svg class="social-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
-              <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
-              <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 27 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.3 44 24 44z"/>
-              <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.6 5.4C41.5 36.6 44 30.9 44 24c0-1.3-.1-2.7-.4-3.5z"/>
+
+          <!-- Google -->
+          <button
+            type="button"
+            class="btn-social"
+            (click)="registerWithGoogle()"
+          >
+
+            <svg
+              class="social-icon"
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+
+              <path
+                fill="#FFC107"
+                d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"
+              ></path>
+
+              <path
+                fill="#FF3D00"
+                d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"
+              ></path>
+
+              <path
+                fill="#4CAF50"
+                d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.4 27 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.3 44 24 44z"
+              ></path>
+
+              <path
+                fill="#1976D2"
+                d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.6 5.4C41.5 36.6 44 30.9 44 24c0-1.3-.1-2.7-.4-3.5z"
+              ></path>
+
             </svg>
-            Gmail
+
+            Google
+
           </button>
-          <button type="button" class="btn-social" (click)="registerWithApple()">
-            <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path fill="#000000" d="M17.05 12.536c-.03-3.017 2.463-4.467 2.575-4.535-1.404-2.05-3.588-2.332-4.365-2.363-1.86-.19-3.63 1.095-4.573 1.095-.943 0-2.4-1.068-3.947-1.04-2.03.03-3.902 1.18-4.947 3-2.11 3.66-.54 9.08 1.516 12.05 1.007 1.454 2.207 3.088 3.782 3.03 1.52-.062 2.09-.98 3.925-.98 1.835 0 2.35.98 3.955.95 1.634-.03 2.665-1.485 3.664-2.945 1.156-1.69 1.632-3.328 1.656-3.412-.036-.016-3.176-1.22-3.24-4.85z"/>
-              <path fill="#000000" d="M14.72 3.71c.837-1.01 1.4-2.42 1.245-3.82-1.203.05-2.66.803-3.524 1.813-.775.895-1.454 2.328-1.272 3.7 1.34.104 2.71-.68 3.55-1.693z"/>
+
+
+          <!-- Apple -->
+          <button
+            type="button"
+            class="btn-social"
+            (click)="registerWithApple()"
+          >
+
+            <svg
+              class="social-icon"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+
+              <path
+                fill="#000000"
+                d="M17.05 12.536c-.03-3.017 2.463-4.467 2.575-4.535-1.404-2.05-3.588-2.332-4.365-2.363-1.86-.19-3.63 1.095-4.573 1.095-.943 0-2.4-1.068-3.947-1.04-2.03.03-3.902 1.18-4.947 3-2.11 3.66-.54 9.08 1.516 12.05 1.007 1.454 2.207 3.088 3.782 3.03 1.52-.062 2.09-.98 3.925-.98 1.835 0 2.35.98 3.955.95 1.634-.03 2.665-1.485 3.664-2.945 1.156-1.69 1.632-3.328 1.656-3.412-.036-.016-3.176-1.22-3.24-4.85z"
+              ></path>
+
+              <path
+                fill="#000000"
+                d="M14.72 3.71c.837-1.01 1.4-2.42 1.245-3.82-1.203.05-2.66.803-3.524 1.813-.775.895-1.454 2.328-1.272 3.7 1.34.104 2.71-.68 3.55-1.693z"
+              ></path>
+
             </svg>
+
             Apple
+
           </button>
-          <button type="button" class="btn-social" (click)="registerWithFacebook()">
-            <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+
+
+          <!-- Facebook -->
+          <button
+            type="button"
+            class="btn-social"
+            (click)="registerWithFacebook()"
+          >
+
+            <svg
+              class="social-icon"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+
+              <path
+                fill="#1877F2"
+                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+              ></path>
+
             </svg>
+
             Facebook
+
           </button>
+
         </div>
 
       </div>
 
-      <!-- Panel de beneficios -->
+
+      <!-- ================= PANEL DE BENEFICIOS ================= -->
       <div class="register-benefits">
-        <h2>Beneficios al unirte</h2>
+
+        <!-- Ilustración -->
+        <svg
+          class="hero-illustration"
+          viewBox="0 0 280 130"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+
+          <polygon
+            points="0,130 0,78 40,42 75,70 115,30 150,62 190,26 230,58 280,20 280,130"
+            fill="#0f3d2e"
+          ></polygon>
+
+          <polygon
+            points="0,130 0,95 55,68 105,88 165,55 220,80 280,50 280,130"
+            fill="#146c46"
+            opacity="0.85"
+          ></polygon>
+
+
+          <g>
+
+            <rect
+              x="24"
+              y="96"
+              width="16"
+              height="26"
+              rx="3"
+              fill="#f4b400"
+              opacity="0.55"
+            ></rect>
+
+            <rect
+              x="52"
+              y="84"
+              width="16"
+              height="38"
+              rx="3"
+              fill="#f4b400"
+              opacity="0.7"
+            ></rect>
+
+            <rect
+              x="80"
+              y="70"
+              width="16"
+              height="52"
+              rx="3"
+              fill="#f4b400"
+              opacity="0.85"
+            ></rect>
+
+            <rect
+              x="108"
+              y="52"
+              width="16"
+              height="70"
+              rx="3"
+              fill="#f4b400"
+            ></rect>
+
+          </g>
+
+
+          <path
+            d="M24 92 L60 78 L96 64 L124 40"
+            stroke="#ffffff"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-dasharray="1 7"
+          ></path>
+
+
+          <circle
+            cx="124"
+            cy="40"
+            r="26"
+            fill="#0b2e22"
+            stroke="#f4b400"
+            stroke-width="2"
+          ></circle>
+
+
+          <text
+            x="124"
+            y="37"
+            text-anchor="middle"
+            fill="#ffffff"
+            font-family="Sora, sans-serif"
+            font-size="15"
+            font-weight="700"
+          >
+            742
+          </text>
+
+
+          <text
+            x="124"
+            y="50"
+            text-anchor="middle"
+            fill="#f4b400"
+            font-family="Inter, sans-serif"
+            font-size="6.5"
+            font-weight="600"
+          >
+            EXCELENTE
+          </text>
+
+        </svg>
+
+
+        <h2>
+          Beneficios al unirte
+        </h2>
+
 
         <ul class="benefits-list">
-          <li>Consulta tu puntaje y tendencias de crédito en Colombia.</li>
-          <li>Contenido educativo para mejorar tu vida financiera.</li>
-          <li>Recomendaciones y alianzas con entidades financieras.</li>
-          <li>Seguridad y control de tus datos personales.</li>
+
+          <li>
+
+            <span class="benefit-icon">
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <path d="M20 6 9 17l-5-5"></path>
+              </svg>
+
+            </span>
+
+            Consulta tu puntaje y tendencias de crédito en Colombia.
+
+          </li>
+
+
+          <li>
+
+            <span class="benefit-icon">
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <path d="M20 6 9 17l-5-5"></path>
+              </svg>
+
+            </span>
+
+            Contenido educativo para mejorar tu vida financiera.
+
+          </li>
+
+
+          <li>
+
+            <span class="benefit-icon">
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <path d="M20 6 9 17l-5-5"></path>
+              </svg>
+
+            </span>
+
+            Recomendaciones y alianzas con entidades financieras.
+
+          </li>
+
+
+          <li>
+
+            <span class="benefit-icon">
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <path d="M20 6 9 17l-5-5"></path>
+              </svg>
+
+            </span>
+
+            Seguridad y control de tus datos personales.
+
+          </li>
+
         </ul>
 
+
+        <p class="social-proof">
+
+          <strong>
+            +50.000 colombianos
+          </strong>
+
+          ya monitorean su puntaje con Finance Up.
+
+        </p>
+
+
         <div class="benefits-buttons">
-          <button type="button" class="btn-outline" (click)="goToLogin()">Ya tengo cuenta</button>
-          <button type="button" class="btn-primary-small" (click)="registroUsuario()">Continuar</button>
+
+          <button
+            type="button"
+            class="btn-outline"
+            (click)="goToLogin()"
+          >
+            Ya tengo cuenta
+          </button>
+
         </div>
+
       </div>
 
     </div>
   </div>
+
 </div>
