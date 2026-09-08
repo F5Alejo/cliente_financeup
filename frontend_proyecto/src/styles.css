@@ -1,43 +1,234 @@
+/* =========================================================================
+   SISTEMA DE DISEÑO FINANCEUP
+   Direccion: base serena (BBVA/Bancolombia) + tratamiento editorial para cifras.
+   Ningun componente debe escribir colores, espacios o radios a mano:
+   todo sale de estas variables.
+   ========================================================================= */
+
 :root {
-  /* Verdes */
-  --green-primary: #1db954;
-  --green-dark: #0a5c28;
-  --green-darkest: #0d1f14;
-  --green-accent-text: #0f8c3b;
-  --green-soft: #dfeee3;
-  --green-mid: #17a34a;
-  --green-deep: #0f3d22;
-  --green-tint: #f0faf4;
-  --green-line: #c6efd4;
+  /* ---------------------------------------------------------------
+     ESCALA VERDE (color de marca)
+     El 700 es el primario. Con texto blanco encima da 7.8:1 (AA y AAA
+     para texto grande). El antiguo #1db954 daba 2.6:1 y no cumplia.
+     --------------------------------------------------------------- */
+  --verde-50:  #f0f8f4;
+  --verde-100: #d7ede4;
+  --verde-200: #b4dcc9;
+  --verde-300: #86c4a9;
+  --verde-400: #52a784;
+  --verde-500: #2a8a66;
+  --verde-600: #157055;
+  --verde-700: #0b5e43;
+  --verde-800: #084a35;
+  --verde-900: #063526;
 
-  /* Grises */
-  --gray-50: #f7f9f8;
-  --gray-100: #eef1f0;
-  --gray-200: #e2e8e5;
-  --gray-300: #cbd5d0;
-  --gray-500: #6b7c72;
-  --gray-700: #3f4a44;
-  --gray-900: #1b2320;
+  /* ---------------------------------------------------------------
+     ESCALA NEUTRA
+     Sesgada hacia el verde para que conviva con la marca en vez de
+     parecer un gris puesto por defecto.
+     --------------------------------------------------------------- */
+  --neutro-0:   #ffffff;
+  --neutro-50:  #f7f8f6;
+  --neutro-100: #eef1ee;
+  --neutro-200: #e0e5e1;
+  --neutro-300: #c8d0ca;
+  --neutro-400: #9ba69f;
+  --neutro-500: #6e7b73;
+  --neutro-600: #55605a;
+  --neutro-700: #3e4842;
+  --neutro-800: #2a322d;
+  --neutro-900: #1a1f1d;
 
-  /* Alias usados en los componentes */
-  --text-muted: var(--gray-500);
-  --text-body: var(--gray-700);
-  --text-soft: var(--gray-500);
-  --border-soft: #e2ede6;
-  --bg-panel: #ffffff;
-  --bg-page: var(--gray-100);
-  --bg-search: #f4faf6;
-  --bg-ahorro: #e8f8ee;
-  --color-error: #dc3545;
-  --color-info: var(--green-accent-text);
-  --font-family-base: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  /* ---------------------------------------------------------------
+     COLORES DE ESTADO
+     Todos verificados con texto blanco encima sobre fondo solido.
+     --------------------------------------------------------------- */
+  --peligro:      #a3231b;
+  --peligro-flojo:#fbe7e5;
+  --exito:        var(--verde-700);
+  --exito-flojo:  var(--verde-100);
+  --aviso:        #8f4a1f;
+  --aviso-flojo:  #fbeee1;
+  --info:         #1f4e79;
+  --info-flojo:   #e2ecf5;
 
-  /* Sombras */
-  --shadow-sm: 0 1px 2px rgba(13, 31, 20, 0.06);
-  --shadow-md: 0 6px 18px rgba(13, 31, 20, 0.08);
-  --shadow-lg: 0 18px 40px rgba(13, 31, 20, 0.14);
+  /* ---------------------------------------------------------------
+     SEMANTICOS
+     Lo que deben usar los componentes. Cambian con el tema.
+     --------------------------------------------------------------- */
+  --superficie:        var(--neutro-0);
+  --superficie-hundida:var(--neutro-50);
+  --superficie-alta:   var(--neutro-0);
+  --fondo:             var(--neutro-100);
+
+  --texto:        var(--neutro-900);
+  --texto-suave:  var(--neutro-600);
+  --texto-tenue:  var(--neutro-500);
+  --texto-sobre-primario: var(--neutro-0);
+
+  --borde:        var(--neutro-200);
+  --borde-fuerte: var(--neutro-300);
+
+  --primario:        var(--verde-700);
+  --primario-hover:  var(--verde-800);
+  --primario-activo: var(--verde-900);
+  --primario-flojo:  var(--verde-100);
+
+  --anillo-foco: var(--verde-600);
+
+  /* ---------------------------------------------------------------
+     ESPACIADO — escala de 4px
+     --------------------------------------------------------------- */
+  --esp-1:  4px;
+  --esp-2:  8px;
+  --esp-3:  12px;
+  --esp-4:  16px;
+  --esp-5:  20px;
+  --esp-6:  24px;
+  --esp-8:  32px;
+  --esp-10: 40px;
+  --esp-12: 48px;
+  --esp-16: 64px;
+  --esp-20: 80px;
+
+  /* ---------------------------------------------------------------
+     TIPOGRAFIA
+     Figtree para titulos, Source Sans 3 para texto,
+     IBM Plex Mono solo para cifras (tratamiento editorial).
+     --------------------------------------------------------------- */
+  --fuente-titulo: 'Figtree', 'Segoe UI', system-ui, sans-serif;
+  --fuente-texto:  'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  --fuente-cifra:  'IBM Plex Mono', ui-monospace, 'Consolas', monospace;
+
+  --texto-xs:   0.75rem;
+  --texto-sm:   0.875rem;
+  --texto-base: 1rem;
+  --texto-md:   1.125rem;
+  --texto-lg:   1.375rem;
+  --texto-xl:   1.75rem;
+  --texto-2xl:  2.25rem;
+  --texto-3xl:  clamp(2.25rem, 5vw, 3rem);
+
+  --alto-apretado: 1.2;
+  --alto-normal:   1.55;
+  --alto-suelto:   1.7;
+
+  --peso-normal:  400;
+  --peso-medio:   500;
+  --peso-semi:    600;
+  --peso-fuerte:  700;
+
+  /* ---------------------------------------------------------------
+     RADIOS — generosos, es la parte "suave y redondeada"
+     --------------------------------------------------------------- */
+  --radio-xs:   6px;
+  --radio-sm:   10px;
+  --radio-md:   14px;
+  --radio-lg:   20px;
+  --radio-xl:   28px;
+  --radio-full: 999px;
+
+  /* ---------------------------------------------------------------
+     SOMBRAS — difusas y tintadas de verde, nunca negro puro
+     --------------------------------------------------------------- */
+  --sombra-sm: 0 1px 2px rgba(13, 31, 20, 0.06);
+  --sombra-md: 0 6px 18px rgba(13, 31, 20, 0.08);
+  --sombra-lg: 0 18px 40px rgba(13, 31, 20, 0.14);
+  --sombra-foco: 0 0 0 3px rgba(21, 112, 85, 0.35);
+
+  /* ---------------------------------------------------------------
+     CAPAS
+     --------------------------------------------------------------- */
+  --capa-base:     1;
+  --capa-elevada:  10;
+  --capa-cabecera: 100;
+  --capa-overlay:  1000;
+  --capa-modal:    1100;
+  --capa-aviso:    1200;
+
+  /* ---------------------------------------------------------------
+     MOVIMIENTO
+     --------------------------------------------------------------- */
+  --dur-rapida: 150ms;
+  --dur-media:  220ms;
+  --dur-lenta:  320ms;
+  --curva: cubic-bezier(0.2, 0, 0.2, 1);
+
+  /* =================================================================
+     ALIAS DE COMPATIBILIDAD
+     Los 43 archivos CSS existentes hacen 1090 llamadas a estos nombres.
+     Se conservan y se reapuntan al sistema nuevo: asi mejoran todos
+     sin tocar ni un componente.
+     Los tintes claros (soft, tint, line) siguen claros a proposito:
+     se usan como fondo y oscurecerlos romperia el contraste al reves.
+     ================================================================= */
+  --green-primary:      var(--verde-700);
+  --green-dark:         var(--verde-800);
+  --green-darkest:      var(--neutro-900);
+  --green-accent-text:  var(--verde-700);
+  --green-mid:          var(--verde-600);
+  --green-deep:         var(--verde-900);
+  --green-soft:         var(--verde-100);
+  --green-tint:         var(--verde-50);
+  --green-line:         var(--verde-200);
+
+  --gray-50:  var(--neutro-50);
+  --gray-100: var(--neutro-100);
+  --gray-200: var(--neutro-200);
+  --gray-300: var(--neutro-300);
+  --gray-500: var(--neutro-500);
+  --gray-700: var(--neutro-700);
+  --gray-900: var(--neutro-900);
+
+  --text-muted: var(--texto-tenue);
+  --text-body:  var(--neutro-700);
+  --text-soft:  var(--texto-tenue);
+  --border-soft: var(--borde);
+  --bg-panel:   var(--superficie);
+  --bg-page:    var(--fondo);
+  --bg-search:  var(--verde-50);
+  --bg-ahorro:  var(--verde-100);
+  --color-error: var(--peligro);
+  --color-info:  var(--verde-700);
+  --font-family-base: var(--fuente-texto);
+
+  --shadow-sm: var(--sombra-sm);
+  --shadow-md: var(--sombra-md);
+  --shadow-lg: var(--sombra-lg);
 }
 
+/* =========================================================================
+   TEMA OSCURO
+   Deliberadamente NO se activa con prefers-color-scheme todavia: los
+   componentes aun tienen 430 colores escritos a mano en claro y el
+   resultado seria ilegible. Queda listo tras <html data-tema="oscuro">
+   y se conectara al sistema operativo cuando los componentes migren.
+   ========================================================================= */
+:root[data-tema="oscuro"] {
+  --superficie:         #141a17;
+  --superficie-hundida: #0e1310;
+  --superficie-alta:    #1b2320;
+  --fondo:              #0b0f0d;
+
+  --texto:       #e8ede9;
+  --texto-suave: #b3bdb7;
+  --texto-tenue: #8b968f;
+
+  --borde:        #2a332e;
+  --borde-fuerte: #3c473f;
+
+  --primario:       var(--verde-400);
+  --primario-hover: var(--verde-300);
+  --primario-flojo: #12261e;
+  --texto-sobre-primario: var(--neutro-900);
+
+  --anillo-foco: var(--verde-300);
+  --sombra-foco: 0 0 0 3px rgba(134, 196, 169, 0.4);
+}
+
+/* =========================================================================
+   BASE
+   ========================================================================= */
 html, body {
   margin: 0;
   min-height: 100vh;
@@ -46,9 +237,18 @@ html, body {
 
 body {
   display: block;
-  font-family: var(--font-family-base);
-  background: var(--bg-page);
-  color: var(--green-darkest);
+  font-family: var(--fuente-texto);
+  font-size: var(--texto-base);
+  line-height: var(--alto-normal);
+  background: var(--fondo);
+  color: var(--texto);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--fuente-titulo);
+  line-height: var(--alto-apretado);
+  text-wrap: balance;
 }
 
 app-root {
@@ -56,7 +256,47 @@ app-root {
   min-height: 100vh;
 }
 
-/* Animaciones compartidas por los componentes */
+img { max-width: 100%; }
+
+/* -------------------------------------------------------------------------
+   FOCO VISIBLE
+   Regla global: 12 hojas de estilo hacian outline:none sin reemplazo y
+   dejaban la navegacion por teclado sin ninguna pista visual.
+   Se aplica solo a :focus-visible para que el raton no dibuje anillos.
+   ------------------------------------------------------------------------- */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--anillo-foco);
+  outline-offset: 2px;
+  border-radius: var(--radio-xs);
+}
+
+/* -------------------------------------------------------------------------
+   UTILIDADES MINIMAS
+   ------------------------------------------------------------------------- */
+
+/* Cifras: monoespaciadas y alineadas en columna. Es el toque editorial
+   de la direccion elegida, reservado para dinero y porcentajes. */
+.cifra {
+  font-family: var(--fuente-cifra);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================================
+   ANIMACIONES COMPARTIDAS
+   ========================================================================= */
 @keyframes fu-fade-up {
   from {
     opacity: 0;
