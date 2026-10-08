@@ -1,0 +1,60 @@
+<figure class="grafico">
+  <div class="cabecera">
+    <button type="button" class="btn btn-link" [attr.aria-pressed]="vistaTabla()" (click)="vistaTabla.set(!vistaTabla())">
+      {{ vistaTabla() ? 'Ver gráfico' : 'Ver como tabla' }}
+    </button>
+  </div>
+
+  @if (vistaTabla()) {
+    <div class="table-wrap tabla">
+      <table class="table">
+        <caption class="sr-only">{{ titulo() }}</caption>
+        <thead>
+          <tr><th scope="col">Categoría</th><th scope="col" class="num">{{ columna() }}</th></tr>
+        </thead>
+        <tbody>
+          @for (d of datos(); track d.etiqueta) {
+            <tr><td>{{ d.etiqueta }}</td><td class="num">{{ formato()(d.valor) }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="lienzo" (mouseleave)="activo.set(null)">
+      <svg [attr.viewBox]="'0 0 ' + ancho + ' ' + alto" role="img" [attr.aria-label]="resumen()" preserveAspectRatio="xMidYMid meet">
+        @for (m of marcas(); track m.y) {
+          <line class="rejilla" [attr.x1]="izquierda" [attr.x2]="derecha" [attr.y1]="m.y" [attr.y2]="m.y" />
+          <text class="eje eje-y" [attr.x]="izquierda - 8" [attr.y]="m.y + 4" text-anchor="end">{{ m.texto }}</text>
+        }
+
+        @for (b of barras(); track b.etiqueta; let i = $index) {
+          <g
+            class="grupo"
+            tabindex="0"
+            role="img"
+            [attr.aria-label]="b.etiqueta + ': ' + formato()(b.valor)"
+            (mouseenter)="activo.set(i)"
+            (focus)="activo.set(i)"
+            (blur)="activo.set(null)">
+            <rect class="zona" [attr.x]="b.ranuraX" [attr.y]="0" [attr.width]="b.ranura" [attr.height]="base" />
+            @if (b.ruta) {
+              <path class="barra" [class.activa]="activo() === i" [attr.d]="b.ruta" />
+            }
+            @if (b.esMayor) {
+              <text class="valor" [attr.x]="b.centro" [attr.y]="b.y - 6" text-anchor="middle">{{ formato()(b.valor) }}</text>
+            }
+            <text class="eje" [attr.x]="b.centro" [attr.y]="alto - 10" text-anchor="middle">{{ b.etiqueta }}</text>
+          </g>
+        }
+        <line class="base" [attr.x1]="izquierda" [attr.x2]="derecha" [attr.y1]="base" [attr.y2]="base" />
+      </svg>
+
+      @if (info(); as i) {
+        <div class="tip" [style.left.%]="i.izquierda" [style.top.%]="i.arriba" role="status">
+          <span>{{ i.etiqueta }}</span>
+          <strong>{{ i.valor }}</strong>
+        </div>
+      }
+    </div>
+  }
+</figure>

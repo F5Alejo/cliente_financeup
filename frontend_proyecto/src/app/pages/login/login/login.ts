@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, Usuario } from '../../../services/auth';
+import { AuthService, motivoSinAcceso, Usuario } from '../../../services/auth';
 import { ToastService } from '../../../shared/services/toast';
 
 type LoginStage = 'credenciales' | 'verificacion';
@@ -48,6 +48,12 @@ export class LoginComponent {
 
     if (!usuario) {
       this.errorMessage = 'Credenciales incorrectas. Intenta de nuevo.';
+      return;
+    }
+
+    const sinAcceso = motivoSinAcceso(usuario);
+    if (sinAcceso) {
+      this.errorMessage = sinAcceso;
       return;
     }
 

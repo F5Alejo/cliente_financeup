@@ -1,0 +1,51 @@
+@if (textoBoton()) {
+  <button
+    type="button"
+    class="btn btn-secondary"
+    aria-haspopup="menu"
+    [attr.aria-expanded]="abierto()"
+    (click)="alternar($event)">
+    @if (iconoBoton(); as icono) {
+      <app-icon [nombre]="icono" [tamano]="16" />
+    }
+    {{ textoBoton() }}
+    <app-icon nombre="chevron-down" [tamano]="14" />
+  </button>
+} @else {
+  <button
+    type="button"
+    class="icon-btn"
+    aria-haspopup="menu"
+    [attr.aria-expanded]="abierto()"
+    [attr.aria-label]="etiqueta()"
+    (click)="alternar($event)">
+    <app-icon nombre="more-vertical" [tamano]="18" />
+  </button>
+}
+
+@if (abierto()) {
+  <div
+    class="menu"
+    role="menu"
+    [style.top.px]="posicion().arriba"
+    [style.left.px]="posicion().izquierda"
+    (keydown)="navegar($event)">
+    @for (accion of acciones(); track accion.id) {
+      @if (accion.separador) {
+        <div class="menu-separador" role="separator"></div>
+      }
+      <button
+        type="button"
+        role="menuitem"
+        class="menu-item"
+        [class.menu-item-peligro]="accion.peligro"
+        [disabled]="accion.deshabilitado"
+        (click)="elegir(accion)">
+        @if (accion.icono) {
+          <app-icon [nombre]="accion.icono" [tamano]="16" />
+        }
+        {{ accion.etiqueta }}
+      </button>
+    }
+  </div>
+}
