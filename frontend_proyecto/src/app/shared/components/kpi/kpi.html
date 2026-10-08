@@ -1,0 +1,26 @@
+<article class="card kpi">
+  <div class="kpi-top">
+    <span>{{ etiqueta() }}</span>
+    <span class="kpi-icon" [class.neutral]="tono() === 'neutral'" [class.warning]="tono() === 'warning'">
+      <app-icon [nombre]="icono()" [tamano]="18" />
+    </span>
+  </div>
+
+  @if (cargando()) {
+    <span class="skeleton sk-valor"></span>
+  } @else {
+    <span class="kpi-value" [class.negative]="negativo()">{{ valor() }}</span>
+  }
+
+  <span class="kpi-foot">
+    @if (tendencia(); as t) {
+      <span class="tendencia" [class.sube]="t.direccion === 'sube'" [class.baja]="t.direccion === 'baja'">
+        @if (t.direccion !== 'igual') {
+          <app-icon [nombre]="t.direccion === 'sube' ? 'arrow-up-right' : 'arrow-down-right'" [tamano]="13" />
+        }
+        {{ t.texto }}
+      </span>
+    }
+    {{ pie() }}
+  </span>
+</article>

@@ -46,8 +46,11 @@
   </div>
 
   <!-- Acordeón de preguntas -->
-  <div class="faq-list">
-    @for (item of faqFiltradas(); track item.question; let i = $index) {
+  @if (faqFiltradas().length === 0) {
+    <p class="faq-empty">No encontramos preguntas frecuentes para tu búsqueda.</p>
+  } @else {
+    <div class="faq-list">
+      @for (item of faqFiltradas(); track item.question; let i = $index) {
       <div
         class="faq-item"
         [class.faq-item--open]="item.expanded"
@@ -80,7 +83,8 @@
           </div>
         }
       </div>
-    }
-  </div>
+      }
+    </div>
+  }
 
 </section>

@@ -1,0 +1,138 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Auditoría</h1>
+    <p class="page-sub">Registro de las acciones administrativas realizadas en la plataforma.</p>
+  </div>
+  <div class="page-actions">
+    <app-row-menu textoBoton="Exportar" iconoBoton="download" [acciones]="accionesExportar" (seleccion)="exportar($event)" />
+  </div>
+</div>
+
+<section class="kpi-grid" aria-label="Resumen de auditoría">
+  <app-kpi etiqueta="Registros" [valor]="registros().length" icono="clipboard-list" tono="neutral" pie="acciones registradas" [cargando]="cargando()" />
+  <app-kpi etiqueta="Hoy" [valor]="hoy()" icono="calendar" pie="acciones en el día" [cargando]="cargando()" />
+  <app-kpi etiqueta="Exitosas" [valor]="exitosos()" icono="check-circle" pie="completadas sin errores" [cargando]="cargando()" />
+  <app-kpi
+    etiqueta="Con incidencias"
+    [valor]="conProblemas()"
+    icono="alert-triangle"
+    tono="warning"
+    pie="fallidas o denegadas"
+    [cargando]="cargando()" />
+</section>
+
+<section class="card" aria-label="Registro de auditoría">
+  <div class="toolbar">
+    <div class="search">
+      <app-icon nombre="search" [tamano]="16" />
+      <input
+        type="search"
+        class="input"
+        placeholder="Buscar por acción, detalle o usuario"
+        aria-label="Buscar en la auditoría"
+        [ngModel]="busqueda()"
+        (ngModelChange)="filtrar(busqueda, $event)" />
+    </div>
+  </div>
+
+  <div class="filters-panel filtros-fijos">
+    <div class="field">
+      <label for="au-admin">Administrador</label>
+      <select id="au-admin" class="input" [ngModel]="filtroAdmin()" (ngModelChange)="filtrar(filtroAdmin, $event)">
+        <option value="">Todos</option>
+        @for (a of administradores(); track a) { <option [value]="a">{{ a }}</option> }
+      </select>
+    </div>
+    <div class="field">
+      <label for="au-accion">Acción</label>
+      <select id="au-accion" class="input" [ngModel]="filtroAccion()" (ngModelChange)="filtrar(filtroAccion, $event)">
+        <option value="">Todas</option>
+        @for (a of acciones(); track a) { <option [value]="a">{{ a }}</option> }
+      </select>
+    </div>
+    <div class="field">
+      <label for="au-modulo">Módulo</label>
+      <select id="au-modulo" class="input" [ngModel]="filtroModulo()" (ngModelChange)="filtrar(filtroModulo, $event)">
+        <option value="">Todos</option>
+        @for (m of modulos(); track m) { <option [value]="m">{{ m }}</option> }
+      </select>
+    </div>
+    <div class="field">
+      <label for="au-desde">Desde</label>
+      <input id="au-desde" type="date" class="input" [ngModel]="fechaDesde()" (ngModelChange)="filtrar(fechaDesde, $event)" />
+    </div>
+    <div class="field">
+      <label for="au-hasta">Hasta</label>
+      <input id="au-hasta" type="date" class="input" [ngModel]="fechaHasta()" (ngModelChange)="filtrar(fechaHasta, $event)" />
+    </div>
+    <div class="field limpiar">
+      <button type="button" class="btn btn-secondary" [disabled]="!hayFiltros()" (click)="limpiarFiltros()">Limpiar filtros</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <caption class="sr-only">Registro de acciones administrativas</caption>
+      <thead>
+        <tr>
+          <th scope="col">Fecha y hora</th>
+          <th scope="col">Administrador</th>
+          <th scope="col">Acción</th>
+          <th scope="col" class="hide-md">Módulo</th>
+          <th scope="col" class="hide-lg">Usuario afectado</th>
+          <th scope="col" class="hide-lg">IP</th>
+          <th scope="col">Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (cargando()) {
+          @for (n of esqueletos; track n) {
+            <tr aria-hidden="true">
+              <td><span class="skeleton sk-w120"></span></td>
+              <td><span class="skeleton sk-w80"></span></td>
+              <td><span class="skeleton sk-w160"></span></td>
+              <td class="hide-md"><span class="skeleton sk-w80"></span></td>
+              <td class="hide-lg"><span class="skeleton sk-w120"></span></td>
+              <td class="hide-lg"><span class="skeleton sk-w80"></span></td>
+              <td><span class="skeleton sk-w80"></span></td>
+            </tr>
+          }
+        } @else {
+          @for (r of filas(); track r.id) {
+            <tr>
+              <td class="nowrap">{{ fechaHora(r.fecha) }}</td>
+              <td class="cell-strong">{{ r.admin }}</td>
+              <td>
+                <span class="cell-strong">{{ r.titulo }}</span>
+                @if (r.detalle) {
+                  <span class="cell-sub">{{ r.detalle }}</span>
+                }
+              </td>
+              <td class="hide-md"><span class="badge plain">{{ r.modulo }}</span></td>
+              <td class="hide-lg">{{ r.afectado || '—' }}</td>
+              <td class="hide-lg mono">{{ r.ip }}</td>
+              <td><span [class]="'badge ' + claseResultado[r.resultado]">{{ r.resultado }}</span></td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+
+    @if (!cargando() && filtrados().length === 0) {
+      <app-estado-vacio titulo="No hay registros que coincidan con estos filtros." texto="Ajusta las fechas o quita algún filtro para ver más actividad.">
+        <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </app-estado-vacio>
+    }
+  </div>
+
+  @if (!cargando() && filtrados().length > 0) {
+    <app-paginacion
+      [desde]="paginador.rango().desde"
+      [hasta]="paginador.rango().hasta"
+      [total]="filtrados().length"
+      [pagina]="paginador.paginaActual()"
+      [totalPaginas]="paginador.totalPaginas()"
+      unidad="registros"
+      (cambiar)="paginador.cambiar($event)" />
+  }
+</section>

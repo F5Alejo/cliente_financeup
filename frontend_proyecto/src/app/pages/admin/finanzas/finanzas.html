@@ -1,87 +1,355 @@
-<app-admin-menu></app-admin-menu>
-<div class="admin-finanzas">
-    <h1>Movimientos financieros</h1>
-    <p class="admin-sub">Agrega, edita o elimina los movimientos que ven los usuarios (los mismos que aparecen en Finanzas y en Libro Mayor).</p>
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Finanzas</h1>
+    <p class="page-sub">Controla los movimientos que ven los usuarios en Finanzas y en el Libro Mayor.</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" (click)="abrirFormulario()">
+      <app-icon nombre="plus" [tamano]="16" /> Nuevo movimiento
+    </button>
+  </div>
+</div>
 
-    <section class="resumen-admin">
-        <div class="resumen-item">
-            <span class="resumen-label">Total ingresos</span>
-            <span class="resumen-valor positivo">{{ formatearCOP(totalIngresos) }}</span>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Total gastos</span>
-            <span class="resumen-valor negativo">{{ formatearCOP(totalGastos) }}</span>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Balance neto</span>
-            <span class="resumen-valor" [class.positivo]="balanceNeto >= 0" [class.negativo]="balanceNeto < 0">
-                {{ formatearCOP(balanceNeto) }}
-            </span>
-        </div>
-    </section>
+<section class="kpi-grid" aria-label="Resumen financiero">
+  <article class="card kpi">
+    <div class="kpi-top">
+      <span>Total ingresos</span>
+      <span class="kpi-icon"><app-icon nombre="arrow-up-right" [tamano]="18" /></span>
+    </div>
+    @if (cargando()) { <span class="skeleton sk-kpi"></span> } @else { <span class="kpi-value">{{ totalIngresos() | moneda }}</span> }
+    <span class="kpi-foot">{{ conteos()['ingreso'] }} movimientos de ingreso</span>
+  </article>
 
-    <input
-        type="text"
-        class="buscador"
-        placeholder="Buscar por concepto o categoría..."
+  <article class="card kpi">
+    <div class="kpi-top">
+      <span>Total gastos</span>
+      <span class="kpi-icon neutral"><app-icon nombre="arrow-down-right" [tamano]="18" /></span>
+    </div>
+    @if (cargando()) { <span class="skeleton sk-kpi"></span> } @else { <span class="kpi-value">{{ totalGastos() | moneda }}</span> }
+    <span class="kpi-foot">{{ conteos()['gasto'] }} movimientos de gasto</span>
+  </article>
+
+  <article class="card kpi">
+    <div class="kpi-top">
+      <span>Balance neto</span>
+      <span class="kpi-icon" [class.warning]="balance() < 0"><app-icon nombre="wallet" [tamano]="18" /></span>
+    </div>
+    @if (cargando()) {
+      <span class="skeleton sk-kpi"></span>
+    } @else {
+      <span class="kpi-value" [class.negative]="balance() < 0">{{ balance() | moneda }}</span>
+    }
+    <span class="kpi-foot">{{ balance() >= 0 ? 'Los ingresos superan a los gastos' : 'Los gastos superan a los ingresos' }}</span>
+  </article>
+
+  <article class="card kpi">
+    <div class="kpi-top">
+      <span>Movimientos registrados</span>
+      <span class="kpi-icon neutral"><app-icon nombre="list" [tamano]="18" /></span>
+    </div>
+    @if (cargando()) { <span class="skeleton sk-kpi"></span> } @else { <span class="kpi-value">{{ movimientos().length }}</span> }
+    <span class="kpi-foot">{{ categoriasUsadas().length }} categorías en uso</span>
+  </article>
+</section>
+
+<section class="resumen" aria-label="Distribución de movimientos">
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2 class="card-title">Gastos por categoría</h2>
+        <p class="card-hint">Participación de cada categoría en el total de gastos.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      @if (cargando()) {
+        @for (n of [1, 2, 3, 4]; track n) {
+          <div class="barra-fila"><span class="skeleton sk-w120"></span><span class="skeleton sk-full"></span></div>
+        }
+      } @else if (gastosPorCategoria().length === 0) {
+        <p class="sin-datos">Aún no hay gastos registrados.</p>
+      } @else {
+        <ul class="barras">
+          @for (item of gastosPorCategoria(); track item.categoria) {
+            <li class="barra-fila">
+              <div class="barra-info">
+                <span class="cell-strong">{{ item.categoria }}</span>
+                <span class="cell-sub">{{ item.valor | moneda }} · {{ item.pct }}%</span>
+              </div>
+              <div class="barra-pista" role="img" [attr.aria-label]="item.categoria + ': ' + item.pct + '% de los gastos'">
+                <span class="barra-relleno" [style.width.%]="item.pct"></span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2 class="card-title">Ingresos frente a gastos</h2>
+        <p class="card-hint">Comparación sobre todos los movimientos registrados.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      @if (cargando()) {
+        <div class="barra-fila"><span class="skeleton sk-w120"></span><span class="skeleton sk-full"></span></div>
+        <div class="barra-fila"><span class="skeleton sk-w120"></span><span class="skeleton sk-full"></span></div>
+      } @else {
+        <ul class="barras">
+          <li class="barra-fila">
+            <div class="barra-info">
+              <span class="cell-strong">Ingresos</span>
+              <span class="cell-sub">{{ totalIngresos() | moneda }}</span>
+            </div>
+            <div class="barra-pista"><span class="barra-relleno" [style.width.%]="anchoIngresos()"></span></div>
+          </li>
+          <li class="barra-fila">
+            <div class="barra-info">
+              <span class="cell-strong">Gastos</span>
+              <span class="cell-sub">{{ totalGastos() | moneda }}</span>
+            </div>
+            <div class="barra-pista"><span class="barra-relleno gris" [style.width.%]="anchoGastos()"></span></div>
+          </li>
+        </ul>
+        @if (totalIngresos() > 0) {
+          <p class="conclusion">Los gastos equivalen al <strong>{{ porcentajeGasto() }}%</strong> de los ingresos.</p>
+        }
+      }
+    </div>
+  </article>
+</section>
+
+<section class="card" aria-label="Listado de movimientos">
+  <div class="toolbar">
+    <div class="search">
+      <app-icon nombre="search" [tamano]="16" />
+      <input
+        type="search"
+        class="input"
+        placeholder="Buscar por concepto, categoría o método de pago"
+        aria-label="Buscar movimientos"
         [ngModel]="busqueda()"
-        (ngModelChange)="actualizarBusqueda($event)"
-        name="busqueda" />
+        (ngModelChange)="filtrar(busqueda, $event)" />
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Concepto</th>
-                <th>Categoría</th>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Valor</th>
-                <th></th>
+    <button
+      type="button"
+      class="btn btn-secondary"
+      aria-controls="filtros-movimientos"
+      [attr.aria-expanded]="avanzados()"
+      (click)="avanzados.set(!avanzados())">
+      <app-icon nombre="filter" [tamano]="16" /> Filtros avanzados
+      @if (filtrosAvanzadosActivos()) {
+        <span class="filter-badge">{{ filtrosAvanzadosActivos() }}</span>
+      }
+    </button>
+
+    <app-row-menu textoBoton="Exportar" iconoBoton="download" [acciones]="accionesExportar" (seleccion)="exportar($event)" />
+  </div>
+
+  @if (avanzados()) {
+    <div class="filters-panel" id="filtros-movimientos">
+      <div class="field">
+        <label for="fm-categoria">Categoría</label>
+        <select id="fm-categoria" class="input" [ngModel]="filtroCategoria()" (ngModelChange)="filtrar(filtroCategoria, $event)">
+          <option value="">Todas las categorías</option>
+          @for (categoria of categoriasUsadas(); track categoria) {
+            <option [value]="categoria">{{ categoria }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label for="fm-desde">Desde</label>
+        <input id="fm-desde" type="date" class="input" [ngModel]="fechaDesde()" (ngModelChange)="filtrar(fechaDesde, $event)" />
+      </div>
+      <div class="field">
+        <label for="fm-hasta">Hasta</label>
+        <input id="fm-hasta" type="date" class="input" [ngModel]="fechaHasta()" (ngModelChange)="filtrar(fechaHasta, $event)" />
+      </div>
+      <div class="panel-foot">
+        <button type="button" class="btn btn-secondary" [disabled]="!hayFiltros()" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+    </div>
+  }
+
+  <div class="tabs" role="tablist" aria-label="Filtrar por tipo de movimiento">
+    @for (pestana of pestanas; track pestana.etiqueta) {
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [attr.aria-selected]="filtroTipo() === pestana.valor"
+        (click)="filtrar(filtroTipo, pestana.valor)">
+        {{ pestana.etiqueta }}
+        <span class="count">{{ conteos()[pestana.valor] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <caption class="sr-only">Movimientos financieros registrados</caption>
+      <thead>
+        <tr>
+          <th scope="col">Concepto</th>
+          <th scope="col" class="hide-md">Categoría</th>
+          <th scope="col">Fecha</th>
+          <th scope="col" class="hide-md">Tipo</th>
+          <th scope="col" class="num">Valor</th>
+          <th scope="col" class="col-actions"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (cargando()) {
+          @for (n of esqueletos; track n) {
+            <tr aria-hidden="true">
+              <td><span class="skeleton sk-w160"></span></td>
+              <td class="hide-md"><span class="skeleton sk-w120"></span></td>
+              <td><span class="skeleton sk-w80"></span></td>
+              <td class="hide-md"><span class="skeleton sk-w80"></span></td>
+              <td class="num"><span class="skeleton sk-w80 sk-right"></span></td>
+              <td></td>
             </tr>
-        </thead>
-        <tbody>
-            @for (mov of movimientosFiltrados; track mov.id) {
-                <tr>
-                    <td>{{ mov.concepto }}</td>
-                    <td>{{ mov.categoria }}</td>
-                    <td>{{ mov.fecha }}</td>
-                    <td>{{ mov.tipo === 'ingreso' ? 'Ingreso' : 'Gasto' }}</td>
-                    <td [class.negativo]="mov.tipo === 'gasto'" [class.positivo]="mov.tipo === 'ingreso'">
-                        {{ mov.tipo === 'ingreso' ? '+' : '-' }}{{ formatearCOP(mov.valor) }}
-                    </td>
-                    <td class="acciones">
-                        <button type="button" (click)="editarMovimiento(mov)">Editar</button>
-                        <button type="button" class="btn-eliminar" (click)="eliminarMovimiento(mov.id)">Eliminar</button>
-                    </td>
-                </tr>
-            }
-            @if (movimientosFiltrados.length === 0) {
-                <tr>
-                    <td colspan="6" class="fila-vacia">No hay movimientos que coincidan con la búsqueda.</td>
-                </tr>
-            }
-        </tbody>
+          }
+        } @else {
+          @for (fila of filas(); track fila.movimiento.id) {
+            @let m = fila.movimiento;
+            <tr>
+              <td>
+                <span class="cell-strong">{{ m.concepto }}</span>
+                <span class="cell-sub">{{ m.metodoPago || 'Sin método de pago' }}</span>
+              </td>
+              <td class="hide-md">{{ m.categoria }}</td>
+              <td>{{ fecha(m.fecha) }}</td>
+              <td class="hide-md">
+                <span [class]="'badge plain badge-' + m.tipo">{{ m.tipo === 'ingreso' ? 'Ingreso' : 'Gasto' }}</span>
+              </td>
+              <td class="num" [class.positive]="m.tipo === 'ingreso'">
+                <span class="cell-strong" [class.positive]="m.tipo === 'ingreso'">
+                  {{ m.tipo === 'ingreso' ? '+' : '−' }}{{ m.valor | moneda }}
+                </span>
+              </td>
+              <td class="col-actions">
+                <app-row-menu
+                  [acciones]="fila.acciones"
+                  [etiqueta]="'Acciones del movimiento ' + m.concepto"
+                  (seleccion)="alElegirAccion($event, m)" />
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
     </table>
 
-    <section class="panel-form">
-        <h2>{{ editandoId ? 'Editar movimiento' : 'Agregar movimiento' }}</h2>
-        <form (ngSubmit)="guardarMovimiento()">
-            <div class="form-row">
-                <input type="text" [(ngModel)]="formMovimiento.concepto" name="concepto" placeholder="Concepto (ej: Salario, Arriendo)" required>
-                <input type="text" [(ngModel)]="formMovimiento.categoria" name="categoria" placeholder="Categoría" required>
-                <input type="date" [(ngModel)]="formMovimiento.fecha" name="fecha" required>
-                <select [(ngModel)]="formMovimiento.tipo" name="tipo">
-                    <option value="ingreso">Ingreso</option>
-                    <option value="gasto">Gasto</option>
-                </select>
-                <input type="number" min="1" [(ngModel)]="formMovimiento.valor" name="valor" placeholder="Valor" required>
-            </div>
-            <div class="form-acciones">
-                <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar movimiento' }}</button>
-                @if (editandoId) {
-                    <button type="button" (click)="cancelarEdicion()">Cancelar</button>
-                }
-            </div>
-        </form>
-    </section>
-</div>
+    @if (!cargando() && filtrados().length === 0) {
+      <div class="empty">
+        <span class="empty-icon"><app-icon nombre="inbox" [tamano]="26" /></span>
+        <p class="empty-title">No hay movimientos que coincidan con estos filtros.</p>
+        <p class="empty-text">Ajusta la búsqueda o registra un nuevo movimiento para comenzar.</p>
+        <div class="empty-acciones">
+          @if (hayFiltros()) {
+            <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
+          }
+          <button type="button" class="btn btn-primary" (click)="abrirFormulario()">Nuevo movimiento</button>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (!cargando() && filtrados().length > 0) {
+    <div class="table-foot">
+      <span>Mostrando {{ rango().desde }}–{{ rango().hasta }} de {{ filtrados().length }} movimientos</span>
+      <div class="pager">
+        <button type="button" class="icon-btn" aria-label="Página anterior" [disabled]="paginaActual() === 1" (click)="cambiarPagina(-1)">
+          <app-icon nombre="chevron-left" [tamano]="18" />
+        </button>
+        <span>Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
+        <button type="button" class="icon-btn" aria-label="Página siguiente" [disabled]="paginaActual() === totalPaginas()" (click)="cambiarPagina(1)">
+          <app-icon nombre="chevron-right" [tamano]="18" />
+        </button>
+      </div>
+    </div>
+  }
+</section>
+
+@if (modal(); as m) {
+  @if (m.tipo === 'formulario') {
+    <app-modal
+      [titulo]="esEdicion() ? 'Editar movimiento' : 'Nuevo movimiento'"
+      subtitulo="Los cambios se reflejan en Finanzas y en el Libro Mayor de los usuarios."
+      ancho="lg"
+      [fondoFijo]="true"
+      (cerrar)="cerrarModal()">
+      <form id="form-movimiento" class="form-grid" [formGroup]="formulario" novalidate (ngSubmit)="guardarFormulario()">
+        <div class="field full">
+          <span class="label" id="lbl-tipo">Tipo de movimiento</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="lbl-tipo">
+            <label><input type="radio" formControlName="tipo" value="ingreso" /> Ingreso</label>
+            <label><input type="radio" formControlName="tipo" value="gasto" /> Gasto</label>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label for="mov-concepto">Concepto</label>
+          <input id="mov-concepto" class="input" type="text" formControlName="concepto" placeholder="Ej. Salario, arriendo, mercado" autocomplete="off" />
+          @if (errorDe('concepto')) { <span class="field-error">{{ errorDe('concepto') }}</span> }
+        </div>
+
+        <div class="field">
+          <label for="mov-categoria">Categoría</label>
+          <input id="mov-categoria" class="input" type="text" formControlName="categoria" list="lista-categorias" autocomplete="off" />
+          <datalist id="lista-categorias">
+            @for (categoria of categorias(); track categoria) {
+              <option [value]="categoria"></option>
+            }
+          </datalist>
+          @if (errorDe('categoria')) { <span class="field-error">{{ errorDe('categoria') }}</span> }
+        </div>
+
+        <div class="field">
+          <label for="mov-valor">Valor (COP)</label>
+          <input id="mov-valor" class="input" type="number" min="1" step="1" formControlName="valor" placeholder="0" />
+          @if (errorDe('valor')) { <span class="field-error">{{ errorDe('valor') }}</span> }
+        </div>
+
+        <div class="field">
+          <label for="mov-fecha">Fecha</label>
+          <input id="mov-fecha" class="input" type="date" formControlName="fecha" />
+          @if (errorDe('fecha')) { <span class="field-error">{{ errorDe('fecha') }}</span> }
+        </div>
+
+        <div class="field">
+          <label for="mov-metodo">Método de pago <span class="opcional">(opcional)</span></label>
+          <select id="mov-metodo" class="input" formControlName="metodoPago">
+            <option value="">Sin especificar</option>
+            @for (metodo of metodosPago; track metodo) {
+              <option [value]="metodo">{{ metodo }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="mov-obs">Observaciones <span class="opcional">(opcional)</span></label>
+          <textarea id="mov-obs" class="input" rows="2" formControlName="observaciones"></textarea>
+        </div>
+      </form>
+      @if (errorModal()) {
+        <p class="form-error" role="alert">{{ errorModal() }}</p>
+      }
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="submit" form="form-movimiento" class="btn btn-primary">{{ esEdicion() ? 'Guardar cambios' : 'Registrar movimiento' }}</button>
+    </app-modal>
+  } @else if (m.movimiento; as mov) {
+    <app-modal
+      titulo="Eliminar movimiento"
+      [subtitulo]="'Se eliminará «' + mov.concepto + '». Esta acción no se puede deshacer y el movimiento dejará de verse para los usuarios.'"
+      ancho="sm"
+      [alertdialog]="true"
+      (cerrar)="cerrarModal()">
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar movimiento</button>
+    </app-modal>
+  }
+}

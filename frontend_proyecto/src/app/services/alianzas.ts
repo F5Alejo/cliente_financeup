@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
+import { NotificacionesService } from './notificaciones';
 
 export type TipoAliado = 'Bancos' | 'Fintech' | 'Comercio';
 export type Beneficio = '0% Interés' | 'Cashback' | 'Sin Cuota';
@@ -80,6 +81,7 @@ const DOCUMENTOS_BASE = [
 export class AlianzasService {
   // Cambia cuando se radica una solicitud, para refrescar las vistas.
   readonly version = signal(0);
+  private notificaciones = inject(NotificacionesService);
 
   solicitudes: Solicitud[] = [];
 
@@ -415,6 +417,13 @@ export class AlianzasService {
 
     this.solicitudes.push(solicitud);
     this.version.update((v) => v + 1);
+    this.notificaciones.agregar({
+      categoria: 'alianzas',
+      titulo: 'Nueva solicitud de alianza',
+      detalle: `${solicitud.nombre} solicitó ${solicitud.producto} (${solicitud.aliado}).`,
+      ruta: '/admin/alianzas',
+      nivel: 'info',
+    });
     return solicitud;
   }
 

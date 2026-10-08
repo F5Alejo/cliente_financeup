@@ -1,0 +1,89 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Reportes</h1>
+    <p class="page-sub">Consulta indicadores de la plataforma y expórtalos cuando los necesites.</p>
+  </div>
+  <div class="page-actions no-print">
+    <button type="button" class="btn btn-secondary" (click)="exportarPdf()">
+      <app-icon nombre="file-text" [tamano]="16" /> Exportar PDF
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="exportarExcel()">
+      <app-icon nombre="download" [tamano]="16" /> Exportar Excel
+    </button>
+    <button type="button" class="btn btn-primary" [disabled]="actualizando()" (click)="generar()">
+      <app-icon nombre="bar-chart" [tamano]="16" /> {{ actualizando() ? 'Generando…' : 'Generar reporte' }}
+    </button>
+  </div>
+</div>
+
+<p class="solo-impresion">FinanceUp · Reporte de {{ temaActual().etiqueta }} · Generado el {{ generadoTexto() }}</p>
+
+<div class="filtro-fila no-print">
+  <div class="tabs pestanas-reporte" role="tablist" aria-label="Tipo de reporte">
+    @for (t of temas; track t.valor) {
+      <button type="button" role="tab" class="tab" [attr.aria-selected]="tema() === t.valor" (click)="tema.set(t.valor)">
+        <app-icon [nombre]="t.icono" [tamano]="16" /> {{ t.etiqueta }}
+      </button>
+    }
+  </div>
+  <div class="filtro-derecha">
+    @if (usaPeriodo()) {
+      <div class="field campo-periodo">
+        <label for="rep-periodo" class="sr-only">Periodo</label>
+        <select id="rep-periodo" class="input" [ngModel]="periodo()" (ngModelChange)="periodo.set(+$event)">
+          @for (p of periodos; track p.valor) {
+            <option [ngValue]="p.valor">{{ p.etiqueta }}</option>
+          }
+        </select>
+      </div>
+    }
+    <span class="cell-sub">Generado el {{ generadoTexto() }}</span>
+  </div>
+</div>
+
+<div class="contenido-reporte" [class.actualizando]="actualizando()" [attr.aria-busy]="actualizando()">
+  <section class="kpi-grid" [attr.aria-label]="'Indicadores de ' + temaActual().etiqueta">
+    @for (k of reporte().kpis; track k.etiqueta) {
+      <app-kpi
+        [etiqueta]="k.etiqueta"
+        [valor]="k.valor"
+        [icono]="k.icono"
+        [pie]="k.pie"
+        [tono]="k.tono ?? ''"
+        [tendencia]="k.tendencia ?? null"
+        [cargando]="cargando()" />
+    }
+  </section>
+
+  <div class="secciones">
+    @for (s of reporte().secciones; track s.titulo) {
+      <article class="card" [class.ancho]="s.tipo === 'barras'">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">{{ s.titulo }}</h2>
+            <p class="card-hint">{{ s.descripcion }}</p>
+          </div>
+        </div>
+        <div class="card-body">
+          @if (cargando()) {
+            <span class="skeleton sk-bloque"></span>
+          } @else if (s.tipo === 'barras') {
+            <app-grafico-barras
+              [datos]="s.datos"
+              [titulo]="s.titulo"
+              [columna]="s.columna"
+              [formato]="formatos[s.formato]"
+              [formatoEje]="formatosEje[s.formato]" />
+          } @else {
+            <app-distribucion
+              [items]="items(s)"
+              [titulo]="s.titulo"
+              [formato]="formatos[s.formato]"
+              [escala]="s.escala ?? 'total'"
+              [mostrarPorcentaje]="s.porcentaje !== false" />
+          }
+        </div>
+      </article>
+    }
+  </div>
+</div>

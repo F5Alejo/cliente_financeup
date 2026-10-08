@@ -1,95 +1,156 @@
-<app-admin-menu></app-admin-menu>
-<div class="admin-metas">
-    <h1>Metas</h1>
-    <p class="admin-sub">Agrega, edita o elimina las metas que ven los usuarios.</p>
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Metas</h1>
+    <p class="page-sub">Administra las metas de ahorro que ven los usuarios.</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" (click)="abrirFormulario()">
+      <app-icon nombre="plus" [tamano]="16" /> Nueva meta
+    </button>
+  </div>
+</div>
 
-    <section class="resumen-admin">
-        <div class="resumen-item">
-            <span class="resumen-label">Total de metas</span>
-            <span class="resumen-valor">{{ totalMetas }}</span>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Metas cumplidas</span>
-            <span class="resumen-valor positivo">{{ metasCumplidas }} / {{ totalMetas }}</span>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Total ahorrado</span>
-            <span class="resumen-valor">{{ formatearCOP(totalAhorrado) }}</span>
-        </div>
-    </section>
+<section class="kpi-grid" aria-label="Resumen de metas">
+  <app-kpi etiqueta="Total de metas" [valor]="total()" icono="target" tono="neutral" pie="registradas" [cargando]="cargando()" />
+  <app-kpi etiqueta="Metas cumplidas" [valor]="cumplidas() + ' / ' + total()" icono="check-circle" pie="alcanzaron su objetivo" [cargando]="cargando()" />
+  <app-kpi etiqueta="Total ahorrado" [valor]="totalAhorrado() | moneda" icono="wallet" pie="entre todas las metas" [cargando]="cargando()" />
+  <app-kpi etiqueta="Falta por ahorrar" [valor]="totalFaltante() | moneda" icono="clock" tono="neutral" pie="para completar las metas" [cargando]="cargando()" />
+</section>
 
-    <input
-        type="text"
-        class="buscador"
-        placeholder="Buscar por nombre..."
-        [ngModel]="busqueda()"
-        (ngModelChange)="actualizarBusqueda($event)"
-        name="busqueda" />
-
-    <div class="filtros-estado" role="tablist" aria-label="Filtrar por estado">
-        @for (e of ['Todas', 'Cumplidas', 'En progreso']; track e) {
-            <button type="button" role="tab" [class.activo]="estadoFiltro() === e" (click)="filtrarPorEstado(e)">
-                {{ e }}
-            </button>
-        }
+<section class="card" aria-label="Listado de metas">
+  <div class="toolbar">
+    <div class="search">
+      <app-icon nombre="search" [tamano]="16" />
+      <input type="search" class="input" placeholder="Buscar por nombre" aria-label="Buscar metas" [ngModel]="busqueda()" (ngModelChange)="filtrar(busqueda, $event)" />
     </div>
+  </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th class="th-ordenable" (click)="ordenarPor('nombre')">Meta {{ columnaOrden() === 'nombre' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
-                <th class="th-ordenable" (click)="ordenarPor('actual')">Actual {{ columnaOrden() === 'actual' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
-                <th class="th-ordenable" (click)="ordenarPor('objetivo')">Objetivo {{ columnaOrden() === 'objetivo' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
-                <th>Falta</th>
-                <th class="th-ordenable" (click)="ordenarPor('porcentaje')">Progreso {{ columnaOrden() === 'porcentaje' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
-                <th>Estado</th>
-                <th></th>
+  <div class="tabs" role="tablist" aria-label="Filtrar por estado">
+    @for (p of pestanas; track p.etiqueta) {
+      <button type="button" role="tab" class="tab" [attr.aria-selected]="pestana() === p.valor" (click)="filtrar(pestana, p.valor)">
+        {{ p.etiqueta }} <span class="count">{{ conteos()[p.valor] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <caption class="sr-only">Metas de ahorro</caption>
+      <thead>
+        <tr>
+          <th scope="col" [attr.aria-sort]="ariaOrden('nombre')"><button type="button" class="th-sort" (click)="ordenarPor('nombre')">Meta <span class="flecha">{{ flecha('nombre') }}</span></button></th>
+          <th scope="col" class="num hide-md" [attr.aria-sort]="ariaOrden('actual')"><button type="button" class="th-sort" (click)="ordenarPor('actual')">Ahorrado <span class="flecha">{{ flecha('actual') }}</span></button></th>
+          <th scope="col" class="num hide-lg" [attr.aria-sort]="ariaOrden('objetivo')"><button type="button" class="th-sort" (click)="ordenarPor('objetivo')">Objetivo <span class="flecha">{{ flecha('objetivo') }}</span></button></th>
+          <th scope="col" [attr.aria-sort]="ariaOrden('porcentaje')"><button type="button" class="th-sort" (click)="ordenarPor('porcentaje')">Progreso <span class="flecha">{{ flecha('porcentaje') }}</span></button></th>
+          <th scope="col" class="hide-md">Estado</th>
+          <th scope="col" class="col-actions"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (cargando()) {
+          @for (n of esqueletos; track n) {
+            <tr aria-hidden="true">
+              <td><span class="skeleton sk-w160"></span></td>
+              <td class="num hide-md"><span class="skeleton sk-w80 sk-right"></span></td>
+              <td class="num hide-lg"><span class="skeleton sk-w80 sk-right"></span></td>
+              <td><span class="skeleton sk-w120"></span></td>
+              <td class="hide-md"><span class="skeleton sk-w80"></span></td>
+              <td></td>
             </tr>
-        </thead>
-        <tbody>
-            @for (meta of metasFiltradas; track meta.id) {
-                <tr>
-                    <td>{{ meta.icono }} {{ meta.nombre }}</td>
-                    <td>{{ formatearCOP(meta.actual) }}</td>
-                    <td>{{ formatearCOP(meta.objetivo) }}</td>
-                    <td>{{ formatearCOP(faltante(meta)) }}</td>
-                    <td>{{ meta.porcentaje }}%</td>
-                    <td>
-                        <span class="estado" [class.cumplida]="meta.cumplida">
-                            {{ meta.cumplida ? 'Cumplida' : 'En progreso' }}
-                        </span>
-                    </td>
-                    <td class="acciones">
-                        <button type="button" (click)="editarMeta(meta)">Editar</button>
-                        <button type="button" class="btn-eliminar" (click)="eliminarMeta(meta.id)">Eliminar</button>
-                    </td>
-                </tr>
-            }
-            @if (metasFiltradas.length === 0) {
-                <tr>
-                    <td colspan="7" class="fila-vacia">No hay metas que coincidan con la búsqueda.</td>
-                </tr>
-            }
-        </tbody>
+          }
+        } @else {
+          @for (fila of filas(); track fila.meta.id) {
+            @let m = fila.meta;
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="kpi-icon neutral" aria-hidden="true"><app-icon nombre="target" [tamano]="16" /></span>
+                  <div>
+                    <span class="cell-strong">{{ m.nombre }}</span>
+                    <span class="cell-sub">Falta {{ faltante(m) | moneda }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="num hide-md">{{ m.actual | moneda }}</td>
+              <td class="num hide-lg">{{ m.objetivo | moneda }}</td>
+              <td>
+                <div class="progreso">
+                  <div class="progress" role="img" [attr.aria-label]="m.nombre + ': ' + m.porcentaje + '% completado'">
+                    <span class="progress-fill" [class.gray]="!m.cumplida" [style.width.%]="m.porcentaje"></span>
+                  </div>
+                  <span class="cell-strong">{{ m.porcentaje }}%</span>
+                </div>
+              </td>
+              <td class="hide-md">
+                <span [class]="'badge ' + (m.cumplida ? 'badge-activo' : 'badge-suspendido')">{{ m.cumplida ? 'Cumplida' : 'En progreso' }}</span>
+              </td>
+              <td class="col-actions">
+                <app-row-menu [acciones]="fila.acciones" [etiqueta]="'Acciones de ' + m.nombre" (seleccion)="alElegirAccion($event, m)" />
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
     </table>
 
-    <section class="panel-form">
-        <h2>{{ editandoId ? 'Editar meta' : 'Agregar meta' }}</h2>
-        <form (ngSubmit)="guardarMeta()">
-            <div class="form-row">
-                <input type="text" [(ngModel)]="formMeta.icono" name="icono" placeholder="Emoji" maxlength="2">
-                <input type="text" [(ngModel)]="formMeta.nombre" name="nombre" placeholder="Nombre de la meta" required>
-            </div>
-            <div class="form-row">
-                <input type="number" [(ngModel)]="formMeta.actual" name="actual" placeholder="Monto actual">
-                <input type="number" [(ngModel)]="formMeta.objetivo" name="objetivo" placeholder="Monto objetivo" required>
-            </div>
-            <div class="form-acciones">
-                <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar meta' }}</button>
-                @if (editandoId) {
-                    <button type="button" (click)="cancelarEdicion()">Cancelar</button>
-                }
-            </div>
-        </form>
-    </section>
-</div>
+    @if (!cargando() && filtradas().length === 0) {
+      <app-estado-vacio titulo="No hay metas que coincidan con estos filtros." texto="Ajusta la búsqueda o crea una nueva meta.">
+        <button type="button" class="btn btn-secondary" (click)="filtrar(busqueda, ''); filtrar(pestana, '')">Limpiar filtros</button>
+        <button type="button" class="btn btn-primary" (click)="abrirFormulario()">Nueva meta</button>
+      </app-estado-vacio>
+    }
+  </div>
+
+  @if (!cargando() && filtradas().length > 0) {
+    <app-paginacion
+      [desde]="paginador.rango().desde"
+      [hasta]="paginador.rango().hasta"
+      [total]="filtradas().length"
+      [pagina]="paginador.paginaActual()"
+      [totalPaginas]="paginador.totalPaginas()"
+      unidad="metas"
+      (cambiar)="paginador.cambiar($event)" />
+  }
+</section>
+
+@if (modal(); as m) {
+  @if (m.tipo === 'formulario') {
+    <app-modal
+      [titulo]="m.meta ? 'Editar meta' : 'Nueva meta'"
+      subtitulo="Los cambios se reflejan en las metas de los usuarios."
+      [fondoFijo]="true"
+      (cerrar)="cerrarModal()">
+      <form id="form-meta" class="form-grid" [formGroup]="formulario" novalidate (ngSubmit)="guardar()">
+        <div class="field full">
+          <label for="meta-nombre">Nombre de la meta</label>
+          <input id="meta-nombre" class="input" type="text" formControlName="nombre" placeholder="Ej. Vacaciones" autocomplete="off" />
+          @if (errorDe('nombre')) { <span class="field-error">{{ errorDe('nombre') }}</span> }
+        </div>
+        <div class="field">
+          <label for="meta-actual">Monto ahorrado (COP)</label>
+          <input id="meta-actual" class="input" type="number" min="0" formControlName="actual" />
+        </div>
+        <div class="field">
+          <label for="meta-objetivo">Monto objetivo (COP)</label>
+          <input id="meta-objetivo" class="input" type="number" min="1" formControlName="objetivo" placeholder="0" />
+          @if (errorDe('objetivo')) { <span class="field-error">{{ errorDe('objetivo') }}</span> }
+        </div>
+      </form>
+      @if (errorModal()) {
+        <p class="form-error" role="alert">{{ errorModal() }}</p>
+      }
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="submit" form="form-meta" class="btn btn-primary">{{ m.meta ? 'Guardar cambios' : 'Agregar meta' }}</button>
+    </app-modal>
+  } @else if (m.meta; as meta) {
+    <app-modal
+      titulo="Eliminar meta"
+      [subtitulo]="'Se eliminará «' + meta.nombre + '». Esta acción no se puede deshacer y dejará de verse para los usuarios.'"
+      ancho="sm"
+      [alertdialog]="true"
+      (cerrar)="cerrarModal()">
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar meta</button>
+    </app-modal>
+  }
+}

@@ -1,51 +1,236 @@
-<app-admin-menu></app-admin-menu>
-<div class="admin-alianzas">
-    <h1>Alianzas</h1>
-    <p class="admin-sub">Agrega, edita o elimina las ofertas de aliados.</p>
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Alianzas</h1>
+    <p class="page-sub">Administra las ofertas de los aliados y revisa las solicitudes recibidas.</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" (click)="abrirFormulario()">
+      <app-icon nombre="plus" [tamano]="16" /> Nueva alianza
+    </button>
+  </div>
+</div>
 
-    <table>
+<section class="kpi-grid" aria-label="Resumen de alianzas">
+  <app-kpi etiqueta="Alianzas activas" [valor]="totalOfertas()" icono="briefcase" pie="ofertas publicadas" [cargando]="cargando()" />
+  <app-kpi etiqueta="Ofertas destacadas" [valor]="destacadas()" icono="shield-check" tono="neutral" pie="visibles en primer lugar" [cargando]="cargando()" />
+  <app-kpi etiqueta="Solicitudes en estudio" [valor]="enEstudio()" icono="clock" tono="warning" pie="pendientes de decisión" [cargando]="cargando()" />
+  <app-kpi etiqueta="Usuarios vinculados" [valor]="usuariosTotales().toLocaleString('es-CO')" icono="users" tono="neutral" pie="entre todas las ofertas" [cargando]="cargando()" />
+</section>
+
+<section class="card" aria-label="Alianzas">
+  <div class="tabs vistas" role="tablist" aria-label="Vista de alianzas">
+    <button type="button" role="tab" class="tab" [attr.aria-selected]="vista() === 'ofertas'" (click)="vista.set('ofertas')">
+      Ofertas <span class="count">{{ totalOfertas() }}</span>
+    </button>
+    <button type="button" role="tab" class="tab" [attr.aria-selected]="vista() === 'solicitudes'" (click)="vista.set('solicitudes')">
+      Solicitudes <span class="count">{{ solicitudes().length }}</span>
+    </button>
+  </div>
+
+  @if (vista() === 'ofertas') {
+    <div class="toolbar toolbar-borde">
+      <div class="search">
+        <app-icon nombre="search" [tamano]="16" />
+        <input type="search" class="input" placeholder="Buscar por aliado, descripción o categoría" aria-label="Buscar ofertas" [ngModel]="busqueda()" (ngModelChange)="filtrar(busqueda, $event)" />
+      </div>
+      <select class="input select" aria-label="Filtrar por familia" [ngModel]="filtroFamilia()" (ngModelChange)="filtrar(filtroFamilia, $event)">
+        <option value="">Todas las familias</option>
+        @for (familia of familias; track familia) {
+          <option [value]="familia">{{ familia }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <caption class="sr-only">Ofertas de aliados</caption>
         <thead>
-            <tr>
-                <th>Aliado</th>
-                <th>Descripción</th>
-                <th>CTA</th>
-                <th></th>
-            </tr>
+          <tr>
+            <th scope="col">Aliado</th>
+            <th scope="col" class="hide-md">Familia</th>
+            <th scope="col" class="hide-lg">Descripción</th>
+            <th scope="col" class="hide-md">Estado</th>
+            <th scope="col" class="num hide-lg">Usuarios</th>
+            <th scope="col" class="col-actions"><span class="sr-only">Acciones</span></th>
+          </tr>
         </thead>
         <tbody>
-            @for (oferta of alianzasService.ofertas; track oferta.id) {
-                <tr>
-                    <td>{{ oferta.aliado }}</td>
-                    <td>{{ oferta.descripcion }}</td>
-                    <td>{{ oferta.ctaPrimaria }}</td>
-                    <td class="acciones">
-                        <button type="button" (click)="editarOferta(oferta)">Editar</button>
-                        <button type="button" class="btn-eliminar" (click)="eliminarOferta(oferta.id)">Eliminar</button>
-                    </td>
-                </tr>
+          @if (cargando()) {
+            @for (n of esqueletos; track n) {
+              <tr aria-hidden="true">
+                <td>
+                  <div class="person"><span class="skeleton skeleton-circle"></span><span class="skeleton sk-w120"></span></div>
+                </td>
+                <td class="hide-md"><span class="skeleton sk-w80"></span></td>
+                <td class="hide-lg"><span class="skeleton sk-w160"></span></td>
+                <td class="hide-md"><span class="skeleton sk-w80"></span></td>
+                <td class="num hide-lg"><span class="skeleton sk-w80 sk-right"></span></td>
+                <td></td>
+              </tr>
             }
+          } @else {
+            @for (fila of filas(); track fila.oferta.id) {
+              @let o = fila.oferta;
+              <tr>
+                <td>
+                  <div class="person">
+                    <span class="logo-tile" aria-hidden="true">{{ iniciales(o) }}</span>
+                    <div class="persona-datos">
+                      <span class="cell-strong">{{ o.aliado }}</span>
+                      <span class="cell-sub">{{ o.categoria || o.tipo }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="hide-md">{{ o.familia }}</td>
+                <td class="hide-lg"><span class="clamp-2">{{ o.descripcion || 'Sin descripción' }}</span></td>
+                <td class="hide-md">
+                  <span [class]="'badge ' + (o.destacada ? 'badge-activo' : 'badge-suspendido')">{{ o.destacada ? 'Destacada' : 'Publicada' }}</span>
+                </td>
+                <td class="num hide-lg">{{ o.usuarios.toLocaleString('es-CO') }}</td>
+                <td class="col-actions">
+                  <app-row-menu [acciones]="fila.acciones" [etiqueta]="'Acciones de ' + o.aliado" (seleccion)="alElegirAccion($event, o)" />
+                </td>
+              </tr>
+            }
+          }
         </tbody>
-    </table>
+      </table>
 
-    <section class="panel-form">
-        <h2>{{ editandoId ? 'Editar oferta' : 'Agregar oferta' }}</h2>
-        <form (ngSubmit)="guardarOferta()">
-            <div class="form-row">
-                <input type="text" [(ngModel)]="formOferta.aliado" name="aliado" placeholder="Nombre del aliado" required>
-                <input type="text" [(ngModel)]="formOferta.logoText" name="logoText" placeholder="Sigla del logo">
-            </div>
-            <input type="text" [(ngModel)]="formOferta.descripcion" name="descripcion" placeholder="Descripción de la oferta">
-            <input type="text" [(ngModel)]="formOferta.meta" name="meta" placeholder="Meta / vigencia">
-            <div class="form-row">
-                <input type="text" [(ngModel)]="formOferta.ctaPrimaria" name="ctaPrimaria" placeholder="Texto botón principal">
-                <input type="text" [(ngModel)]="formOferta.ctaSecundaria" name="ctaSecundaria" placeholder="Texto botón secundario">
-            </div>
-            <div class="form-acciones">
-                <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar oferta' }}</button>
-                @if (editandoId) {
-                    <button type="button" (click)="cancelarEdicion()">Cancelar</button>
-                }
-            </div>
-        </form>
-    </section>
-</div>
+      @if (!cargando() && filtradas().length === 0) {
+        <app-estado-vacio titulo="No hay ofertas que coincidan con estos filtros." texto="Ajusta la búsqueda o crea una nueva alianza.">
+          @if (hayFiltros()) {
+            <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
+          }
+          <button type="button" class="btn btn-primary" (click)="abrirFormulario()">Nueva alianza</button>
+        </app-estado-vacio>
+      }
+    </div>
+
+    @if (!cargando() && filtradas().length > 0) {
+      <app-paginacion
+        [desde]="paginador.rango().desde"
+        [hasta]="paginador.rango().hasta"
+        [total]="filtradas().length"
+        [pagina]="paginador.paginaActual()"
+        [totalPaginas]="paginador.totalPaginas()"
+        unidad="ofertas"
+        (cambiar)="paginador.cambiar($event)" />
+    }
+  } @else {
+    <div class="table-wrap">
+      @if (solicitudes().length === 0) {
+        <app-estado-vacio
+          icono="briefcase"
+          titulo="Aún no hay solicitudes."
+          texto="Cuando un usuario solicite un producto de un aliado, aparecerá aquí para su revisión." />
+      } @else {
+        <table class="table">
+          <caption class="sr-only">Solicitudes recibidas</caption>
+          <thead>
+            <tr>
+              <th scope="col">Radicado</th>
+              <th scope="col">Solicitante</th>
+              <th scope="col" class="hide-md">Producto</th>
+              <th scope="col" class="num hide-md">Monto</th>
+              <th scope="col" class="hide-lg">Fecha</th>
+              <th scope="col">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of solicitudes(); track s.radicado) {
+              <tr>
+                <td class="cell-strong">{{ s.radicado }}</td>
+                <td>
+                  <span class="cell-strong">{{ s.nombre }}</span>
+                  <span class="cell-sub">{{ s.correo }}</span>
+                </td>
+                <td class="hide-md">
+                  <span class="cell-strong">{{ s.producto }}</span>
+                  <span class="cell-sub">{{ s.aliado }}</span>
+                </td>
+                <td class="num hide-md">{{ s.monto | moneda }}</td>
+                <td class="hide-lg">{{ s.fecha }}</td>
+                <td><span class="badge badge-pendiente">{{ s.estado }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  }
+</section>
+
+@if (modal(); as m) {
+  @if (m.tipo === 'formulario') {
+    <app-modal
+      [titulo]="m.oferta ? 'Editar oferta' : 'Nueva alianza'"
+      subtitulo="Los cambios se reflejan en la sección de Alianzas de los usuarios."
+      ancho="lg"
+      [fondoFijo]="true"
+      (cerrar)="cerrarModal()">
+      <form id="form-oferta" class="form-grid" [formGroup]="formulario" novalidate (ngSubmit)="guardar()">
+        <div class="field">
+          <label for="of-aliado">Nombre del aliado</label>
+          <input id="of-aliado" class="input" type="text" formControlName="aliado" autocomplete="off" />
+          @if (errorDe('aliado')) { <span class="field-error">{{ errorDe('aliado') }}</span> }
+        </div>
+        <div class="field">
+          <label for="of-logo">Sigla del logo</label>
+          <input id="of-logo" class="input" type="text" maxlength="3" formControlName="logoText" placeholder="Ej. BA" autocomplete="off" />
+        </div>
+        <div class="field full">
+          <label for="of-desc">Descripción</label>
+          <textarea id="of-desc" class="input" rows="2" formControlName="descripcion"></textarea>
+        </div>
+        <div class="field full">
+          <label for="of-meta">Vigencia / meta</label>
+          <input id="of-meta" class="input" type="text" formControlName="meta" placeholder="Ej. Vence en 7 días" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="of-familia">Familia de producto</label>
+          <select id="of-familia" class="input" formControlName="familia">
+            @for (familia of familias; track familia) {
+              <option [value]="familia">{{ familia }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="of-tipo">Tipo de aliado</label>
+          <select id="of-tipo" class="input" formControlName="tipo">
+            @for (tipo of tipos; track tipo) {
+              <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="of-cta1">Botón principal</label>
+          <input id="of-cta1" class="input" type="text" formControlName="ctaPrimaria" autocomplete="off" />
+          @if (errorDe('ctaPrimaria')) { <span class="field-error">{{ errorDe('ctaPrimaria') }}</span> }
+        </div>
+        <div class="field">
+          <label for="of-cta2">Botón secundario <span class="opcional">(opcional)</span></label>
+          <input id="of-cta2" class="input" type="text" formControlName="ctaSecundaria" autocomplete="off" />
+        </div>
+        <label class="toggle-line full">
+          <input type="checkbox" formControlName="destacada" />
+          Mostrar como oferta destacada
+        </label>
+      </form>
+      @if (errorModal()) {
+        <p class="form-error" role="alert">{{ errorModal() }}</p>
+      }
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="submit" form="form-oferta" class="btn btn-primary">{{ m.oferta ? 'Guardar cambios' : 'Crear alianza' }}</button>
+    </app-modal>
+  } @else if (m.oferta; as o) {
+    <app-modal
+      titulo="Eliminar oferta"
+      [subtitulo]="'Se eliminará la oferta de ' + o.aliado + '. Esta acción no se puede deshacer y dejará de estar disponible para los usuarios.'"
+      ancho="sm"
+      [alertdialog]="true"
+      (cerrar)="cerrarModal()">
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar oferta</button>
+    </app-modal>
+  }
+}

@@ -1,0 +1,99 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Notificaciones</h1>
+    <p class="page-sub">Alertas de seguridad, nuevos usuarios, PQR, solicitudes de alianza y actividad importante.</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-secondary" [disabled]="sinLeer() === 0" (click)="marcarTodas()">
+      <app-icon nombre="check-circle" [tamano]="16" /> Marcar todas como leídas
+    </button>
+  </div>
+</div>
+
+<section class="card" aria-label="Bandeja de notificaciones">
+  <div class="toolbar">
+    <div class="search">
+      <app-icon nombre="search" [tamano]="16" />
+      <input
+        type="search"
+        class="input"
+        placeholder="Buscar en las notificaciones"
+        aria-label="Buscar notificaciones"
+        [ngModel]="busqueda()"
+        (ngModelChange)="filtrar(busqueda, $event)" />
+    </div>
+    <select class="input select" aria-label="Filtrar por categoría" [ngModel]="categoria()" (ngModelChange)="filtrar(categoria, $event)">
+      <option value="">Todas las categorías</option>
+      @for (c of categorias; track c[0]) {
+        <option [value]="c[0]">{{ c[1] }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Filtrar por lectura">
+    <button type="button" role="tab" class="tab" [attr.aria-selected]="pestana() === 'todas'" (click)="filtrar(pestana, 'todas')">
+      Todas <span class="count">{{ conteoTodas() }}</span>
+    </button>
+    <button type="button" role="tab" class="tab" [attr.aria-selected]="pestana() === 'sinLeer'" (click)="filtrar(pestana, 'sinLeer')">
+      Sin leer <span class="count">{{ conteoSinLeer() }}</span>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <ul class="bandeja" aria-hidden="true">
+      @for (n of esqueletos; track n) {
+        <li class="item">
+          <span class="skeleton skeleton-circle"></span>
+          <div class="item-texto"><span class="skeleton sk-w160"></span><span class="skeleton sk-w240"></span></div>
+        </li>
+      }
+    </ul>
+  } @else if (filtradas().length === 0) {
+    <app-estado-vacio
+      icono="bell"
+      [titulo]="pestana() === 'sinLeer' && !busqueda() && !categoria() ? 'Estás al día.' : 'No hay notificaciones que coincidan con estos filtros.'"
+      [texto]="pestana() === 'sinLeer' && !busqueda() && !categoria() ? 'No tienes notificaciones sin leer.' : 'Prueba con otra búsqueda o cambia de categoría.'">
+      @if (busqueda() || categoria() || pestana() !== 'todas') {
+        <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Ver todas</button>
+      }
+    </app-estado-vacio>
+  } @else {
+    <ul class="bandeja">
+      @for (n of visibles(); track n.id) {
+        <li class="item" [class.sin-leer]="!n.leida">
+          <span class="item-icono" [class.critico]="n.nivel === 'critico'" [class.warning]="n.nivel === 'warning'" aria-hidden="true">
+            <app-icon [nombre]="icono[n.categoria]" [tamano]="18" />
+          </span>
+          <div class="item-texto">
+            <span class="item-titulo">
+              @if (!n.leida) {
+                <span class="punto" aria-label="Sin leer"></span>
+              }
+              {{ n.titulo }}
+            </span>
+            <span class="cell-sub">{{ n.detalle }}</span>
+            <span class="item-meta">
+              <span class="badge plain">{{ etiquetaCategoria[n.categoria] }}</span>
+              <time [attr.datetime]="n.fecha" [attr.title]="completa(n.fecha)">{{ relativo(n.fecha) }}</time>
+            </span>
+          </div>
+          <div class="item-acciones">
+            @if (!n.leida) {
+              <button type="button" class="btn btn-secondary btn-corto" (click)="marcarLeida(n)">Marcar como leída</button>
+            }
+            <button type="button" class="btn btn-link" (click)="abrir(n)">Ver</button>
+          </div>
+        </li>
+      }
+    </ul>
+
+    <app-paginacion
+      [desde]="paginador.rango().desde"
+      [hasta]="paginador.rango().hasta"
+      [total]="filtradas().length"
+      [pagina]="paginador.paginaActual()"
+      [totalPaginas]="paginador.totalPaginas()"
+      unidad="notificaciones"
+      (cambiar)="paginador.cambiar($event)" />
+  }
+</section>

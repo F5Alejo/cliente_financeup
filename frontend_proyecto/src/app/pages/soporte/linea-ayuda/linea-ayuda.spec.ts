@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { LineaAyudaComponent } from './linea-ayuda';
 
@@ -9,6 +10,7 @@ describe('LineaAyuda', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LineaAyudaComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LineaAyudaComponent);

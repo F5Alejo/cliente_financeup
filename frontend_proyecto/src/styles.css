@@ -1,3 +1,6 @@
+/* Panel de administración */
+@import "./admin-ui.css";
+
 :root {
   /* Verdes */
   --green-primary: #1db954;

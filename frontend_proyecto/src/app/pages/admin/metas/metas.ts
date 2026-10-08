@@ -1,147 +1,202 @@
-    import { Component, signal } from '@angular/core';
-    import { CommonModule } from '@angular/common';
-    import { FormsModule } from '@angular/forms';
-    import { AdminMenuComponent } from '../admin-menu/admin-menu';
-    import { MetasService, Meta } from '../../../services/metas';
-    import { ToastService } from '../../../shared/services/toast';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Meta, MetasService } from '../../../services/metas';
+import { MonedaPipe } from '../../../pipes/moneda.pipe';
+import { EstadoVacioComponent } from '../../../shared/components/estado-vacio/estado-vacio';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { KpiComponent } from '../../../shared/components/kpi/kpi';
+import { ModalComponent } from '../../../shared/components/modal/modal';
+import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion';
+import { AccionMenu, RowMenuComponent } from '../../../shared/components/row-menu/row-menu';
+import { ActividadAdminService } from '../../../shared/services/actividad-admin';
+import { ToastService } from '../../../shared/services/toast';
+import { crearPaginador, enlazarConShell, normalizarTexto, simularCarga } from '../../../shared/utils/lista';
 
-    @Component({
-    selector: 'app-admin-metas',
-    imports: [CommonModule, FormsModule, AdminMenuComponent],
-    templateUrl: './metas.html',
-    styleUrl: './metas.css',
-    })
-    export class AdminMetasComponent {
-    constructor(
-        public metasService: MetasService,
-        private toastService: ToastService
-    ) {
-        console.log('Formulario Meta:', this.formularioVacio());
+type Pestana = '' | 'cumplidas' | 'progreso';
+type Columna = 'nombre' | 'actual' | 'objetivo' | 'porcentaje';
+
+interface ModalMeta {
+  tipo: 'formulario' | 'eliminar';
+  meta: Meta | null;
+}
+
+const MENSAJES_ERROR: Record<string, string> = {
+  nombre: 'Escribe el nombre de la meta.',
+  objetivo: 'Ingresa un monto objetivo mayor a 0.',
+};
+
+@Component({
+  selector: 'app-admin-metas',
+  imports: [FormsModule, ReactiveFormsModule, MonedaPipe, IconComponent, KpiComponent, ModalComponent, PaginacionComponent, EstadoVacioComponent, RowMenuComponent],
+  templateUrl: './metas.html',
+  styleUrl: './metas.css',
+})
+export class AdminMetasComponent {
+  private metasService = inject(MetasService);
+  private toastService = inject(ToastService);
+  private actividad = inject(ActividadAdminService);
+  private fb = inject(FormBuilder).nonNullable;
+
+  readonly esqueletos = [1, 2, 3, 4];
+  readonly pestanas: { valor: Pestana; etiqueta: string }[] = [
+    { valor: '', etiqueta: 'Todas' },
+    { valor: 'cumplidas', etiqueta: 'Cumplidas' },
+    { valor: 'progreso', etiqueta: 'En progreso' },
+  ];
+
+  metas = signal<Meta[]>([...this.metasService.metas]);
+  cargando = simularCarga();
+  busqueda = signal('');
+  pestana = signal<Pestana>('');
+  orden = signal<{ columna: Columna; ascendente: boolean } | null>(null);
+  modal = signal<ModalMeta | null>(null);
+  errorModal = signal('');
+
+  formulario = this.fb.group({
+    nombre: ['', Validators.required],
+    actual: [0, Validators.min(0)],
+    objetivo: [null as number | null, [Validators.required, Validators.min(1)]],
+  });
+
+  total = computed(() => this.metas().length);
+  cumplidas = computed(() => this.metas().filter((m) => m.cumplida).length);
+  totalAhorrado = computed(() => this.metas().reduce((suma, m) => suma + m.actual, 0));
+  totalFaltante = computed(() => this.metas().reduce((suma, m) => suma + this.faltante(m), 0));
+
+  private base = computed(() => {
+    const texto = normalizarTexto(this.busqueda().trim());
+    return this.metas().filter((m) => !texto || normalizarTexto(m.nombre).includes(texto));
+  });
+
+  conteos = computed<Record<string, number>>(() => ({
+    '': this.base().length,
+    cumplidas: this.base().filter((m) => m.cumplida).length,
+    progreso: this.base().filter((m) => !m.cumplida).length,
+  }));
+
+  filtradas = computed(() => {
+    const pestana = this.pestana();
+    let lista = [...this.base()];
+    if (pestana === 'cumplidas') lista = lista.filter((m) => m.cumplida);
+    if (pestana === 'progreso') lista = lista.filter((m) => !m.cumplida);
+
+    const orden = this.orden();
+    if (!orden) return lista;
+    return lista.sort((a, b) => {
+      const x = a[orden.columna];
+      const y = b[orden.columna];
+      const comparacion = typeof x === 'number' ? x - (y as number) : String(x).localeCompare(String(y), 'es');
+      return orden.ascendente ? comparacion : -comparacion;
+    });
+  });
+
+  paginador = crearPaginador(() => this.filtradas().length);
+  filas = computed(() =>
+    this.paginador.recortar(this.filtradas()).map((meta) => ({
+      meta,
+      acciones: [
+        { id: 'editar', etiqueta: 'Editar', icono: 'pencil' },
+        { id: 'eliminar', etiqueta: 'Eliminar', icono: 'trash', peligro: true, separador: true },
+      ] as AccionMenu[],
+    }))
+  );
+
+  constructor() {
+    enlazarConShell(
+      (texto) => this.filtrar(this.busqueda, texto),
+      () => this.abrirFormulario()
+    );
+  }
+
+  faltante(meta: Meta): number {
+    return Math.max(0, meta.objetivo - meta.actual);
+  }
+
+  filtrar<T>(senal: { set(valor: T): void }, valor: T): void {
+    senal.set(valor);
+    this.paginador.reiniciar();
+  }
+
+  ordenarPor(columna: Columna): void {
+    const actual = this.orden();
+    this.orden.set(actual?.columna === columna ? { columna, ascendente: !actual.ascendente } : { columna, ascendente: true });
+    this.paginador.reiniciar();
+  }
+
+  flecha(columna: Columna): string {
+    const actual = this.orden();
+    return actual?.columna === columna ? (actual.ascendente ? '↑' : '↓') : '';
+  }
+
+  ariaOrden(columna: Columna): 'ascending' | 'descending' | 'none' {
+    const actual = this.orden();
+    return actual?.columna === columna ? (actual.ascendente ? 'ascending' : 'descending') : 'none';
+  }
+
+  alElegirAccion(id: string, meta: Meta): void {
+    if (id === 'editar') this.abrirFormulario(meta);
+    if (id === 'eliminar') this.modal.set({ tipo: 'eliminar', meta });
+  }
+
+  abrirFormulario(meta: Meta | null = null): void {
+    this.errorModal.set('');
+    this.formulario.reset({ nombre: meta?.nombre ?? '', actual: meta?.actual ?? 0, objetivo: meta?.objetivo ?? null });
+    this.modal.set({ tipo: 'formulario', meta });
+  }
+
+  cerrarModal(): void {
+    this.modal.set(null);
+  }
+
+  errorDe(campo: 'nombre' | 'objetivo'): string {
+    const control = this.formulario.controls[campo];
+    return control.touched && control.invalid ? MENSAJES_ERROR[campo] : '';
+  }
+
+  guardar(): void {
+    if (this.formulario.invalid || !this.formulario.controls.nombre.value.trim()) {
+      this.formulario.markAllAsTouched();
+      this.errorModal.set('Revisa los campos marcados.');
+      return;
     }
-    editandoId: number | null = null;
-    busqueda = signal('');
 
-    /** Filtro rápido por estado (mayor control sobre el campo "cumplida") */
-    estadoFiltro = signal<'Todas' | 'Cumplidas' | 'En progreso'>('Todas');
+    const valores = this.formulario.getRawValue();
+    const nombre = valores.nombre.trim();
+    const actual = Number(valores.actual) || 0;
+    const objetivo = Number(valores.objetivo);
 
-    /** Orden de la tabla: qué columna y en qué sentido */
-    columnaOrden = signal<'nombre' | 'actual' | 'objetivo' | 'porcentaje' | null>(null);
-    ordenAscendente = signal(true);
-
-    formMeta: Meta = this.formularioVacio();
-
-    private formularioVacio(): Meta {
-        return { id: 0, nombre: '', icono: '🎯', porcentaje: 0, actual: 0, objetivo: 0, cumplida: false };
+    const edicion = this.modal()?.meta;
+    if (edicion) {
+      this.metasService.editarMeta(edicion.id, {
+        nombre,
+        actual,
+        objetivo,
+        porcentaje: Math.min(100, Math.round((actual / objetivo) * 100)),
+        cumplida: actual >= objetivo,
+      });
+      this.actividad.registrar('Metas', 'Meta actualizada', nombre);
+      this.toastService.success('Meta actualizada correctamente.');
+    } else {
+      this.metasService.agregarMeta({ nombre, icono: '🎯', actual, objetivo });
+      this.actividad.registrar('Metas', 'Meta creada', nombre);
+      this.toastService.success('Meta agregada correctamente.');
     }
+    this.cerrarModal();
+    this.refrescar();
+  }
 
-    get metasFiltradas(): Meta[] {
-        const termino = this.busqueda().trim().toLowerCase();
-        let lista = this.metasService.metas;
+  confirmarEliminacion(): void {
+    const meta = this.modal()?.meta;
+    if (!meta) return;
 
-        if (termino) lista = lista.filter((m) => m.nombre.toLowerCase().includes(termino));
-        if (this.estadoFiltro() === 'Cumplidas') lista = lista.filter((m) => m.cumplida);
-        if (this.estadoFiltro() === 'En progreso') lista = lista.filter((m) => !m.cumplida);
+    this.metasService.eliminarMeta(meta.id);
+    this.actividad.registrar('Metas', 'Meta eliminada', meta.nombre);
+    this.toastService.success(`Meta «${meta.nombre}» eliminada.`);
+    this.cerrarModal();
+    this.refrescar();
+  }
 
-        const columna = this.columnaOrden();
-        if (columna) {
-            lista = [...lista].sort((a, b) => {
-                const valA = a[columna];
-                const valB = b[columna];
-                const comparacion = typeof valA === 'number' ? valA - (valB as number) : String(valA).localeCompare(String(valB));
-                return this.ordenAscendente() ? comparacion : -comparacion;
-            });
-        }
-
-        return lista;
-    }
-
-    /** Cuánto le falta a una meta para completarse */
-    faltante(meta: Meta): number {
-        return Math.max(0, meta.objetivo - meta.actual);
-    }
-
-    filtrarPorEstado(estado: string): void {
-        this.estadoFiltro.set(estado as 'Todas' | 'Cumplidas' | 'En progreso');
-    }
-
-    ordenarPor(columna: 'nombre' | 'actual' | 'objetivo' | 'porcentaje'): void {
-        if (this.columnaOrden() === columna) {
-            this.ordenAscendente.update((v) => !v);
-        } else {
-            this.columnaOrden.set(columna);
-            this.ordenAscendente.set(true);
-        }
-    }
-
-    get totalMetas(): number {
-        return this.metasService.metas.length;
-    }
-
-    get metasCumplidas(): number {
-        return this.metasService.metas.filter((m) => m.cumplida).length;
-    }
-
-    get totalAhorrado(): number {
-        return this.metasService.metas.reduce((suma, m) => suma + m.actual, 0);
-    }
-
-    actualizarBusqueda(valor: string): void {
-        this.busqueda.set(valor);
-    }
-
-    editarMeta(meta: Meta): void {
-        this.editandoId = meta.id;
-        this.formMeta = { ...meta };
-    }
-
-    cancelarEdicion(): void {
-        this.editandoId = null;
-        this.formMeta = this.formularioVacio();
-    }
-
-    private calcularPorcentaje(actual: number, objetivo: number): number {
-        return objetivo > 0 ? Math.min(100, Math.round((actual / objetivo) * 100)) : 0;
-    }
-
-    guardarMeta(): void {
-        const nombre = this.formMeta.nombre.trim();
-        if (!nombre || !this.formMeta.objetivo) {
-        this.toastService.info('Completa el nombre y un monto objetivo válido.');
-        return;
-        }
-
-        this.formMeta.porcentaje = this.calcularPorcentaje(this.formMeta.actual, this.formMeta.objetivo);
-        this.formMeta.cumplida = this.formMeta.actual >= this.formMeta.objetivo;
-
-        if (this.editandoId) {
-        this.metasService.editarMeta(this.editandoId, this.formMeta);
-        this.toastService.success('Meta actualizada correctamente.');
-        } else {
-        this.metasService.agregarMeta({
-            nombre,
-            icono: this.formMeta.icono || '🎯',
-            actual: this.formMeta.actual,
-            objetivo: this.formMeta.objetivo,
-        });
-        this.toastService.success('Meta agregada correctamente.');
-        }
-
-        this.cancelarEdicion();
-    }
-
-    eliminarMeta(id: number): void {
-        const meta = this.metasService.metas.find((m) => m.id === id);
-        const confirmado = confirm(`¿Eliminar la meta "${meta?.nombre}"? Esta acción no se puede deshacer.`);
-        if (!confirmado) return;
-
-        this.metasService.eliminarMeta(id);
-        this.toastService.info('Meta eliminada.');
-        if (this.editandoId === id) {
-        this.cancelarEdicion();
-        }
-    }
-
-    formatearCOP(valor: number): string {
-        return `$${valor.toLocaleString('es-CO')}`;
-    }
-    }
+  private refrescar(): void {
+    this.metas.set([...this.metasService.metas]);
+  }
+}

@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.card {
+  height: 100%;
+}
+
+.sk-valor {
+  width: 120px;
+  height: 26px;
+  margin-top: 6px;
+}
+
+.tendencia {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--ui-neutral-soft);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ui-text-2);
+}
+
+.tendencia.sube {
+  background: var(--ui-primary-soft);
+  color: #067a2f;
+}
+
+.tendencia.baja {
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning);
+}

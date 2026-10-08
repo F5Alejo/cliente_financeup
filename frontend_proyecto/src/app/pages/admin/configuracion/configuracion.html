@@ -1,0 +1,396 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Configuración</h1>
+    <p class="page-sub">Administra tu perfil, la seguridad de tu cuenta y las preferencias del panel.</p>
+  </div>
+</div>
+
+<div class="config-layout">
+  <nav class="config-menu" aria-label="Categorías de configuración">
+    @for (s of secciones; track s.valor) {
+      <button type="button" class="config-item" [class.activo]="seccion() === s.valor" [attr.aria-current]="seccion() === s.valor ? 'page' : null" (click)="seccion.set(s.valor)">
+        <app-icon [nombre]="s.icono" [tamano]="18" /> {{ s.etiqueta }}
+      </button>
+    }
+  </nav>
+
+  <div class="config-contenido">
+    @switch (seccion()) {
+      @case ('perfil') {
+        <section class="card" aria-labelledby="t-perfil">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title" id="t-perfil">Perfil</h2>
+              <p class="card-hint">Información personal de tu cuenta de administrador.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="perfil-cab">
+              <span class="avatar avatar-lg" aria-hidden="true">{{ iniciales() }}</span>
+              <div>
+                <p class="cell-strong">{{ nombreCompleto() }}</p>
+                <p class="cell-sub">{{ usuario()?.email }}</p>
+                <span class="badge plain badge-admin">Administrador</span>
+              </div>
+            </div>
+            <form class="form-grid" [formGroup]="perfilForm" novalidate (ngSubmit)="guardarPerfil()">
+              <div class="field">
+                <label for="pf-nombre">Nombre</label>
+                <input id="pf-nombre" class="input" type="text" formControlName="nombre" autocomplete="off" />
+                @if (perfilForm.controls.nombre.touched && perfilForm.controls.nombre.invalid) { <span class="field-error">Escribe tu nombre (mínimo 3 caracteres).</span> }
+              </div>
+              <div class="field">
+                <label for="pf-apellido">Apellido</label>
+                <input id="pf-apellido" class="input" type="text" formControlName="apellido" autocomplete="off" />
+              </div>
+              <div class="field full">
+                <label for="pf-email">Correo electrónico</label>
+                <input id="pf-email" class="input" type="email" formControlName="email" />
+                <span class="field-hint">El correo identifica tu cuenta y no se puede modificar.</span>
+              </div>
+              <div class="field">
+                <label for="pf-tel">Teléfono</label>
+                <input id="pf-tel" class="input" type="tel" formControlName="telefono" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="pf-doc">Documento</label>
+                <input id="pf-doc" class="input" type="text" formControlName="documento" autocomplete="off" />
+              </div>
+              <div class="field full">
+                <label for="pf-dir">Dirección</label>
+                <input id="pf-dir" class="input" type="text" formControlName="direccion" autocomplete="off" />
+              </div>
+              <div class="full acciones-form">
+                <button type="submit" class="btn btn-primary" [disabled]="perfilForm.pristine">Guardar cambios</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      }
+
+      @case ('seguridad') {
+        <section class="card" aria-labelledby="t-pass">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title" id="t-pass">Cambiar contraseña</h2>
+              <p class="card-hint">Usa una contraseña larga que no uses en otros sitios.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <form class="form-grid form-angosto" [formGroup]="passwordForm" novalidate (ngSubmit)="cambiarPassword()">
+              <div class="field full">
+                <label for="pw-actual">Contraseña actual</label>
+                <input id="pw-actual" class="input" type="password" formControlName="actual" autocomplete="current-password" />
+                @if (errorPasswordCampo('actual')) { <span class="field-error">{{ errorPasswordCampo('actual') }}</span> }
+              </div>
+              <div class="field full">
+                <label for="pw-nueva">Contraseña nueva</label>
+                <input id="pw-nueva" class="input" type="password" formControlName="nueva" autocomplete="new-password" />
+                @if (errorPasswordCampo('nueva')) { <span class="field-error">{{ errorPasswordCampo('nueva') }}</span> }
+              </div>
+              <div class="field full">
+                <label for="pw-confirmar">Confirmar contraseña nueva</label>
+                <input id="pw-confirmar" class="input" type="password" formControlName="confirmar" autocomplete="new-password" />
+                @if (errorPasswordCampo('confirmar')) { <span class="field-error">{{ errorPasswordCampo('confirmar') }}</span> }
+              </div>
+              @if (errorPassword()) {
+                <p class="form-error full" role="alert">{{ errorPassword() }}</p>
+              }
+              <div class="full acciones-form">
+                <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="t-2fa">
+          <div class="card-body">
+            <div class="setting-row">
+              <div>
+                <h2 class="card-title" id="t-2fa">Verificación en dos pasos</h2>
+                <span class="setting-desc">Pide un código adicional al iniciar sesión para proteger tu cuenta.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" role="switch" aria-labelledby="t-2fa" [checked]="prefs().dosFactores" (change)="alternarDosFactores($event)" />
+                <span class="track"></span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="t-historial">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title" id="t-historial">Historial de accesos</h2>
+              <p class="card-hint">Los últimos inicios de sesión en tu cuenta.</p>
+            </div>
+          </div>
+          <div class="card-body sin-relleno">
+            <div class="table-wrap">
+              <table class="table">
+                <caption class="sr-only">Historial de accesos</caption>
+                <thead>
+                  <tr><th scope="col">Fecha y hora</th><th scope="col">Dispositivo</th><th scope="col" class="hide-md">IP</th><th scope="col" class="hide-lg">Ubicación</th><th scope="col">Resultado</th></tr>
+                </thead>
+                <tbody>
+                  @for (a of accesos; track a.fecha) {
+                    <tr>
+                      <td class="nowrap">{{ fechaHora(a.fecha) }}</td>
+                      <td>{{ a.dispositivo }}</td>
+                      <td class="hide-md mono">{{ a.ip }}</td>
+                      <td class="hide-lg">{{ a.ubicacion }}</td>
+                      <td><span [class]="'badge ' + (a.resultado === 'Exitoso' ? 'badge-activo' : 'badge-bloqueado')">{{ a.resultado }}</span></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="t-cerrar">
+          <div class="card-body">
+            <div class="setting-row">
+              <div>
+                <h2 class="card-title" id="t-cerrar">Sesiones abiertas</h2>
+                <span class="setting-desc">Tienes {{ sesiones().length }} {{ sesiones().length === 1 ? 'sesión' : 'sesiones' }} abiertas. Ciérralas si no reconoces alguna.</span>
+              </div>
+              <div class="acciones-fila">
+                <button type="button" class="btn btn-secondary" (click)="seccion.set('sesiones')">Ver sesiones</button>
+                <button type="button" class="btn btn-danger" (click)="modal.set('cerrarTodas')">Cerrar todas las sesiones</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      @case ('notificaciones') {
+        <section class="card" aria-labelledby="t-notif">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title" id="t-notif">Notificaciones</h2>
+              <p class="card-hint">Elige qué avisos quieres recibir en el panel.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            @for (c of categorias; track c[0]) {
+              <div class="setting-row">
+                <div>
+                  <span class="setting-title" [id]="'n-' + c[0]">{{ c[1] }}</span>
+                  <span class="setting-desc">{{ descripcionCategoria[c[0]] }}</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" role="switch" [attr.aria-labelledby]="'n-' + c[0]" [checked]="prefs().notificaciones[c[0]]" (change)="alternarNotificacion(c[0], $event)" />
+                  <span class="track"></span>
+                </label>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @case ('roles') {
+        <section class="card" aria-labelledby="t-roles">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title" id="t-roles">Roles y permisos</h2>
+              <p class="card-hint">Resumen de los roles configurados en la plataforma.</p>
+            </div>
+            <a class="btn btn-primary" routerLink="/admin/roles">Administrar roles</a>
+          </div>
+          <div class="card-body">
+            @for (rol of roles(); track rol.id) {
+              <div class="setting-row">
+                <div>
+                  <span class="setting-title">{{ rol.nombre }}</span>
+                  <span class="setting-desc">{{ rol.descripcion }}</span>
+                </div>
+                <span class="cell-sub nowrap">{{ usuariosPorRol()(rol.id) }} usuarios · {{ rol.permisos.length }} de {{ totalPermisos }} permisos</span>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @case ('sistema') {
+        <section class="card" aria-labelledby="t-sistema">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title" id="t-sistema">Configuración del sistema</h2>
+              <p class="card-hint">Valores generales de la plataforma. Por ahora se guardan en este navegador.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <form class="form-grid" [formGroup]="sistemaForm" (ngSubmit)="guardarSistema()">
+              <div class="field">
+                <label for="sis-moneda">Moneda</label>
+                <select id="sis-moneda" class="input" formControlName="moneda">
+                  <option value="COP">Peso colombiano (COP)</option>
+                  <option value="USD">Dólar estadounidense (USD)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="sis-zona">Zona horaria</label>
+                <select id="sis-zona" class="input" formControlName="zonaHoraria">
+                  <option value="America/Bogota">Bogotá (GMT-5)</option>
+                  <option value="America/Mexico_City">Ciudad de México (GMT-6)</option>
+                  <option value="America/Lima">Lima (GMT-5)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="sis-idioma">Idioma</label>
+                <select id="sis-idioma" class="input" formControlName="idioma">
+                  <option value="es-CO">Español (Colombia)</option>
+                  <option value="es-MX">Español (México)</option>
+                  <option value="en-US">English (US)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="sis-expira">Cierre de sesión por inactividad</label>
+                <select id="sis-expira" class="input" formControlName="sesionExpiraMin">
+                  @for (m of expiraciones; track m) {
+                    <option [ngValue]="m">{{ m }} minutos</option>
+                  }
+                </select>
+              </div>
+              <div class="full setting-row sin-borde">
+                <div>
+                  <span class="setting-title" id="lbl-mant">Modo mantenimiento</span>
+                  <span class="setting-desc">Muestra un aviso a los usuarios mientras se realizan cambios.</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" role="switch" aria-labelledby="lbl-mant" formControlName="mantenimiento" />
+                  <span class="track"></span>
+                </label>
+              </div>
+              @if (sistemaForm.controls.mantenimiento.value) {
+                <p class="notice full">Al activar el modo mantenimiento, los usuarios verían un aviso de servicio no disponible.</p>
+              }
+              <div class="full acciones-form">
+                <button type="submit" class="btn btn-primary" [disabled]="sistemaForm.pristine">Guardar cambios</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      }
+
+      @case ('privacidad') {
+        <section class="card" aria-labelledby="t-priv">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title" id="t-priv">Privacidad</h2>
+              <p class="card-hint">Controla cómo se usa la información de tu cuenta.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="setting-row">
+              <div>
+                <span class="setting-title" id="p-uso">Datos de uso anónimos</span>
+                <span class="setting-desc">Comparte estadísticas de uso para mejorar el panel.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" role="switch" aria-labelledby="p-uso" [checked]="prefs().privacidad.datosDeUso" (change)="alternarPrivacidad('datosDeUso', $event)" />
+                <span class="track"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div>
+                <span class="setting-title" id="p-acceso">Mostrar mi último acceso</span>
+                <span class="setting-desc">Otros administradores pueden ver cuándo ingresaste por última vez.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" role="switch" aria-labelledby="p-acceso" [checked]="prefs().privacidad.mostrarUltimoAcceso" (change)="alternarPrivacidad('mostrarUltimoAcceso', $event)" />
+                <span class="track"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div>
+                <label class="setting-title" for="p-ret">Retención de la auditoría</label>
+                <span class="setting-desc">Tiempo que se conservan los registros de actividad.</span>
+              </div>
+              <select id="p-ret" class="input control-corto" [value]="prefs().privacidad.retencionAuditoriaDias" (change)="cambiarRetencion($event)">
+                @for (d of retenciones; track d) {
+                  <option [value]="d">{{ d }} días</option>
+                }
+              </select>
+            </div>
+            <div class="setting-row">
+              <div>
+                <span class="setting-title">Descargar mis datos</span>
+                <span class="setting-desc">Obtén una copia de tu perfil y tus preferencias en formato JSON.</span>
+              </div>
+              <button type="button" class="btn btn-secondary" (click)="descargarMisDatos()">
+                <app-icon nombre="download" [tamano]="16" /> Descargar
+              </button>
+            </div>
+          </div>
+        </section>
+      }
+
+      @case ('sesiones') {
+        <section class="card" aria-labelledby="t-ses">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title" id="t-ses">Sesiones activas</h2>
+              <p class="card-hint">Dispositivos donde tu cuenta tiene una sesión abierta.</p>
+            </div>
+            <button type="button" class="btn btn-secondary" [disabled]="sesiones().length <= 1" (click)="cerrarOtras()">Cerrar las demás</button>
+          </div>
+          <div class="card-body sin-relleno">
+            <div class="table-wrap">
+              <table class="table">
+                <caption class="sr-only">Sesiones activas</caption>
+                <thead>
+                  <tr><th scope="col">Dispositivo</th><th scope="col" class="hide-md">IP</th><th scope="col" class="hide-lg">Ubicación</th><th scope="col">Última actividad</th><th scope="col" class="col-actions"><span class="sr-only">Acciones</span></th></tr>
+                </thead>
+                <tbody>
+                  @for (s of sesiones(); track s.id) {
+                    <tr>
+                      <td>
+                        <span class="cell-strong">{{ s.dispositivo }}</span>
+                        @if (s.actual) { <span class="badge badge-activo">Esta sesión</span> }
+                      </td>
+                      <td class="hide-md mono">{{ s.ip }}</td>
+                      <td class="hide-lg">{{ s.ubicacion }}</td>
+                      <td>{{ s.actual ? 'Ahora' : ultimaActividad(s.ultimaActividad) }}</td>
+                      <td class="col-actions">
+                        @if (!s.actual) {
+                          <button type="button" class="btn btn-secondary btn-corto" (click)="cerrarSesion(s.id)">Cerrar sesión</button>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      }
+    }
+  </div>
+</div>
+
+@switch (modal()) {
+  @case ('dosFactores') {
+    <app-modal
+      titulo="Desactivar la verificación en dos pasos"
+      subtitulo="Tu cuenta quedará protegida solo con la contraseña. Te recomendamos mantener esta protección activa."
+      ancho="sm"
+      [alertdialog]="true"
+      (cerrar)="modal.set(null)">
+      <button pie type="button" class="btn btn-secondary" (click)="modal.set(null)">Mantener activa</button>
+      <button pie type="button" class="btn btn-danger" (click)="confirmarDesactivarDosFactores()">Desactivar</button>
+    </app-modal>
+  }
+  @case ('cerrarTodas') {
+    <app-modal
+      titulo="Cerrar todas las sesiones"
+      subtitulo="Se cerrarán todas tus sesiones, incluida la de este navegador, y volverás a la pantalla de inicio de sesión."
+      ancho="sm"
+      [alertdialog]="true"
+      (cerrar)="modal.set(null)">
+      <button pie type="button" class="btn btn-secondary" (click)="modal.set(null)">Cancelar</button>
+      <button pie type="button" class="btn btn-danger" (click)="confirmarCerrarTodas()">Cerrar todas</button>
+    </app-modal>
+  }
+}

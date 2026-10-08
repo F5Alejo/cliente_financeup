@@ -1,110 +1,201 @@
-<app-admin-menu></app-admin-menu>
-<div class="admin-inversiones">
-    <h1>Inversiones</h1>
-    <p class="admin-sub">Agrega, edita o elimina las inversiones que ven los usuarios.</p>
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Inversiones</h1>
+    <p class="page-sub">Administra las inversiones que ven los usuarios en su portafolio.</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" (click)="abrirFormulario()">
+      <app-icon nombre="plus" [tamano]="16" /> Nueva inversión
+    </button>
+  </div>
+</div>
 
-    <section class="resumen-admin">
-        <div class="resumen-item">
-            <span class="resumen-label">Total invertido</span>
-            <span class="resumen-valor">{{ formatearCOP(totalInvertido) }}</span>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Rendimiento total</span>
-            <span class="resumen-valor" [class.positivo]="totalRendimiento >= 0" [class.negativo]="totalRendimiento < 0">
-                {{ formatearCOP(totalRendimiento) }}
-            </span>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Bajo riesgo</span>
-            <span class="resumen-valor">{{ formatearCOP(totalPorRiesgo('Bajo')) }}</span>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Riesgo medio</span>
-            <span class="resumen-valor">{{ formatearCOP(totalPorRiesgo('Medio')) }}</span>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Riesgo alto</span>
-            <span class="resumen-valor negativo">{{ formatearCOP(totalPorRiesgo('Alto')) }}</span>
-        </div>
-    </section>
+<section class="kpi-grid" aria-label="Resumen de inversiones">
+  <app-kpi etiqueta="Total invertido" [valor]="totalInvertido() | moneda" icono="wallet" [pie]="inversiones().length + ' posiciones'" [cargando]="cargando()" />
+  <app-kpi
+    etiqueta="Rendimiento total"
+    [valor]="totalRendimiento() | moneda"
+    icono="trending-up"
+    [negativo]="totalRendimiento() < 0"
+    [tono]="totalRendimiento() < 0 ? 'warning' : ''"
+    pie="acumulado en el portafolio"
+    [cargando]="cargando()" />
+  <app-kpi
+    etiqueta="Rentabilidad"
+    [valor]="rendimientoGlobal() + '%'"
+    icono="bar-chart"
+    tono="neutral"
+    [negativo]="rendimientoGlobal() < 0"
+    pie="sobre el total invertido"
+    [cargando]="cargando()" />
+</section>
 
-    <input
-        type="text"
-        class="buscador"
-        placeholder="Buscar por nombre..."
-        [ngModel]="busqueda()"
-        (ngModelChange)="actualizarBusqueda($event)"
-        name="busqueda" />
-
-    <div class="filtros-riesgo" role="tablist" aria-label="Filtrar por riesgo">
-        @for (r of ['Todos', 'Bajo', 'Medio', 'Alto']; track r) {
-            <button type="button" role="tab" [class.activo]="riesgoFiltro() === r" (click)="filtrarPorRiesgo(r)">
-                {{ r }}
-            </button>
-        }
+<article class="card riesgo-card">
+  <div class="card-head">
+    <div>
+      <h2 class="card-title">Distribución por nivel de riesgo</h2>
+      <p class="card-hint">Participación de cada nivel en el total invertido.</p>
     </div>
+  </div>
+  <div class="card-body">
+    @if (cargando()) {
+      <span class="skeleton sk-full"></span>
+    } @else {
+      <ul class="bars distribucion">
+        @for (item of distribucion(); track item.riesgo) {
+          <li class="bar-row">
+            <div class="bar-info">
+              <span class="cell-strong">Riesgo {{ item.riesgo.toLowerCase() }}</span>
+              <span class="cell-sub">{{ item.valor | moneda }} · {{ item.pct }}%</span>
+            </div>
+            <div class="progress" role="img" [attr.aria-label]="'Riesgo ' + item.riesgo + ': ' + item.pct + '%'">
+              <span class="progress-fill" [class]="'progress-fill ' + claseBarra[item.riesgo]" [style.width.%]="item.pct"></span>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</article>
 
-    <table>
-        <thead>
-            <tr>
-                <th class="th-ordenable" (click)="ordenarPor('nombre')">Nombre {{ columnaOrden() === 'nombre' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
-                <th class="th-ordenable" (click)="ordenarPor('monto')">Monto {{ columnaOrden() === 'monto' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
-                <th class="th-ordenable" (click)="ordenarPor('rendimiento')">Rendimiento {{ columnaOrden() === 'rendimiento' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
-                <th>Rend. %</th>
-                <th class="th-ordenable" (click)="ordenarPor('riesgo')">Riesgo {{ columnaOrden() === 'riesgo' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
-                <th class="th-ordenable" (click)="ordenarPor('duracion')">Duración {{ columnaOrden() === 'duracion' ? (ordenAscendente() ? '↑' : '↓') : '' }}</th>
-                <th></th>
+<section class="card" aria-label="Listado de inversiones">
+  <div class="toolbar">
+    <div class="search">
+      <app-icon nombre="search" [tamano]="16" />
+      <input type="search" class="input" placeholder="Buscar por nombre" aria-label="Buscar inversiones" [ngModel]="busqueda()" (ngModelChange)="filtrar(busqueda, $event)" />
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Filtrar por nivel de riesgo">
+    @for (p of pestanas; track p.etiqueta) {
+      <button type="button" role="tab" class="tab" [attr.aria-selected]="filtroRiesgo() === p.valor" (click)="filtrar(filtroRiesgo, p.valor)">
+        {{ p.etiqueta }} <span class="count">{{ conteos()[p.valor] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <caption class="sr-only">Inversiones del portafolio</caption>
+      <thead>
+        <tr>
+          <th scope="col" [attr.aria-sort]="ariaOrden('nombre')"><button type="button" class="th-sort" (click)="ordenarPor('nombre')">Nombre <span class="flecha">{{ flecha('nombre') }}</span></button></th>
+          <th scope="col" class="num" [attr.aria-sort]="ariaOrden('monto')"><button type="button" class="th-sort" (click)="ordenarPor('monto')">Monto <span class="flecha">{{ flecha('monto') }}</span></button></th>
+          <th scope="col" class="num hide-md" [attr.aria-sort]="ariaOrden('rendimiento')"><button type="button" class="th-sort" (click)="ordenarPor('rendimiento')">Rendimiento <span class="flecha">{{ flecha('rendimiento') }}</span></button></th>
+          <th scope="col" class="num" [attr.aria-sort]="ariaOrden('rendimientoPct')"><button type="button" class="th-sort" (click)="ordenarPor('rendimientoPct')">Rend. % <span class="flecha">{{ flecha('rendimientoPct') }}</span></button></th>
+          <th scope="col" class="hide-md" [attr.aria-sort]="ariaOrden('riesgo')"><button type="button" class="th-sort" (click)="ordenarPor('riesgo')">Riesgo <span class="flecha">{{ flecha('riesgo') }}</span></button></th>
+          <th scope="col" class="hide-lg" [attr.aria-sort]="ariaOrden('duracion')"><button type="button" class="th-sort" (click)="ordenarPor('duracion')">Duración <span class="flecha">{{ flecha('duracion') }}</span></button></th>
+          <th scope="col" class="col-actions"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (cargando()) {
+          @for (n of esqueletos; track n) {
+            <tr aria-hidden="true">
+              <td><span class="skeleton sk-w160"></span></td>
+              <td class="num"><span class="skeleton sk-w80 sk-right"></span></td>
+              <td class="num hide-md"><span class="skeleton sk-w80 sk-right"></span></td>
+              <td class="num"><span class="skeleton sk-w80 sk-right"></span></td>
+              <td class="hide-md"><span class="skeleton sk-w80"></span></td>
+              <td class="hide-lg"><span class="skeleton sk-w80"></span></td>
+              <td></td>
             </tr>
-        </thead>
-        <tbody>
-            @for (inv of inversionesFiltradas; track inv.id) {
-                <tr>
-                    <td>{{ inv.nombre }}</td>
-                    <td>{{ formatearCOP(inv.monto) }}</td>
-                    <td [class.negativo]="inv.rendimiento < 0" [class.positivo]="inv.rendimiento >= 0">
-                        {{ formatearCOP(inv.rendimiento) }}
-                    </td>
-                    <td [class.negativo]="inv.rendimiento < 0" [class.positivo]="inv.rendimiento >= 0">
-                        {{ rendimientoPorcentaje(inv) }}%
-                    </td>
-                    <td><span class="riesgo" [class]="'riesgo-' + inv.riesgo.toLowerCase()">{{ inv.riesgo }}</span></td>
-                    <td>{{ inv.duracion }}</td>
-                    <td class="acciones">
-                        <button type="button" (click)="editarInversion(inv)">Editar</button>
-                        <button type="button" class="btn-eliminar" (click)="eliminarInversion(inv.id)">Eliminar</button>
-                    </td>
-                </tr>
-            }
-            @if (inversionesFiltradas.length === 0) {
-                <tr>
-                    <td colspan="7" class="fila-vacia">No hay inversiones que coincidan con la búsqueda.</td>
-                </tr>
-            }
-        </tbody>
+          }
+        } @else {
+          @for (fila of filas(); track fila.inversion.id) {
+            @let inv = fila.inversion;
+            <tr>
+              <td>
+                <span class="cell-strong">{{ inv.nombre }}</span>
+                <span class="cell-sub solo-movil">Riesgo {{ inv.riesgo.toLowerCase() }} · {{ inv.duracion }}</span>
+              </td>
+              <td class="num">{{ inv.monto | moneda }}</td>
+              <td class="num hide-md" [class.positive]="inv.rendimiento >= 0" [class.negative]="inv.rendimiento < 0">{{ inv.rendimiento | moneda }}</td>
+              <td class="num" [class.positive]="inv.rendimiento >= 0" [class.negative]="inv.rendimiento < 0">{{ porcentaje(inv) }}%</td>
+              <td class="hide-md"><span [class]="'badge ' + claseRiesgo[inv.riesgo]">{{ inv.riesgo }}</span></td>
+              <td class="hide-lg">{{ inv.duracion }}</td>
+              <td class="col-actions">
+                <app-row-menu [acciones]="fila.acciones" [etiqueta]="'Acciones de ' + inv.nombre" (seleccion)="alElegirAccion($event, inv)" />
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
     </table>
 
-    <section class="panel-form">
-        <h2>{{ editandoId ? 'Editar inversión' : 'Agregar inversión' }}</h2>
-        <form (ngSubmit)="guardarInversion()">
-            <div class="form-row">
-                <input type="text" [(ngModel)]="formInversion.nombre" name="nombre" placeholder="Nombre" required>
-                <input type="number" [(ngModel)]="formInversion.monto" name="monto" placeholder="Monto" required>
-                <input type="number" [(ngModel)]="formInversion.rendimiento" name="rendimiento" placeholder="Rendimiento">
-            </div>
-            <div class="form-row">
-                <select [(ngModel)]="formInversion.riesgo" name="riesgo">
-                    <option value="Bajo">Bajo</option>
-                    <option value="Medio">Medio</option>
-                    <option value="Alto">Alto</option>
-                </select>
-                <input type="text" [(ngModel)]="formInversion.duracion" name="duracion" placeholder="Duración (ej: 1 año)" required>
-            </div>
-            <div class="form-acciones">
-                <button type="submit" class="btn-guardar">{{ editandoId ? 'Guardar cambios' : 'Agregar inversión' }}</button>
-                @if (editandoId) {
-                    <button type="button" (click)="cancelarEdicion()">Cancelar</button>
-                }
-            </div>
-        </form>
-    </section>
-</div>
+    @if (!cargando() && filtradas().length === 0) {
+      <app-estado-vacio titulo="No hay inversiones que coincidan con estos filtros." texto="Ajusta la búsqueda o registra una nueva inversión.">
+        <button type="button" class="btn btn-secondary" (click)="filtrar(busqueda, ''); filtrar(filtroRiesgo, '')">Limpiar filtros</button>
+        <button type="button" class="btn btn-primary" (click)="abrirFormulario()">Nueva inversión</button>
+      </app-estado-vacio>
+    }
+  </div>
+
+  @if (!cargando() && filtradas().length > 0) {
+    <app-paginacion
+      [desde]="paginador.rango().desde"
+      [hasta]="paginador.rango().hasta"
+      [total]="filtradas().length"
+      [pagina]="paginador.paginaActual()"
+      [totalPaginas]="paginador.totalPaginas()"
+      unidad="inversiones"
+      (cambiar)="paginador.cambiar($event)" />
+  }
+</section>
+
+@if (modal(); as m) {
+  @if (m.tipo === 'formulario') {
+    <app-modal
+      [titulo]="m.inversion ? 'Editar inversión' : 'Nueva inversión'"
+      subtitulo="Los cambios se reflejan en el portafolio de los usuarios."
+      ancho="lg"
+      [fondoFijo]="true"
+      (cerrar)="cerrarModal()">
+      <form id="form-inversion" class="form-grid" [formGroup]="formulario" novalidate (ngSubmit)="guardar()">
+        <div class="field full">
+          <label for="inv-nombre">Nombre</label>
+          <input id="inv-nombre" class="input" type="text" formControlName="nombre" placeholder="Ej. Bonos del Gobierno" autocomplete="off" />
+          @if (errorDe('nombre')) { <span class="field-error">{{ errorDe('nombre') }}</span> }
+        </div>
+        <div class="field">
+          <label for="inv-monto">Monto invertido (COP)</label>
+          <input id="inv-monto" class="input" type="number" min="1" formControlName="monto" placeholder="0" />
+          @if (errorDe('monto')) { <span class="field-error">{{ errorDe('monto') }}</span> }
+        </div>
+        <div class="field">
+          <label for="inv-rend">Rendimiento (COP)</label>
+          <input id="inv-rend" class="input" type="number" formControlName="rendimiento" />
+          <span class="field-hint">Usa un valor negativo si hay pérdida.</span>
+        </div>
+        <div class="field">
+          <label for="inv-riesgo">Nivel de riesgo</label>
+          <select id="inv-riesgo" class="input" formControlName="riesgo">
+            @for (riesgo of riesgos; track riesgo) {
+              <option [value]="riesgo">{{ riesgo }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="inv-duracion">Duración</label>
+          <input id="inv-duracion" class="input" type="text" formControlName="duracion" placeholder="Ej. 1 año" autocomplete="off" />
+          @if (errorDe('duracion')) { <span class="field-error">{{ errorDe('duracion') }}</span> }
+        </div>
+      </form>
+      @if (errorModal()) {
+        <p class="form-error" role="alert">{{ errorModal() }}</p>
+      }
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="submit" form="form-inversion" class="btn btn-primary">{{ m.inversion ? 'Guardar cambios' : 'Agregar inversión' }}</button>
+    </app-modal>
+  } @else if (m.inversion; as inv) {
+    <app-modal
+      titulo="Eliminar inversión"
+      [subtitulo]="'Se eliminará «' + inv.nombre + '». Esta acción no se puede deshacer y dejará de verse para los usuarios.'"
+      ancho="sm"
+      [alertdialog]="true"
+      (cerrar)="cerrarModal()">
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar inversión</button>
+    </app-modal>
+  }
+}
