@@ -4,7 +4,7 @@ import { adminGuard } from './pages/admin/admin.guard';
 import { authGuard } from './guards/auth.guard';
 
 // Pantallas de administración que usan el layout nuevo (sidebar + header), además de /admin (dashboard).
-// El resto de /admin/* (libro mayor y resuelve tu deuda) sigue con el layout anterior hasta que se migre.
+// El resto de /admin/* (libro mayor) sigue con el layout anterior hasta que se migre.
 const PANTALLAS_CON_NUEVO_LAYOUT = ['usuarios', 'roles', 'finanzas', 'alianzas', 'educacion', 'inversiones', 'metas', 'pqr', 'reportes', 'notificaciones', 'auditoria', 'configuracion'];
 
 function coincideConNuevoLayoutAdmin(segmentos: UrlSegment[]): UrlMatchResult | null {
@@ -311,24 +311,6 @@ export const routes: Routes = [
       },
 
       {
-        path: 'resuelve-deuda',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./pages/finanzas/resuelve-deuda/resuelve-deuda')
-            .then((m) => m.ResuelveDeudaComponent),
-        title: 'Resuelve tu deuda - FinanceUp',
-      },
-
-      {
-        path: 'herramientas',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./pages/finanzas/herramientas/herramientas')
-            .then((m) => m.HerramientasComponent),
-        title: 'Herramientas - FinanceUp',
-      },
-
-      {
         path: 'admin',
         canActivateChild: [adminGuard],
         children: [
@@ -338,13 +320,6 @@ export const routes: Routes = [
               import('./pages/admin/libro-mayor/libro-mayor')
             .then((m) => m.AdminLibroMayorComponent),
             title: 'Admin Libro mayor - FinanceUp',
-          },
-          {
-            path: 'resuelve-deuda',
-            loadComponent: () =>
-              import('./pages/admin/resuelve-deuda/resuelve-deuda')
-            .then((m) => m.AdminResuelveDeudaComponent),
-            title: 'Admin Resuelve tu deuda - FinanceUp',
           },
         ],
       },
