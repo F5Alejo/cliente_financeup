@@ -130,6 +130,7 @@ export class SolicitudComponent {
     if (!this.validarPasoActual()) return;
 
     if (this.paso() < 2) {
+      console.log('[Solicitud] Paso completado:', this.paso() + 1, 'de 3');
       this.paso.update((p) => p + 1);
       return;
     }
@@ -151,6 +152,7 @@ export class SolicitudComponent {
     if (!producto) return;
 
     this.enviando.set(true);
+    console.log('[Solicitud] Enviando solicitud al aliado:', { aliado: producto.aliado, producto: producto.categoria });
 
     // Simula el tiempo de radicación contra el aliado.
     setTimeout(() => {
@@ -169,6 +171,14 @@ export class SolicitudComponent {
 
       this.enviando.set(false);
       this.radicado.set(solicitud);
+      console.log('[Solicitud] Solicitud radicada:', {
+        radicado: solicitud.radicado,
+        producto: solicitud.producto,
+        aliado: solicitud.aliado,
+        monto: solicitud.monto,
+        plazoMeses: solicitud.plazoMeses,
+        estado: solicitud.estado,
+      });
       this.toastService.success(`Solicitud radicada con el número ${solicitud.radicado}.`);
     }, 900);
   }

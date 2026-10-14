@@ -1,202 +1,99 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+:host {
+  display: block;
 }
 
-.admin-finanzas {
-    padding: 28px 32px;
-    max-width: 1100px;
-    margin: 0 auto;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
-.admin-finanzas h1 {
-    font-size: 24px;
-    color: #0f172a;
-    font-weight: 700;
+.sk-w80 { width: 80px; }
+.sk-w120 { width: 120px; }
+.sk-w160 { width: 160px; }
+.sk-full { width: 100%; }
+.sk-kpi { width: 140px; height: 26px; margin-top: 6px; }
+.sk-right { margin-left: auto; }
+
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.admin-sub {
-    color: #64748b;
-    font-size: 13px;
-    margin: 4px 0 24px;
+.barras {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border: 1px solid #eef2f6;
-    border-radius: 18px;
-    overflow: hidden;
+.barra-fila {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 
-thead th {
-    text-align: left;
-    font-size: 12px;
-    color: #94a3b8;
-    font-weight: 600;
-    padding: 14px 16px;
-    border-bottom: 1px solid #eef2f6;
+.barras .barra-fila {
+  margin-bottom: 0;
 }
 
-tbody td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 13.5px;
-    color: #334155;
+.barra-info {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-td.positivo {
-    color: #0f766e;
-    font-weight: 700;
+.barra-pista {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--ui-neutral-soft);
 }
 
-td.negativo {
-    color: #dc2626;
-    font-weight: 700;
+.barra-relleno {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ui-primary);
 }
 
-.acciones {
-    display: flex;
-    gap: 8px;
+.barra-relleno.gris {
+  background: #98a2b3;
 }
 
-.acciones button {
-    border: none;
-    background: #f0fdfa;
-    color: #0f766e;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
+.conclusion,
+.sin-datos {
+  margin-top: 18px;
+  font-size: 13.5px;
+  color: var(--ui-text-3);
 }
 
-.btn-eliminar {
-    background: #fef2f2 !important;
-    color: #dc2626 !important;
+.sin-datos {
+  margin: 0;
 }
 
-.panel-form {
-    background: white;
-    border: 1px solid #eef2f6;
-    border-radius: 18px;
-    padding: 22px;
-    margin-top: 24px;
+.empty-acciones {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-.panel-form h2 {
-    font-size: 15px;
-    color: #0f172a;
-    font-weight: 700;
-    margin-bottom: 16px;
+.opcional {
+  font-weight: 400;
+  color: var(--ui-text-3);
 }
 
-.panel-form form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.form-row {
-    display: flex;
-    gap: 10px;
-}
-
-.panel-form input {
-    flex: 1;
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 13px;
-}
-
-.form-acciones {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-guardar {
-    background: #0f766e;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.form-acciones button:not(.btn-guardar) {
-    background: white;
-    border: 1px solid #d1d5db;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.resumen-admin {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 20px;
-}
-
-.resumen-item {
-    background: white;
-    border: 1px solid #eef2f6;
-    border-radius: 14px;
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.resumen-label {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 600;
-}
-
-.resumen-valor {
-    font-size: 19px;
-    font-weight: 700;
-    color: #0f172a;
-}
-
-.resumen-valor.positivo { color: #0f766e; }
-.resumen-valor.negativo { color: #dc2626; }
-
-.buscador {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 13px;
-    margin-bottom: 14px;
-}
-
-.fila-vacia {
-    text-align: center;
-    color: #94a3b8;
-    padding: 20px !important;
-}
-
-@media (max-width: 700px) {
-    .resumen-admin {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 560px) {
-    .admin-finanzas {
-        padding: 20px;
-    }
-
-    .form-row {
-        flex-direction: column;
-    }
+@media (max-width: 720px) {
+  .resumen {
+    grid-template-columns: 1fr;
+  }
 }

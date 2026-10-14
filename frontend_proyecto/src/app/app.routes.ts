@@ -1,9 +1,125 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlMatchResult, UrlSegment } from '@angular/router';
 import { LayoutComponent } from './layout/layout/layout';
 import { adminGuard } from './pages/admin/admin.guard';
 import { authGuard } from './guards/auth.guard';
 
+// Pantallas de administración que usan el layout nuevo (sidebar + header), además de /admin (dashboard).
+<<<<<<< HEAD
+// El resto de /admin/* (libro mayor y resuelve tu deuda) sigue con el layout anterior hasta que se migre.
+=======
+// El resto de /admin/* (libro mayor) sigue con el layout anterior hasta que se migre.
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
+const PANTALLAS_CON_NUEVO_LAYOUT = ['usuarios', 'roles', 'finanzas', 'alianzas', 'educacion', 'inversiones', 'metas', 'pqr', 'reportes', 'notificaciones', 'auditoria', 'configuracion'];
+
+function coincideConNuevoLayoutAdmin(segmentos: UrlSegment[]): UrlMatchResult | null {
+  const esAdmin = segmentos[0]?.path === 'admin';
+  const esDashboard = segmentos.length === 1;
+  return esAdmin && (esDashboard || PANTALLAS_CON_NUEVO_LAYOUT.includes(segmentos[1]?.path))
+    ? { consumed: segmentos.slice(0, 1) }
+    : null;
+}
+
 export const routes: Routes = [
+  {
+    matcher: coincideConNuevoLayoutAdmin,
+    canActivateChild: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin/shell/admin-shell').then((m) => m.AdminShellComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/admin/dashboard/dashboard').then((m) => m.AdminDashboardComponent),
+        title: 'Dashboard - Administración FinanceUp',
+        data: { titulo: 'Dashboard', migas: ['Administración', 'Dashboard'], buscaEn: '/admin/usuarios' },
+      },
+      {
+        path: 'usuarios',
+        loadComponent: () =>
+          import('./pages/admin/usuarios/usuarios').then((m) => m.AdminUsuariosComponent),
+        title: 'Usuarios - Administración FinanceUp',
+        data: { titulo: 'Usuarios', migas: ['Administración', 'Usuarios'], buscaEn: '/admin/usuarios' },
+      },
+      {
+        path: 'finanzas',
+        loadComponent: () =>
+          import('./pages/admin/finanzas/finanzas').then((m) => m.AdminFinanzasComponent),
+        title: 'Finanzas - Administración FinanceUp',
+        data: { titulo: 'Finanzas', migas: ['Administración', 'Finanzas'], buscaEn: '/admin/finanzas' },
+      },
+      {
+        path: 'roles',
+        loadComponent: () =>
+          import('./pages/admin/roles/roles').then((m) => m.AdminRolesComponent),
+        title: 'Roles y permisos - Administración FinanceUp',
+        data: { titulo: 'Roles y permisos', migas: ['Administración', 'Roles y permisos'], buscaEn: '/admin/roles' },
+      },
+      {
+        path: 'inversiones',
+        loadComponent: () =>
+          import('./pages/admin/inversiones/inversiones').then((m) => m.AdminInversionesComponent),
+        title: 'Inversiones - Administración FinanceUp',
+        data: { titulo: 'Inversiones', migas: ['Administración', 'Inversiones'], buscaEn: '/admin/inversiones' },
+      },
+      {
+        path: 'metas',
+        loadComponent: () =>
+          import('./pages/admin/metas/metas').then((m) => m.AdminMetasComponent),
+        title: 'Metas - Administración FinanceUp',
+        data: { titulo: 'Metas', migas: ['Administración', 'Metas'], buscaEn: '/admin/metas' },
+      },
+      {
+        path: 'educacion',
+        loadComponent: () =>
+          import('./pages/admin/educacion/educacion').then((m) => m.AdminEducacionComponent),
+        title: 'Educación - Administración FinanceUp',
+        data: { titulo: 'Educación', migas: ['Administración', 'Educación'], buscaEn: '/admin/educacion' },
+      },
+      {
+        path: 'alianzas',
+        loadComponent: () =>
+          import('./pages/admin/alianzas/alianzas').then((m) => m.AdminAlianzasComponent),
+        title: 'Alianzas - Administración FinanceUp',
+        data: { titulo: 'Alianzas', migas: ['Administración', 'Alianzas'], buscaEn: '/admin/alianzas' },
+      },
+      {
+        path: 'pqr',
+        loadComponent: () =>
+          import('./pages/admin/pqr/pqr').then((m) => m.AdminPqrComponent),
+        title: 'PQR - Administración FinanceUp',
+        data: { titulo: 'PQR / Soporte', migas: ['Administración', 'PQR / Soporte'], buscaEn: '/admin/pqr' },
+      },
+      {
+        path: 'reportes',
+        loadComponent: () =>
+          import('./pages/admin/reportes/reportes').then((m) => m.AdminReportesComponent),
+        title: 'Reportes - Administración FinanceUp',
+        data: { titulo: 'Reportes', migas: ['Administración', 'Reportes'], buscaEn: '/admin/reportes' },
+      },
+      {
+        path: 'notificaciones',
+        loadComponent: () =>
+          import('./pages/admin/notificaciones/notificaciones').then((m) => m.AdminNotificacionesComponent),
+        title: 'Notificaciones - Administración FinanceUp',
+        data: { titulo: 'Notificaciones', migas: ['Administración', 'Notificaciones'], buscaEn: '/admin/notificaciones' },
+      },
+      {
+        path: 'auditoria',
+        loadComponent: () =>
+          import('./pages/admin/auditoria/auditoria').then((m) => m.AdminAuditoriaComponent),
+        title: 'Auditoría - Administración FinanceUp',
+        data: { titulo: 'Auditoría', migas: ['Administración', 'Auditoría'], buscaEn: '/admin/auditoria' },
+      },
+      {
+        path: 'configuracion',
+        loadComponent: () =>
+          import('./pages/admin/configuracion/configuracion').then((m) => m.AdminConfiguracionComponent),
+        title: 'Configuración - Administración FinanceUp',
+        data: { titulo: 'Configuración', migas: ['Administración', 'Configuración'], buscaEn: '/admin/configuracion' },
+      },
+    ],
+  },
+
   {
     path: '',
     component: LayoutComponent,
@@ -199,65 +315,9 @@ export const routes: Routes = [
       },
 
       {
-        path: 'resuelve-deuda',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./pages/finanzas/resuelve-deuda/resuelve-deuda')
-            .then((m) => m.ResuelveDeudaComponent),
-        title: 'Resuelve tu deuda - FinanceUp',
-      },
-
-      {
-        path: 'herramientas',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./pages/finanzas/herramientas/herramientas')
-            .then((m) => m.HerramientasComponent),
-        title: 'Herramientas - FinanceUp',
-      },
-
-      {
         path: 'admin',
         canActivateChild: [adminGuard],
         children: [
-          {
-            path: '',
-            loadComponent: () =>
-              import('./pages/admin/dashboard/dashboard').then((m) => m.AdminDashboardComponent),
-            title: 'Admin - FinanceUp',
-          },
-          {
-            path: 'alianzas',
-            loadComponent: () =>
-              import('./pages/admin/alianzas/alianzas').then((m) => m.AdminAlianzasComponent),
-            title: 'Admin Alianzas - FinanceUp',
-          },
-          {
-            path: 'educacion',
-            loadComponent: () =>
-              import('./pages/admin/educacion/educacion').then((m) => m.AdminEducacionComponent),
-            title: 'Admin Educación - FinanceUp',
-          },
-          {
-            path: 'finanzas',
-            loadComponent: () =>
-              import('./pages/admin/finanzas/finanzas').then((m) => m.AdminFinanzasComponent),
-            title: 'Admin Finanzas - FinanceUp',
-          },
-          {
-            path: 'inversiones',
-            loadComponent: () =>
-              import('./pages/admin/inversiones/inversiones')
-            .then((m) => m.AdminInversionesComponent),
-            title: 'Admin Inversiones - FinanceUp',
-          },
-          {
-            path: 'metas',
-            loadComponent: () =>
-              import('./pages/admin/metas/metas')
-            .then((m) => m.AdminMetasComponent),
-            title: 'Admin Metas - FinanceUp',
-          },
           {
             path: 'libro-mayor',
             loadComponent: () =>
@@ -265,6 +325,7 @@ export const routes: Routes = [
             .then((m) => m.AdminLibroMayorComponent),
             title: 'Admin Libro mayor - FinanceUp',
           },
+<<<<<<< HEAD
           {
             path: 'resuelve-deuda',
             loadComponent: () =>
@@ -272,12 +333,8 @@ export const routes: Routes = [
             .then((m) => m.AdminResuelveDeudaComponent),
             title: 'Admin Resuelve tu deuda - FinanceUp',
           },
-          {
-            path: 'pqr',
-            loadComponent: () =>
-              import('./pages/admin/pqr/pqr').then((m) => m.AdminPqrComponent),
-            title: 'Admin PQR - FinanceUp',
-          },
+=======
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
         ],
       },
 
