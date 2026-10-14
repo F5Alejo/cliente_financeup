@@ -54,18 +54,12 @@ export class LoginComponent {
 
     const sinAcceso = motivoSinAcceso(usuario);
     if (sinAcceso) {
-<<<<<<< HEAD
-=======
       console.log('[Login] Cuenta sin acceso:', { email: usuario.email, motivo: sinAcceso });
->>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       this.errorMessage = sinAcceso;
       return;
     }
 
-<<<<<<< HEAD
-=======
     console.log('[Login] Credenciales válidas, se pide el código de verificación:', { email: usuario.email });
->>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
     this.usuarioValidado = usuario;
     this.codigo = '';
     this.stage = 'verificacion';
