@@ -1,24 +1,37 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { NotificacionesService } from './notificaciones';
+import { UsuariosService } from './usuarios';
+
+export type Rol = 'admin' | 'user';
+export type EstadoUsuario = 'activo' | 'bloqueado' | 'pendiente' | 'suspendido';
+
+const MENSAJE_SIN_ACCESO: Record<Exclude<EstadoUsuario, 'activo'>, string> = {
+  bloqueado: 'Tu cuenta está bloqueada. Comunícate con soporte para más información.',
+  suspendido: 'Tu cuenta está suspendida temporalmente. Comunícate con soporte para más información.',
+  pendiente: 'Tu cuenta está pendiente de activación. Revisa tu correo para confirmarla.'
+};
+
+/** Mensaje a mostrar si la cuenta no puede iniciar sesión; null si puede hacerlo. */
+export function motivoSinAcceso(usuario: { estado?: EstadoUsuario }): string | null {
+  const estado = usuario.estado ?? 'activo';
+  return estado === 'activo' ? null : MENSAJE_SIN_ACCESO[estado];
+}
 
 export interface Usuario {
   email: string;
   password: string;
   nombre: string;
   apellido?: string;
-  rol: string;
+  rol: Rol;
+  estado?: EstadoUsuario;
+  motivoBloqueo?: string;
+  fechaRegistro?: string;
+  ultimoAcceso?: string | null;
   telefono?: string;
   documento?: string;
   direccion?: string;
   fechaNacimiento?: string;
 }
-
-// TODO: BLOQUE TEMPORAL CON DATOS QUEMADOS (MOCK)
-// Reemplazar por llamadas HTTP al backend real cuando esté listo (HttpClient + endpoints de auth).
-const USUARIOS_MOCK: Usuario[] = [
-  { email: 'admin@gmail.com', password: '123456', nombre: 'Administrador', rol: 'admin' },
-  { email: 'usuario@gmail.com', password: '123456', nombre: 'Usuario Demo', rol: 'user' },
-  { email: 'test@gmail.com', password: '123456', nombre: 'Test User', rol: 'user' }
-];
 
 const STORAGE_KEY = 'financeup_user';
 
@@ -28,9 +41,10 @@ const STORAGE_KEY = 'financeup_user';
 export class AuthService {
   private usuarioActual: Usuario | null = null;
 
-  // Lista en memoria: incluye los mock originales + los que se registren en esta sesión.
-  // TODO: al conectar el backend real, este arreglo desaparece; registrarUsuario() pasa a ser un POST /api/auth/register.
-  private usuarios: Usuario[] = [...USUARIOS_MOCK];
+  // La lista de usuarios (mock en memoria) vive en UsuariosService.
+  // TODO: al conectar el backend real, registrarUsuario() pasa a ser un POST /api/auth/register.
+  private usuariosService = inject(UsuariosService);
+  private notificaciones = inject(NotificacionesService);
 
   constructor() {
     // Recupera la sesión si ya había un usuario logueado (persistencia entre recargas)
@@ -45,16 +59,15 @@ export class AuthService {
    * Se usa como primer paso del login, antes de pedir el código de verificación (2FA).
    */
   validarCredenciales(email: string, password: string): Usuario | null {
-    const usuario = this.usuarios.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
-    return usuario ?? null;
+    const usuario = this.usuariosService.buscar(email);
+    return usuario && usuario.password === password ? usuario : null;
   }
 
   /**
    * Persiste la sesión de un usuario ya validado (segundo paso del login, tras el 2FA).
    */
   completarSesion(usuario: Usuario): void {
+    usuario.ultimoAcceso = new Date().toISOString();
     this.usuarioActual = usuario;
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
   }
@@ -65,7 +78,7 @@ export class AuthService {
    */
   iniciarSesion(email: string, password: string): boolean {
     const usuario = this.validarCredenciales(email, password);
-    if (!usuario) {
+    if (!usuario || motivoSinAcceso(usuario)) {
       return false;
     }
     this.completarSesion(usuario);
@@ -78,13 +91,17 @@ export class AuthService {
    * TODO: reemplazar por el flujo real de cada proveedor (ver notas de integración).
    */
   iniciarSesionConProveedor(proveedor: 'google' | 'apple' | 'facebook'): Promise<Usuario> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
         const emailSimulado = `usuario@${proveedor}.com`;
 
-        let usuario = this.usuarios.find(
-          (u) => u.email.toLowerCase() === emailSimulado.toLowerCase()
-        );
+        let usuario = this.usuariosService.buscar(emailSimulado);
+
+        const sinAcceso = usuario ? motivoSinAcceso(usuario) : null;
+        if (sinAcceso) {
+          reject(new Error(sinAcceso));
+          return;
+        }
 
         // Si es la primera vez que "entra" con ese proveedor, se crea el usuario
         if (!usuario) {
@@ -94,7 +111,7 @@ export class AuthService {
             nombre: `Usuario ${proveedor.charAt(0).toUpperCase() + proveedor.slice(1)}`,
             rol: 'user'
           };
-          this.usuarios.push(usuario);
+          this.usuariosService.agregar(usuario);
         }
 
         this.usuarioActual = usuario;
@@ -109,9 +126,7 @@ export class AuthService {
    * Devuelve { exito: true } si se creó, o { exito: false, mensaje } si el correo ya existe.
    */
   registrarUsuario(nombre: string, apellido: string, email: string, password: string): { exito: boolean; mensaje?: string } {
-    const yaExiste = this.usuarios.some((u) => u.email.toLowerCase() === email.toLowerCase());
-
-    if (yaExiste) {
+    if (this.usuariosService.buscar(email)) {
       return { exito: false, mensaje: 'Ya existe una cuenta registrada con ese correo.' };
     }
 
@@ -123,7 +138,14 @@ export class AuthService {
       rol: 'user'
     };
 
-    this.usuarios.push(nuevoUsuario);
+    this.usuariosService.agregar(nuevoUsuario);
+    this.notificaciones.agregar({
+      categoria: 'usuarios',
+      titulo: 'Nuevo usuario registrado',
+      detalle: `${nombre} ${apellido} (${email}).`,
+      ruta: '/admin/usuarios',
+      nivel: 'info',
+    });
     this.completarSesion(nuevoUsuario);
 
     return { exito: true };
@@ -140,10 +162,7 @@ export class AuthService {
     const actualizado: Usuario = { ...this.usuarioActual, ...datos, email: this.usuarioActual.email };
     this.usuarioActual = actualizado;
 
-    const indice = this.usuarios.findIndex((u) => u.email.toLowerCase() === actualizado.email.toLowerCase());
-    if (indice !== -1) {
-      this.usuarios[indice] = actualizado;
-    }
+    this.usuariosService.reemplazar(actualizado);
 
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(actualizado));
     return { exito: true };
