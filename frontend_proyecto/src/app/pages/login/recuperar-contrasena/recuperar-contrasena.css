@@ -171,7 +171,6 @@ label{
   border:1.5px solid var(--border);
   border-radius:10px;
   font-size:13.5px;
-  outline:none;
   transition:.15s;
 }
 

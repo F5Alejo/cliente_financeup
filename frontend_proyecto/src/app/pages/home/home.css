@@ -1,15 +1,16 @@
 :host {
-  --verde-oscuro: #1f6b4f;
-  --verde-brand: #16a679;
-  --verde-claro: #57e0b0;
-  --gris-texto: #4b5563;
-  --gris-fondo: #f3f4f2;
-  --texto-oscuro: #16211c;
-  --blanco: #ffffff;
+  /* Reapuntados al sistema de diseño. El antiguo --verde-brand (#16a679)
+     daba 3.1:1 con texto blanco y no cumplia AA en los botones del hero. */
+  --verde-oscuro: var(--verde-800);
+  --verde-brand: var(--primario);
+  --verde-claro: var(--verde-300);
+  --gris-texto: var(--texto-suave);
+  --gris-fondo: var(--fondo);
+  --texto-oscuro: var(--texto);
+  --blanco: var(--neutro-0);
 
   display: block;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: var(--texto-oscuro);
+  color: var(--texto);
 }
 
 .btn {

@@ -1,0 +1,17 @@
+<button
+  [type]="tipo"
+  [class]="'boton boton-' + variante + ' boton-' + tamano"
+  [class.boton-ancho]="ancho"
+  [class.boton-cargando]="cargando"
+  [disabled]="deshabilitado || cargando"
+  [attr.aria-label]="etiqueta || null"
+  [attr.aria-busy]="cargando ? 'true' : null"
+  (click)="alPulsar($event)"
+>
+  @if (cargando) {
+    <span class="boton-indicador" aria-hidden="true"></span>
+  }
+  <span class="boton-contenido">
+    <ng-content />
+  </span>
+</button>

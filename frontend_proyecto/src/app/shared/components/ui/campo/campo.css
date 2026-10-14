@@ -1,0 +1,83 @@
+:host {
+  display: block;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+}
+
+.campo-etiqueta {
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}
+
+.campo-obligatorio {
+  color: var(--peligro);
+  margin-left: 2px;
+}
+
+/* El control real llega proyectado; se le da forma desde aquí para no
+   repetir estilos de input en cada pantalla. */
+.campo-control ::ng-deep input,
+.campo-control ::ng-deep select,
+.campo-control ::ng-deep textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--esp-3) var(--esp-4);
+
+  font-family: var(--fuente-texto);
+  font-size: var(--texto-base);
+  color: var(--texto);
+
+  background: var(--superficie);
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-sm);
+
+  transition:
+    border-color var(--dur-rapida) var(--curva),
+    box-shadow var(--dur-rapida) var(--curva);
+}
+
+.campo-control ::ng-deep textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.campo-control ::ng-deep input::placeholder,
+.campo-control ::ng-deep textarea::placeholder {
+  color: var(--texto-tenue);
+}
+
+.campo-control ::ng-deep input:hover:not(:disabled),
+.campo-control ::ng-deep textarea:hover:not(:disabled) {
+  border-color: var(--primario);
+}
+
+.campo-control ::ng-deep input:disabled,
+.campo-control ::ng-deep textarea:disabled {
+  background: var(--superficie-hundida);
+  color: var(--texto-tenue);
+  cursor: not-allowed;
+}
+
+.campo-con-error .campo-control ::ng-deep input,
+.campo-con-error .campo-control ::ng-deep select,
+.campo-con-error .campo-control ::ng-deep textarea {
+  border-color: var(--peligro);
+}
+
+.campo-ayuda {
+  margin: 0;
+  font-size: var(--texto-sm);
+  color: var(--texto-tenue);
+}
+
+.campo-error {
+  margin: 0;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  color: var(--peligro);
+}
