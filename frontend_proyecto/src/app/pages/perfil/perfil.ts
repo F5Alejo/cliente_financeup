@@ -28,7 +28,6 @@ export class PerfilComponent implements OnInit {
   nombre = '';
   apellido = '';
   telefono = '';
-  documento = '';
   direccion = '';
   fechaNacimiento = '';
 
@@ -49,7 +48,6 @@ export class PerfilComponent implements OnInit {
       this.nombre = this.usuario.nombre;
       this.apellido = this.usuario.apellido ?? '';
       this.telefono = this.usuario.telefono ?? '';
-      this.documento = this.usuario.documento ?? '';
       this.direccion = this.usuario.direccion ?? '';
       this.fechaNacimiento = this.usuario.fechaNacimiento ?? '';
     }
@@ -65,7 +63,6 @@ export class PerfilComponent implements OnInit {
       nombre: this.nombre.trim(),
       apellido: this.apellido.trim(),
       telefono: this.telefono.trim(),
-      documento: this.documento.trim(),
       direccion: this.direccion.trim(),
       fechaNacimiento: this.fechaNacimiento,
     });
