@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+.sk-w80 { width: 80px; }
+.sk-w120 { width: 120px; }
+.sk-w160 { width: 160px; }
+
+.filtros-fijos {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  align-items: end;
+}
+
+.limpiar {
+  justify-content: flex-end;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 12.5px;
+}
