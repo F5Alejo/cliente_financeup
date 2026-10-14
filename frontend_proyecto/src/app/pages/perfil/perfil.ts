@@ -59,18 +59,21 @@ export class PerfilComponent implements OnInit {
       return;
     }
 
-    const resultado = this.authService.actualizarPerfil({
+    const datos = {
       nombre: this.nombre.trim(),
       apellido: this.apellido.trim(),
       telefono: this.telefono.trim(),
       direccion: this.direccion.trim(),
       fechaNacimiento: this.fechaNacimiento,
-    });
+    };
+    const resultado = this.authService.actualizarPerfil(datos);
 
     if (resultado.exito) {
+      console.log('[Mi perfil] Datos personales actualizados:', datos);
       this.usuario = this.authService.obtenerUsuario();
       this.toastService.success('Datos personales actualizados correctamente.');
     } else {
+      console.log('[Mi perfil] No se pudieron actualizar los datos personales');
       this.toastService.error('No se pudo actualizar el perfil.');
     }
   }
@@ -101,12 +104,14 @@ export class PerfilComponent implements OnInit {
     const resultado = this.authService.cambiarPassword(this.passwordActual, this.passwordNueva);
 
     if (resultado.exito) {
+      console.log('[Mi perfil] Contraseña cambiada');
       this.toastService.success('Contraseña actualizada correctamente.');
       this.passwordActual = '';
       this.passwordNueva = '';
       this.passwordConfirmar = '';
       this.rules = { minLength: false, hasNumber: false, hasUppercase: false };
     } else {
+      console.log('[Mi perfil] No se pudo cambiar la contraseña:', resultado.mensaje);
       this.toastService.error(resultado.mensaje ?? 'No se pudo cambiar la contraseña.');
     }
   }

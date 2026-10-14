@@ -174,10 +174,12 @@ export class AdminMetasComponent {
         porcentaje: Math.min(100, Math.round((actual / objetivo) * 100)),
         cumplida: actual >= objetivo,
       });
+      console.log('[Admin Metas] Meta actualizada:', { id: edicion.id, nombre, actual, objetivo });
       this.actividad.registrar('Metas', 'Meta actualizada', nombre);
       this.toastService.success('Meta actualizada correctamente.');
     } else {
       this.metasService.agregarMeta({ nombre, icono: '🎯', actual, objetivo });
+      console.log('[Admin Metas] Meta creada:', { nombre, actual, objetivo });
       this.actividad.registrar('Metas', 'Meta creada', nombre);
       this.toastService.success('Meta agregada correctamente.');
     }

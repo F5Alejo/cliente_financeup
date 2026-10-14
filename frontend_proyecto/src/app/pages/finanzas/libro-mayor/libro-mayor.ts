@@ -237,27 +237,23 @@ export class LibroMayorComponent {
       return;
     }
 
+    const datos = {
+      fecha,
+      concepto,
+      categoria: this.formCategoria,
+      tipo: this.formTipo,
+      valor,
+      metodoPago: this.formMetodoPago,
+      observaciones: this.formObservaciones.trim(),
+    };
+
     if (this.modoEdicion() && this.idEnEdicion !== null) {
-      this.finanzasService.editarMovimiento(this.idEnEdicion, {
-        fecha,
-        concepto,
-        categoria: this.formCategoria,
-        tipo: this.formTipo,
-        valor,
-        metodoPago: this.formMetodoPago,
-        observaciones: this.formObservaciones.trim(),
-      });
+      this.finanzasService.editarMovimiento(this.idEnEdicion, datos);
+      console.log('[Libro mayor] Movimiento actualizado:', { id: this.idEnEdicion, ...datos });
       this.emitirMensaje('exito', 'Movimiento actualizado correctamente.');
     } else {
-      this.finanzasService.agregarMovimiento({
-        fecha,
-        concepto,
-        categoria: this.formCategoria,
-        tipo: this.formTipo,
-        valor,
-        metodoPago: this.formMetodoPago,
-        observaciones: this.formObservaciones.trim(),
-      });
+      this.finanzasService.agregarMovimiento(datos);
+      console.log('[Libro mayor] Movimiento agregado:', datos);
       this.emitirMensaje('exito', 'Movimiento agregado correctamente.');
     }
 
@@ -550,6 +546,10 @@ export class LibroMayorComponent {
     const resultado = this.resultadoImportacion();
     if (!resultado || resultado.validos.length === 0) return;
     this.finanzasService.agregarMovimientos(resultado.validos);
+    console.log('[Libro mayor] Movimientos importados desde Excel:', {
+      cantidad: resultado.validos.length,
+      movimientos: resultado.validos,
+    });
     this.emitirMensaje('exito', `${resultado.validos.length} movimiento(s) importado(s) correctamente.`);
     this.cerrarImportador();
   }
