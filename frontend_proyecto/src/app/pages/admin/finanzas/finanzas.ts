@@ -264,18 +264,12 @@ export class AdminFinanzasComponent {
     const edicion = this.modal()?.movimiento;
     if (edicion) {
       this.finanzasService.editarMovimiento(edicion.id, datos);
-<<<<<<< HEAD
-=======
       console.log('[Admin Finanzas] Movimiento actualizado:', { id: edicion.id, ...datos });
->>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       this.actividad.registrar('Finanzas', 'Movimiento actualizado', datos.concepto);
       this.toastService.success('Movimiento actualizado correctamente.');
     } else {
       this.finanzasService.agregarMovimiento(datos);
-<<<<<<< HEAD
-=======
       console.log('[Admin Finanzas] Movimiento registrado:', datos);
->>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       this.actividad.registrar('Finanzas', 'Movimiento registrado', datos.concepto);
       this.toastService.success('Movimiento registrado correctamente.');
     }

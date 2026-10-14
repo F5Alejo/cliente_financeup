@@ -184,18 +184,12 @@ export class AdminAlianzasComponent {
     const edicion = this.modal()?.oferta;
     if (edicion) {
       this.alianzasService.editarOferta(edicion.id, datos);
-<<<<<<< HEAD
-=======
       console.log('[Admin Alianzas] Oferta actualizada:', { id: edicion.id, ...datos });
->>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       this.actividad.registrar('Alianzas', 'Alianza actualizada', datos.aliado);
       this.toastService.success('Oferta actualizada correctamente.');
     } else {
       this.alianzasService.agregarOferta({ ...this.ofertaVacia(), ...datos, id: 'oferta-' + Date.now() });
-<<<<<<< HEAD
-=======
       console.log('[Admin Alianzas] Oferta creada:', datos);
->>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       this.actividad.registrar('Alianzas', 'Nueva alianza creada', datos.aliado);
       this.toastService.success('Oferta creada correctamente.');
     }
