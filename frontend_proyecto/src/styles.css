@@ -5,6 +5,9 @@
    todo sale de estas variables.
    ========================================================================= */
 
+/* Panel de administración */
+@import "./admin-ui.css";
+
 :root {
   /* ---------------------------------------------------------------
      ESCALA VERDE (color de marca)
