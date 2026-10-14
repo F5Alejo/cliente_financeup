@@ -1,6 +1,5 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router'; // para el enlace "Ver mis deudas" (routerLink)
 import * as XLSX from 'xlsx'; // Librería para leer/escribir archivos Excel (.xlsx) en el navegador
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
@@ -37,7 +36,7 @@ type ColumnaOrden = 'fecha' | 'concepto' | 'categoria' | 'tipo' | 'valor';
 
 @Component({
   selector: 'app-libro-mayor',
-  imports: [FinanzasMenuComponent, FormsModule, RouterLink, CursoBannerComponent],
+  imports: [FinanzasMenuComponent, FormsModule, CursoBannerComponent],
   templateUrl: './libro-mayor.html',
   styleUrl: './libro-mayor.css',
 })
