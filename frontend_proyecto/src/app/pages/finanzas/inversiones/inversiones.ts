@@ -195,14 +195,16 @@ export class InversionesComponent {
       return; // validación mínima
     }
 
-    this.inversiones.push({
+    const nueva = {
       id: this.siguienteIdInversion++,
       nombre,
       monto,
       rendimiento: 0, // rendimiento inicial en 0, aún no ha generado retorno
       riesgo: this.riesgoNuevaInversion,
       duracion: this.duracionNuevaInversion.trim() || 'Sin definir',
-    });
+    };
+    this.inversiones.push(nueva);
+    console.log('[Inversiones] Inversión creada:', nueva);
 
     // limpiar formulario
     this.nombreNuevaInversion = '';
