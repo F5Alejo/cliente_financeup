@@ -51,7 +51,7 @@ export class RecuperarContrasena {
   sendCode(): void {
     // Aquí iría la llamada real al servicio de autenticación para
     // enviar el código según this.selectedMethod ('email' | 'sms').
-    console.log(`Enviando código de verificación por: ${this.selectedMethod}`);
+    console.log('[Recuperar contraseña] Código de verificación enviado por:', this.selectedMethod);
     this.goTo('s2');
   }
 
@@ -85,6 +85,7 @@ export class RecuperarContrasena {
     }
 
     // Aquí iría la llamada real al servicio para guardar la nueva contraseña.
+    console.log('[Recuperar contraseña] Contraseña actualizada');
     this.toastService.success('Contraseña actualizada correctamente.');
     this.goTo('s3');
   }

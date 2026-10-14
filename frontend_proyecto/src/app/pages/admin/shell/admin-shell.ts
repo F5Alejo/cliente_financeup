@@ -122,6 +122,10 @@ export class AdminShellComponent {
 
   buscar(): void {
     const texto = this.busqueda().trim();
+<<<<<<< HEAD
+=======
+    console.log('[Admin] Búsqueda:', { texto, en: this.info().buscaEn });
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
     this.busquedaService.termino.set(texto);
     this.router.navigateByUrl(this.info().buscaEn);
   }

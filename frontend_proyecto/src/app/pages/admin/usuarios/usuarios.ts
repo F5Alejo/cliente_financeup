@@ -369,10 +369,26 @@ export class AdminUsuariosComponent {
       : this.usuariosService.crear(valores, this.adminEmail);
 
     if (!resultado.exito) {
+<<<<<<< HEAD
+=======
+      console.log('[Admin Usuarios] No se pudo guardar el usuario:', resultado.mensaje);
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       this.errorModal.set(resultado.mensaje ?? 'No se pudo guardar el usuario.');
       return;
     }
 
+<<<<<<< HEAD
+=======
+    // Se muestra el usuario sin la contraseña.
+    console.log(edicion ? '[Admin Usuarios] Usuario actualizado:' : '[Admin Usuarios] Usuario creado:', {
+      nombre: valores.nombre,
+      apellido: valores.apellido,
+      email: valores.email,
+      rol: valores.rol,
+      telefono: valores.telefono,
+      documento: valores.documento,
+    });
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
     this.toastService.success(edicion ? 'Usuario actualizado correctamente.' : 'Usuario creado correctamente.');
     this.finalizar();
   }
@@ -452,11 +468,22 @@ export class AdminUsuariosComponent {
     this.toastService.success(`Se exportaron ${filas.length} usuarios.`);
   }
 
+<<<<<<< HEAD
   private ejecutar(resultado: { exito: boolean; mensaje?: string }, exito: string): void {
     if (!resultado.exito) {
       this.errorModal.set(resultado.mensaje ?? 'No se pudo completar la acción.');
       return;
     }
+=======
+  // Lo usan cambiar rol, bloquear, restablecer contraseña y eliminar.
+  private ejecutar(resultado: { exito: boolean; mensaje?: string }, exito: string): void {
+    if (!resultado.exito) {
+      console.log('[Admin Usuarios] No se pudo completar la acción:', resultado.mensaje);
+      this.errorModal.set(resultado.mensaje ?? 'No se pudo completar la acción.');
+      return;
+    }
+    console.log('[Admin Usuarios]', exito);
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
     this.toastService.success(exito);
     this.finalizar();
   }

@@ -133,8 +133,8 @@ export class NuevoPqrComponent implements OnInit {
       mensajeRespuesta: 'Tu solicitud fue radicada. Un asesor la revisará pronto.',
     };
 
-    console.log('Datos del formulario PQR:', nuevaPqr);
     this.pqrService.agregarPqr(nuevaPqr);
+    console.log('[Nuevo PQR] PQR radicada:', nuevaPqr);
 
     this.toastService.success('PQR radicada correctamente.');
     this.router.navigate(['/pqr']);
