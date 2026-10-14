@@ -128,17 +128,20 @@ export class AdminConfiguracionComponent {
       return;
     }
     const v = this.perfilForm.getRawValue();
-    const resultado = this.authService.actualizarPerfil({
+    const datos = {
       nombre: v.nombre.trim(),
       apellido: v.apellido.trim(),
       telefono: v.telefono.trim(),
       documento: v.documento.trim(),
       direccion: v.direccion.trim(),
-    });
+    };
+    const resultado = this.authService.actualizarPerfil(datos);
     if (!resultado.exito) {
+      console.log('[Admin Configuración] No se pudo actualizar el perfil');
       this.toastService.error('No se pudo actualizar el perfil.');
       return;
     }
+    console.log('[Admin Configuración] Perfil actualizado:', datos);
     this.usuario.set(this.authService.obtenerUsuario());
     this.perfilForm.markAsPristine();
     this.actividad.registrar('Configuración', 'Actualizó su perfil');
@@ -158,9 +161,11 @@ export class AdminConfiguracionComponent {
     }
     const resultado = this.authService.cambiarPassword(actual, nueva);
     if (!resultado.exito) {
+      console.log('[Admin Configuración] No se pudo cambiar la contraseña:', resultado.mensaje);
       this.errorPassword.set(resultado.mensaje ?? 'No se pudo cambiar la contraseña.');
       return;
     }
+    console.log('[Admin Configuración] Contraseña cambiada');
     this.passwordForm.reset();
     this.actividad.registrar('Seguridad', 'Cambió su contraseña');
     this.toastService.success('Contraseña actualizada correctamente.');
@@ -194,10 +199,12 @@ export class AdminConfiguracionComponent {
 
   guardarSistema(): void {
     const v = this.sistemaForm.getRawValue();
-    this.preferencias.actualizar({
+    const datos = {
       sesionExpiraMin: Number(v.sesionExpiraMin),
       sistema: { moneda: v.moneda, zonaHoraria: v.zonaHoraria, idioma: v.idioma, mantenimiento: v.mantenimiento },
-    });
+    };
+    this.preferencias.actualizar(datos);
+    console.log('[Admin Configuración] Configuración del sistema guardada:', datos);
     this.sistemaForm.markAsPristine();
     this.actividad.registrar('Configuración', 'Modificó la configuración del sistema', v.mantenimiento ? 'Modo mantenimiento activado.' : undefined);
     this.toastService.success('Configuración del sistema guardada.');

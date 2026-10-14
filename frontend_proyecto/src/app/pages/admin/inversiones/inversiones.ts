@@ -205,10 +205,12 @@ export class AdminInversionesComponent {
     const edicion = this.modal()?.inversion;
     if (edicion) {
       this.inversionesService.editarInversion(edicion.id, datos);
+      console.log('[Admin Inversiones] Inversión actualizada:', { id: edicion.id, ...datos });
       this.actividad.registrar('Inversiones', 'Inversión actualizada', datos.nombre);
       this.toastService.success('Inversión actualizada correctamente.');
     } else {
       this.inversionesService.agregarInversion({ id: Date.now(), ...datos });
+      console.log('[Admin Inversiones] Inversión creada:', datos);
       this.actividad.registrar('Inversiones', 'Inversión creada', datos.nombre);
       this.toastService.success('Inversión agregada correctamente.');
     }
