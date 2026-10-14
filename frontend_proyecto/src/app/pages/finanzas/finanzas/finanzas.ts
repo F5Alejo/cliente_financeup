@@ -14,7 +14,7 @@ import { CursoBannerComponent } from '../../../shared/components/curso-banner/cu
  * ------------------------------------------------------------------
  * Esta pantalla es única y exclusivamente un RESUMEN que redirige a cada
  * módulo real: no tiene su propio CRUD de movimientos ni de activos/pasivos
- * (eso vive en Libro Mayor y en Herramientas). Cada tarjeta, gráfica y panel
+ * (eso vive en Libro Mayor). Cada tarjeta, gráfica y panel
  * de aquí lee datos reales de los services compartidos y tiene un botón
  * que lleva al módulo donde esos datos se administran de verdad.
  * ------------------------------------------------------------------
@@ -158,8 +158,6 @@ export class FinanzasComponent implements OnInit {
     { icono: '📒', nombre: 'Libro Mayor', ruta: '/libro-mayor', tipo: 'Sección' },
     { icono: '📈', nombre: 'Inversiones', ruta: '/inversiones', tipo: 'Sección' },
     { icono: '🎯', nombre: 'Metas', ruta: '/metas', tipo: 'Sección' },
-    { icono: '💳', nombre: 'Resuelve tu deuda', ruta: '/resuelve-deuda', tipo: 'Sección' },
-    { icono: '🧮', nombre: 'Herramientas', ruta: '/herramientas', tipo: 'Sección' },
   ];
 
   alternarBusqueda(): void {

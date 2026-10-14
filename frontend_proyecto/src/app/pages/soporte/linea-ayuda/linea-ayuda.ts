@@ -127,7 +127,11 @@ export class LineaAyudaComponent {
   private normalizarTexto(texto: string): string {
     return texto
       .normalize('NFD')
+<<<<<<< HEAD
+      .replace(/[̀-ͯ]/g, '')
+=======
       .replace(/[\u0300-\u036f]/g, '')
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       .toLowerCase()
       .trim();
   }
