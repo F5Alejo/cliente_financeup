@@ -174,10 +174,18 @@ export class AdminEducacionComponent {
     const edicion = this.modal()?.fila;
     if (edicion) {
       this.educacionService.editarCurso(edicion.curso.id, datos);
+<<<<<<< HEAD
+=======
+      console.log('[Admin Educación] Curso actualizado:', { id: edicion.curso.id, ...datos });
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       this.actividad.registrar('Educación', 'Curso actualizado', datos.titulo);
       this.toastService.success('Curso actualizado correctamente.');
     } else {
       this.educacionService.agregarCurso(valores.escuela, { ...this.cursoVacio(), ...datos, id: 'curso-' + Date.now() });
+<<<<<<< HEAD
+=======
+      console.log('[Admin Educación] Curso publicado:', { escuela: valores.escuela, ...datos });
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       this.actividad.registrar('Educación', 'Curso publicado', datos.titulo);
       this.toastService.success('Curso publicado correctamente.');
     }

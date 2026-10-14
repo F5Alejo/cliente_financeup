@@ -128,17 +128,32 @@ export class AdminConfiguracionComponent {
       return;
     }
     const v = this.perfilForm.getRawValue();
+<<<<<<< HEAD
     const resultado = this.authService.actualizarPerfil({
+=======
+    const datos = {
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       nombre: v.nombre.trim(),
       apellido: v.apellido.trim(),
       telefono: v.telefono.trim(),
       documento: v.documento.trim(),
       direccion: v.direccion.trim(),
+<<<<<<< HEAD
     });
     if (!resultado.exito) {
       this.toastService.error('No se pudo actualizar el perfil.');
       return;
     }
+=======
+    };
+    const resultado = this.authService.actualizarPerfil(datos);
+    if (!resultado.exito) {
+      console.log('[Admin Configuración] No se pudo actualizar el perfil');
+      this.toastService.error('No se pudo actualizar el perfil.');
+      return;
+    }
+    console.log('[Admin Configuración] Perfil actualizado:', datos);
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
     this.usuario.set(this.authService.obtenerUsuario());
     this.perfilForm.markAsPristine();
     this.actividad.registrar('Configuración', 'Actualizó su perfil');
@@ -158,9 +173,17 @@ export class AdminConfiguracionComponent {
     }
     const resultado = this.authService.cambiarPassword(actual, nueva);
     if (!resultado.exito) {
+<<<<<<< HEAD
       this.errorPassword.set(resultado.mensaje ?? 'No se pudo cambiar la contraseña.');
       return;
     }
+=======
+      console.log('[Admin Configuración] No se pudo cambiar la contraseña:', resultado.mensaje);
+      this.errorPassword.set(resultado.mensaje ?? 'No se pudo cambiar la contraseña.');
+      return;
+    }
+    console.log('[Admin Configuración] Contraseña cambiada');
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
     this.passwordForm.reset();
     this.actividad.registrar('Seguridad', 'Cambió su contraseña');
     this.toastService.success('Contraseña actualizada correctamente.');
@@ -194,10 +217,19 @@ export class AdminConfiguracionComponent {
 
   guardarSistema(): void {
     const v = this.sistemaForm.getRawValue();
+<<<<<<< HEAD
     this.preferencias.actualizar({
       sesionExpiraMin: Number(v.sesionExpiraMin),
       sistema: { moneda: v.moneda, zonaHoraria: v.zonaHoraria, idioma: v.idioma, mantenimiento: v.mantenimiento },
     });
+=======
+    const datos = {
+      sesionExpiraMin: Number(v.sesionExpiraMin),
+      sistema: { moneda: v.moneda, zonaHoraria: v.zonaHoraria, idioma: v.idioma, mantenimiento: v.mantenimiento },
+    };
+    this.preferencias.actualizar(datos);
+    console.log('[Admin Configuración] Configuración del sistema guardada:', datos);
+>>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
     this.sistemaForm.markAsPristine();
     this.actividad.registrar('Configuración', 'Modificó la configuración del sistema', v.mantenimiento ? 'Modo mantenimiento activado.' : undefined);
     this.toastService.success('Configuración del sistema guardada.');

@@ -1,0 +1,21 @@
+<div class="campo" [class.campo-con-error]="error">
+  @if (etiqueta) {
+    <label class="campo-etiqueta" [for]="idCampo">
+      {{ etiqueta }}
+      @if (obligatorio) {
+        <span class="campo-obligatorio" aria-hidden="true">*</span>
+        <span class="visualmente-oculto">obligatorio</span>
+      }
+    </label>
+  }
+
+  <div class="campo-control">
+    <ng-content />
+  </div>
+
+  @if (error) {
+    <p class="campo-error" [id]="idDescripcion" role="alert">{{ error }}</p>
+  } @else if (ayuda) {
+    <p class="campo-ayuda" [id]="idDescripcion">{{ ayuda }}</p>
+  }
+</div>
