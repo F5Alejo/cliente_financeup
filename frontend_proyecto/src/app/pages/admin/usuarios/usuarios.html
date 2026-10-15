@@ -1,0 +1,391 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Usuarios</h1>
+    <p class="page-sub">Administra las cuentas, permisos y estados de los usuarios.</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" (click)="abrirModal('formulario')">
+      <app-icon nombre="plus" [tamano]="16" /> Nuevo usuario
+    </button>
+  </div>
+</div>
+
+<section class="card" aria-label="Listado de usuarios">
+  <div class="toolbar">
+    <div class="search">
+      <app-icon nombre="search" [tamano]="16" />
+      <input
+        type="search"
+        class="input"
+        placeholder="Buscar por nombre, correo o documento"
+        aria-label="Buscar por nombre, correo o documento"
+        [ngModel]="busqueda()"
+        (ngModelChange)="filtrar(busqueda, $event)" />
+    </div>
+
+    <select class="input select" aria-label="Filtrar por rol" [ngModel]="filtroRol()" (ngModelChange)="filtrar(filtroRol, $event)">
+      <option value="">Todos los roles</option>
+      @for (rol of roles; track rol.valor) {
+        <option [value]="rol.valor">{{ rol.etiqueta }}</option>
+      }
+    </select>
+
+    <button
+      type="button"
+      class="btn btn-secondary"
+      aria-controls="filtros-avanzados"
+      [attr.aria-expanded]="avanzados()"
+      (click)="avanzados.set(!avanzados())">
+      <app-icon nombre="filter" [tamano]="16" /> Filtros avanzados
+      @if (filtrosAvanzadosActivos()) {
+        <span class="filter-badge">{{ filtrosAvanzadosActivos() }}</span>
+      }
+    </button>
+
+    <app-row-menu textoBoton="Exportar" iconoBoton="download" [acciones]="accionesExportar" (seleccion)="exportar($event)" />
+  </div>
+
+  @if (avanzados()) {
+    <div class="filters-panel" id="filtros-avanzados">
+      <div class="field">
+        <label for="f-registro">Fecha de registro</label>
+        <select id="f-registro" class="input" [ngModel]="filtroRegistro()" (ngModelChange)="filtrar(filtroRegistro, $event)">
+          <option value="">Cualquier fecha</option>
+          <option value="7">Últimos 7 días</option>
+          <option value="30">Últimos 30 días</option>
+          <option value="90">Últimos 90 días</option>
+          <option value="rango">Rango personalizado</option>
+        </select>
+      </div>
+
+      @if (filtroRegistro() === 'rango') {
+        <div class="field">
+          <label for="f-desde">Registrados desde</label>
+          <input id="f-desde" type="date" class="input" [ngModel]="fechaDesde()" (ngModelChange)="filtrar(fechaDesde, $event)" />
+        </div>
+        <div class="field">
+          <label for="f-hasta">Registrados hasta</label>
+          <input id="f-hasta" type="date" class="input" [ngModel]="fechaHasta()" (ngModelChange)="filtrar(fechaHasta, $event)" />
+        </div>
+      }
+
+      <div class="field">
+        <label for="f-actividad">Actividad</label>
+        <select id="f-actividad" class="input" [ngModel]="filtroActividad()" (ngModelChange)="filtrar(filtroActividad, $event)">
+          <option value="">Cualquier actividad</option>
+          <option value="reciente7">Ingresaron en los últimos 7 días</option>
+          <option value="reciente30">Ingresaron en los últimos 30 días</option>
+          <option value="inactivo30">Sin ingresar hace más de 30 días</option>
+          <option value="nunca">Nunca han ingresado</option>
+        </select>
+      </div>
+
+      <div class="panel-foot">
+        <button type="button" class="btn btn-secondary" [disabled]="!hayFiltros()" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+    </div>
+  }
+
+  <div class="tabs" role="tablist" aria-label="Filtrar por estado">
+    @for (pestana of pestanas; track pestana.etiqueta) {
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [attr.aria-selected]="filtroEstado() === pestana.valor"
+        (click)="filtrar(filtroEstado, pestana.valor)">
+        {{ pestana.etiqueta }}
+        <span class="count">{{ conteos()[pestana.valor] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <caption class="sr-only">Usuarios registrados en la plataforma</caption>
+      <thead>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col" class="col-correo">Correo</th>
+          <th scope="col" class="hide-md">Rol</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="hide-md">Último acceso</th>
+          <th scope="col" class="hide-lg">Fecha de registro</th>
+          <th scope="col" class="col-actions"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (cargando()) {
+          @for (n of esqueletos; track n) {
+            <tr aria-hidden="true">
+              <td>
+                <div class="person">
+                  <span class="skeleton skeleton-circle"></span>
+                  <div class="sk-col"><span class="skeleton sk-w120"></span><span class="skeleton sk-w80"></span></div>
+                </div>
+              </td>
+              <td class="col-correo"><span class="skeleton sk-w160"></span></td>
+              <td class="hide-md"><span class="skeleton sk-w80"></span></td>
+              <td><span class="skeleton sk-w80"></span></td>
+              <td class="hide-md"><span class="skeleton sk-w80"></span></td>
+              <td class="hide-lg"><span class="skeleton sk-w80"></span></td>
+              <td></td>
+            </tr>
+          }
+        } @else {
+          @for (fila of filas(); track fila.usuario.email) {
+            @let u = fila.usuario;
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar" aria-hidden="true">{{ iniciales(u) }}</span>
+                  <div class="persona-datos">
+                    <span class="cell-strong">
+                      {{ nombreCompleto(u) }}
+                      @if (esMiCuenta(u)) {
+                        <span class="badge plain tu">Tú</span>
+                      }
+                    </span>
+                    <span class="cell-sub solo-movil">{{ u.email }}</span>
+                    <span class="cell-sub solo-movil">{{ etiquetaRol[u.rol] }}</span>
+                    <span class="cell-sub sin-movil">{{ u.documento ? 'Doc. ' + u.documento : 'Sin documento' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="col-correo">{{ u.email }}</td>
+              <td class="hide-md">
+                <span class="badge plain" [class.badge-admin]="u.rol === 'admin'">{{ etiquetaRol[u.rol] }}</span>
+              </td>
+              <td>
+                <span [class]="'badge badge-' + u.estado" [attr.title]="u.motivoBloqueo ?? null">
+                  {{ etiquetaEstado[u.estado ?? 'activo'] }}
+                </span>
+              </td>
+              <td class="hide-md" [attr.title]="u.ultimoAcceso ? fechaHora(u.ultimoAcceso) : null">{{ ultimoAcceso(u) }}</td>
+              <td class="hide-lg">{{ fecha(u.fechaRegistro) }}</td>
+              <td class="col-actions">
+                <app-row-menu
+                  [acciones]="fila.acciones"
+                  [etiqueta]="'Acciones de ' + nombreCompleto(u)"
+                  (seleccion)="alElegirAccion($event, u)" />
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+
+    @if (!cargando() && filtrados().length === 0) {
+      <div class="empty">
+        <span class="empty-icon"><app-icon nombre="inbox" [tamano]="26" /></span>
+        <p class="empty-title">No hay usuarios que coincidan con estos filtros.</p>
+        <p class="empty-text">Prueba con otra búsqueda o quita algunos filtros para ver más resultados.</p>
+        @if (hayFiltros()) {
+          <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (!cargando() && filtrados().length > 0) {
+    <div class="table-foot">
+      <span>Mostrando {{ rango().desde }}–{{ rango().hasta }} de {{ filtrados().length }} usuarios</span>
+      <div class="pager">
+        <button type="button" class="icon-btn" aria-label="Página anterior" [disabled]="paginaActual() === 1" (click)="cambiarPagina(-1)">
+          <app-icon nombre="chevron-left" [tamano]="18" />
+        </button>
+        <span>Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
+        <button type="button" class="icon-btn" aria-label="Página siguiente" [disabled]="paginaActual() === totalPaginas()" (click)="cambiarPagina(1)">
+          <app-icon nombre="chevron-right" [tamano]="18" />
+        </button>
+      </div>
+    </div>
+  }
+</section>
+
+@if (modal(); as m) {
+  @switch (m.tipo) {
+    @case ('perfil') {
+      @if (m.usuario; as u) {
+        <app-modal titulo="Perfil del usuario" ancho="lg" (cerrar)="cerrarModal()">
+          <div class="perfil-cab">
+            <span class="avatar avatar-lg" aria-hidden="true">{{ iniciales(u) }}</span>
+            <div>
+              <p class="perfil-nombre">{{ nombreCompleto(u) }}</p>
+              <p class="cell-sub">{{ u.email }}</p>
+              <div class="badges">
+                <span class="badge plain" [class.badge-admin]="u.rol === 'admin'">{{ etiquetaRol[u.rol] }}</span>
+                <span [class]="'badge badge-' + u.estado">{{ etiquetaEstado[u.estado ?? 'activo'] }}</span>
+              </div>
+            </div>
+          </div>
+          <dl class="detail-list">
+            <div><dt>Documento</dt><dd>{{ u.documento || 'No registrado' }}</dd></div>
+            <div><dt>Teléfono</dt><dd>{{ u.telefono || 'No registrado' }}</dd></div>
+            <div><dt>Fecha de registro</dt><dd>{{ fecha(u.fechaRegistro) }}</dd></div>
+            <div><dt>Último acceso</dt><dd>{{ u.ultimoAcceso ? fechaHora(u.ultimoAcceso) : 'Nunca ha ingresado' }}</dd></div>
+            @if (u.motivoBloqueo) {
+              <div class="full"><dt>Motivo de la restricción</dt><dd>{{ u.motivoBloqueo }}</dd></div>
+            }
+          </dl>
+          <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cerrar</button>
+          <button pie type="button" class="btn btn-primary" [disabled]="esMiCuenta(u)" (click)="abrirModal('formulario', u)">Editar</button>
+        </app-modal>
+      }
+    }
+
+    @case ('actividad') {
+      @if (m.usuario; as u) {
+        <app-modal titulo="Actividad de la cuenta" [subtitulo]="nombreCompleto(u) + ' · ' + u.email" ancho="md" (cerrar)="cerrarModal()">
+          <ol class="timeline">
+            @for (evento of eventosActividad(); track $index) {
+              <li>
+                <span class="cell-strong">{{ evento.titulo }}</span>
+                @if (evento.detalle) {
+                  <span class="cell-sub bloque">{{ evento.detalle }}</span>
+                }
+                <span class="when">{{ fechaHora(evento.fecha) }}</span>
+              </li>
+            }
+          </ol>
+          <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cerrar</button>
+        </app-modal>
+      }
+    }
+
+    @case ('rol') {
+      @if (m.usuario; as u) {
+        <app-modal titulo="Cambiar rol" [subtitulo]="nombreCompleto(u) + ' · ' + u.email" ancho="sm" (cerrar)="cerrarModal()">
+          <div class="option-cards" role="radiogroup" aria-label="Rol del usuario">
+            @for (rol of roles; track rol.valor) {
+              <label class="option-card">
+                <input type="radio" name="rol-usuario" [checked]="rolSeleccionado() === rol.valor" (change)="rolSeleccionado.set(rol.valor)" />
+                <span><strong>{{ rol.etiqueta }}</strong>{{ rol.descripcion }}</span>
+              </label>
+            }
+          </div>
+          @if (errorModal()) {
+            <p class="form-error" role="alert">{{ errorModal() }}</p>
+          }
+          <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button pie type="button" class="btn btn-primary" [disabled]="rolSeleccionado() === u.rol" (click)="guardarRol()">Guardar cambios</button>
+        </app-modal>
+      }
+    }
+
+    @case ('bloquear') {
+      @if (m.usuario; as u) {
+        <app-modal
+          titulo="Bloquear cuenta"
+          [subtitulo]="nombreCompleto(u) + ' (' + u.email + ') no podrá iniciar sesión hasta que la desbloquees.'"
+          ancho="sm"
+          (cerrar)="cerrarModal()">
+          <div class="field">
+            <label for="motivo-bloqueo">Motivo del bloqueo</label>
+            <textarea
+              id="motivo-bloqueo"
+              class="input"
+              rows="3"
+              placeholder="Describe por qué se bloquea la cuenta"
+              [ngModel]="motivo()"
+              (ngModelChange)="motivo.set($event)"></textarea>
+            <span class="field-hint">Mínimo {{ motivoMin }} caracteres. Queda registrado en la bitácora.</span>
+          </div>
+          @if (errorModal()) {
+            <p class="form-error" role="alert">{{ errorModal() }}</p>
+          }
+          <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button pie type="button" class="btn btn-danger" (click)="confirmarBloqueo()">Bloquear cuenta</button>
+        </app-modal>
+      }
+    }
+
+    @case ('reset') {
+      @if (m.usuario; as u) {
+        <app-modal
+          titulo="Restablecer contraseña"
+          [subtitulo]="'Se enviará un enlace de restablecimiento a ' + u.email + '. El usuario podrá crear una contraseña nueva.'"
+          ancho="sm"
+          (cerrar)="cerrarModal()">
+          @if (errorModal()) {
+            <p class="form-error" role="alert">{{ errorModal() }}</p>
+          }
+          <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button pie type="button" class="btn btn-primary" (click)="confirmarReset()">Enviar enlace</button>
+        </app-modal>
+      }
+    }
+
+    @case ('eliminar') {
+      @if (m.usuario; as u) {
+        <app-modal
+          titulo="Eliminar cuenta"
+          [subtitulo]="'Se eliminará la cuenta de ' + nombreCompleto(u) + ' (' + u.email + '). Esta acción no se puede deshacer.'"
+          ancho="sm"
+          [alertdialog]="true"
+          (cerrar)="cerrarModal()">
+          @if (errorModal()) {
+            <p class="form-error" role="alert">{{ errorModal() }}</p>
+          }
+          <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar cuenta</button>
+        </app-modal>
+      }
+    }
+
+    @case ('formulario') {
+      <app-modal
+        [titulo]="esEdicion() ? 'Editar usuario' : 'Nuevo usuario'"
+        [subtitulo]="esEdicion() ? 'El correo no se puede modificar.' : 'Completa los datos de la nueva cuenta.'"
+        ancho="lg"
+        [fondoFijo]="true"
+        (cerrar)="cerrarModal()">
+        <form id="form-usuario" class="form-grid" [formGroup]="formulario" novalidate (ngSubmit)="guardarFormulario()">
+          <div class="field">
+            <label for="usr-nombre">Nombre</label>
+            <input id="usr-nombre" class="input" type="text" formControlName="nombre" autocomplete="off" />
+            @if (errorDe('nombre')) { <span class="field-error">{{ errorDe('nombre') }}</span> }
+          </div>
+          <div class="field">
+            <label for="usr-apellido">Apellido</label>
+            <input id="usr-apellido" class="input" type="text" formControlName="apellido" autocomplete="off" />
+            @if (errorDe('apellido')) { <span class="field-error">{{ errorDe('apellido') }}</span> }
+          </div>
+          <div class="field full">
+            <label for="usr-email">Correo electrónico</label>
+            <input id="usr-email" class="input" type="email" formControlName="email" autocomplete="off" />
+            @if (errorDe('email')) { <span class="field-error">{{ errorDe('email') }}</span> }
+          </div>
+          @if (!esEdicion()) {
+            <div class="field">
+              <label for="usr-password">Contraseña inicial</label>
+              <input id="usr-password" class="input" type="password" formControlName="password" autocomplete="new-password" />
+              @if (errorDe('password')) { <span class="field-error">{{ errorDe('password') }}</span> }
+            </div>
+            <div class="field">
+              <label for="usr-rol">Rol</label>
+              <select id="usr-rol" class="input" formControlName="rol">
+                @for (rol of roles; track rol.valor) {
+                  <option [value]="rol.valor">{{ rol.etiqueta }}</option>
+                }
+              </select>
+            </div>
+          }
+          <div class="field">
+            <label for="usr-telefono">Teléfono <span class="opcional">(opcional)</span></label>
+            <input id="usr-telefono" class="input" type="tel" formControlName="telefono" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="usr-documento">Documento <span class="opcional">(opcional)</span></label>
+            <input id="usr-documento" class="input" type="text" formControlName="documento" autocomplete="off" />
+          </div>
+        </form>
+        @if (errorModal()) {
+          <p class="form-error" role="alert">{{ errorModal() }}</p>
+        }
+        <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button pie type="submit" form="form-usuario" class="btn btn-primary">{{ esEdicion() ? 'Guardar cambios' : 'Crear usuario' }}</button>
+      </app-modal>
+    }
+  }
+}

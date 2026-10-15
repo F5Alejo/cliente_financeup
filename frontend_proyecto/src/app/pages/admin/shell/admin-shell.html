@@ -1,0 +1,187 @@
+<div class="admin-ui shell" [class.colapsado]="colapsado()">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+
+  <aside class="sidebar" [class.abierto]="menuMovil()" aria-label="Navegación de administración">
+    <div class="sidebar-marca">
+      <a routerLink="/admin" class="marca" aria-label="FinanceUp, ir al dashboard">
+        <img src="assets/logo.png" alt="FinanceUp" class="marca-completa" />
+        <img src="assets/logo1.png" alt="" class="marca-mini" />
+      </a>
+      <button
+        type="button"
+        class="icon-btn colapsar"
+        [attr.aria-label]="colapsado() ? 'Expandir menú lateral' : 'Contraer menú lateral'"
+        [attr.aria-expanded]="!colapsado()"
+        (click)="alternarColapso()">
+        <app-icon nombre="panel-left" [tamano]="18" />
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (grupo of grupos; track grupo.titulo) {
+        <div class="grupo">
+          <p class="grupo-titulo">{{ grupo.titulo }}</p>
+          @for (item of grupo.items; track item.etiqueta) {
+            @if (item.ruta) {
+              <a
+                class="nav-item"
+                [routerLink]="item.ruta"
+                routerLinkActive="activo"
+                ariaCurrentWhenActive="page"
+                [routerLinkActiveOptions]="{ exact: !!item.exacto }"
+                [attr.title]="colapsado() ? item.etiqueta : null">
+                <app-icon [nombre]="item.icono" [tamano]="19" />
+                <span class="etiqueta">{{ item.etiqueta }}</span>
+              </a>
+            } @else {
+              <span class="nav-item deshabilitado" aria-disabled="true" [attr.title]="colapsado() ? item.etiqueta + ' (próximamente)' : null">
+                <app-icon [nombre]="item.icono" [tamano]="19" />
+                <span class="etiqueta">{{ item.etiqueta }}</span>
+                <span class="chip-pronto">Pronto</span>
+              </span>
+            }
+          }
+        </div>
+      }
+    </nav>
+
+    <div class="sidebar-pie">
+      <a class="nav-item" routerLink="/centro-ayuda" [attr.title]="colapsado() ? 'Ayuda' : null">
+        <app-icon nombre="help-circle" [tamano]="19" />
+        <span class="etiqueta">Ayuda</span>
+      </a>
+
+      <div class="perfil-tarjeta">
+        <span class="avatar" aria-hidden="true">{{ iniciales }}</span>
+        <div class="perfil-info">
+          <span class="perfil-nombre">{{ nombre }}</span>
+          <span class="perfil-rol">Administrador</span>
+        </div>
+      </div>
+
+      <button type="button" class="nav-item cerrar-sesion" (click)="cerrarSesion()" [attr.title]="colapsado() ? 'Cerrar sesión' : null">
+        <app-icon nombre="log-out" [tamano]="19" />
+        <span class="etiqueta">Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  @if (menuMovil()) {
+    <div class="sidebar-fondo" (click)="menuMovil.set(false)"></div>
+  }
+
+  <div class="principal">
+    <header class="topbar">
+      <button
+        type="button"
+        class="icon-btn menu-movil"
+        aria-label="Abrir menú"
+        [attr.aria-expanded]="menuMovil()"
+        (click)="menuMovil.set(true)">
+        <app-icon nombre="menu" [tamano]="20" />
+      </button>
+
+      <div class="titulos">
+        <nav class="migas" aria-label="Ruta de navegación">
+          @for (miga of info().migas; track $index) {
+            @if ($index > 0) {
+              <app-icon nombre="chevron-right" [tamano]="12" />
+            }
+            <span [attr.aria-current]="$last ? 'page' : null">{{ miga }}</span>
+          }
+        </nav>
+        <p class="titulo-seccion">{{ info().titulo }}</p>
+      </div>
+
+      <form class="busqueda-global" role="search" (submit)="$event.preventDefault(); buscar()">
+        <app-icon nombre="search" [tamano]="16" />
+        <input
+          type="search"
+          class="input"
+          placeholder="Buscar en el panel"
+          aria-label="Buscar en el panel"
+          [value]="busqueda()"
+          (input)="busqueda.set($any($event.target).value)" />
+      </form>
+
+      <div class="panel-wrap" (click)="$event.stopPropagation()">
+        <button
+          type="button"
+          class="icon-btn campana"
+          aria-label="Notificaciones"
+          aria-haspopup="true"
+          [attr.aria-expanded]="panel() === 'notificaciones'"
+          (click)="alternarPanel('notificaciones', $event)">
+          <app-icon nombre="bell" [tamano]="20" />
+          @if (sinLeer()) {
+            <span class="punto" aria-hidden="true">{{ sinLeer() }}</span>
+          }
+        </button>
+
+        @if (panel() === 'notificaciones') {
+          <div class="panel panel-notif" role="region" aria-label="Notificaciones">
+            <div class="panel-cab panel-cab-notif">
+              <span>Notificaciones</span>
+              <button type="button" class="btn-texto" [disabled]="sinLeer() === 0" (click)="marcarTodasLeidas()">Marcar todas como leídas</button>
+            </div>
+            @for (nota of notificaciones(); track nota.id) {
+              <button type="button" class="notif" [class.sin-leer]="!nota.leida" (click)="abrirNotificacion(nota)">
+                <span class="notif-icono" [class.warning]="nota.nivel === 'warning'" [class.critico]="nota.nivel === 'critico'">
+                  <app-icon [nombre]="nota.nivel === 'info' ? 'info' : 'alert-triangle'" [tamano]="16" />
+                </span>
+                <span class="notif-cuerpo">
+                  <span class="notif-titulo">{{ nota.titulo }}</span>
+                  <span class="notif-detalle">{{ nota.detalle }}</span>
+                  <span class="notif-hora">{{ relativo(nota.fecha) }}</span>
+                </span>
+              </button>
+            } @empty {
+              <div class="panel-vacio">No tienes notificaciones.</div>
+            }
+            <a class="panel-pie" routerLink="/admin/notificaciones">Ver todas</a>
+          </div>
+        }
+      </div>
+
+      <div class="panel-wrap" (click)="$event.stopPropagation()">
+        <button
+          type="button"
+          class="perfil-boton"
+          aria-haspopup="menu"
+          [attr.aria-expanded]="panel() === 'perfil'"
+          (click)="alternarPanel('perfil', $event)">
+          <span class="avatar" aria-hidden="true">{{ iniciales }}</span>
+          <span class="perfil-nombre-top">{{ nombre }}</span>
+          <app-icon nombre="chevron-down" [tamano]="14" />
+        </button>
+
+        @if (panel() === 'perfil') {
+          <div class="panel panel-perfil" role="menu">
+            <div class="panel-cab panel-cab-perfil">
+              <strong>{{ nombre }}</strong>
+              <span>{{ usuario?.email }}</span>
+            </div>
+            <a role="menuitem" class="panel-item" routerLink="/admin/configuracion">
+              <app-icon nombre="settings" [tamano]="16" /> Configuración
+            </a>
+            <a role="menuitem" class="panel-item" routerLink="/perfil">
+              <app-icon nombre="user" [tamano]="16" /> Mi perfil
+            </a>
+            <a role="menuitem" class="panel-item" routerLink="/home">
+              <app-icon nombre="home" [tamano]="16" /> Ir al sitio
+            </a>
+            <button type="button" role="menuitem" class="panel-item" (click)="cerrarSesion()">
+              <app-icon nombre="log-out" [tamano]="16" /> Cerrar sesión
+            </button>
+          </div>
+        }
+      </div>
+    </header>
+
+    <main id="contenido" class="contenido" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
+
+  <app-toast-container />
+</div>

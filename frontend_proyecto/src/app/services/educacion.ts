@@ -38,7 +38,7 @@ export class EducacionService {
         {
           id: 'presupuesto-50-30-20',
           titulo: 'Presupuesto 50/30/20',
-          imagen: 'https://picsum.photos/seed/presupuesto1/400/220',
+          imagen: '/assets/cursos/presupuesto.svg',
           categoria: 'fundamentos',
           nivel: 'Básico',
           formato: 'Video',
@@ -74,7 +74,7 @@ export class EducacionService {
         {
           id: 'tarjetas-responsable',
           titulo: 'Usa bien tu tarjeta de crédito',
-          imagen: 'https://picsum.photos/seed/tarjetas/400/220',
+          imagen: '/assets/cursos/tarjetas.svg',
           categoria: 'credito',
           nivel: 'Básico',
           formato: 'Video',
@@ -110,7 +110,7 @@ export class EducacionService {
         {
           id: 'historial-desde-cero',
           titulo: 'Entiende tu puntaje de crédito',
-          imagen: 'https://picsum.photos/seed/historial/400/220',
+          imagen: '/assets/cursos/historial.svg',
           categoria: 'credito',
           nivel: 'Básico',
           formato: 'Video',
@@ -146,7 +146,7 @@ export class EducacionService {
         {
           id: 'salir-de-deudas',
           titulo: 'Sal de deudas con el método bola de nieve',
-          imagen: 'https://picsum.photos/seed/deudas/400/220',
+          imagen: '/assets/cursos/deudas.svg',
           categoria: 'deuda',
           nivel: 'Intermedio',
           formato: 'Artículo',
@@ -188,7 +188,7 @@ export class EducacionService {
         {
           id: 'intro-bolsa',
           titulo: 'Primeros pasos en la bolsa',
-          imagen: 'https://picsum.photos/seed/bolsa/400/220',
+          imagen: '/assets/cursos/bolsa.svg',
           categoria: 'fundamentos',
           nivel: 'Básico',
           formato: 'Video',
@@ -223,7 +223,7 @@ export class EducacionService {
         {
           id: 'intro-criptomonedas',
           titulo: 'Criptomonedas sin humo',
-          imagen: 'https://picsum.photos/seed/cripto/400/220',
+          imagen: '/assets/cursos/cripto.svg',
           categoria: 'fundamentos',
           nivel: 'Básico',
           formato: 'Video',
@@ -258,7 +258,7 @@ export class EducacionService {
         {
           id: 'gestion-portafolio',
           titulo: 'Arma y rebalancea tu portafolio',
-          imagen: 'https://picsum.photos/seed/portafolio/400/220',
+          imagen: '/assets/cursos/portafolio.svg',
           categoria: 'fundamentos',
           nivel: 'Avanzado',
           formato: 'Quiz',
