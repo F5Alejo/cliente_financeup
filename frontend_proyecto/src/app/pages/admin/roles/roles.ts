@@ -128,17 +128,11 @@ export class AdminRolesComponent {
     const rol = this.seleccionado();
     const resultado = this.rolesService.guardarPermisos(rol.id, this.borrador());
     if (!resultado.exito) {
-<<<<<<< HEAD
-      this.toastService.error(resultado.mensaje ?? 'No se pudieron guardar los permisos.');
-      return;
-    }
-=======
       console.log('[Admin Roles] No se pudieron guardar los permisos:', resultado.mensaje);
       this.toastService.error(resultado.mensaje ?? 'No se pudieron guardar los permisos.');
       return;
     }
     console.log('[Admin Roles] Permisos guardados:', { rol: rol.nombre, permisos: this.borrador() });
->>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
     this.actividad.registrar('Roles', 'Modificó permisos', `Rol ${rol.nombre}: ${this.borrador().length} de ${this.totalPermisos} permisos.`);
     this.toastService.success(`Permisos del rol ${rol.nombre} actualizados.`);
   }
@@ -176,18 +170,12 @@ export class AdminRolesComponent {
       : this.rolesService.crear(nombre, descripcion, copiarDe || undefined);
 
     if (!resultado.exito) {
-<<<<<<< HEAD
-=======
       console.log('[Admin Roles] No se pudo guardar el rol:', resultado.mensaje);
->>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
       this.errorModal.set(resultado.mensaje ?? 'No se pudo guardar el rol.');
       return;
     }
 
-<<<<<<< HEAD
-=======
     console.log(edicion ? '[Admin Roles] Rol actualizado:' : '[Admin Roles] Rol creado:', { nombre: nombre.trim(), descripcion });
->>>>>>> d14322712b50054b8100ea06fde8df2e5071388b
     this.actividad.registrar('Roles', edicion ? 'Editó un rol' : 'Creó un rol', nombre.trim());
     this.toastService.success(edicion ? 'Rol actualizado correctamente.' : 'Rol creado correctamente.');
     if (resultado.rol) this.seleccionar(resultado.rol);
