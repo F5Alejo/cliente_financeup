@@ -150,11 +150,33 @@
   color: var(--verde-hondo);
 }
 
-/* Visual: tarjeta ilustrada del hero */
+/* Visual: foto de compra con tarjeta y la tarjeta ilustrada encima */
 .portada__visual {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-start;
+  min-height: 300px;
+  border-radius: var(--r-xl);
+  background: var(--brand-deep);
+  box-shadow: var(--shadow-md);
+}
+
+.portada__foto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
+.portada__visual .tarjeta-visual {
+  position: relative;
+  max-width: 220px;
+  padding: 16px;
+  border-radius: 14px;
+  margin: 0 0 -28px -28px;
 }
 
 .tarjeta-visual {
@@ -356,6 +378,22 @@
 .producto__id {
   padding: 24px;
   border-right: 1px solid var(--linea);
+}
+
+/* Foto del producto a sangre; el logo del aliado se monta sobre su borde */
+.producto__foto {
+  display: block;
+  width: calc(100% + 48px);
+  height: auto;
+  aspect-ratio: 5 / 3;
+  margin: -24px -24px 0;
+  object-fit: cover;
+}
+
+.producto__foto + .marca {
+  position: relative;
+  margin-top: -23px;
+  box-shadow: 0 0 0 3px var(--papel);
 }
 
 .marca {

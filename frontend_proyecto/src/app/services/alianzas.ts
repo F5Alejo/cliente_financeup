@@ -22,6 +22,7 @@ export interface Oferta {
   meta: string;
   logoBg: string;
   logoText: string;
+  imagen?: string; // Foto de portada de la ficha del producto
   ctaPrimaria: string;
   ctaSecundaria?: string;
 
@@ -94,6 +95,7 @@ export class AlianzasService {
       meta: 'Vence en 7 días · 2.100 solicitudes · ID 8866',
       logoBg: 'linear-gradient(135deg, #0f3d22 0%, #0a5c28 100%)',
       logoText: 'BA',
+      imagen: 'assets/img/alianzas/libre-inversion.webp',
       ctaPrimaria: 'Solicitar crédito',
       ctaSecundaria: 'Conocer el producto',
       tipo: 'Bancos',
@@ -149,6 +151,7 @@ export class AlianzasService {
       meta: 'Recomendada · 8.450 solicitudes · ID 2288',
       logoBg: 'linear-gradient(135deg, #1db954 0%, #0a5c28 100%)',
       logoText: 'FL',
+      imagen: 'assets/img/alianzas/tarjeta-digital.webp',
       ctaPrimaria: 'Solicitar tarjeta',
       ctaSecundaria: 'Conocer el producto',
       tipo: 'Fintech',
@@ -204,6 +207,7 @@ export class AlianzasService {
       meta: 'Cupo abierto · 1.300 solicitudes · ID 6795',
       logoBg: 'linear-gradient(135deg, #3f4a44 0%, #1b2320 100%)',
       logoText: 'MC',
+      imagen: 'assets/img/alianzas/microcredito.webp',
       ctaPrimaria: 'Solicitar préstamo',
       ctaSecundaria: 'Conocer el producto',
       tipo: 'Fintech',
@@ -249,6 +253,7 @@ export class AlianzasService {
       meta: 'Vence en 21 días · 940 solicitudes · ID 4410',
       logoBg: 'linear-gradient(135deg, #0a5c28 0%, #17a34a 100%)',
       logoText: 'BV',
+      imagen: 'assets/img/alianzas/hipotecario.webp',
       ctaPrimaria: 'Solicitar crédito',
       ctaSecundaria: 'Conocer el producto',
       tipo: 'Bancos',
@@ -308,6 +313,7 @@ export class AlianzasService {
       meta: 'Vigente todo el año · 5.700 activaciones · ID 1902',
       logoBg: 'linear-gradient(135deg, #17a34a 0%, #0f3d22 100%)',
       logoText: 'TM',
+      imagen: 'assets/img/alianzas/compra-ahora.webp',
       ctaPrimaria: 'Activar el cupo',
       ctaSecundaria: 'Conocer el producto',
       tipo: 'Comercio',
@@ -353,6 +359,7 @@ export class AlianzasService {
       meta: 'Nuevo aliado · 620 aperturas · ID 7731',
       logoBg: 'linear-gradient(135deg, #6b7c72 0%, #1b2320 100%)',
       logoText: 'AP',
+      imagen: 'assets/img/alianzas/ahorro.webp',
       ctaPrimaria: 'Abrir la cuenta',
       ctaSecundaria: 'Conocer el producto',
       tipo: 'Comercio',

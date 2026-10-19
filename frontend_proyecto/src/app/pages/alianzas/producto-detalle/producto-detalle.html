@@ -9,6 +9,10 @@
       <span class="miga__actual">{{ producto.aliado }}</span>
     </nav>
 
+    @if (producto.imagen) {
+      <img class="ficha-producto__foto" [src]="producto.imagen" alt="" width="960" height="320" />
+    }
+
     <!-- Encabezado del producto -->
     <header class="cabecera">
       <div class="cabecera__copy">
