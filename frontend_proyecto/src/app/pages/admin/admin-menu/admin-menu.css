@@ -8,10 +8,8 @@
 .admin-menu {
     display: flex;
     gap: 2px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow-sm);
-    padding: 4px;
+    background: var(--surface-sunk);
+    padding: 3px;
     border-radius: var(--r-pill);
     width: fit-content;
     max-width: calc(100% - 32px);
@@ -29,20 +27,21 @@
     text-decoration: none;
     color: var(--ink-soft);
     font-size: 0.875rem;
-    font-weight: 600;
-    padding: 8px 16px;
+    font-weight: 500;
+    padding: 7px 16px;
     border-radius: var(--r-pill);
-    transition: background-color .18s ease, color .18s ease;
+    transition: background-color .25s var(--ease-out), color .25s var(--ease-out), box-shadow .25s var(--ease-out);
 }
 
 .admin-menu a:hover {
     color: var(--ink);
-    background: var(--surface-sunk);
 }
 
 .admin-menu a.activo {
-    background: var(--brand-deep);
-    color: #fff;
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.04);
 }
 
 /* "Resumen" (/admin) también coincide con las subrutas; si otra opción está
@@ -50,6 +49,8 @@
 .admin-menu:has(a.activo ~ a.activo) a.activo:first-child {
     background: transparent;
     color: var(--ink-soft);
+    font-weight: 500;
+    box-shadow: none;
 }
 
 .admin-menu a:focus-visible {

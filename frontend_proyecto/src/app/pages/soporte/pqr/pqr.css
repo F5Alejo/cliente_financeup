@@ -95,7 +95,7 @@
   padding: 18px 20px;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
 }
 
@@ -120,7 +120,7 @@
   margin: 0 0 24px;
   padding: 16px 20px;
   background: var(--espera-fondo);
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   font-size: 14px;
   line-height: 1.6;
   color: var(--espera-texto);
@@ -257,7 +257,7 @@
   padding: 26px;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
@@ -345,7 +345,7 @@
   margin: 0 0 20px;
   padding: 18px 20px;
   background: var(--verde-humo);
-  border-radius: 14px;
+  border-radius: var(--r-lg);
 }
 
 .pqr-card__data > div {
@@ -453,7 +453,7 @@
   justify-content: center;
   padding: 32px 28px;
   background: var(--verde-noche);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   color: #ffffff;
 }
 

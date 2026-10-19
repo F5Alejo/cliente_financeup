@@ -42,7 +42,7 @@ h1, h2, h3 {
 .card-resumen {
     background: white;
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: var(--r-lg);
     padding: 18px 20px;
     display: flex;
     flex-direction: column;
@@ -68,7 +68,7 @@ h1, h2, h3 {
 .panel {
     background: white;
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: var(--r-lg);
     padding: 22px;
     margin-bottom: 16px;
 }
@@ -180,7 +180,7 @@ td.negativo { color: var(--negative); font-weight: 700; }
 .btn-aprobar,
 .btn-rechazar {
     border: none;
-    border-radius: 8px;
+    border-radius: var(--r-pill);
     padding: 7px 12px;
     font-size: 12px;
     font-weight: 600;

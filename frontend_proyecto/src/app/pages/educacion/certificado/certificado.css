@@ -59,7 +59,7 @@
 .diploma {
   padding: 10px;
   background: linear-gradient(150deg, var(--verde) 0%, var(--brand-hover) 100%);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
 }
 
 .diploma__marco {
@@ -149,7 +149,7 @@
 
 .btn {
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--r-pill);
   padding: 13px 22px;
   font-family: inherit;
   font-size: 14px;

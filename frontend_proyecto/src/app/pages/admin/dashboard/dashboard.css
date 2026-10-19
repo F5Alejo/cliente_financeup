@@ -37,7 +37,7 @@ h1, h2, h3 {
 .card-resumen {
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: var(--r-lg);
     padding: 18px 20px;
     display: flex;
     flex-direction: column;

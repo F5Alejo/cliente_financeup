@@ -60,7 +60,7 @@
 .card-wrap{
   display:flex;
   background:var(--white);
-  border-radius:18px;
+  border-radius: var(--r-lg);
   overflow:hidden;
   box-shadow:0 10px 30px rgba(20,40,30,.08);
   border:1px solid var(--border);
@@ -212,7 +212,7 @@ label{
   color:#fff;
   border:none;
   padding:12px 14px;
-  border-radius:10px;
+  border-radius: var(--r-pill);
   font-size:14px;
   font-weight:600;
   cursor:pointer;
