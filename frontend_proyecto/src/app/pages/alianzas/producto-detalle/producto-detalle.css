@@ -1,15 +1,15 @@
 /* Ficha de producto: la misma superficie institucional de la vitrina. */
 
 :host {
-  --papel: #ffffff;
-  --fondo: #f4f6f5;
-  --linea: #dde5e0;
-  --linea-fuerte: #c3d2c9;
-  --texto: #16211c;
-  --texto-2: #5c7266;
+  --papel: var(--surface);
+  --fondo: var(--paper);
+  --linea: var(--line);
+  --linea-fuerte: var(--line-strong);
+  --texto: var(--ink);
+  --texto-2: var(--ink-soft);
   --verde: var(--green-primary);
-  --verde-hondo: #0a5c28;
-  --verde-humo: #eef7f1;
+  --verde-hondo: var(--brand-hover);
+  --verde-humo: var(--brand-wash);
   --mono: var(--font-family-base);
 
   display: block;
@@ -148,8 +148,7 @@
 
 .condiciones dt {
   font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--texto-2);
 }
 
@@ -433,8 +432,7 @@
   margin-bottom: 6px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--texto-2);
 }
 

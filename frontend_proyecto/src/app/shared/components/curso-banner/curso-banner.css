@@ -2,8 +2,8 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    background: linear-gradient(90deg, #f0fdfa, #ffffff);
-    border: 1px solid var(--green-line, #c6efd4);
+    background: linear-gradient(90deg, var(--brand-wash), var(--surface));
+    border: 1px solid var(--brand-wash-strong);
     border-radius: 14px;
     padding: 12px 16px;
     margin-bottom: 20px;
@@ -12,7 +12,7 @@
 }
 
 .curso-banner:hover {
-    box-shadow: var(--shadow-md, 0 6px 18px rgba(13, 31, 20, 0.08));
+    box-shadow: var(--shadow-md);
     transform: translateY(-1px);
 }
 
@@ -35,18 +35,18 @@
 .curso-banner-pregunta {
     font-size: 13.5px;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--ink);
 }
 
 .curso-banner-curso {
     font-size: 12px;
-    color: #64748b;
+    color: var(--ink-soft);
 }
 
 .curso-banner-cta {
     font-size: 12.5px;
     font-weight: 700;
-    color: var(--green-primary, #1db954);
+    color: var(--brand-strong);
     white-space: nowrap;
 }
 

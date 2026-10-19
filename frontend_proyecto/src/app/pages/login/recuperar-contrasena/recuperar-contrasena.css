@@ -1,16 +1,14 @@
 :host{
-  --green-50:#eef8ef;
-  --green-100:#e8f5e9;
-  --green-panel:#a8d5a8;
-  --green-panel-2:#93c893;
+  --green-50:var(--green-tint);
+  --green-100:var(--brand-wash);
+  --green-panel:#cdeeb0;
+  --green-panel-2:var(--lime);
   --green-500: var(--green-primary);
   --green-600: var(--green-dark);
   --green-700: var(--green-darkest);
-  --ink:#1f2a24;
-  --ink-soft:#5c6b62;
-  --border:#e3e8e5;
-  --bg:#eef1ef;
-  --white:#ffffff;
+  --border:var(--line);
+  --bg:var(--paper);
+  --white:var(--surface);
 
   display:flex;
   flex-direction:column;
@@ -143,7 +141,7 @@ h1{
 
 .radio{
   width:18px;height:18px;border-radius:50%;
-  border:2px solid #c9d3ce;
+  border:2px solid var(--line-strong);
   margin-left:auto;
   flex-shrink:0;
   position:relative;
@@ -198,7 +196,7 @@ label{
   content:"";
   width:14px;height:14px;
   border-radius:50%;
-  border:1.5px solid #c9d3ce;
+  border:1.5px solid var(--line-strong);
   flex-shrink:0;
 }
 
@@ -246,7 +244,7 @@ label{
 .panel-right p{
   font-size:12.5px;
   line-height:1.6;
-  color:#2e3f34;
+  color:var(--ink-body);
   margin:0 0 10px;
 }
 

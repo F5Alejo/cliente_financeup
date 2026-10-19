@@ -1,24 +1,24 @@
 /* Detalle del PQR: el caso en solo lectura, con estado y respuesta a un costado. */
 
 :host {
-  --lienzo: #f2f6f4;
-  --panel: #ffffff;
-  --tinta: #14231c;
-  --tinta-2: #5a6f65;
-  --borde: #e6ece9;
+  --lienzo: var(--paper);
+  --panel: var(--surface);
+  --tinta: var(--ink);
+  --tinta-2: var(--ink-soft);
+  --borde: var(--line);
   --verde: var(--green-primary);
-  --verde-hondo: #0a5c28;
-  --verde-noche: #0b3a22;
-  --verde-humo: #eef7f1;
+  --verde-hondo: var(--brand-hover);
+  --verde-noche: var(--brand-deep);
+  --verde-humo: var(--brand-wash);
 
-  --ok-fondo: #e8f5ec;
-  --ok-texto: #0a5c28;
-  --espera-fondo: #fdf3e0;
-  --espera-texto: #8a5a12;
-  --alto-fondo: #fdeeeb;
-  --alto-texto: #a3271f;
+  --ok-fondo: var(--positive-wash);
+  --ok-texto: var(--positive);
+  --espera-fondo: var(--warning-wash);
+  --espera-texto: var(--warning);
+  --alto-fondo: var(--negative-wash);
+  --alto-texto: var(--negative);
 
-  --sombra: 0 1px 2px rgba(20, 35, 28, 0.04), 0 4px 12px rgba(20, 35, 28, 0.05);
+  --sombra: var(--shadow-sm);
 
   display: block;
   width: 100%;
@@ -190,7 +190,7 @@
   width: 100%;
   padding: 14px 18px;
   background: var(--panel);
-  border: 1px solid #d8e3dd;
+  border: 1px solid var(--line-strong);
   border-radius: 14px;
   font-family: inherit;
   font-size: 14px;
@@ -241,7 +241,7 @@
 
 .btn-enviar:hover {
   background: var(--verde-noche);
-  box-shadow: 0 8px 22px rgba(10, 92, 40, 0.26);
+  box-shadow: 0 8px 22px rgba(15, 61, 34, 0.26);
 }
 
 /* ---------- Columna de estado ---------- */
@@ -295,7 +295,7 @@
 }
 
 .estado-badge.estado-gris {
-  background: #eef1f0;
+  background: var(--surface-sunk);
   color: var(--tinta-2);
 }
 

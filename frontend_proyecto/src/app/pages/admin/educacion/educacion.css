@@ -2,7 +2,12 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-body);
+}
+
+h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
 }
 
 .admin-educacion {
@@ -13,19 +18,19 @@
 
 .admin-educacion h1 {
     font-size: 24px;
-    color: #0f172a;
+    color: var(--ink);
     font-weight: 700;
 }
 
 .admin-sub {
-    color: #64748b;
+    color: var(--ink-soft);
     font-size: 13px;
     margin: 4px 0 24px;
 }
 
 .escuela-titulo {
     font-size: 15px;
-    color: #0f172a;
+    color: var(--ink);
     font-weight: 700;
     margin: 20px 0 10px;
 }
@@ -34,7 +39,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     background: white;
-    border: 1px solid #eef2f6;
+    border: 1px solid var(--line);
     border-radius: 18px;
     overflow: hidden;
 }
@@ -42,28 +47,31 @@ table {
 thead th {
     text-align: left;
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--ink-faint);
     font-weight: 600;
     padding: 14px 16px;
-    border-bottom: 1px solid #eef2f6;
+    border-bottom: 1px solid var(--line);
 }
 
 tbody td {
     padding: 12px 16px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--surface-sunk);
     font-size: 13.5px;
-    color: #334155;
+    color: var(--ink-body);
 }
 
 .acciones {
-    display: flex;
-    gap: 8px;
+    white-space: nowrap;
+}
+
+.acciones button + button {
+    margin-left: 8px;
 }
 
 .acciones button {
     border: none;
-    background: #f0fdfa;
-    color: #0f766e;
+    background: var(--brand-wash);
+    color: var(--brand-strong);
     padding: 6px 12px;
     border-radius: 8px;
     font-size: 12px;
@@ -72,13 +80,13 @@ tbody td {
 }
 
 .btn-eliminar {
-    background: #fef2f2 !important;
-    color: #dc2626 !important;
+    background: var(--negative-wash) !important;
+    color: var(--negative) !important;
 }
 
 .panel-form {
     background: white;
-    border: 1px solid #eef2f6;
+    border: 1px solid var(--line);
     border-radius: 18px;
     padding: 22px;
     margin-top: 24px;
@@ -86,7 +94,7 @@ tbody td {
 
 .panel-form h2 {
     font-size: 15px;
-    color: #0f172a;
+    color: var(--ink);
     font-weight: 700;
     margin-bottom: 16px;
 }
@@ -106,7 +114,7 @@ tbody td {
 .panel-form select {
     flex: 1;
     padding: 10px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--line-strong);
     border-radius: 8px;
     font-size: 13px;
 }
@@ -117,7 +125,7 @@ tbody td {
 }
 
 .btn-guardar {
-    background: #0f766e;
+    background: var(--brand-strong);
     color: white;
     border: none;
     padding: 10px 18px;
@@ -129,7 +137,7 @@ tbody td {
 
 .form-acciones button:not(.btn-guardar) {
     background: white;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--line-strong);
     padding: 10px 18px;
     border-radius: 8px;
     font-size: 13px;

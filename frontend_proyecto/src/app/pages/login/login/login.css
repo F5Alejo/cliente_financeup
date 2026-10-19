@@ -9,25 +9,21 @@
   --error: var(--color-error);
 
   /* Paleta propia de esta pantalla, derivada del verde de marca */
-  --forest: #123524;
-  --forest-deep: #0b2418;
-  --moss: #1f7a45;
-  --mint: #7be2a0;
-  --paper: #f6f8f6;
-  --line: #dfe4de;
-  --ink: #10241a;
-  --ink-soft: #5c6b62;
-  --white: #ffffff;
+  --forest: var(--brand-deep);
+  --forest-deep: var(--brand-night);
+  --moss: var(--brand-strong);
+  --mint: var(--lime);
+  --white: var(--surface);
 
-  /* Panel derecho: verde claro, como en la versión original */
-  --panel-1: #b8e0b8;
-  --panel-2: #a8d5a8;
-  --panel-3: #8fd08f;
-  --panel-ink: #12351b;
-  --panel-ink-soft: #33613b;
+  /* Panel derecho: lima del "Up" del logo */
+  --panel-1: #e4f8d2;
+  --panel-2: #cdeeb0;
+  --panel-3: var(--lime);
+  --panel-ink: var(--brand-deep);
+  --panel-ink-soft: #2f5a3c;
 
   display: block;
-  font-family: 'Inter', var(--font-family-base), sans-serif;
+  font-family: var(--font-body);
 }
 
 * {
@@ -49,8 +45,8 @@
   padding: 32px 24px;
 
   background:
-    radial-gradient(circle at 12% 8%, rgba(31, 122, 69, 0.07), transparent 32%),
-    radial-gradient(circle at 88% 92%, rgba(31, 122, 69, 0.06), transparent 32%),
+    radial-gradient(circle at 12% 8%, rgba(30, 122, 59, 0.07), transparent 32%),
+    radial-gradient(circle at 88% 92%, rgba(30, 122, 59, 0.06), transparent 32%),
     var(--paper);
 }
 
@@ -126,7 +122,7 @@
 }
 
 .stage-heading h1 {
-  font-family: 'Manrope', var(--font-family-base), sans-serif;
+  font-family: var(--font-display);
   font-size: 25px;
   font-weight: 800;
   letter-spacing: -0.4px;
@@ -153,9 +149,9 @@
 }
 
 .alert-error {
-  background: #fff1f2;
+  background: var(--negative-wash);
   color: var(--error);
-  border: 1px solid #fecdd3;
+  border: 1px solid #f1c6bc;
 }
 
 .verificacion-texto {
@@ -204,15 +200,15 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-group input::placeholder { color: #9aa79f; }
+.form-group input::placeholder { color: var(--ink-faint); }
 
-.form-group input:hover { border-color: #c2ccc0; }
+.form-group input:hover { border-color: var(--line-strong); }
 
 .form-group input:focus-visible,
 .form-group input:focus {
   outline: none;
   border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(31, 122, 69, 0.14);
+  box-shadow: 0 0 0 3px rgba(30, 122, 59, 0.14);
 }
 
 .code-input {
@@ -252,7 +248,7 @@
 
 .toggle-password svg { width: 18px; height: 18px; }
 
-.toggle-password:hover { background: #eef2ee; color: var(--forest); }
+.toggle-password:hover { background: var(--surface-sunk); color: var(--forest); }
 .toggle-password:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
 /* =========================================================
@@ -336,7 +332,7 @@
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.register-button:hover { background: #eef7f0; transform: translateY(-1px); }
+.register-button:hover { background: var(--brand-wash); transform: translateY(-1px); }
 .register-button:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
 
 /* =========================================================
@@ -515,7 +511,7 @@
 }
 
 .showcase-title {
-  font-family: 'Manrope', var(--font-family-base), sans-serif;
+  font-family: var(--font-display);
   font-size: 32px;
   font-weight: 800;
   line-height: 1.16;
@@ -527,7 +523,7 @@
 }
 
 .showcase-title-accent {
-  background: linear-gradient(100deg, var(--forest) 15%, var(--moss) 55%, #3fae66 85%);
+  background: linear-gradient(100deg, var(--forest) 15%, var(--moss) 55%, var(--brand) 85%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -739,7 +735,7 @@
   flex: 1;
   text-align: center;
 
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 10px;
   color: rgba(255,255,255,0.4);
 
@@ -767,7 +763,7 @@
   align-items: center;
   gap: 5px;
 
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -862,7 +858,7 @@
 }
 
 .demo-scene-pill {
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 700;
   color: var(--mint);
@@ -873,7 +869,7 @@
 
 .demo-total-figure {
   display: inline-flex;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 27px;
   font-weight: 800;
   color: var(--white);
@@ -947,7 +943,7 @@
   top: 6px;
   z-index: 3;
 
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 700;
   color: var(--forest-deep);
@@ -1054,7 +1050,7 @@
 }
 
 .demo-txn-amount {
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
   color: var(--mint);
@@ -1122,7 +1118,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 16px;
   font-weight: 800;
   color: var(--white);

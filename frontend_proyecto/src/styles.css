@@ -1,54 +1,129 @@
+/* =========================================================
+   FinanceUp · Sistema de diseño
+   Paleta derivada del logo: barras verdes que crecen y el
+   "Up" en lima. Todos los componentes leen estos tokens;
+   las variables locales de cada módulo solo los re-mapean.
+========================================================= */
 :root {
-  /* Verdes */
-  --green-primary: #1db954;
-  --green-dark: #0a5c28;
-  --green-darkest: #0d1f14;
-  --green-accent-text: #0f8c3b;
-  --green-soft: #dfeee3;
-  --green-mid: #17a34a;
-  --green-deep: #0f3d22;
-  --green-tint: #f0faf4;
-  --green-line: #c6efd4;
+  /* Tinta (texto) */
+  --ink: #10261a;
+  --ink-body: #34453b;
+  --ink-soft: #566a5e;
+  --ink-faint: #83948a;
 
-  /* Grises */
-  --gray-50: #f7f9f8;
-  --gray-100: #eef1f0;
-  --gray-200: #e2e8e5;
-  --gray-300: #cbd5d0;
-  --gray-500: #6b7c72;
-  --gray-700: #3f4a44;
-  --gray-900: #1b2320;
+  /* Superficies */
+  --paper: #f3f6f0;
+  --surface: #ffffff;
+  --surface-sunk: #ebf0e8;
+  --line: #dce4d9;
+  --line-strong: #c3cfc0;
 
-  /* Alias usados en los componentes */
-  --text-muted: var(--gray-500);
-  --text-body: var(--gray-700);
-  --text-soft: var(--gray-500);
-  --border-soft: #e2ede6;
-  --bg-panel: #ffffff;
-  --bg-page: var(--gray-100);
-  --bg-search: #f4faf6;
-  --bg-ahorro: #e8f8ee;
-  --color-error: #dc3545;
-  --color-info: var(--green-accent-text);
-  --font-family-base: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  /* Marca */
+  --brand: #2e9b4e;          /* verde del logo: superficies grandes, iconos */
+  --brand-strong: #1e7a3b;   /* texto, enlaces y botones (5.4:1 sobre blanco) */
+  --brand-hover: #176431;
+  --brand-deep: #0f3d22;     /* paneles oscuros */
+  --brand-night: #0a2a17;
+  --brand-wash: #e5f2e6;
+  --brand-wash-strong: #cde6d0;
+  --lime: #9be15d;           /* el "Up" del logo: solo sobre bosque o como relleno con tinta */
+  --lime-soft: #d9f5c0;
 
-  /* Sombras */
-  --shadow-sm: 0 1px 2px rgba(13, 31, 20, 0.06);
-  --shadow-md: 0 6px 18px rgba(13, 31, 20, 0.08);
-  --shadow-lg: 0 18px 40px rgba(13, 31, 20, 0.14);
+  /* Semánticos */
+  --negative: #b93a26;
+  --negative-wash: #fbeae6;
+  --warning: #97600f;
+  --warning-wash: #fbf1dd;
+  --positive: var(--brand-strong);
+  --positive-wash: var(--brand-wash);
+
+  /* Tipografía */
+  --font-display: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: clamp(2.25rem, 1.6rem + 2.6vw, 3.5rem);
+
+  /* Radios: la jerarquía la marca el tamaño del objeto */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* Sombras teñidas de bosque */
+  --shadow-sm: 0 1px 2px rgba(16, 38, 26, 0.06);
+  --shadow-md: 0 1px 2px rgba(16, 38, 26, 0.05), 0 8px 20px -6px rgba(16, 38, 26, 0.12);
+  --shadow-lg: 0 2px 4px rgba(16, 38, 26, 0.05), 0 24px 48px -12px rgba(16, 38, 26, 0.22);
+
+  --focus-ring: 0 0 0 3px var(--surface), 0 0 0 5px var(--brand-strong);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---- Alias heredados (los usan los componentes existentes) ---- */
+  --green-primary: var(--brand-strong);
+  --green-dark: var(--brand-hover);
+  --green-darkest: var(--ink);
+  --green-accent-text: var(--brand-strong);
+  --green-soft: var(--brand-wash);
+  --green-mid: var(--brand);
+  --green-deep: var(--brand-deep);
+  --green-tint: #f2f8f1;
+  --green-line: var(--brand-wash-strong);
+
+  --gray-50: #f8faf7;
+  --gray-100: var(--paper);
+  --gray-200: var(--line);
+  --gray-300: var(--line-strong);
+  --gray-500: var(--ink-soft);
+  --gray-700: var(--ink-body);
+  --gray-900: var(--ink);
+
+  --text-muted: var(--ink-soft);
+  --text-body: var(--ink-body);
+  --text-soft: var(--ink-soft);
+  --border-soft: var(--line);
+  --bg-panel: var(--surface);
+  --bg-page: var(--paper);
+  --bg-search: #f2f8f1;
+  --bg-ahorro: var(--brand-wash);
+  --color-error: var(--negative);
+  --color-info: var(--brand-strong);
+  --font-family-base: var(--font-body);
 }
 
-html, body {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
   margin: 0;
   min-height: 100vh;
   height: 100%;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
 body {
   display: block;
-  font-family: var(--font-family-base);
-  background: var(--bg-page);
-  color: var(--green-darkest);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.55;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
 }
 
 app-root {
@@ -56,11 +131,48 @@ app-root {
   min-height: 100vh;
 }
 
+/* Títulos: los componentes que no fijan su propia fuente heredan la de display */
+:where(h1, h2, h3) {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+:where(p) {
+  text-wrap: pretty;
+}
+
+:where(button, input, select, textarea) {
+  font: inherit;
+  color: inherit;
+}
+
+:where(img, svg) {
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--lime-soft);
+  color: var(--ink);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+}
+
+::placeholder {
+  color: var(--ink-faint);
+  opacity: 1;
+}
+
 /* Animaciones compartidas por los componentes */
 @keyframes fu-fade-up {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -86,6 +198,15 @@ app-root {
   }
 }
 
+@keyframes fu-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -93,5 +214,6 @@ app-root {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
