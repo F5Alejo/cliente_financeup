@@ -1,0 +1,6 @@
+<div [class]="'tarjeta tarjeta-' + variante + ' tarjeta-relleno-' + relleno">
+  @if (titulo) {
+    <h3 class="tarjeta-titulo">{{ titulo }}</h3>
+  }
+  <ng-content />
+</div>

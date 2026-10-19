@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { NotificacionesService } from './notificaciones';
 
 export type EstadoPqr = 'En revisión' | 'Resuelto' | 'Rechazado' | 'Radicado';
 export type PrioridadPqr = 'Alta' | 'Media' | 'Baja';
@@ -98,8 +99,17 @@ export class PqrService {
     },
   ];
 
+  private notificaciones = inject(NotificacionesService);
+
   agregarPqr(pqr: Pqr): void {
     this.pqrs.unshift(pqr);
+    this.notificaciones.agregar({
+      categoria: 'pqr',
+      titulo: 'Nueva PQR recibida',
+      detalle: `${pqr.titulo} · N.º ${pqr.numero}.`,
+      ruta: '/admin/pqr',
+      nivel: pqr.prioridad === 'Alta' ? 'warning' : 'info',
+    });
   }
 
   cambiarEstado(numero: string, nuevoEstado: string): void {

@@ -1,34 +1,151 @@
-<app-admin-menu></app-admin-menu>
-<div class="admin-pqr">
-    <h1>PQR</h1>
-    <p class="admin-sub">Cambia el estado de los tickets o elimínalos.</p>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Título</th>
-                <th>Número</th>
-                <th>Estado</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (pqr of pqrService.pqrs; track pqr.numero) {
-                <tr>
-                    <td>{{ pqr.titulo }}</td>
-                    <td>{{ pqr.numero }}</td>
-                    <td>
-                        <select [value]="pqr.estado" (change)="cambiarEstado(pqr.numero, $event)">
-                            @for (estado of estados; track estado) {
-                                <option [value]="estado">{{ estado }}</option>
-                            }
-                        </select>
-                    </td>
-                    <td class="acciones">
-                        <button type="button" class="btn-eliminar" (click)="eliminarPqr(pqr.numero)">Eliminar</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="page-head">
+  <div>
+    <h1 class="page-title">PQR / Soporte</h1>
+    <p class="page-sub">Gestiona las peticiones, quejas y reclamos que envían los usuarios.</p>
+  </div>
 </div>
+
+<section class="kpi-grid" aria-label="Resumen de PQR">
+  <app-kpi etiqueta="Total de PQR" [valor]="total()" icono="life-buoy" tono="neutral" pie="recibidas" [cargando]="cargando()" />
+  <app-kpi
+    etiqueta="Pendientes"
+    [valor]="pendientes()"
+    icono="clock"
+    tono="warning"
+    [pie]="altaPrioridad() + ' con prioridad alta'"
+    [cargando]="cargando()" />
+  <app-kpi etiqueta="Resueltas" [valor]="resueltos()" icono="check-circle" pie="cerradas con respuesta" [cargando]="cargando()" />
+  <app-kpi etiqueta="Rechazadas" [valor]="rechazados()" icono="ban" tono="neutral" pie="sin trámite" [cargando]="cargando()" />
+</section>
+
+<section class="card" aria-label="Listado de PQR">
+  <div class="toolbar">
+    <div class="search">
+      <app-icon nombre="search" [tamano]="16" />
+      <input
+        type="search"
+        class="input"
+        placeholder="Buscar por título, número, categoría o usuario"
+        aria-label="Buscar PQR"
+        [ngModel]="busqueda()"
+        (ngModelChange)="filtrar(busqueda, $event)" />
+    </div>
+    <select class="input select" aria-label="Filtrar por prioridad" [ngModel]="filtroPrioridad()" (ngModelChange)="filtrar(filtroPrioridad, $event)">
+      <option value="">Todas las prioridades</option>
+      <option value="Alta">Alta</option>
+      <option value="Media">Media</option>
+      <option value="Baja">Baja</option>
+    </select>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Filtrar por estado">
+    @for (p of pestanas; track p.etiqueta) {
+      <button type="button" role="tab" class="tab" [attr.aria-selected]="pestana() === p.valor" (click)="filtrar(pestana, p.valor)">
+        {{ p.etiqueta }} <span class="count">{{ conteos()[p.valor] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <caption class="sr-only">PQR recibidas</caption>
+      <thead>
+        <tr>
+          <th scope="col">PQR</th>
+          <th scope="col" class="hide-md">Tipo</th>
+          <th scope="col">Prioridad</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="hide-lg">Fecha</th>
+          <th scope="col" class="col-actions"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (cargando()) {
+          @for (n of esqueletos; track n) {
+            <tr aria-hidden="true">
+              <td><span class="skeleton sk-w160"></span></td>
+              <td class="hide-md"><span class="skeleton sk-w80"></span></td>
+              <td><span class="skeleton sk-w80"></span></td>
+              <td><span class="skeleton sk-w80"></span></td>
+              <td class="hide-lg"><span class="skeleton sk-w80"></span></td>
+              <td></td>
+            </tr>
+          }
+        } @else {
+          @for (fila of filas(); track fila.pqr.numero) {
+            @let p = fila.pqr;
+            <tr>
+              <td>
+                <span class="cell-strong">{{ p.titulo }}</span>
+                <span class="cell-sub">N.º {{ p.numero }} · {{ p.categoria }}</span>
+              </td>
+              <td class="hide-md">{{ p.tipo }}</td>
+              <td><span [class]="'badge ' + clasePrioridad[p.prioridad]">{{ p.prioridad }}</span></td>
+              <td><span [class]="'badge ' + claseEstado[p.estado]">{{ p.estado }}</span></td>
+              <td class="hide-lg">{{ p.fechaCreacion }}</td>
+              <td class="col-actions">
+                <app-row-menu [acciones]="fila.acciones" [etiqueta]="'Acciones de la PQR ' + p.numero" (seleccion)="alElegirAccion($event, p)" />
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+
+    @if (!cargando() && filtrados().length === 0) {
+      <app-estado-vacio titulo="No hay PQR que coincidan con estos filtros." texto="Prueba con otra búsqueda o cambia de pestaña.">
+        <button type="button" class="btn btn-secondary" (click)="filtrar(busqueda, ''); filtrar(filtroPrioridad, ''); filtrar(pestana, '')">Limpiar filtros</button>
+      </app-estado-vacio>
+    }
+  </div>
+
+  @if (!cargando() && filtrados().length > 0) {
+    <app-paginacion
+      [desde]="paginador.rango().desde"
+      [hasta]="paginador.rango().hasta"
+      [total]="filtrados().length"
+      [pagina]="paginador.paginaActual()"
+      [totalPaginas]="paginador.totalPaginas()"
+      unidad="PQR"
+      (cambiar)="paginador.cambiar($event)" />
+  }
+</section>
+
+@if (modal(); as m) {
+  @if (m.tipo === 'detalle') {
+    <app-modal [titulo]="m.pqr.titulo" [subtitulo]="'N.º ' + m.pqr.numero + ' · ' + m.pqr.categoria" ancho="lg" (cerrar)="cerrarModal()">
+      <dl class="detail-list">
+        <div><dt>Solicitante</dt><dd>{{ m.pqr.usuario }}</dd></div>
+        <div><dt>Tipo</dt><dd>{{ m.pqr.tipo }}</dd></div>
+        <div><dt>Prioridad</dt><dd><span [class]="'badge ' + clasePrioridad[m.pqr.prioridad]">{{ m.pqr.prioridad }}</span></dd></div>
+        <div><dt>Asesor asignado</dt><dd>{{ m.pqr.asesor }}</dd></div>
+        <div><dt>Fecha de creación</dt><dd>{{ m.pqr.fechaCreacion }}</dd></div>
+        <div><dt>Última actualización</dt><dd>{{ m.pqr.ultimaActualizacion }}</dd></div>
+        <div class="full"><dt>Descripción</dt><dd>{{ m.pqr.descripcion }}</dd></div>
+        <div class="full"><dt>Respuesta enviada</dt><dd>{{ m.pqr.mensajeRespuesta }}</dd></div>
+        @if (m.pqr.archivosAdjuntos.length) {
+          <div class="full"><dt>Adjuntos</dt><dd>{{ m.pqr.archivosAdjuntos.join(', ') }}</dd></div>
+        }
+      </dl>
+      <div class="field estado-campo">
+        <label for="pqr-estado">Estado de la PQR</label>
+        <select id="pqr-estado" class="input" [value]="m.pqr.estado" (change)="cambiarEstadoDesdeDetalle($event)">
+          @for (estado of estados; track estado) {
+            <option [value]="estado">{{ estado }}</option>
+          }
+        </select>
+      </div>
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cerrar</button>
+    </app-modal>
+  } @else {
+    <app-modal
+      titulo="Eliminar PQR"
+      [subtitulo]="'Se eliminará la PQR «' + m.pqr.titulo + '» (N.º ' + m.pqr.numero + '). Esta acción no se puede deshacer.'"
+      ancho="sm"
+      [alertdialog]="true"
+      (cerrar)="cerrarModal()">
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar PQR</button>
+    </app-modal>
+  }
+}

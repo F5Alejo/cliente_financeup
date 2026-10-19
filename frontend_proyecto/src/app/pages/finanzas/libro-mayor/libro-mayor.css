@@ -233,7 +233,6 @@ h1, h2, h3 {
     border-radius: 10px;
     padding: 9px 12px;
     font-size: 13.5px;
-    outline: none;
     transition: .2s;
 }
 
@@ -304,7 +303,6 @@ h1, h2, h3 {
     border-radius: 10px;
     padding: 9px 12px;
     font-size: 13px;
-    outline: none;
     width: 100%;
 }
 

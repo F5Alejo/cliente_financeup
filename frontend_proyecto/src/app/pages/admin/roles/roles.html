@@ -1,0 +1,161 @@
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Roles y permisos</h1>
+    <p class="page-sub">Define qué puede hacer cada rol dentro del panel de administración.</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" (click)="abrirFormulario()">
+      <app-icon nombre="plus" [tamano]="16" /> Nuevo rol
+    </button>
+  </div>
+</div>
+
+<div class="roles-layout">
+  <section class="card lista-roles" aria-labelledby="titulo-roles">
+    <div class="card-head">
+      <h2 class="card-title" id="titulo-roles">Roles</h2>
+    </div>
+    <ul class="roles">
+      @if (cargando()) {
+        @for (n of esqueletos; track n) {
+          <li class="rol-esqueleto" aria-hidden="true"><span class="skeleton sk-w120"></span><span class="skeleton sk-w160"></span></li>
+        }
+      } @else {
+        @for (fila of filas(); track fila.rol.id) {
+          <li class="rol-fila" [class.activo]="fila.rol.id === seleccionado().id">
+            <button type="button" class="rol-boton" [attr.aria-pressed]="fila.rol.id === seleccionado().id" (click)="seleccionar(fila.rol)">
+              <span class="rol-nombre">
+                {{ fila.rol.nombre }}
+                @if (fila.rol.sistema) {
+                  <span class="badge plain">Sistema</span>
+                }
+              </span>
+              <span class="cell-sub">{{ fila.usuarios }} {{ fila.usuarios === 1 ? 'usuario' : 'usuarios' }} · {{ fila.rol.permisos.length }} de {{ totalPermisos }} permisos</span>
+            </button>
+            <app-row-menu [acciones]="fila.acciones" [etiqueta]="'Acciones del rol ' + fila.rol.nombre" (seleccion)="alElegirAccion($event, fila.rol)" />
+          </li>
+        }
+      }
+    </ul>
+  </section>
+
+  <section class="card matriz" aria-labelledby="titulo-matriz">
+    <div class="card-head">
+      <div>
+        <h2 class="card-title" id="titulo-matriz">Permisos del rol {{ seleccionado().nombre }}</h2>
+        <p class="card-hint">{{ seleccionado().descripcion }}</p>
+      </div>
+      <span class="badge plain" [class.badge-activo]="borrador().length === totalPermisos">{{ borrador().length }} de {{ totalPermisos }}</span>
+    </div>
+
+    @if (seleccionado().bloqueado) {
+      <div class="card-body sin-relleno-inferior">
+        <p class="notice">El rol Administrador conserva todos los permisos y no se puede modificar, para evitar perder el acceso al panel.</p>
+      </div>
+    }
+
+    <div class="table-wrap matriz-tabla">
+      <table class="table">
+        <caption class="sr-only">Matriz de permisos del rol {{ seleccionado().nombre }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Módulo</th>
+            <th scope="col">Permisos</th>
+            <th scope="col" class="col-todos">Todos</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (modulo of modulos; track modulo.id) {
+            <tr>
+              <th scope="row" class="modulo">{{ modulo.nombre }}</th>
+              <td>
+                <div class="permisos" role="group" [attr.aria-label]="'Permisos de ' + modulo.nombre">
+                  @for (accion of modulo.acciones; track accion.id) {
+                    <label class="permiso" [class.marcado]="tiene(modulo.id + '.' + accion.id)" [class.bloqueado]="seleccionado().bloqueado">
+                      <input
+                        type="checkbox"
+                        [checked]="tiene(modulo.id + '.' + accion.id)"
+                        [disabled]="seleccionado().bloqueado"
+                        (change)="alternar(modulo.id + '.' + accion.id)" />
+                      {{ accion.etiqueta }}
+                    </label>
+                  }
+                </div>
+              </td>
+              <td class="col-todos">
+                <label class="toggle-line">
+                  <input
+                    type="checkbox"
+                    [checked]="moduloCompleto(modulo.id)"
+                    [disabled]="seleccionado().bloqueado"
+                    [attr.aria-label]="'Todos los permisos de ' + modulo.nombre"
+                    (change)="alternarModulo(modulo.id)" />
+                </label>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (sucio()) {
+      <div class="barra-cambios" role="status">
+        <span>Tienes cambios sin guardar.</span>
+        <div class="barra-acciones">
+          <button type="button" class="btn btn-secondary" (click)="descartar()">Descartar</button>
+          <button type="button" class="btn btn-primary" (click)="guardarPermisos()">Guardar cambios</button>
+        </div>
+      </div>
+    }
+  </section>
+</div>
+
+@if (modal(); as m) {
+  @if (m.tipo === 'formulario') {
+    <app-modal
+      [titulo]="m.rol ? 'Editar rol' : 'Nuevo rol'"
+      [subtitulo]="m.rol ? 'Cambia el nombre y la descripción del rol.' : 'Crea un rol y ajusta sus permisos después.'"
+      [fondoFijo]="true"
+      (cerrar)="cerrarModal()">
+      <form id="form-rol" class="form-grid" [formGroup]="formulario" novalidate (ngSubmit)="guardarFormulario()">
+        <div class="field full">
+          <label for="rol-nombre">Nombre del rol</label>
+          <input id="rol-nombre" class="input" type="text" formControlName="nombre" placeholder="Ej. Supervisor" autocomplete="off" />
+        </div>
+        <div class="field full">
+          <label for="rol-desc">Descripción <span class="opcional">(opcional)</span></label>
+          <textarea id="rol-desc" class="input" rows="2" formControlName="descripcion"></textarea>
+        </div>
+        @if (!m.rol) {
+          <div class="field full">
+            <label for="rol-base">Copiar permisos de <span class="opcional">(opcional)</span></label>
+            <select id="rol-base" class="input" formControlName="copiarDe">
+              <option value="">Empezar sin permisos</option>
+              @for (rol of roles(); track rol.id) {
+                <option [value]="rol.id">{{ rol.nombre }}</option>
+              }
+            </select>
+          </div>
+        }
+      </form>
+      @if (errorModal()) {
+        <p class="form-error" role="alert">{{ errorModal() }}</p>
+      }
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="submit" form="form-rol" class="btn btn-primary">{{ m.rol ? 'Guardar cambios' : 'Crear rol' }}</button>
+    </app-modal>
+  } @else if (m.rol; as rol) {
+    <app-modal
+      titulo="Eliminar rol"
+      [subtitulo]="'Se eliminará el rol «' + rol.nombre + '». Esta acción no se puede deshacer.'"
+      ancho="sm"
+      [alertdialog]="true"
+      (cerrar)="cerrarModal()">
+      @if (errorModal()) {
+        <p class="form-error" role="alert">{{ errorModal() }}</p>
+      }
+      <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar rol</button>
+    </app-modal>
+  }
+}

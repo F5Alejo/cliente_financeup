@@ -1,0 +1,32 @@
+<div class="modal-fondo" (mousedown)="alPulsarFondo($event)">
+  <div
+    #panel
+    class="modal"
+    [class.modal-sm]="ancho() === 'sm'"
+    [class.modal-lg]="ancho() === 'lg'"
+    [attr.role]="alertdialog() ? 'alertdialog' : 'dialog'"
+    aria-modal="true"
+    [attr.aria-labelledby]="idTitulo"
+    tabindex="-1"
+    (keydown)="alPulsarTecla($event)">
+    <header class="modal-cabecera">
+      <div>
+        <h2 class="modal-titulo" [id]="idTitulo">{{ titulo() }}</h2>
+        @if (subtitulo()) {
+          <p class="modal-subtitulo">{{ subtitulo() }}</p>
+        }
+      </div>
+      <button type="button" class="modal-cerrar" aria-label="Cerrar" (click)="cerrar.emit()">
+        <app-icon nombre="x" [tamano]="18" />
+      </button>
+    </header>
+
+    <div class="modal-cuerpo">
+      <ng-content />
+    </div>
+
+    <footer class="modal-pie">
+      <ng-content select="[pie]" />
+    </footer>
+  </div>
+</div>

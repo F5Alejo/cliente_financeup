@@ -1,0 +1,60 @@
+:host {
+  display: block;
+}
+
+.esqueleto-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+}
+
+.esqueleto {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--neutro-200) 0%,
+    var(--neutro-100) 50%,
+    var(--neutro-200) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radio-sm);
+  animation: esqueleto-brillo 1400ms ease-in-out infinite;
+}
+
+.esqueleto-texto {
+  height: 14px;
+}
+
+/* La última línea sale más corta para que parezca un párrafo real. */
+.esqueleto-texto:last-child:not(:only-child) {
+  width: 65%;
+}
+
+.esqueleto-titulo {
+  height: 26px;
+  width: 45%;
+  border-radius: var(--radio-xs);
+}
+
+.esqueleto-bloque {
+  height: 160px;
+  border-radius: var(--radio-lg);
+}
+
+.esqueleto-circulo {
+  height: 44px;
+  width: 44px;
+  border-radius: var(--radio-full);
+}
+
+@keyframes esqueleto-brillo {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto {
+    animation: none;
+    background: var(--neutro-200);
+  }
+}

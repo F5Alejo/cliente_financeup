@@ -1,28 +1,151 @@
-<app-admin-menu></app-admin-menu>
-<div class="admin-dashboard">
-    <h1>Panel de administración</h1>
-    <p class="admin-sub">Resumen del contenido de la plataforma.</p>
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Resumen de la actividad y el estado de la plataforma.</p>
+  </div>
+</div>
 
-    <section class="cards-resumen">
-        <div class="card-resumen">
-            <span class="card-icono">🤝</span>
-            <span class="card-titulo">Ofertas de alianzas</span>
-            <span class="card-valor">{{ alianzasService.ofertas.length }}</span>
+<section class="kpi-grid kpi-seis" aria-label="Indicadores principales">
+  <app-kpi
+    etiqueta="Usuarios registrados"
+    [valor]="totalUsuarios()"
+    icono="users"
+    [tendencia]="tendenciaRegistros()"
+    pie="nuevos en 30 días"
+    [cargando]="cargando()" />
+  <app-kpi
+    etiqueta="Usuarios activos"
+    [valor]="activos()"
+    icono="check-circle"
+    [pie]="porcentajeActivos() + '% del total'"
+    [cargando]="cargando()" />
+  <app-kpi
+    etiqueta="Usuarios bloqueados"
+    [valor]="bloqueados()"
+    icono="ban"
+    tono="neutral"
+    [pie]="suspendidos() + ' suspendidos · ' + pendientes() + ' pendientes'"
+    [cargando]="cargando()" />
+  <app-kpi
+    etiqueta="PQR pendientes"
+    [valor]="pqrPendientes.length"
+    icono="life-buoy"
+    tono="warning"
+    [pie]="pqrAlta + ' con prioridad alta'"
+    [cargando]="cargando()" />
+  <app-kpi
+    etiqueta="Alianzas activas"
+    [valor]="alianzasActivas"
+    icono="briefcase"
+    tono="neutral"
+    [pie]="solicitudesEnEstudio + ' solicitudes en estudio'"
+    [cargando]="cargando()" />
+  <app-kpi
+    etiqueta="Cursos publicados"
+    [valor]="cursosPublicados"
+    icono="graduation-cap"
+    tono="neutral"
+    [pie]="'en ' + escuelas + ' escuelas'"
+    [cargando]="cargando()" />
+</section>
+
+<div class="paneles">
+  <section class="card" aria-labelledby="titulo-actividad">
+    <div class="card-head">
+      <div>
+        <h2 class="card-title" id="titulo-actividad">Actividad reciente</h2>
+        <p class="card-hint">Lo último que ocurrió en la plataforma.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      @if (cargando()) {
+        @for (n of esqueletos; track n) {
+          <div class="evento-esqueleto"><span class="skeleton skeleton-circle"></span><span class="skeleton sk-linea"></span></div>
+        }
+      } @else if (eventos().length === 0) {
+        <div class="vacio-interno">
+          <span class="empty-icon"><app-icon nombre="activity" [tamano]="24" /></span>
+          <p class="empty-title">Aún no hay actividad reciente.</p>
+          <p class="empty-text">Cuando haya registros o cambios en la plataforma, aparecerán aquí.</p>
         </div>
-        <div class="card-resumen">
-            <span class="card-icono">🎓</span>
-            <span class="card-titulo">Cursos de educación</span>
-            <span class="card-valor">{{ totalCursos }}</span>
+      } @else {
+        <ol class="linea">
+          @for (evento of eventos(); track $index) {
+            <li class="evento">
+              <span class="evento-icono" [class]="'evento-icono ' + evento.tono" aria-hidden="true">
+                <app-icon [nombre]="evento.icono" [tamano]="16" />
+              </span>
+              <div class="evento-texto">
+                <span class="cell-strong">{{ evento.titulo }}</span>
+                <span class="cell-sub">{{ evento.detalle }}</span>
+              </div>
+              <time class="evento-hora" [attr.datetime]="evento.fecha" [attr.title]="completa(evento.fecha)">{{ relativo(evento.fecha) }}</time>
+            </li>
+          }
+        </ol>
+      }
+    </div>
+  </section>
+
+  <div class="columna">
+    <section class="card" aria-labelledby="titulo-alertas">
+      <div class="card-head">
+        <div>
+          <h2 class="card-title" id="titulo-alertas">Alertas del sistema</h2>
+          <p class="card-hint">Puntos que requieren tu atención.</p>
         </div>
-        <div class="card-resumen">
-            <span class="card-icono">💰</span>
-            <span class="card-titulo">Movimientos</span>
-            <span class="card-valor">{{ finanzasService.movimientos.length }}</span>
-        </div>
-        <div class="card-resumen">
-            <span class="card-icono">📨</span>
-            <span class="card-titulo">PQR</span>
-            <span class="card-valor">{{ pqrService.pqrs.length }}</span>
-        </div>
+      </div>
+      <div class="card-body">
+        @if (cargando()) {
+          <span class="skeleton sk-bloque"></span>
+        } @else if (alertas().length === 0) {
+          <div class="vacio-interno">
+            <span class="empty-icon"><app-icon nombre="check-circle" [tamano]="24" /></span>
+            <p class="empty-title">Sin alertas activas.</p>
+            <p class="empty-text">Todo está al día por ahora.</p>
+          </div>
+        } @else {
+          <ul class="alertas">
+            @for (alerta of alertas(); track alerta.titulo) {
+              <li>
+                <a class="alerta" [routerLink]="alerta.ruta">
+                  <span class="alerta-icono" [class.warning]="alerta.nivel === 'warning'" aria-hidden="true">
+                    <app-icon [nombre]="alerta.nivel === 'warning' ? 'alert-triangle' : 'info'" [tamano]="16" />
+                  </span>
+                  <span class="alerta-texto">
+                    <span class="cell-strong">{{ alerta.titulo }}</span>
+                    <span class="cell-sub">{{ alerta.detalle }}</span>
+                  </span>
+                  <app-icon nombre="chevron-right" [tamano]="16" />
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </div>
     </section>
+
+    <section class="card" aria-labelledby="titulo-acciones">
+      <div class="card-head">
+        <h2 class="card-title" id="titulo-acciones">Acciones rápidas</h2>
+      </div>
+      <div class="card-body acciones-rapidas">
+        <button type="button" class="btn btn-primary" (click)="crear('/admin/usuarios')">
+          <app-icon nombre="plus" [tamano]="16" /> Nuevo usuario
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="crear('/admin/alianzas')">
+          <app-icon nombre="briefcase" [tamano]="16" /> Crear alianza
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="crear('/admin/educacion')">
+          <app-icon nombre="graduation-cap" [tamano]="16" /> Crear curso
+        </button>
+        <a class="btn btn-secondary" routerLink="/admin/pqr">
+          <app-icon nombre="life-buoy" [tamano]="16" /> Ver PQR
+        </a>
+        <button type="button" class="btn btn-secondary" disabled title="Disponible próximamente">
+          <app-icon nombre="bar-chart" [tamano]="16" /> Generar reporte
+        </button>
+      </div>
+    </section>
+  </div>
 </div>

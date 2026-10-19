@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapas MID · Gestión de usuarios y Finanzas · FinanceUp</title>
+<style>
+  :root {
+    --bg: #f6f7f6; --surface: #ffffff; --border: #e4e8e5; --border-strong: #cfd6d1;
+    --text: #101828; --text-2: #475467; --text-3: #667085;
+    --primary: #0f8c3b; --primary-soft: #eaf7ee; --primary-line: #c6efd4;
+    --danger: #b42318; --danger-soft: #fef3f2; --danger-line: #fecdca;
+    --warn: #b54708; --warn-soft: #fffaeb;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 Inter, 'Segoe UI', system-ui, sans-serif; }
+  header.top { background: var(--surface); border-bottom: 1px solid var(--border); padding: 28px 24px 20px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+  header.top .wrap { padding: 0; }
+  h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -.01em; }
+  h2 { margin: 44px 0 6px; font-size: 21px; letter-spacing: -.01em; }
+  h3 { margin: 0; font-size: 17px; }
+  p { margin: 0 0 10px; }
+  .sub { color: var(--text-3); }
+  nav.indice { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  nav.indice a { padding: 6px 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text-2); font-size: 13.5px; text-decoration: none; }
+  nav.indice a:hover { background: var(--primary-soft); border-color: var(--primary-line); color: var(--primary); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin: 14px 0; }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .capa { border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; background: #fbfcfb; }
+  .capa b { display: block; margin-bottom: 2px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; padding: 9px 10px; background: #fafbfa; border-bottom: 1px solid var(--border); color: var(--text-3); font-size: 12px; letter-spacing: .02em; }
+  td { padding: 9px 10px; border-bottom: 1px solid #eef1ef; vertical-align: top; }
+  .tabla-wrap { overflow-x: auto; }
+  code, pre { font-family: ui-monospace, Consolas, 'Courier New', monospace; font-size: 12.5px; }
+  code { background: #f2f4f7; padding: 1px 6px; border-radius: 6px; }
+  pre { margin: 6px 0 0; padding: 12px 14px; background: #101828; color: #e4e7ec; border-radius: 10px; overflow-x: auto; }
+  .chip { display: inline-block; margin: 0 4px 4px 0; padding: 1px 9px; border-radius: 999px; background: #f2f4f7; color: var(--text-2); font-size: 12.5px; }
+  .chip.tabla { background: var(--primary-soft); color: #067a2f; }
+  .chip.err { background: var(--danger-soft); color: var(--danger); }
+  .chip.ok { background: var(--primary-soft); color: #067a2f; }
+  .tabla-db { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin: 12px 0; overflow: hidden; }
+  .tabla-db > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; padding: 12px 16px; background: #fafbfa; border-bottom: 1px solid var(--border); }
+  .tabla-db > header b { font-size: 16px; font-family: ui-monospace, Consolas, monospace; color: #067a2f; }
+  .tabla-db .meta { padding: 10px 16px 0; color: var(--text-2); font-size: 13.5px; }
+  .tabla-db table { margin: 8px 0 4px; }
+  .mapa { scroll-margin-top: 16px; }
+  .mapa > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .num { display: inline-flex; padding: 2px 10px; border-radius: 8px; background: var(--primary); color: #fff; font-weight: 600; font-size: 13px; }
+  .endpoint { font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: var(--text-2); }
+  .mapa-cols { display: grid; gap: 18px; grid-template-columns: 1fr; margin-top: 10px; }
+  .mapa svg { width: 100%; height: auto; background: #fcfcfb; border: 1px solid var(--border); border-radius: 12px; }
+  .lado { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .lado h4 { margin: 0 0 4px; font-size: 13px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+  .lado > div > h4:not(:first-child) { margin-top: 12px; }
+  .lado ul { margin: 0 0 12px; padding-left: 18px; }
+  .lado li { margin-bottom: 2px; font-size: 13.5px; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; color: var(--primary); font-size: 13.5px; font-weight: 500; }
+  ol.texto { margin: 6px 0 0; padding-left: 20px; font-size: 13.5px; color: var(--text-2); }
+  .aviso { padding: 12px 14px; border: 1px solid #fedf89; border-radius: 10px; background: var(--warn-soft); color: var(--warn); font-size: 13.5px; }
+  .sep-grupo { margin-top: 38px; padding-top: 6px; border-top: 2px solid var(--border-strong); }
+  footer { padding: 30px 0 60px; color: var(--text-3); font-size: 13px; }
+  @media (max-width: 860px) { .mapa-cols { grid-template-columns: 1fr; } }
+  @media print { header.top nav, details summary { display: none; } .card, .mapa { break-inside: avoid; } body { background: #fff; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <h1>Mapas MID · Gestión de usuarios y Finanzas</h1>
+    <p class="sub">FinanceUp · arquitectura Cliente → MID → CRUD → base de datos, armada a partir del JSON que hoy está quemado en el código.</p>
+    <nav class="indice" aria-label="Contenido">
+      <a href="#arquitectura">1. Arquitectura</a>
+      <a href="#quemado">2. JSON quemado</a>
+      <a href="#tablas">3. Tablas necesarias</a>
+      <a href="#catalogo">4. Catálogo de MID</a>
+      <a href="#g-usuarios">5. Mapas · Usuarios</a>
+      <a href="#g-roles">6. Mapas · Roles</a>
+      <a href="#g-finanzas">7. Mapas · Finanzas</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section id="arquitectura">
+  <h2>1. Cómo se reparten las responsabilidades</h2>
+  <p class="sub">Regla para todos los mapas: el cliente nunca habla con la base de datos, y el CRUD nunca decide reglas de negocio.</p>
+  <div class="grid">
+    <div class="capa"><b>Cliente (Angular)</b>Muestra pantallas y envía peticiones al MID con el token de sesión. No calcula totales ni valida permisos.</div>
+    <div class="capa"><b>MID</b>Valida permisos (403), revisa datos (422) y duplicados (409), une varias tablas, calcula (totales, porcentajes) y, si una escritura falla a la mitad, deshace lo anterior (rollback).</div>
+    <div class="capa"><b>CRUD</b>Un recurso por tabla: <code>GET/POST/PUT/DELETE /crud/&lt;tabla&gt;</code>. Solo guarda y lee, sin reglas de negocio.</div>
+    <div class="capa"><b>Base de datos</b>Las 15 tablas de la sección 3. Cada mapa indica cuáles toca.</div>
+  </div>
+  <p style="margin-top:14px"><span class="chip">200 / 201 / 204 correcto</span><span class="chip err">403 sin permiso</span><span class="chip err">404 no existe</span><span class="chip err">409 duplicado o conflicto</span><span class="chip err">422 datos inválidos</span></p>
+</section>
+
+<section id="quemado">
+  <h2>2. JSON que hoy está quemado en el código</h2>
+  <p class="sub">Esto es lo que hay que reemplazar por llamadas al MID. Cada fila indica dónde vive el dato y qué tabla lo sustituye.</p>
+  <div class="card tabla-wrap">
+    <table id="tabla-quemado"><thead><tr><th>Archivo y constante</th><th>Qué contiene</th><th>Se reemplaza por</th></tr></thead><tbody></tbody></table>
+  </div>
+  <details>
+    <summary>Ver ejemplos reales copiados del código</summary>
+    <div class="card" id="ejemplos-quemado"></div>
+  </details>
+</section>
+
+<section id="tablas">
+  <h2>3. Tablas que necesitas (15 + 1 opcional)</h2>
+  <p class="sub">Los nombres siguen el estilo de tus diagramas (<code>usuario</code>, <code>rol</code>, <code>perfil</code>, <code>bitacora</code>). En cada tabla se ve qué mapas la usan.</p>
+  <div id="resumen-tablas" class="card"></div>
+  <div id="lista-tablas"></div>
+</section>
+
+<section id="catalogo">
+  <h2>4. Catálogo de MID</h2>
+  <p class="sub">Un MID por operación. El número te lleva a su mapa de secuencia.</p>
+  <div class="card tabla-wrap">
+    <table id="tabla-catalogo"><thead><tr><th>Mapa</th><th>Endpoint del MID</th><th>Qué hace</th><th>Tablas que toca</th><th>Respuestas</th></tr></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<div id="mapas"></div>
+
+<footer>
+  Generado a partir de <code>usuarios.ts</code>, <code>roles.ts</code>, <code>finanzas.ts</code>, <code>inversiones.ts</code>, <code>metas.ts</code>, <code>resuelve-deuda.ts</code> y las pantallas de Finanzas. Las tablas y los endpoints son una propuesta lista para implementar; ajusta los tipos de datos al motor que uses.
+</footer>
+</main>
+
+<script>
+/* ========================================================================
+   1. JSON QUEMADO (inventario)
+   ======================================================================== */
+const QUEMADO = [
+  ['services/usuarios.ts · USUARIOS_MOCK', '13 usuarios con correo, contraseña "123456", rol, estado, documento, fechas de registro y último acceso.', ['usuario', 'perfil', 'rol']],
+  ['services/usuarios.ts · registros (bitácora en memoria)', 'Bloqueos, cambios de rol, ediciones, restablecimientos y eliminaciones con motivo, fecha y admin.', ['bitacora']],
+  ['services/roles.ts · ROLES_MOCK y MODULOS_PERMISOS', '4 roles (Administrador, Moderador, Analista, Usuario) y la matriz de 21 permisos por módulo.', ['rol', 'permiso', 'rol_permiso']],
+  ['services/auth.ts · sesión en sessionStorage y contraseñas', 'La sesión y la contraseña viven en el navegador; el código 2FA es fijo (123456).', ['usuario', 'token_usuario']],
+  ['services/finanzas.ts · movimientos y ICONOS_POR_CATEGORIA', '5 movimientos de ejemplo y el ícono de cada categoría (Vivienda, Alimentación, Salario...).', ['movimiento', 'categoria']],
+  ['pages/admin/finanzas/finanzas.ts · CATEGORIAS_BASE y METODOS_PAGO', 'Lista fija de 12 categorías y 5 métodos de pago.', ['categoria']],
+  ['services/inversiones.ts · inversiones y constantes', '4 inversiones y los valores fijos balanceSemana, rendimientoTotal, proximoRetiro y progresoRetiro.', ['inversion', 'inversion_historial', 'retiro_programado']],
+  ['pages/finanzas/finanzas/finanzas.ts · crecimiento', 'Serie fija Ene–Jun (14.5 → 15.8) de la línea de crecimiento de inversión.', ['inversion_historial']],
+  ['services/metas.ts · metas', '6 metas con monto actual, objetivo y porcentaje ya calculado.', ['meta']],
+  ['services/resuelve-deuda.ts · SOLICITUDES_INICIALES', '2 solicitudes de consolidación guardadas en sessionStorage.', ['solicitud_consolidacion']],
+  ['pages/finanzas/resuelve-deuda · deudas y TASA_PROPUESTA_REFERENCIA', 'Deuda inicial "Banco X" y la tasa de referencia 14.9 % fija en el código.', ['deuda', 'parametro_sistema']],
+  ['pages/admin/libro-mayor · LIBROS_EJEMPLO', 'Libros de dos usuarios ficticios (Sharith R., Camilo T.) que no están conectados a los movimientos reales.', ['movimiento', 'usuario', 'perfil']],
+];
+
+const EJEMPLOS = [
+  ['Usuario (USUARIOS_MOCK)', { email: 'usuario@gmail.com', password: '123456', nombre: 'Usuario Demo', rol: 'user', estado: 'activo', documento: '1098765432', telefono: '3001234567', fechaRegistro: '2026-02-23T00:00:00Z', ultimoAcceso: '2026-09-20T00:00:00Z' }],
+  ['Movimiento (finanzas.ts)', { id: 1, fecha: '2026-03-01', concepto: 'Salario', categoria: 'Salario', tipo: 'ingreso', valor: 3000000 }],
+  ['Inversión (inversiones.ts)', { id: 3, nombre: 'Acciones Tecnológicas', monto: 7300000, rendimiento: 1300000, riesgo: 'Alto', duracion: '6 meses' }],
+  ['Meta (metas.ts)', { id: 1, nombre: 'Vacaciones', icono: 'viaje', porcentaje: 72, actual: 1800000, objetivo: 2500000, cumplida: false }],
+  ['Solicitud de consolidación', { id: 1, usuario: 'Sharith R.', saldoTotal: 8200000, cuotaActual: 620000, cuotaPropuesta: 410000, estado: 'Pendiente' }],
+  ['Fila del libro mayor admin', { usuarioId: 1, nombreUsuario: 'Sharith R.', filas: [{ id: 1, fecha: '2026-08-01', concepto: 'Pago cliente Quimiaroma', categoria: 'Ventas', ingreso: 1850000, egreso: 0 }] }],
+];
+
+/* ========================================================================
+   2. TABLAS (nombre, para qué sirve, columnas)
+   ======================================================================== */
+const TABLAS = [
+  { n: 'usuario', d: 'usuarios', para: 'Cuenta de acceso. La contraseña se guarda cifrada y nunca sale del MID. La baja es lógica (eliminado_en) para no perder movimientos ni auditoría.', c: [
+    ['id_usuario', 'PK'], ['correo', 'texto, único'], ['password_hash', 'texto'], ['id_rol', 'FK → rol'], ['estado', 'activo | bloqueado | pendiente | suspendido'], ['fecha_registro', 'fecha y hora'], ['ultimo_acceso', 'fecha y hora, puede ser nulo'], ['eliminado_en', 'fecha y hora, nulo si sigue activa']] },
+  { n: 'perfil', d: 'usuarios', para: 'Datos personales del usuario (1 a 1 con usuario). Aquí está el documento que se busca en el listado.', c: [
+    ['id_perfil', 'PK'], ['id_usuario', 'FK → usuario, único'], ['nombre', 'texto'], ['apellido', 'texto'], ['documento', 'texto, único, opcional'], ['telefono', 'texto, opcional'], ['direccion', 'texto, opcional'], ['fecha_nacimiento', 'fecha, opcional'], ['genero', 'texto, opcional']] },
+  { n: 'rol', d: 'usuarios', para: 'Roles configurables. Administrador y Usuario son de sistema y no se eliminan.', c: [
+    ['id_rol', 'PK'], ['codigo', 'texto, único (admin, user, moderador...)'], ['nombre', 'texto, único'], ['descripcion', 'texto'], ['es_sistema', 'sí / no'], ['esta_bloqueado', 'sí / no (el Administrador no se edita)']] },
+  { n: 'permiso', d: 'usuarios', para: 'Catálogo fijo de permisos (21): módulo + acción.', c: [
+    ['id_permiso', 'PK'], ['modulo', 'usuarios, finanzas, cursos, pqr, alianzas, reportes'], ['accion', 'ver, crear, editar, eliminar, bloquear...'], ['codigo', 'texto, único (ej. usuarios.ver)']] },
+  { n: 'rol_permiso', d: 'usuarios', para: 'Qué permisos tiene cada rol (la matriz de la pantalla Roles y permisos).', c: [
+    ['id_rol', 'FK → rol'], ['id_permiso', 'FK → permiso'], ['(id_rol, id_permiso)', 'PK compuesta']] },
+  { n: 'bitacora', d: 'usuarios', para: 'Auditoría de acciones administrativas: bloqueos, cambios de rol, permisos, eliminaciones. Es la fuente de la pantalla Auditoría y de "Ver actividad".', c: [
+    ['id_bitacora', 'PK'], ['id_admin', 'FK → usuario'], ['id_usuario_afectado', 'FK → usuario, opcional'], ['modulo', 'texto'], ['accion', 'texto'], ['motivo', 'texto, opcional'], ['ip', 'texto'], ['resultado', 'Exitoso | Fallido | Denegado'], ['fecha', 'fecha y hora']] },
+  { n: 'token_usuario', d: 'usuarios', para: 'Enlaces de un solo uso para activar una cuenta o restablecer la contraseña.', c: [
+    ['id_token', 'PK'], ['id_usuario', 'FK → usuario'], ['tipo', 'activacion | recuperacion'], ['token_hash', 'texto'], ['expira_en', 'fecha y hora'], ['usado', 'sí / no']] },
+  { n: 'categoria', d: 'finanzas', para: 'Categorías de movimientos con su ícono (reemplaza ICONOS_POR_CATEGORIA y CATEGORIAS_BASE).', c: [
+    ['id_categoria', 'PK'], ['nombre', 'texto'], ['tipo', 'ingreso | gasto'], ['icono', 'texto'], ['(nombre, tipo)', 'único']] },
+  { n: 'movimiento', d: 'finanzas', para: 'Cada ingreso o gasto del libro mayor. Sirve al libro del usuario, al resumen de Finanzas y al libro mayor del admin.', c: [
+    ['id_movimiento', 'PK'], ['id_usuario', 'FK → usuario'], ['id_categoria', 'FK → categoria'], ['fecha', 'fecha'], ['concepto', 'texto'], ['tipo', 'ingreso | gasto'], ['valor', 'decimal, mayor a 0'], ['metodo_pago', 'texto, opcional'], ['observaciones', 'texto, opcional'], ['lote_importacion', 'texto, opcional (agrupa lo importado de un Excel)'], ['creado_en', 'fecha y hora']] },
+  { n: 'inversion', d: 'finanzas', para: 'Posiciones del portafolio de cada usuario.', c: [
+    ['id_inversion', 'PK'], ['id_usuario', 'FK → usuario'], ['nombre', 'texto'], ['monto', 'decimal'], ['rendimiento', 'decimal (puede ser negativo)'], ['riesgo', 'Bajo | Medio | Alto'], ['duracion', 'texto'], ['creado_en', 'fecha y hora']] },
+  { n: 'inversion_historial', d: 'finanzas', para: 'Valor de cada inversión por fecha. De aquí salen la línea de crecimiento (Ene–Jun) y balanceSemana, hoy quemados.', c: [
+    ['id_historial', 'PK'], ['id_inversion', 'FK → inversion'], ['fecha', 'fecha'], ['valor', 'decimal']] },
+  { n: 'retiro_programado', d: 'finanzas', para: 'Próximo retiro y su progreso (hoy proximoRetiro "12 abril" y progresoRetiro 85 están fijos).', c: [
+    ['id_retiro', 'PK'], ['id_usuario', 'FK → usuario'], ['id_inversion', 'FK → inversion, opcional'], ['fecha_retiro', 'fecha'], ['monto', 'decimal'], ['progreso', 'entero 0 a 100']] },
+  { n: 'meta', d: 'finanzas', para: 'Metas de ahorro. El porcentaje y "cumplida" no se guardan: los calcula el MID.', c: [
+    ['id_meta', 'PK'], ['id_usuario', 'FK → usuario'], ['nombre', 'texto'], ['icono', 'texto'], ['monto_actual', 'decimal'], ['monto_objetivo', 'decimal, mayor a 0'], ['creado_en', 'fecha y hora']] },
+  { n: 'solicitud_consolidacion', d: 'finanzas', para: 'Solicitud "Resuelve tu deuda" que crea el usuario y gestiona el admin.', c: [
+    ['id_solicitud', 'PK'], ['id_usuario', 'FK → usuario'], ['saldo_total', 'decimal'], ['cuota_actual', 'decimal'], ['cuota_propuesta', 'decimal'], ['tasa_propuesta', 'decimal'], ['estado', 'Pendiente | Aprobada | Rechazada'], ['fecha', 'fecha y hora'], ['resuelta_por', 'FK → usuario, opcional']] },
+  { n: 'deuda', d: 'finanzas', para: 'Cada deuda que el usuario declara dentro de una solicitud (Banco X, saldo, tasa, cuota).', c: [
+    ['id_deuda', 'PK'], ['id_solicitud', 'FK → solicitud_consolidacion'], ['id_usuario', 'FK → usuario'], ['entidad', 'texto'], ['saldo', 'decimal'], ['tasa_actual', 'decimal (% E.A.)'], ['cuota_actual', 'decimal']] },
+  { n: 'parametro_sistema', d: 'finanzas', opcional: true, para: 'OPCIONAL. Valores de configuración como la tasa de referencia 14.9 % que hoy está en el código.', c: [
+    ['clave', 'PK, texto'], ['valor', 'texto']] },
+];
+
+/* ========================================================================
+   3. MAPAS DE SECUENCIA
+   Pasos: nota(actor,texto) · ida(de,a,texto) · vuelta(de,a,texto) · error(de,a,texto)
+          fallo(de,a,texto) · tabla(nombre,detalle) · rollback(nombre,detalle) · notaMid(texto)
+   ======================================================================== */
+const RECIBE = (t) => ['nota', 'c', t];
+const MAPAS = [
+/* ------------------------------ USUARIOS ------------------------------ */
+{ id: 'U1', g: 'usuarios', titulo: 'Listar usuarios', endpoint: 'GET /api/usuarios?q=&rol=&estado=&pagina=',
+  valida: ['Sesión válida y permiso usuarios.ver', 'Filtros por rol, estado y texto (nombre, correo o documento)', 'Nunca devuelve la contraseña'],
+  cod: [['200', 'ok'], ['401', 'err'], ['403', 'err']],
+  res: { items: [{ id: 1, nombre: 'Administrador', correo: 'admin@gmail.com', documento: '1020304050', rol: 'admin', estado: 'activo', ultimoAcceso: '2026-09-21T14:10:00Z', fechaRegistro: '2025-07-28' }], total: 13, pagina: 1 },
+  pasos: [
+    ['nota', 'c', 'La app pide la lista'],
+    ['ida', 'c', 'm', 'PIDE la lista (GET)'],
+    ['ida', 'm', 'd', 'PIDE usuarios (GET)'], ['tabla', 'usuario', 'trae todos'],
+    ['ida', 'm', 'd', 'PIDE perfiles (GET)'], ['tabla', 'perfil', 'nombre y documento'],
+    ['ida', 'm', 'd', 'PIDE los roles (GET)'], ['tabla', 'rol', 'trae todos'],
+    ['notaMid', 'El MID une cada usuario\ncon su perfil y su rol'],
+    ['vuelta', 'm', 'c', 'Lista lista para mostrar'],
+    RECIBE('Recibe: nombre, correo, rol,\nestado y último acceso'),
+    ['nota', 'c', 'La app muestra la tabla'] ] },
+
+{ id: 'U2', g: 'usuarios', titulo: 'Ver perfil de un usuario', endpoint: 'GET /api/usuarios/{id}',
+  valida: ['Permiso usuarios.ver', 'El usuario existe (404)', 'Si está bloqueado o suspendido, trae el último motivo'],
+  cod: [['200', 'ok'], ['403', 'err'], ['404', 'err']],
+  res: { id: 3, nombre: 'Laura', apellido: 'Gómez', correo: 'laura@gmail.com', documento: '1012345678', telefono: '3157778899', rol: 'user', estado: 'activo', fechaRegistro: '2026-06-18', ultimoAcceso: '2026-09-19T10:30:00Z', motivoBloqueo: null },
+  pasos: [
+    ['nota', 'c', 'El admin pulsa Ver perfil'],
+    ['ida', 'c', 'm', 'PIDE el perfil (GET)'],
+    ['ida', 'm', 'd', 'PIDE el usuario (GET)'], ['tabla', 'usuario', 'por id'],
+    ['notaMid', 'El MID revisa que exista'],
+    ['error', 'm', 'c', 'No existe: 404'],
+    ['ida', 'm', 'd', 'PIDE el perfil (GET)'], ['tabla', 'perfil', 'datos personales'],
+    ['ida', 'm', 'd', 'PIDE el rol (GET)'], ['tabla', 'rol', 'nombre del rol'],
+    ['ida', 'm', 'd', 'PIDE el último bloqueo (GET)'], ['tabla', 'bitacora', 'solo si está bloqueado'],
+    ['vuelta', 'm', 'c', 'Perfil completo (200)'],
+    ['nota', 'c', 'La app abre el modal de perfil'] ] },
+
+{ id: 'U3', g: 'usuarios', titulo: 'Crear un usuario', endpoint: 'POST /api/usuarios',
+  valida: ['Permiso usuarios.crear', 'Correo con formato válido y no repetido (409)', 'Nombre y apellido de 3 o más letras', 'Contraseña de 8+ con mayúscula, minúscula y número', 'Rol existente'],
+  cod: [['201', 'ok'], ['403', 'err'], ['409', 'err'], ['422', 'err']],
+  req: { nombre: 'Marta', apellido: 'Pérez', correo: 'marta@gmail.com', password: 'Segura123', rol: 'user', telefono: '3001234567', documento: null },
+  res: { id: 14, nombre: 'Marta', apellido: 'Pérez', correo: 'marta@gmail.com', rol: 'user', estado: 'activo' },
+  pasos: [
+    ['nota', 'c', 'La app envía el usuario nuevo'],
+    ['ida', 'c', 'm', 'ENVÍA usuario (POST)'],
+    ['notaMid', 'El MID revisa correo, rol\ny contraseña'],
+    ['ida', 'm', 'd', 'PIDE si existe el correo (GET)'], ['tabla', 'usuario', 'busca por correo'],
+    ['error', 'm', 'c', 'Correo repetido: 409'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'usuario', 'guarda correo y rol'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'perfil', 'datos personales'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'accion: creación'],
+    ['fallo', 'm', 'd', 'Si falla: DELETE'], ['rollback', 'Rollback', 'borra perfil y usuario'],
+    ['vuelta', 'm', 'c', 'Usuario creado (201)'],
+    RECIBE('Recibe: el usuario nuevo\n(sin la contraseña)'),
+    ['nota', 'c', 'La app actualiza la lista'] ] },
+
+{ id: 'U4', g: 'usuarios', titulo: 'Editar los datos de un usuario', endpoint: 'PUT /api/usuarios/{id}',
+  valida: ['Permiso usuarios.editar', 'No se edita a sí mismo desde este panel', 'Nombre y apellido de 3 o más letras', 'El correo no se modifica'],
+  cod: [['200', 'ok'], ['403', 'err'], ['404', 'err'], ['422', 'err']],
+  req: { nombre: 'Laura', apellido: 'Gómez', telefono: '3157778899', documento: '1012345678' },
+  res: { id: 3, nombre: 'Laura', apellido: 'Gómez', telefono: '3157778899', documento: '1012345678' },
+  pasos: [
+    ['nota', 'c', 'El admin guarda los cambios'],
+    ['ida', 'c', 'm', 'ENVÍA cambios (PUT)'],
+    ['notaMid', 'El MID revisa permisos\ny datos'],
+    ['error', 'm', 'c', 'Sin permiso: 403'],
+    ['error', 'm', 'c', 'Datos inválidos: 422'],
+    ['ida', 'm', 'd', 'PIDE el perfil actual (GET)'], ['tabla', 'perfil', 'valores anteriores'],
+    ['ida', 'm', 'd', 'PIDE cambiar (PUT)'], ['tabla', 'perfil', 'nombre, teléfono, documento'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'accion: edición'],
+    ['fallo', 'm', 'd', 'Si falla: PUT'], ['rollback', 'Rollback', 'vuelve a los datos anteriores'],
+    ['vuelta', 'm', 'c', 'Usuario actualizado (200)'],
+    ['nota', 'c', 'La app actualiza la fila'] ] },
+
+{ id: 'U5', g: 'usuarios', titulo: 'Cambiar el rol de un usuario', endpoint: 'PUT /api/usuarios/{id}/rol',
+  valida: ['Permiso usuarios.editar', 'No puede cambiarse el rol a sí mismo', 'El rol existe', 'Deja rastro: rol anterior y nuevo'],
+  cod: [['200', 'ok'], ['403', 'err'], ['404', 'err']],
+  req: { rol: 'admin' }, res: { id: 3, rol: 'admin' },
+  pasos: [
+    ['nota', 'c', 'El admin elige otro rol'],
+    ['ida', 'c', 'm', 'PIDE cambiar rol (PUT)'],
+    ['notaMid', 'El MID revisa permisos\ny que no seas tú'],
+    ['error', 'm', 'c', 'Sin permiso: 403'],
+    ['ida', 'm', 'd', 'PIDE el rol (GET)'], ['tabla', 'rol', 'que exista'],
+    ['ida', 'm', 'd', 'PIDE cambiar (PUT)'], ['tabla', 'usuario', 'id_rol nuevo'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'rol anterior → nuevo'],
+    ['fallo', 'm', 'd', 'Si falla: PUT'], ['rollback', 'Rollback', 'vuelve al rol anterior'],
+    ['vuelta', 'm', 'c', 'Rol actualizado (200)'],
+    RECIBE('Recibe: el usuario con su nuevo rol'),
+    ['nota', 'c', 'La app actualiza la fila'] ] },
+
+{ id: 'U6', g: 'usuarios', titulo: 'Bloquear un usuario', endpoint: 'PUT /api/usuarios/{id}/bloquear',
+  valida: ['Permiso usuarios.bloquear (403)', 'Motivo de 5 o más caracteres (422)', 'No puede bloquearse a sí mismo', 'La cuenta no está ya bloqueada (409)'],
+  cod: [['200', 'ok'], ['403', 'err'], ['409', 'err'], ['422', 'err']],
+  req: { motivo: 'Reporte de actividad inusual' }, res: { id: 3, estado: 'bloqueado', motivoBloqueo: 'Reporte de actividad inusual' },
+  pasos: [
+    ['nota', 'c', 'El admin pulsa Bloquear'],
+    ['ida', 'c', 'm', 'PIDE bloquear (PUT)'],
+    ['notaMid', 'El MID revisa motivo y permisos'],
+    ['error', 'm', 'c', 'Sin permiso: 403'],
+    ['ida', 'm', 'd', 'PIDE cambiar (PUT)'], ['tabla', 'usuario', 'estado: bloqueado'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'motivo, fecha y admin'],
+    ['fallo', 'm', 'd', 'Si falla: PUT'], ['rollback', 'Rollback', 'vuelve a activo'],
+    ['vuelta', 'm', 'c', 'Usuario bloqueado (200)'],
+    RECIBE('Recibe: el usuario con\nsu nuevo estado'),
+    ['nota', 'c', 'La app actualiza la fila'] ] },
+
+{ id: 'U7', g: 'usuarios', titulo: 'Desbloquear o reactivar un usuario', endpoint: 'PUT /api/usuarios/{id}/desbloquear',
+  valida: ['Permiso usuarios.bloquear', 'La cuenta está bloqueada o suspendida (409 si no)', 'No puede actuar sobre sí mismo'],
+  cod: [['200', 'ok'], ['403', 'err'], ['409', 'err']],
+  res: { id: 5, estado: 'activo' },
+  pasos: [
+    ['nota', 'c', 'El admin pulsa Desbloquear'],
+    ['ida', 'c', 'm', 'PIDE desbloquear (PUT)'],
+    ['notaMid', 'El MID revisa permisos\ny el estado actual'],
+    ['error', 'm', 'c', 'Sin permiso: 403'],
+    ['error', 'm', 'c', 'No está bloqueada: 409'],
+    ['ida', 'm', 'd', 'PIDE cambiar (PUT)'], ['tabla', 'usuario', 'estado: activo'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'accion: desbloqueo'],
+    ['fallo', 'm', 'd', 'Si falla: PUT'], ['rollback', 'Rollback', 'vuelve a bloqueado'],
+    ['vuelta', 'm', 'c', 'Usuario activo (200)'],
+    ['nota', 'c', 'La app actualiza la fila'] ] },
+
+{ id: 'U8', g: 'usuarios', titulo: 'Restablecer la contraseña de un usuario', endpoint: 'POST /api/usuarios/{id}/restablecer-password',
+  valida: ['Permiso usuarios.editar', 'No puede pedirlo sobre sí mismo', 'El enlace vence (por ejemplo, en 1 hora) y es de un solo uso'],
+  cod: [['202', 'ok'], ['403', 'err'], ['404', 'err']],
+  res: { mensaje: 'Enlace enviado a laura@gmail.com' },
+  pasos: [
+    ['nota', 'c', 'El admin confirma el envío'],
+    ['ida', 'c', 'm', 'PIDE restablecer (POST)'],
+    ['notaMid', 'El MID revisa permisos\ny que el usuario exista'],
+    ['error', 'm', 'c', 'Sin permiso: 403'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'token_usuario', 'recuperación + vencimiento'],
+    ['notaMid', 'El MID envía el enlace\npor correo'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'accion: restablecimiento'],
+    ['fallo', 'm', 'd', 'Si falla el envío: DELETE'], ['rollback', 'Rollback', 'borra el token'],
+    ['vuelta', 'm', 'c', 'Enlace enviado (202)'],
+    ['nota', 'c', 'La app muestra el aviso'] ] },
+
+{ id: 'U9', g: 'usuarios', titulo: 'Eliminar un usuario (baja lógica)', endpoint: 'DELETE /api/usuarios/{id}',
+  valida: ['Permiso usuarios.eliminar', 'No puede eliminarse a sí mismo', 'Debe quedar al menos un administrador (409)', 'Se marca eliminado_en: no se borran movimientos ni auditoría'],
+  cod: [['204', 'ok'], ['403', 'err'], ['404', 'err'], ['409', 'err']],
+  pasos: [
+    ['nota', 'c', 'El admin confirma en el modal'],
+    ['ida', 'c', 'm', 'PIDE eliminar (DELETE)'],
+    ['ida', 'm', 'd', 'PIDE el usuario (GET)'], ['tabla', 'usuario', 'existe y su rol'],
+    ['notaMid', 'El MID revisa permisos, que no\nseas tú y que quede un admin'],
+    ['error', 'm', 'c', 'Sin permiso o último admin: 403/409'],
+    ['ida', 'm', 'd', 'PIDE dar de baja (PUT)'], ['tabla', 'usuario', 'eliminado_en: ahora'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'accion: eliminación'],
+    ['fallo', 'm', 'd', 'Si falla: PUT'], ['rollback', 'Rollback', 'quita la baja'],
+    ['vuelta', 'm', 'c', 'Usuario eliminado (204)'],
+    ['nota', 'c', 'La app quita la fila'] ] },
+
+{ id: 'U10', g: 'usuarios', titulo: 'Ver la actividad de un usuario', endpoint: 'GET /api/usuarios/{id}/actividad',
+  valida: ['Permiso usuarios.ver', 'Devuelve acciones administrativas sobre la cuenta, más registro y último acceso'],
+  cod: [['200', 'ok'], ['403', 'err'], ['404', 'err']],
+  res: { usuario: 'daniela@gmail.com', eventos: [{ fecha: '2026-09-21T16:54:00Z', titulo: 'Restablecimiento de contraseña', detalle: 'Se envió un enlace.', admin: 'Administrador' }, { fecha: '2026-08-07T09:00:00Z', titulo: 'Último inicio de sesión' }, { fecha: '2026-07-08T00:00:00Z', titulo: 'Cuenta registrada' }] },
+  pasos: [
+    ['nota', 'c', 'El admin pulsa Ver actividad'],
+    ['ida', 'c', 'm', 'PIDE la actividad (GET)'],
+    ['ida', 'm', 'd', 'PIDE los eventos (GET)'], ['tabla', 'bitacora', 'filtra por usuario'],
+    ['ida', 'm', 'd', 'PIDE el usuario (GET)'], ['tabla', 'usuario', 'registro y último acceso'],
+    ['notaMid', 'El MID junta todo\ny lo ordena por fecha'],
+    ['vuelta', 'm', 'c', 'Línea de tiempo (200)'],
+    ['nota', 'c', 'La app abre el modal'] ] },
+
+{ id: 'U11', g: 'usuarios', titulo: 'Iniciar sesión (respeta el estado de la cuenta)', endpoint: 'POST /api/auth/login  ·  POST /api/auth/verificar-codigo',
+  valida: ['Contraseña comparada contra password_hash', 'Solo entra si el estado es activo (403 si bloqueada, suspendida o pendiente)', 'Segundo paso: código 2FA', 'Registra ultimo_acceso'],
+  cod: [['202', 'ok'], ['200', 'ok'], ['401', 'err'], ['403', 'err']],
+  req: { correo: 'admin@gmail.com', password: '********' }, res: { requiereCodigo: true },
+  pasos: [
+    ['nota', 'c', 'El usuario escribe\ncorreo y contraseña'],
+    ['ida', 'c', 'm', 'ENVÍA credenciales (POST)'],
+    ['ida', 'm', 'd', 'PIDE el usuario (GET)'], ['tabla', 'usuario', 'por correo'],
+    ['notaMid', 'El MID compara la contraseña\ny revisa el estado'],
+    ['error', 'm', 'c', 'Credenciales incorrectas: 401'],
+    ['error', 'm', 'c', 'Cuenta no activa: 403'],
+    ['vuelta', 'm', 'c', 'Pide el código 2FA (202)'],
+    ['ida', 'c', 'm', 'ENVÍA el código (POST)'],
+    ['ida', 'm', 'd', 'PIDE cambiar (PUT)'], ['tabla', 'usuario', 'ultimo_acceso: ahora'],
+    ['vuelta', 'm', 'c', 'Sesión iniciada (200 + token)'],
+    ['nota', 'c', 'La app guarda el token\ny abre el panel'] ] },
+
+{ id: 'U12', g: 'usuarios', titulo: 'Registro público (cuenta pendiente)', endpoint: 'POST /api/auth/register',
+  valida: ['Mismas reglas de correo, nombre y contraseña que U3', 'La cuenta nace en estado pendiente', 'Envía correo con enlace de activación'],
+  cod: [['201', 'ok'], ['409', 'err'], ['422', 'err']],
+  req: { nombre: 'Sofía', apellido: 'Martínez', correo: 'sofia@gmail.com', password: 'Segura123', documento: '1099887766', telefono: '3126667788' },
+  res: { mensaje: 'Revisa tu correo para activar la cuenta' },
+  pasos: [
+    ['nota', 'c', 'La persona completa\nel formulario de registro'],
+    ['ida', 'c', 'm', 'ENVÍA registro (POST)'],
+    ['notaMid', 'El MID revisa correo, documento\ny contraseña'],
+    ['ida', 'm', 'd', 'PIDE si existe el correo (GET)'], ['tabla', 'usuario', 'busca por correo'],
+    ['error', 'm', 'c', 'Correo repetido: 409'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'usuario', 'estado: pendiente'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'perfil', 'datos personales'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'token_usuario', 'activación + vencimiento'],
+    ['notaMid', 'El MID envía el correo\nde activación'],
+    ['fallo', 'm', 'd', 'Si falla: DELETE'], ['rollback', 'Rollback', 'borra token, perfil y usuario'],
+    ['vuelta', 'm', 'c', 'Cuenta creada (201)'],
+    ['nota', 'c', 'La app pide revisar el correo'] ] },
+
+{ id: 'U13', g: 'usuarios', titulo: 'Activar una cuenta pendiente', endpoint: 'POST /api/auth/activar',
+  valida: ['El token existe, no venció y no fue usado', 'La cuenta pasa de pendiente a activa'],
+  cod: [['200', 'ok'], ['410', 'err']],
+  req: { token: 'a1b2c3...' }, res: { estado: 'activo' },
+  pasos: [
+    ['nota', 'c', 'La persona abre el enlace\ndel correo'],
+    ['ida', 'c', 'm', 'ENVÍA el token (POST)'],
+    ['ida', 'm', 'd', 'PIDE el token (GET)'], ['tabla', 'token_usuario', 'vigente y sin usar'],
+    ['notaMid', 'El MID revisa vencimiento\ny uso'],
+    ['error', 'm', 'c', 'Token vencido o usado: 410'],
+    ['ida', 'm', 'd', 'PIDE cambiar (PUT)'], ['tabla', 'usuario', 'estado: activo'],
+    ['ida', 'm', 'd', 'PIDE cambiar (PUT)'], ['tabla', 'token_usuario', 'usado: sí'],
+    ['fallo', 'm', 'd', 'Si falla: PUT'], ['rollback', 'Rollback', 'vuelve a pendiente'],
+    ['vuelta', 'm', 'c', 'Cuenta activada (200)'],
+    ['nota', 'c', 'La app lleva al inicio de sesión'] ] },
+
+/* ------------------------------ ROLES ------------------------------ */
+{ id: 'R1', g: 'roles', titulo: 'Listar roles con su matriz de permisos', endpoint: 'GET /api/roles',
+  valida: ['Permiso usuarios.ver', 'Cuenta cuántos usuarios tiene cada rol'],
+  cod: [['200', 'ok'], ['403', 'err']],
+  res: [{ id: 'admin', nombre: 'Administrador', sistema: true, bloqueado: true, usuarios: 2, permisos: ['usuarios.ver', 'usuarios.crear', '...'] }, { id: 'moderador', nombre: 'Moderador', sistema: false, bloqueado: false, usuarios: 0, permisos: ['usuarios.ver', 'usuarios.bloquear', 'pqr.ver', 'pqr.responder', 'pqr.cerrar'] }],
+  pasos: [
+    ['nota', 'c', 'La app pide los roles'],
+    ['ida', 'c', 'm', 'PIDE los roles (GET)'],
+    ['ida', 'm', 'd', 'PIDE roles (GET)'], ['tabla', 'rol', 'trae todos'],
+    ['ida', 'm', 'd', 'PIDE permisos (GET)'], ['tabla', 'permiso', 'catálogo de 21'],
+    ['ida', 'm', 'd', 'PIDE permisos por rol (GET)'], ['tabla', 'rol_permiso', 'qué tiene cada rol'],
+    ['ida', 'm', 'd', 'PIDE usuarios (GET)'], ['tabla', 'usuario', 'para contar por rol'],
+    ['notaMid', 'El MID arma la matriz\nde cada rol'],
+    ['vuelta', 'm', 'c', 'Roles listos (200)'],
+    ['nota', 'c', 'La app dibuja la matriz'] ] },
+
+{ id: 'R2', g: 'roles', titulo: 'Crear o duplicar un rol', endpoint: 'POST /api/roles',
+  valida: ['Permiso usuarios.editar', 'Nombre de 3 o más letras y único (409)', 'Si viene copiarDe, hereda sus permisos'],
+  cod: [['201', 'ok'], ['403', 'err'], ['409', 'err'], ['422', 'err']],
+  req: { nombre: 'Supervisor', descripcion: 'Supervisa al equipo', copiarDe: 'analista' }, res: { id: 'rol-5', nombre: 'Supervisor', permisos: 6 },
+  pasos: [
+    ['nota', 'c', 'El admin crea o duplica un rol'],
+    ['ida', 'c', 'm', 'ENVÍA el rol (POST)'],
+    ['notaMid', 'El MID revisa permiso y nombre'],
+    ['ida', 'm', 'd', 'PIDE si existe el nombre (GET)'], ['tabla', 'rol', 'busca por nombre'],
+    ['error', 'm', 'c', 'Nombre repetido: 409'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'rol', 'nombre y descripción'],
+    ['ida', 'm', 'd', 'PIDE guardar varios (POST)'], ['tabla', 'rol_permiso', 'copia los permisos'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'accion: creación de rol'],
+    ['fallo', 'm', 'd', 'Si falla: DELETE'], ['rollback', 'Rollback', 'borra el rol y sus permisos'],
+    ['vuelta', 'm', 'c', 'Rol creado (201)'],
+    ['nota', 'c', 'La app selecciona el rol nuevo'] ] },
+
+{ id: 'R3', g: 'roles', titulo: 'Guardar los permisos de un rol', endpoint: 'PUT /api/roles/{id}/permisos',
+  valida: ['Permiso usuarios.editar', 'El rol Administrador está bloqueado y no se modifica (403)', 'Ignora permisos que no existen en el catálogo'],
+  cod: [['200', 'ok'], ['403', 'err'], ['404', 'err']],
+  req: { permisos: ['usuarios.ver', 'usuarios.bloquear', 'finanzas.ver', 'finanzas.editar', 'pqr.ver'] }, res: { id: 'moderador', permisos: 5 },
+  pasos: [
+    ['nota', 'c', 'El admin pulsa Guardar cambios'],
+    ['ida', 'c', 'm', 'ENVÍA permisos (PUT)'],
+    ['notaMid', 'El MID revisa permiso y\nque el rol no esté bloqueado'],
+    ['error', 'm', 'c', 'Rol bloqueado: 403'],
+    ['ida', 'm', 'd', 'PIDE permisos actuales (GET)'], ['tabla', 'rol_permiso', 'copia para el rollback'],
+    ['ida', 'm', 'd', 'PIDE borrar (DELETE)'], ['tabla', 'rol_permiso', 'quita los anteriores'],
+    ['ida', 'm', 'd', 'PIDE guardar varios (POST)'], ['tabla', 'rol_permiso', 'guarda los nuevos'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'Modificó permisos'],
+    ['fallo', 'm', 'd', 'Si falla: POST'], ['rollback', 'Rollback', 'restaura los anteriores'],
+    ['vuelta', 'm', 'c', 'Permisos guardados (200)'],
+    ['nota', 'c', 'La app oculta la barra\nde cambios'] ] },
+
+{ id: 'R4', g: 'roles', titulo: 'Eliminar un rol', endpoint: 'DELETE /api/roles/{id}',
+  valida: ['Permiso usuarios.eliminar', 'No se eliminan roles de sistema (403)', 'No se elimina si tiene usuarios asignados (409)'],
+  cod: [['204', 'ok'], ['403', 'err'], ['409', 'err']],
+  pasos: [
+    ['nota', 'c', 'El admin confirma en el modal'],
+    ['ida', 'c', 'm', 'PIDE eliminar (DELETE)'],
+    ['ida', 'm', 'd', 'PIDE el rol (GET)'], ['tabla', 'rol', 'existe y no es de sistema'],
+    ['error', 'm', 'c', 'Rol de sistema: 403'],
+    ['ida', 'm', 'd', 'PIDE contar usuarios (GET)'], ['tabla', 'usuario', 'con ese id_rol'],
+    ['error', 'm', 'c', 'Tiene usuarios: 409'],
+    ['ida', 'm', 'd', 'PIDE borrar (DELETE)'], ['tabla', 'rol_permiso', 'quita sus permisos'],
+    ['ida', 'm', 'd', 'PIDE borrar (DELETE)'], ['tabla', 'rol', 'quita el rol'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'accion: eliminación de rol'],
+    ['fallo', 'm', 'd', 'Si falla: POST'], ['rollback', 'Rollback', 'vuelve a crear el rol'],
+    ['vuelta', 'm', 'c', 'Rol eliminado (204)'],
+    ['nota', 'c', 'La app quita el rol de la lista'] ] },
+
+/* ------------------------------ FINANZAS ------------------------------ */
+{ id: 'F1', g: 'finanzas', titulo: 'Listar movimientos (libro mayor)', endpoint: 'GET /api/movimientos?tipo=&categoria=&desde=&hasta=&q=&pagina=',
+  valida: ['Solo devuelve los movimientos del usuario de la sesión', 'Filtros por tipo, categoría, fechas y texto', 'Devuelve también los totales del filtro'],
+  cod: [['200', 'ok'], ['401', 'err']],
+  res: { items: [{ id: 1, fecha: '2026-03-01', concepto: 'Salario', categoria: 'Salario', icono: 'maletin', tipo: 'ingreso', valor: 3000000 }, { id: 2, fecha: '2026-03-02', concepto: 'Arriendo', categoria: 'Vivienda', icono: 'casa', tipo: 'gasto', valor: 1200000 }], totales: { ingresos: 3500000, gastos: 1710000, balance: 1790000 }, total: 5, pagina: 1 },
+  pasos: [
+    ['nota', 'c', 'La app pide los movimientos'],
+    ['ida', 'c', 'm', 'PIDE la lista (GET)'],
+    ['ida', 'm', 'd', 'PIDE movimientos (GET)'], ['tabla', 'movimiento', 'del usuario, con filtros'],
+    ['ida', 'm', 'd', 'PIDE las categorías (GET)'], ['tabla', 'categoria', 'nombre e ícono'],
+    ['notaMid', 'El MID une movimiento con\ncategoría y suma totales'],
+    ['vuelta', 'm', 'c', 'Lista y totales (200)'],
+    RECIBE('Recibe: fecha, concepto, categoría,\ntipo y valor'),
+    ['nota', 'c', 'La app muestra la tabla'] ] },
+
+{ id: 'F2', g: 'finanzas', titulo: 'Resumen de Finanzas (tarjetas, dona y salud)', endpoint: 'GET /api/finanzas/resumen?mes=2026-03',
+  valida: ['Hoy estos cálculos se hacen en el navegador: pasan al MID', 'Salud: En orden, Atención (ahorro menor a 10 %) o Alto riesgo (disponible negativo)'],
+  cod: [['200', 'ok'], ['401', 'err']],
+  res: { ingreso: 3500000, gastos: 1710000, disponible: 1790000, ahorroPct: 51, salud: { estado: 'En orden', mensaje: 'Tus finanzas van bien, sigue así.' }, distribucion: [{ categoria: 'Vivienda', porcentaje: 70 }, { categoria: 'Alimentación', porcentaje: 26 }, { categoria: 'Gastos hormiga', porcentaje: 4 }] },
+  pasos: [
+    ['nota', 'c', 'La app abre Finanzas'],
+    ['ida', 'c', 'm', 'PIDE el resumen (GET)'],
+    ['ida', 'm', 'd', 'PIDE movimientos (GET)'], ['tabla', 'movimiento', 'del mes'],
+    ['ida', 'm', 'd', 'PIDE metas (GET)'], ['tabla', 'meta', 'para el ahorro'],
+    ['ida', 'm', 'd', 'PIDE inversiones (GET)'], ['tabla', 'inversion', 'total invertido'],
+    ['notaMid', 'El MID calcula ingreso, gastos,\ndisponible, ahorro y salud'],
+    ['vuelta', 'm', 'c', 'Resumen listo (200)'],
+    RECIBE('Recibe: tarjetas, dona por\ncategoría y salud'),
+    ['nota', 'c', 'La app dibuja el panel'] ] },
+
+{ id: 'F3', g: 'finanzas', titulo: 'Crear un movimiento', endpoint: 'POST /api/movimientos',
+  valida: ['Valor mayor a 0', 'Fecha válida y tipo ingreso o gasto', 'La categoría existe y coincide con el tipo (422)', 'Se guarda con el id_usuario de la sesión'],
+  cod: [['201', 'ok'], ['401', 'err'], ['422', 'err']],
+  req: { fecha: '2026-03-20', concepto: 'Bono de productividad', categoria: 'Otros ingresos', tipo: 'ingreso', valor: 250000, metodoPago: 'Transferencia', observaciones: null },
+  res: { id: 101, fecha: '2026-03-20', concepto: 'Bono de productividad', categoria: 'Otros ingresos', tipo: 'ingreso', valor: 250000 },
+  pasos: [
+    ['nota', 'c', 'La app envía el movimiento'],
+    ['ida', 'c', 'm', 'ENVÍA movimiento (POST)'],
+    ['notaMid', 'El MID revisa valor, fecha,\ntipo y categoría'],
+    ['ida', 'm', 'd', 'PIDE la categoría (GET)'], ['tabla', 'categoria', 'que exista'],
+    ['error', 'm', 'c', 'Datos inválidos: 422'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'movimiento', 'con id_usuario'],
+    ['vuelta', 'm', 'c', 'Movimiento creado (201)'],
+    RECIBE('Recibe: el movimiento con su id'),
+    ['nota', 'c', 'La app actualiza la lista'] ] },
+
+{ id: 'F4', g: 'finanzas', titulo: 'Editar un movimiento', endpoint: 'PUT /api/movimientos/{id}',
+  valida: ['El movimiento existe (404) y es del usuario (403); el admin con finanzas.editar puede editar cualquiera', 'Mismas reglas de datos que al crear'],
+  cod: [['200', 'ok'], ['403', 'err'], ['404', 'err'], ['422', 'err']],
+  req: { concepto: 'Salario marzo', valor: 3100000 }, res: { id: 1, concepto: 'Salario marzo', valor: 3100000 },
+  pasos: [
+    ['nota', 'c', 'La app guarda los cambios'],
+    ['ida', 'c', 'm', 'ENVÍA cambios (PUT)'],
+    ['ida', 'm', 'd', 'PIDE el movimiento (GET)'], ['tabla', 'movimiento', 'existe y es del usuario'],
+    ['error', 'm', 'c', 'No existe o no es tuyo: 404/403'],
+    ['notaMid', 'El MID revisa los datos'],
+    ['error', 'm', 'c', 'Datos inválidos: 422'],
+    ['ida', 'm', 'd', 'PIDE cambiar (PUT)'], ['tabla', 'movimiento', 'concepto, valor, fecha'],
+    ['vuelta', 'm', 'c', 'Movimiento actualizado (200)'],
+    ['nota', 'c', 'La app actualiza la fila'] ] },
+
+{ id: 'F5', g: 'finanzas', titulo: 'Eliminar un movimiento', endpoint: 'DELETE /api/movimientos/{id}',
+  valida: ['El movimiento existe y es del usuario', 'El admin con finanzas.editar puede eliminar cualquiera'],
+  cod: [['204', 'ok'], ['403', 'err'], ['404', 'err']],
+  pasos: [
+    ['nota', 'c', 'El usuario confirma en el modal'],
+    ['ida', 'c', 'm', 'PIDE eliminar (DELETE)'],
+    ['ida', 'm', 'd', 'PIDE el movimiento (GET)'], ['tabla', 'movimiento', 'existe y es del usuario'],
+    ['error', 'm', 'c', 'No existe o no es tuyo: 404/403'],
+    ['ida', 'm', 'd', 'PIDE borrar (DELETE)'], ['tabla', 'movimiento', 'quita el movimiento'],
+    ['vuelta', 'm', 'c', 'Movimiento eliminado (204)'],
+    ['nota', 'c', 'La app quita la fila'] ] },
+
+{ id: 'F6', g: 'finanzas', titulo: 'Importar movimientos desde Excel (carga masiva)', endpoint: 'POST /api/movimientos/importar?modo=validar|confirmar',
+  valida: ['La plantilla trae 3 columnas: ingresos, gastos fijos y gastos hormiga', 'Cada fila: concepto lleno y valor mayor a 0; si falla, va a la lista de errores', 'Modo validar no guarda nada; modo confirmar guarda solo las válidas en una sola operación', 'Cada lote lleva lote_importacion para poder deshacerlo'],
+  cod: [['200', 'ok'], ['201', 'ok'], ['422', 'err']],
+  req: { modo: 'validar', filas: [{ concepto: 'Salario', valor: 3000000, tipo: 'ingreso', categoria: 'Otros ingresos' }, { concepto: 'Arriendo', valor: 1200000, tipo: 'gasto', categoria: 'Otros' }, { concepto: 'Café diario', valor: 0, tipo: 'gasto', categoria: 'Gastos hormiga' }] },
+  res: { validos: 2, errores: [{ fila: 3, concepto: 'Café diario', motivo: 'El valor debe ser mayor a 0' }] },
+  pasos: [
+    ['nota', 'c', 'El usuario sube la plantilla'],
+    ['ida', 'c', 'm', 'ENVÍA las filas (POST)'],
+    ['ida', 'm', 'd', 'PIDE las categorías (GET)'], ['tabla', 'categoria', 'las de por defecto'],
+    ['notaMid', 'El MID revisa cada fila:\nconcepto, valor y categoría'],
+    ['vuelta', 'm', 'c', 'Válidas y errores (200)'],
+    ['nota', 'c', 'El usuario revisa y confirma'],
+    ['ida', 'c', 'm', 'CONFIRMA (POST)'],
+    ['ida', 'm', 'd', 'PIDE guardar varios (POST)'], ['tabla', 'movimiento', 'todas las válidas'],
+    ['fallo', 'm', 'd', 'Si falla: DELETE'], ['rollback', 'Rollback', 'borra el lote completo'],
+    ['vuelta', 'm', 'c', 'Importadas (201)'],
+    ['nota', 'c', 'La app muestra cuántas entraron'] ] },
+
+{ id: 'F7', g: 'finanzas', titulo: 'Listar inversiones y su resumen', endpoint: 'GET /api/inversiones',
+  valida: ['Reemplaza las constantes balanceSemana, rendimientoTotal, proximoRetiro y progresoRetiro', 'La serie de crecimiento sale de inversion_historial', 'Calcula % de rendimiento y reparto por riesgo'],
+  cod: [['200', 'ok'], ['401', 'err']],
+  res: { items: [{ id: 3, nombre: 'Acciones Tecnológicas', monto: 7300000, rendimiento: 1300000, riesgo: 'Alto', duracion: '6 meses' }], resumen: { totalInvertido: 24900000, rendimientoTotal: 2260000, rendimientoPct: 9.1, balanceSemana: 250000, proximoRetiro: { fecha: '2026-04-12', progreso: 85 } }, crecimiento: [{ mes: 'Ene', valor: 14.5 }, { mes: 'Jun', valor: 15.8 }], porRiesgo: [{ riesgo: 'Bajo', pct: 32 }, { riesgo: 'Medio', pct: 35 }, { riesgo: 'Alto', pct: 33 }] },
+  pasos: [
+    ['nota', 'c', 'La app abre Inversiones'],
+    ['ida', 'c', 'm', 'PIDE las inversiones (GET)'],
+    ['ida', 'm', 'd', 'PIDE inversiones (GET)'], ['tabla', 'inversion', 'del usuario'],
+    ['ida', 'm', 'd', 'PIDE el historial (GET)'], ['tabla', 'inversion_historial', 'valor por mes'],
+    ['ida', 'm', 'd', 'PIDE el retiro (GET)'], ['tabla', 'retiro_programado', 'próximo retiro'],
+    ['notaMid', 'El MID calcula totales, %,\nriesgo y crecimiento'],
+    ['vuelta', 'm', 'c', 'Inversiones y resumen (200)'],
+    ['nota', 'c', 'La app dibuja tarjetas,\ndona y línea'] ] },
+
+{ id: 'F8', g: 'finanzas', titulo: 'Crear o editar una inversión', endpoint: 'POST /api/inversiones  ·  PUT /api/inversiones/{id}',
+  valida: ['Nombre y duración obligatorios', 'Monto mayor a 0', 'Riesgo: Bajo, Medio o Alto', 'El rendimiento puede ser negativo'],
+  cod: [['201', 'ok'], ['200', 'ok'], ['404', 'err'], ['422', 'err']],
+  req: { nombre: 'Fondo de Inversión', monto: 8600000, rendimiento: 800000, riesgo: 'Medio', duracion: '1 año' }, res: { id: 2, nombre: 'Fondo de Inversión', monto: 8600000 },
+  pasos: [
+    ['nota', 'c', 'La app envía la inversión'],
+    ['ida', 'c', 'm', 'ENVÍA inversión (POST/PUT)'],
+    ['notaMid', 'El MID revisa nombre, monto,\nriesgo y duración'],
+    ['error', 'm', 'c', 'Datos inválidos: 422'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST/PUT)'], ['tabla', 'inversion', 'con id_usuario'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'inversion_historial', 'valor de hoy'],
+    ['fallo', 'm', 'd', 'Si falla: DELETE'], ['rollback', 'Rollback', 'deshace la inversión'],
+    ['vuelta', 'm', 'c', 'Inversión guardada (201/200)'],
+    ['nota', 'c', 'La app actualiza la tabla'] ] },
+
+{ id: 'F9', g: 'finanzas', titulo: 'Eliminar una inversión', endpoint: 'DELETE /api/inversiones/{id}',
+  valida: ['La inversión existe y es del usuario', 'Se borra primero su historial'],
+  cod: [['204', 'ok'], ['403', 'err'], ['404', 'err']],
+  pasos: [
+    ['nota', 'c', 'El usuario confirma en el modal'],
+    ['ida', 'c', 'm', 'PIDE eliminar (DELETE)'],
+    ['ida', 'm', 'd', 'PIDE la inversión (GET)'], ['tabla', 'inversion', 'existe y es del usuario'],
+    ['error', 'm', 'c', 'No existe o no es tuya: 404/403'],
+    ['ida', 'm', 'd', 'PIDE borrar (DELETE)'], ['tabla', 'inversion_historial', 'quita su historial'],
+    ['ida', 'm', 'd', 'PIDE borrar (DELETE)'], ['tabla', 'inversion', 'quita la inversión'],
+    ['fallo', 'm', 'd', 'Si falla: POST'], ['rollback', 'Rollback', 'restaura el historial'],
+    ['vuelta', 'm', 'c', 'Inversión eliminada (204)'],
+    ['nota', 'c', 'La app quita la fila'] ] },
+
+{ id: 'F10', g: 'finanzas', titulo: 'Listar metas de ahorro', endpoint: 'GET /api/metas',
+  valida: ['El porcentaje, la meta cumplida y lo que falta los calcula el MID; ya no se guardan'],
+  cod: [['200', 'ok'], ['401', 'err']],
+  res: [{ id: 1, nombre: 'Vacaciones', actual: 1800000, objetivo: 2500000, porcentaje: 72, faltante: 700000, cumplida: false }, { id: 3, nombre: 'Educación', actual: 5000000, objetivo: 5000000, porcentaje: 100, faltante: 0, cumplida: true }],
+  pasos: [
+    ['nota', 'c', 'La app abre Metas'],
+    ['ida', 'c', 'm', 'PIDE las metas (GET)'],
+    ['ida', 'm', 'd', 'PIDE metas (GET)'], ['tabla', 'meta', 'del usuario'],
+    ['notaMid', 'El MID calcula porcentaje,\nfaltante y estado'],
+    ['vuelta', 'm', 'c', 'Metas listas (200)'],
+    ['nota', 'c', 'La app dibuja los anillos'] ] },
+
+{ id: 'F11', g: 'finanzas', titulo: 'Crear o editar una meta', endpoint: 'POST /api/metas  ·  PUT /api/metas/{id}',
+  valida: ['Nombre obligatorio', 'Objetivo mayor a 0 y monto actual de 0 o más', 'Cumplida cuando actual ≥ objetivo'],
+  cod: [['201', 'ok'], ['200', 'ok'], ['404', 'err'], ['422', 'err']],
+  req: { nombre: 'Fondo de retiro', actual: 500000, objetivo: 2000000 }, res: { id: 7, nombre: 'Fondo de retiro', porcentaje: 25, cumplida: false },
+  pasos: [
+    ['nota', 'c', 'La app envía la meta'],
+    ['ida', 'c', 'm', 'ENVÍA meta (POST/PUT)'],
+    ['notaMid', 'El MID revisa nombre y objetivo\ny calcula el porcentaje'],
+    ['error', 'm', 'c', 'Datos inválidos: 422'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST/PUT)'], ['tabla', 'meta', 'monto actual y objetivo'],
+    ['vuelta', 'm', 'c', 'Meta guardada (201/200)'],
+    RECIBE('Recibe: la meta con su\nporcentaje ya calculado'),
+    ['nota', 'c', 'La app actualiza la tabla'] ] },
+
+{ id: 'F12', g: 'finanzas', titulo: 'Eliminar una meta', endpoint: 'DELETE /api/metas/{id}',
+  valida: ['La meta existe y es del usuario'],
+  cod: [['204', 'ok'], ['403', 'err'], ['404', 'err']],
+  pasos: [
+    ['nota', 'c', 'El usuario confirma en el modal'],
+    ['ida', 'c', 'm', 'PIDE eliminar (DELETE)'],
+    ['ida', 'm', 'd', 'PIDE la meta (GET)'], ['tabla', 'meta', 'existe y es del usuario'],
+    ['error', 'm', 'c', 'No existe o no es tuya: 404/403'],
+    ['ida', 'm', 'd', 'PIDE borrar (DELETE)'], ['tabla', 'meta', 'quita la meta'],
+    ['vuelta', 'm', 'c', 'Meta eliminada (204)'],
+    ['nota', 'c', 'La app quita la fila'] ] },
+
+{ id: 'F13', g: 'finanzas', titulo: 'Solicitar consolidación de deuda', endpoint: 'POST /api/deudas/consolidacion',
+  valida: ['Al menos una deuda con entidad, saldo mayor a 0 y cuota mayor a 0', 'El MID suma saldo y cuota actual y calcula la cuota propuesta con la tasa de referencia (14.9 %)', 'La solicitud nace Pendiente'],
+  cod: [['201', 'ok'], ['401', 'err'], ['422', 'err']],
+  req: { deudas: [{ entidad: 'Banco X', saldo: 8200000, tasaActual: 28.5, cuotaActual: 620000 }] },
+  res: { id: 3, saldoTotal: 8200000, cuotaActual: 620000, cuotaPropuesta: 410000, tasaPropuesta: 14.9, estado: 'Pendiente' },
+  pasos: [
+    ['nota', 'c', 'El usuario pulsa Solicitar\nconsolidación'],
+    ['ida', 'c', 'm', 'ENVÍA las deudas (POST)'],
+    ['ida', 'm', 'd', 'PIDE la tasa (GET)'], ['tabla', 'parametro_sistema', 'tasa de referencia'],
+    ['notaMid', 'El MID revisa las deudas y suma\nsaldo y cuota actual'],
+    ['error', 'm', 'c', 'Datos inválidos: 422'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'solicitud_consolidacion', 'estado: Pendiente'],
+    ['ida', 'm', 'd', 'PIDE guardar varios (POST)'], ['tabla', 'deuda', 'una fila por deuda'],
+    ['fallo', 'm', 'd', 'Si falla: DELETE'], ['rollback', 'Rollback', 'borra la solicitud'],
+    ['vuelta', 'm', 'c', 'Solicitud creada (201)'],
+    ['nota', 'c', 'La app muestra el aviso'] ] },
+
+{ id: 'F14', g: 'finanzas', titulo: 'Admin: aprobar o rechazar una consolidación', endpoint: 'PUT /api/admin/consolidaciones/{id}/estado',
+  valida: ['Permiso finanzas.administrar (403)', 'Solo se resuelve una solicitud Pendiente (409)', 'Deja quién la resolvió y el registro en la bitácora'],
+  cod: [['200', 'ok'], ['403', 'err'], ['404', 'err'], ['409', 'err']],
+  req: { estado: 'Aprobada' }, res: { id: 1, estado: 'Aprobada' },
+  pasos: [
+    ['nota', 'c', 'El admin elige Aprobar\no Rechazar'],
+    ['ida', 'c', 'm', 'PIDE cambiar estado (PUT)'],
+    ['notaMid', 'El MID revisa permisos\ny que siga Pendiente'],
+    ['error', 'm', 'c', 'Sin permiso: 403'],
+    ['ida', 'm', 'd', 'PIDE la solicitud (GET)'], ['tabla', 'solicitud_consolidacion', 'estado actual'],
+    ['error', 'm', 'c', 'Ya fue resuelta: 409'],
+    ['ida', 'm', 'd', 'PIDE cambiar (PUT)'], ['tabla', 'solicitud_consolidacion', 'estado y resuelta_por'],
+    ['ida', 'm', 'd', 'PIDE guardar (POST)'], ['tabla', 'bitacora', 'decisión y admin'],
+    ['fallo', 'm', 'd', 'Si falla: PUT'], ['rollback', 'Rollback', 'vuelve a Pendiente'],
+    ['vuelta', 'm', 'c', 'Estado actualizado (200)'],
+    ['nota', 'c', 'La app actualiza la fila'] ] },
+
+{ id: 'F15', g: 'finanzas', titulo: 'Admin: libro mayor de todos los usuarios', endpoint: 'GET /api/admin/libros?usuario=',
+  valida: ['Permiso finanzas.ver (403)', 'Reemplaza el arreglo quemado LIBROS_EJEMPLO por movimientos reales', 'Cada fila separa ingreso y egreso'],
+  cod: [['200', 'ok'], ['403', 'err']],
+  res: [{ usuarioId: 1, nombreUsuario: 'Sharith R.', filas: [{ id: 1, fecha: '2026-08-01', concepto: 'Pago cliente Quimiaroma', categoria: 'Ventas', ingreso: 1850000, egreso: 0 }, { id: 2, fecha: '2026-08-05', concepto: 'Arriendo oficina', categoria: 'Fijo', ingreso: 0, egreso: 620000 }] }],
+  pasos: [
+    ['nota', 'c', 'El admin abre Libro mayor'],
+    ['ida', 'c', 'm', 'PIDE los libros (GET)'],
+    ['notaMid', 'El MID revisa el permiso'],
+    ['error', 'm', 'c', 'Sin permiso: 403'],
+    ['ida', 'm', 'd', 'PIDE usuarios (GET)'], ['tabla', 'usuario', 'los que tienen movimientos'],
+    ['ida', 'm', 'd', 'PIDE perfiles (GET)'], ['tabla', 'perfil', 'nombre de cada uno'],
+    ['ida', 'm', 'd', 'PIDE movimientos (GET)'], ['tabla', 'movimiento', 'de cada usuario'],
+    ['notaMid', 'El MID agrupa por usuario y\nsepara ingreso y egreso'],
+    ['vuelta', 'm', 'c', 'Libros listos (200)'],
+    ['nota', 'c', 'La app muestra el libro\ndel usuario elegido'] ] },
+];
+
+const GRUPOS = [
+  ['usuarios', 'g-usuarios', '5. Mapas · Gestión de usuarios', 'Login, registro y todo lo que el admin hace sobre una cuenta.'],
+  ['roles', 'g-roles', '6. Mapas · Roles y permisos', 'La matriz de permisos y el ciclo de vida de los roles.'],
+  ['finanzas', 'g-finanzas', '7. Mapas · Finanzas', 'Libro mayor, resumen, inversiones, metas, importación y consolidación de deuda.'],
+];
+
+/* ========================================================================
+   RENDER
+   ======================================================================== */
+const X = { c: 120, m: 355, d: 590 }, ANCHO = 860, CAJA = { x: 640, w: 200, h: 46 };
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const NOMBRE_ACTOR = { c: 'Cliente', m: 'MID', d: 'CRUD' };
+
+function textoCaja(x, y, w, lineas, opciones) {
+  const o = opciones || {};
+  const h = o.h || 14 + lineas.length * 16;
+  let s = '<rect x="' + (x) + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="7" fill="' + (o.fondo || '#ffffff') + '" stroke="' + (o.borde || '#d0d5dd') + '"/>';
+  const total = lineas.length; const y0 = y + h / 2 - ((total - 1) * 16) / 2 + 4.5;
+  lineas.forEach((l, i) => {
+    const negrita = o.tituloNegrita && i === 0;
+    s += '<text x="' + (x + w / 2) + '" y="' + (y0 + i * 16) + '" text-anchor="middle" font-size="' + (negrita ? 13 : 12) + '" font-weight="' + (negrita ? 700 : 400) + '" fill="' + (o.color || '#475467') + '">' + esc(l) + '</text>';
+  });
+  return s;
+}
+
+function dibujar(pasos, uid) {
+  let y = 70, cuerpo = '';
+  const anchoTexto = (ls) => Math.min(300, Math.max.apply(null, ls.map((l) => l.length)) * 6.6 + 30);
+  for (const p of pasos) {
+    const t = p[0];
+    if (t === 'nota' || t === 'notaMid') {
+      const actor = t === 'nota' ? p[1] : 'm'; const texto = t === 'nota' ? p[2] : p[1];
+      const ls = texto.split('\n'); const w = anchoTexto(ls); const h = 14 + ls.length * 16;
+      cuerpo += textoCaja(X[actor] - w / 2, y, w, ls, { fondo: '#f9fafb' });
+      y += h + 22;
+    } else if (t === 'ida' || t === 'vuelta' || t === 'error' || t === 'fallo') {
+      const de = X[p[1]], a = X[p[2]], texto = p[3];
+      const rojo = t === 'error' || t === 'fallo', punteado = t !== 'ida';
+      const color = rojo ? '#b42318' : '#475467';
+      const yl = y + 28;
+      cuerpo += '<line x1="' + de + '" y1="' + yl + '" x2="' + (a + (a > de ? -2 : 2)) + '" y2="' + yl + '" stroke="' + color + '" stroke-width="1.3"' + (punteado ? ' stroke-dasharray="5 4"' : '') + ' marker-end="url(#' + (rojo ? 'fr' : 'fg') + uid + ')"/>';
+      cuerpo += '<text x="' + ((de + a) / 2) + '" y="' + (yl - 8) + '" text-anchor="middle" font-size="12.5" font-weight="' + (t === 'ida' ? 700 : 500) + '" fill="' + (rojo ? '#b42318' : '#101828') + '">' + esc(texto) + '</text>';
+      y += 46;
+    } else if (t === 'tabla' || t === 'rollback') {
+      const rb = t === 'rollback';
+      const titulo = rb ? p[1] : 'Tabla ' + p[1]; const detalle = p[2];
+      const yc = y + CAJA.h / 2;
+      cuerpo += '<line x1="' + X.d + '" y1="' + yc + '" x2="' + (CAJA.x - 2) + '" y2="' + yc + '" stroke="' + (rb ? '#b42318' : '#475467') + '" stroke-width="1.3" marker-end="url(#' + (rb ? 'fr' : 'fg') + uid + ')"/>';
+      cuerpo += textoCaja(CAJA.x, y, CAJA.w, [titulo, detalle], { h: CAJA.h, tituloNegrita: true, fondo: rb ? '#fef3f2' : '#ffffff', borde: rb ? '#fda29b' : '#d0d5dd', color: rb ? '#b42318' : '#475467' });
+      y += CAJA.h + 18;
+    }
+  }
+  const alto = y + 14;
+  let cab = '<defs>' +
+    '<marker id="fg' + uid + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#475467" stroke-width="1.4"/></marker>' +
+    '<marker id="fr' + uid + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#b42318" stroke-width="1.4"/></marker></defs>';
+  ['c', 'm', 'd'].forEach((k) => {
+    cab += '<line x1="' + X[k] + '" y1="46" x2="' + X[k] + '" y2="' + alto + '" stroke="#c4cbd2" stroke-dasharray="5 5"/>';
+    cab += textoCaja(X[k] - 56, 8, 112, [NOMBRE_ACTOR[k]], { h: 36, fondo: '#ffffff', color: '#101828', tituloNegrita: true });
+  });
+  return { alto, svg: cab + cuerpo };
+}
+
+function pasosComoTexto(pasos) {
+  return pasos.map((p) => {
+    const t = p[0];
+    if (t === 'nota') return NOMBRE_ACTOR[p[1]] + ': ' + p[2].replace(/\n/g, ' ');
+    if (t === 'notaMid') return 'MID: ' + p[1].replace(/\n/g, ' ');
+    if (t === 'ida' || t === 'vuelta') return NOMBRE_ACTOR[p[1]] + ' → ' + NOMBRE_ACTOR[p[2]] + ': ' + p[3];
+    if (t === 'error') return 'Error ' + NOMBRE_ACTOR[p[1]] + ' → ' + NOMBRE_ACTOR[p[2]] + ': ' + p[3];
+    if (t === 'fallo') return 'Si algo falla, ' + NOMBRE_ACTOR[p[1]] + ' → ' + NOMBRE_ACTOR[p[2]] + ': ' + p[3];
+    if (t === 'tabla') return 'Tabla ' + p[1] + ' (' + p[2] + ')';
+    return p[1] + ': ' + p[2];
+  });
+}
+
+const tablasDe = (m) => [...new Set(m.pasos.filter((p) => p[0] === 'tabla').map((p) => p[1]))];
+const json = (o) => esc(JSON.stringify(o, null, 2));
+
+/* --- inventario --- */
+document.querySelector('#tabla-quemado tbody').innerHTML = QUEMADO.map((q) =>
+  '<tr><td><code>' + esc(q[0]) + '</code></td><td>' + esc(q[1]) + '</td><td>' + q[2].map((t) => '<span class="chip tabla">' + t + '</span>').join('') + '</td></tr>').join('');
+document.getElementById('ejemplos-quemado').innerHTML = EJEMPLOS.map((e) => '<p><b>' + esc(e[0]) + '</b></p><pre>' + json(e[1]) + '</pre>').join('');
+
+/* --- tablas --- */
+const usos = {};
+MAPAS.forEach((m) => tablasDe(m).forEach((t) => { (usos[t] = usos[t] || []).push(m.id); }));
+document.getElementById('resumen-tablas').innerHTML =
+  '<p><b>Gestión de usuarios y roles (7):</b> ' + TABLAS.filter((t) => t.d === 'usuarios').map((t) => '<span class="chip tabla">' + t.n + '</span>').join('') + '</p>' +
+  '<p style="margin:0"><b>Finanzas (8 + 1 opcional):</b> ' + TABLAS.filter((t) => t.d === 'finanzas').map((t) => '<span class="chip tabla">' + t.n + (t.opcional ? ' (opcional)' : '') + '</span>').join('') + '</p>';
+document.getElementById('lista-tablas').innerHTML = TABLAS.map((t) =>
+  '<article class="tabla-db"><header><b>' + t.n + '</b><span class="chip">' + (t.d === 'usuarios' ? 'Usuarios y roles' : 'Finanzas') + '</span>' + (t.opcional ? '<span class="chip">opcional</span>' : '') + '</header>' +
+  '<p class="meta">' + esc(t.para) + '<br><span class="sub">Usada en: ' + ((usos[t.n] || []).map((id) => '<a href="#' + id + '">' + id + '</a>').join(', ') || '—') + '</span></p>' +
+  '<div class="tabla-wrap"><table><thead><tr><th>Columna</th><th>Tipo o regla</th></tr></thead><tbody>' + t.c.map((c) => '<tr><td><code>' + esc(c[0]) + '</code></td><td>' + esc(c[1]) + '</td></tr>').join('') + '</tbody></table></div></article>').join('');
+
+/* --- catálogo --- */
+document.querySelector('#tabla-catalogo tbody').innerHTML = MAPAS.map((m) =>
+  '<tr><td><a href="#' + m.id + '"><b>' + m.id + '</b></a></td><td><code>' + esc(m.endpoint) + '</code></td><td>' + esc(m.titulo) + '</td><td>' +
+  tablasDe(m).map((t) => '<span class="chip tabla">' + t + '</span>').join('') + '</td><td>' + m.cod.map((c) => '<span class="chip ' + c[1] + '">' + c[0] + '</span>').join('') + '</td></tr>').join('');
+
+/* --- mapas --- */
+document.getElementById('mapas').innerHTML = GRUPOS.map((g) =>
+  '<section id="' + g[1] + '" class="sep-grupo"><h2>' + g[2] + '</h2><p class="sub">' + g[3] + '</p>' +
+  MAPAS.filter((m) => m.g === g[0]).map((m) => {
+    const d = dibujar(m.pasos, m.id), textos = pasosComoTexto(m.pasos);
+    const etiqueta = 'Mapa ' + m.id + ': ' + m.titulo + '. ' + textos.join('. ');
+    return '<article class="card mapa" id="' + m.id + '"><header><span class="num">' + m.id + '</span><h3>' + esc(m.titulo) + '</h3></header>' +
+      '<div class="endpoint">' + esc(m.endpoint) + '</div>' +
+      '<div class="mapa-cols"><div><svg viewBox="0 0 ' + ANCHO + ' ' + d.alto + '" role="img" aria-label="' + esc(etiqueta) + '">' + d.svg + '</svg>' +
+      '<details><summary>Ver los pasos como texto</summary><ol class="texto">' + textos.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ol></details></div>' +
+      '<div class="lado"><div><h4>Qué revisa el MID</h4><ul>' + m.valida.map((v) => '<li>' + esc(v) + '</li>').join('') + '</ul></div>' +
+      '<div><h4>Tablas</h4><p>' + tablasDe(m).map((t) => '<span class="chip tabla">' + t + '</span>').join('') + '</p>' +
+      '<h4>Respuestas</h4><p>' + m.cod.map((c) => '<span class="chip ' + c[1] + '">' + c[0] + '</span>').join('') + '</p></div>' +
+      (m.req ? '<div><h4>Petición (JSON)</h4><pre>' + json(m.req) + '</pre></div>' : '') +
+      (m.res ? '<div><h4>Respuesta (JSON)</h4><pre>' + json(m.res) + '</pre></div>' : '') + '</div></div></article>';
+  }).join('') + '</section>').join('');
+</script>
+</body>
+</html>
