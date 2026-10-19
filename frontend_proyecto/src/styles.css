@@ -1,68 +1,81 @@
 /* =========================================================
    FinanceUp · Sistema de diseño
-   Paleta derivada del logo: barras verdes que crecen y el
-   "Up" en lima. Todos los componentes leen estos tokens;
-   las variables locales de cada módulo solo los re-mapean.
+   Lenguaje sobrio y fluido: grises neutros, mucho aire,
+   tipografía grande y un solo acento, el verde de la marca.
+   Todos los componentes leen estos tokens; las variables
+   locales de cada módulo solo los re-mapean.
 ========================================================= */
 :root {
   /* Tinta (texto) */
-  --ink: #10261a;
-  --ink-body: #34453b;
-  --ink-soft: #566a5e;
-  --ink-faint: #83948a;
+  --ink: #1d1d1f;
+  --ink-body: #424245;
+  --ink-soft: #6e6e73;       /* 4.7:1 sobre --paper */
+  --ink-faint: #86868b;      /* solo placeholders y detalles no esenciales */
 
   /* Superficies */
-  --paper: #f3f6f0;
+  --paper: #f5f5f7;
   --surface: #ffffff;
-  --surface-sunk: #ebf0e8;
-  --line: #dce4d9;
-  --line-strong: #c3cfc0;
+  --surface-sunk: #ebebef;
+  --line: #e1e1e6;
+  --line-strong: #d2d2d7;
+  --night: #000000;
+  --night-raised: #1d1d1f;
 
-  /* Marca */
-  --brand: #2e9b4e;          /* verde del logo: superficies grandes, iconos */
+  /* Marca: el verde hace el papel de único acento */
+  --brand: #2e9b4e;          /* verde del logo: iconos y superficies grandes */
   --brand-strong: #1e7a3b;   /* texto, enlaces y botones (5.4:1 sobre blanco) */
   --brand-hover: #176431;
-  --brand-deep: #0f3d22;     /* paneles oscuros */
+  --brand-deep: #0f3d22;
   --brand-night: #0a2a17;
-  --brand-wash: #e5f2e6;
-  --brand-wash-strong: #cde6d0;
-  --lime: #9be15d;           /* el "Up" del logo: solo sobre bosque o como relleno con tinta */
-  --lime-soft: #d9f5c0;
+  --brand-wash: #e9f5ec;
+  --brand-wash-strong: #cfe8d5;
+  --lime: #9be15d;           /* el "Up" del logo: solo sobre fondos oscuros */
+  --lime-soft: #dcf5c6;
 
   /* Semánticos */
   --negative: #b93a26;
-  --negative-wash: #fbeae6;
+  --negative-wash: #fcecea;
   --warning: #97600f;
-  --warning-wash: #fbf1dd;
+  --warning-wash: #fdf3e1;
   --positive: var(--brand-strong);
   --positive-wash: var(--brand-wash);
 
-  /* Tipografía */
-  --font-display: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Tipografía: SF en dispositivos Apple, Inter en el resto */
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, 'Segoe UI', sans-serif;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
-  --text-md: 1rem;
-  --text-lg: 1.125rem;
+  --text-md: 1.0625rem;      /* 17px */
+  --text-lg: 1.1875rem;      /* 19px */
   --text-xl: 1.5rem;
-  --text-2xl: 2rem;
-  --text-3xl: clamp(2.25rem, 1.6rem + 2.6vw, 3.5rem);
+  --text-2xl: clamp(2rem, 1.4rem + 2.2vw, 3rem);
+  --text-3xl: clamp(2.75rem, 1.6rem + 4.6vw, 5.5rem);
 
-  /* Radios: la jerarquía la marca el tamaño del objeto */
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 16px;
-  --r-xl: 24px;
-  --r-pill: 999px;
+  /* Espacio y ancho */
+  --page-max: 1080px;
+  --page-gutter: clamp(1rem, 4vw, 2.5rem);
+  --section-space: clamp(4.5rem, 3rem + 6vw, 8.5rem);
 
-  /* Sombras teñidas de bosque */
-  --shadow-sm: 0 1px 2px rgba(16, 38, 26, 0.06);
-  --shadow-md: 0 1px 2px rgba(16, 38, 26, 0.05), 0 8px 20px -6px rgba(16, 38, 26, 0.12);
-  --shadow-lg: 0 2px 4px rgba(16, 38, 26, 0.05), 0 24px 48px -12px rgba(16, 38, 26, 0.22);
+  /* Radios: controles, tarjetas, paneles y píldoras */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 980px;
 
-  --focus-ring: 0 0 0 3px var(--surface), 0 0 0 5px var(--brand-strong);
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Sombras casi imperceptibles */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.04), 0 12px 32px -8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.05), 0 30px 60px -12px rgba(0, 0, 0, 0.18);
+
+  /* Movimiento */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 0.2s;
+  --dur-base: 0.45s;
+  --dur-slow: 0.9s;
+  --focus-ring: 0 0 0 4px rgba(30, 122, 59, 0.35);
 
   /* ---- Alias heredados (los usan los componentes existentes) ---- */
   --green-primary: var(--brand-strong);
@@ -72,10 +85,10 @@
   --green-soft: var(--brand-wash);
   --green-mid: var(--brand);
   --green-deep: var(--brand-deep);
-  --green-tint: #f2f8f1;
+  --green-tint: #f3faf5;
   --green-line: var(--brand-wash-strong);
 
-  --gray-50: #f8faf7;
+  --gray-50: #fafafc;
   --gray-100: var(--paper);
   --gray-200: var(--line);
   --gray-300: var(--line-strong);
@@ -89,7 +102,7 @@
   --border-soft: var(--line);
   --bg-panel: var(--surface);
   --bg-page: var(--paper);
-  --bg-search: #f2f8f1;
+  --bg-search: #fafafc;
   --bg-ahorro: var(--brand-wash);
   --color-error: var(--negative);
   --color-info: var(--brand-strong);
@@ -112,17 +125,20 @@ body {
 html {
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
 }
 
 body {
   display: block;
   font-family: var(--font-body);
   font-size: var(--text-md);
-  line-height: 1.55;
+  line-height: 1.47;
+  letter-spacing: -0.01em;
   background: var(--paper);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
   font-variant-numeric: tabular-nums;
 }
 
@@ -134,9 +150,9 @@ app-root {
 /* Títulos: los componentes que no fijan su propia fuente heredan la de display */
 :where(h1, h2, h3) {
   font-family: var(--font-display);
-  font-optical-sizing: auto;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
   text-wrap: balance;
 }
 
@@ -154,7 +170,7 @@ app-root {
 }
 
 ::selection {
-  background: var(--lime-soft);
+  background: var(--brand-wash-strong);
   color: var(--ink);
 }
 
@@ -168,11 +184,13 @@ app-root {
   opacity: 1;
 }
 
-/* Animaciones compartidas por los componentes */
+/* =========================================================
+   Movimiento
+========================================================= */
 @keyframes fu-fade-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -207,6 +225,64 @@ app-root {
   }
 }
 
+@keyframes fu-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(48px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Aparición al hacer scroll, ligada a la posición (sin JavaScript).
+   Solo en navegadores con scroll-driven animations; en el resto el
+   contenido se ve igual, sin animar. Se usa relleno "backwards" para
+   que al terminar el elemento recupere sus propios estilos de hover. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section-heading,
+    .feature-card,
+    .service-row,
+    .cta-panel,
+    .curso,
+    .escuela__head,
+    .reanudar,
+    .producto,
+    .card-resumen,
+    .panel,
+    .pqr-card,
+    .new-pqr-card {
+      animation: fu-reveal linear backwards;
+      animation-timeline: view();
+      animation-range: entry 0% cover 22%;
+    }
+  }
+}
+
+/* Transición entre páginas (View Transitions del router) */
+::view-transition-old(root) {
+  animation: fu-vt-out var(--dur-fast) var(--ease-in-out) both;
+}
+
+::view-transition-new(root) {
+  animation: fu-vt-in var(--dur-base) var(--ease-out) both;
+}
+
+@keyframes fu-vt-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fu-vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -215,5 +291,11 @@ app-root {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

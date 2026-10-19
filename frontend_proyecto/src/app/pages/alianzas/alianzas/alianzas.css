@@ -60,7 +60,7 @@
   padding: 40px clamp(22px, 4vw, 52px);
   margin-bottom: 34px;
   background: linear-gradient(160deg, var(--surface) 0%, var(--brand-wash) 100%);
-  border-radius: 24px;
+  border-radius: var(--r-xl);
   animation: fu-fade-up 0.45s ease both;
 }
 
@@ -175,7 +175,7 @@
   position: relative;
   max-width: 220px;
   padding: 16px;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   margin: 0 0 -28px -28px;
 }
 
@@ -188,7 +188,7 @@
   aspect-ratio: 1.6 / 1;
   padding: 22px;
   background: linear-gradient(150deg, var(--brand) 0%, var(--brand-deep) 100%);
-  border-radius: 20px;
+  border-radius: var(--r-xl);
   box-shadow: 0 30px 60px rgba(10, 40, 20, 0.28);
   color: #ffffff;
   transform: rotate(-6deg);

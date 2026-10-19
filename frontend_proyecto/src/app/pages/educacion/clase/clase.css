@@ -76,7 +76,7 @@
 .player {
   position: relative;
   aspect-ratio: 16 / 9;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   overflow: hidden;
   background-size: cover;
   background-position: center;
@@ -156,7 +156,7 @@
   padding: 34px;
   background: var(--tinta-2);
   border: 1px solid var(--linea);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   animation: fu-fade-in 0.4s ease both;
 }
 
@@ -278,7 +278,7 @@
   justify-content: center;
   gap: 8px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--r-pill);
   padding: 12px 20px;
   font-family: inherit;
   font-size: 14px;
@@ -339,7 +339,7 @@
   padding: 18px;
   background: var(--tinta-2);
   border: 1px solid var(--linea);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
 }
 
 .indice__head {

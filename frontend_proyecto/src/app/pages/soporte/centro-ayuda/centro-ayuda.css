@@ -38,7 +38,7 @@
   padding: clamp(34px, 5vw, 60px) clamp(24px, 4vw, 56px);
   margin-bottom: 56px;
   background: var(--verde-noche);
-  border-radius: 24px;
+  border-radius: var(--r-xl);
   color: #ffffff;
 }
 
@@ -205,7 +205,7 @@
   padding: 32px;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
   cursor: pointer;
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
@@ -314,7 +314,7 @@
   padding: 28px;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
@@ -388,7 +388,7 @@
   margin: 0 0 24px;
   padding: 20px;
   background: var(--verde-humo);
-  border-radius: 14px;
+  border-radius: var(--r-lg);
 }
 
 .channel-card__meta > div {
@@ -455,7 +455,7 @@
   text-align: center;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
 }
 
@@ -484,7 +484,7 @@
   padding: 28px;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
 }
 
@@ -535,13 +535,13 @@
   }
 
   .help-hero {
-    border-radius: 20px;
+    border-radius: var(--r-xl);
   }
 
   .help-search {
     flex-wrap: wrap;
     padding: 14px 18px;
-    border-radius: 18px;
+    border-radius: var(--r-lg);
   }
 
   .help-search__input {

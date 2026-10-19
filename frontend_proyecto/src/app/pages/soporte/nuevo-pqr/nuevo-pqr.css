@@ -36,7 +36,7 @@
   padding: clamp(28px, 4vw, 48px);
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   box-shadow: var(--sombra);
 }
 
@@ -109,7 +109,7 @@
   margin: 0;
   padding: 14px 20px;
   background: var(--verde-humo);
-  border-radius: 14px;
+  border-radius: var(--r-lg);
 }
 
 .pqr-meta span {
@@ -140,7 +140,7 @@
   gap: 7px;
   padding: 20px;
   background: var(--lienzo);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
 }
 
 .pqr-paso__num {
@@ -261,7 +261,7 @@
   padding: 34px 22px;
   background: var(--verde-humo);
   border: 1px dashed var(--line-strong);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease;
@@ -355,7 +355,7 @@
   }
 
   .pqr-card {
-    border-radius: 18px;
+    border-radius: var(--r-lg);
   }
 
   .pqr-actions {

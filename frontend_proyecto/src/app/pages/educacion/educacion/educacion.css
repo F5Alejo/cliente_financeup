@@ -46,14 +46,14 @@
   margin-bottom: 44px;
   background: var(--tinta-2);
   border: 1px solid var(--linea);
-  border-radius: 20px;
+  border-radius: var(--r-xl);
   animation: fu-fade-up 0.5s ease both;
 }
 
 .reanudar__cover {
   position: relative;
   height: 132px;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   background-size: cover;
   background-position: center;
 }
@@ -61,7 +61,7 @@
 .reanudar__scrim {
   position: absolute;
   inset: 0;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   background: linear-gradient(105deg, rgba(13, 21, 18, 0.1), rgba(13, 21, 18, 0.75));
 }
 
@@ -142,7 +142,7 @@
   align-items: center;
   gap: 8px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--r-pill);
   padding: 11px 18px;
   font-family: inherit;
   font-size: 14px;
@@ -331,7 +331,7 @@
   scroll-snap-align: start;
   background: var(--tinta-2);
   border: 1px solid var(--linea);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   overflow: hidden;
   cursor: pointer;
   animation: fu-fade-up 0.45s ease both;
@@ -517,5 +517,6 @@
     top: 34px;
     right: auto;
     width: 92px;
+    text-align: center;
   }
 }

@@ -1,18 +1,26 @@
-.app-header {
+/* El sticky va en el host: el <header> interno mide lo mismo que <app-header>
+   y por eso nunca podía quedarse fijo. */
+:host {
   position: sticky;
   top: 0;
   z-index: 1000;
+  display: block;
+}
+
+.app-header {
   width: 100%;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: saturate(1.4) blur(10px);
-  -webkit-backdrop-filter: saturate(1.4) blur(10px);
-  border-bottom: 1px solid var(--line);
+  background: rgba(251, 251, 253, 0.78);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  view-transition-name: fu-header;
 }
 
 .header-container {
-  max-width: 1180px;
+  max-width: var(--page-max);
+  min-height: 56px;
   margin: 0 auto;
-  padding: 0.6rem 2rem;
+  padding: 0.35rem var(--page-gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,7 +39,7 @@
 }
 
 .brand-logo {
-  height: 48px;
+  height: 38px;
   width: auto;
   display: block;
 }
@@ -47,10 +55,10 @@
 .nav-link {
   position: relative;
   border-radius: var(--r-md);
-  padding: 0.55rem 0.85rem;
-  color: var(--ink-soft);
-  font-size: 0.94rem;
-  font-weight: 600;
+  padding: 0.45rem 0.8rem;
+  color: var(--ink-body);
+  font-size: 0.875rem;
+  font-weight: 500;
   text-decoration: none;
   transition: background-color 0.18s ease, color 0.18s ease;
 }
@@ -60,22 +68,22 @@
   position: absolute;
   left: 0.85rem;
   right: 0.85rem;
-  bottom: 0.15rem;
-  height: 3px;
-  border-radius: 3px 3px 0 0;
-  background: var(--brand);
+  bottom: -0.45rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--brand-strong);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.25s var(--ease-out);
 }
 
 .nav-link:hover {
-  background-color: var(--surface-sunk);
   color: var(--ink);
 }
 
 .nav-link.active {
   color: var(--ink);
+  font-weight: 600;
 }
 
 .nav-link.active::after {
@@ -91,11 +99,11 @@
 }
 
 .btn-login {
-  padding: 0.55rem 0.85rem;
-  border-radius: var(--r-md);
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--r-pill);
   color: var(--ink);
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
   text-decoration: none;
   transition: background-color 0.18s ease;
 }
@@ -106,17 +114,17 @@
 
 .btn-register {
   border-radius: var(--r-pill);
-  padding: 0.6rem 1.2rem;
-  background: var(--brand-deep);
+  padding: 0.45rem 1rem;
+  background: var(--brand-strong);
   color: #fff;
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   text-decoration: none;
   transition: background-color 0.18s ease;
 }
 
 .btn-register:hover {
-  background: var(--brand-strong);
+  background: var(--brand-hover);
 }
 
 .perfil-menu {
@@ -143,11 +151,11 @@
 }
 
 .perfil-avatar {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: var(--brand-deep);
-  color: var(--lime);
+  background: var(--brand-strong);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,8 +166,8 @@
 }
 
 .perfil-nombre {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
   color: var(--ink);
 }
 
@@ -169,13 +177,15 @@
   right: 0;
   min-width: 220px;
   padding: 0.35rem;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-lg);
   z-index: 1100;
   transform-origin: top right;
-  animation: perfil-abrir 0.18s var(--ease-out);
+  animation: perfil-abrir 0.3s var(--ease-out);
 }
 
 @keyframes perfil-abrir {
@@ -265,7 +275,7 @@
   }
 
   .brand-logo {
-    height: 40px;
+    height: 34px;
   }
 
   .main-nav {

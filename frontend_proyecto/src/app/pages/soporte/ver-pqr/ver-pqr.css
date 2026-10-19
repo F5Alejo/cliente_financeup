@@ -48,7 +48,7 @@
   padding: clamp(26px, 3.5vw, 44px);
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   box-shadow: var(--sombra);
 }
 
@@ -119,7 +119,7 @@
   gap: 3px;
   padding: 14px 20px;
   background: var(--verde-humo);
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   font-size: 12.5px;
   font-weight: 500;
   color: var(--tinta-2);
@@ -157,7 +157,7 @@
   padding: 15px 18px;
   background: var(--lienzo);
   border: none;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   font-size: 15px;
   line-height: 1.7;
   color: var(--tinta);
@@ -191,7 +191,7 @@
   padding: 14px 18px;
   background: var(--panel);
   border: 1px solid var(--line-strong);
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
@@ -260,7 +260,7 @@
   padding: 22px 24px;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
 }
 
@@ -303,7 +303,7 @@
 .mensaje-card {
   padding: 24px;
   background: var(--verde-noche);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   color: #ffffff;
 }
 
@@ -347,6 +347,6 @@
   }
 
   .pqr-card {
-    border-radius: 18px;
+    border-radius: var(--r-lg);
   }
 }

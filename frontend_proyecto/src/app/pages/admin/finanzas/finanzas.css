@@ -33,7 +33,7 @@ table {
     border-collapse: collapse;
     background: white;
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: var(--r-lg);
     overflow: hidden;
 }
 
@@ -76,7 +76,7 @@ td.negativo {
     background: var(--brand-wash);
     color: var(--brand-strong);
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: var(--r-pill);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -90,7 +90,7 @@ td.negativo {
 .panel-form {
     background: white;
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: var(--r-lg);
     padding: 22px;
     margin-top: 24px;
 }
@@ -131,7 +131,7 @@ td.negativo {
     color: white;
     border: none;
     padding: 10px 18px;
-    border-radius: 8px;
+    border-radius: var(--r-pill);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -141,7 +141,7 @@ td.negativo {
     background: white;
     border: 1px solid var(--line-strong);
     padding: 10px 18px;
-    border-radius: 8px;
+    border-radius: var(--r-pill);
     font-size: 13px;
     cursor: pointer;
 }
@@ -156,7 +156,7 @@ td.negativo {
 .resumen-item {
     background: white;
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: var(--r-lg);
     padding: 16px 18px;
     display: flex;
     flex-direction: column;
