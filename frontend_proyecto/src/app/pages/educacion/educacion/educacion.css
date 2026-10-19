@@ -1,15 +1,15 @@
 /* Aula FinanceUp: superficie clara acorde a la paleta del sitio, acento verde, cifras en mono. */
 
 :host {
-  --tinta: #f4f6f5;
-  --tinta-2: #ffffff;
-  --tinta-3: #e2e8e5;
+  --tinta: var(--paper);
+  --tinta-2: var(--surface);
+  --tinta-3: var(--surface-sunk);
   --verde: var(--green-primary);
-  --verde-claro: #0a5c28;
-  --humo: #16211c;
-  --humo-2: #5c7266;
-  --linea: #dde5e0;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --verde-claro: var(--brand-hover);
+  --humo: var(--ink);
+  --humo-2: var(--ink-soft);
+  --linea: var(--line);
+  --mono: var(--font-body);
 
   display: block;
   min-height: 100vh;
@@ -32,8 +32,7 @@
   margin: 0 0 10px;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--verde-claro);
 }
 
@@ -158,7 +157,7 @@
 
 .btn--play {
   background: var(--verde);
-  color: #06210f;
+  color: #ffffff;
 }
 
 .btn--play:hover {
@@ -259,7 +258,7 @@
 .chip--on {
   background: var(--verde);
   border-color: var(--verde);
-  color: #06210f;
+  color: #ffffff;
 }
 
 .chip--reset {
@@ -417,8 +416,7 @@
   margin: 0 0 6px;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--humo-2);
 }
 

@@ -5,15 +5,20 @@
     font-family: var(--font-family-base);
 }
 
+h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+}
+
 .resuelve-deuda {
-    --sage: #24554C;
-    --sage-dark: #25312B;
-    --sage-tint: #E5EBEA;
-    --sage-tint-strong: #CAD6D4;
-    --black: #25312B;
-    --sand: #A3A7A9;
-    --floral-white: #E7E8E9;
-    --cloud: #C8CACB;
+    --sage: var(--brand-strong);
+    --sage-dark: var(--brand-deep);
+    --sage-tint: var(--brand-wash);
+    --sage-tint-strong: var(--brand-wash-strong);
+    --black: var(--ink);
+    --sand: var(--ink-soft);
+    --floral-white: var(--surface);
+    --cloud: var(--line);
 
     padding: 28px 32px;
     max-width: 1100px;
@@ -42,7 +47,7 @@
 }
 
 .deuda-hero p {
-    color: rgba(0,0,0,.65);
+    color: var(--ink-soft);
     font-size: 13.5px;
     max-width: 560px;
     line-height: 1.5;
@@ -63,7 +68,7 @@
     border-radius: 12px;
     padding: 12px 14px;
     font-size: 12.5px;
-    color: rgba(0,0,0,.78);
+    color: var(--ink-body);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -122,7 +127,7 @@
 
 .campo label {
     font-size: 12px;
-    color: rgba(0,0,0,.65);
+    color: var(--ink-soft);
     font-weight: 600;
 }
 
@@ -180,14 +185,14 @@
 }
 
 .deuda-dato {
-    color: rgba(0,0,0,.65);
+    color: var(--ink-soft);
 }
 
 .btn-eliminar {
     margin-left: auto;
     background: none;
     border: none;
-    color: rgba(0,0,0,.4);
+    color: var(--ink-faint);
     cursor: pointer;
     width: 26px;
     height: 26px;
@@ -196,12 +201,12 @@
 }
 
 .btn-eliminar:hover {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--negative-wash);
+    color: var(--negative);
 }
 
 .lista-vacia {
-    color: rgba(0,0,0,.4);
+    color: var(--ink-faint);
     text-align: center;
     background: transparent !important;
 }
@@ -228,15 +233,15 @@
 .comparacion-cifra small {
     font-size: 13px;
     font-weight: 500;
-    color: rgba(0,0,0,.4);
+    color: var(--ink-faint);
 }
 
-.comparacion-card.actual .comparacion-cifra { color: #dc2626; }
+.comparacion-card.actual .comparacion-cifra { color: var(--negative); }
 .comparacion-card.propuesta .comparacion-cifra { color: var(--sage); }
 
 .comparacion-detalle {
     font-size: 12px;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
 }
 
 /* AHORRO / CTA */
@@ -251,11 +256,13 @@
 .resumen-label {
     display: block;
     font-size: 12px;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
     font-weight: 600;
 }
 
 .resumen-valor {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
     display: block;
     font-size: 22px;
     font-weight: 700;
@@ -263,7 +270,7 @@
 }
 
 .resumen-valor.positivo { color: var(--sage); }
-.resumen-valor.negativo { color: #dc2626; }
+.resumen-valor.negativo { color: var(--negative); }
 
 .btn-primario {
     background: var(--sage);
@@ -294,13 +301,13 @@
     margin-bottom: 20px;
 }
 
-.estado-solicitud.estado-pendiente { background: #fef9c3; color: #92702a; }
+.estado-solicitud.estado-pendiente { background: var(--warning-wash); color: var(--warning); }
 .estado-solicitud.estado-aprobada { background: var(--sage-tint-strong); color: var(--sage); }
-.estado-solicitud.estado-rechazada { background: #fee2e2; color: #dc2626; }
+.estado-solicitud.estado-rechazada { background: var(--negative-wash); color: var(--negative); }
 
 .nota-legal {
     font-size: 11px;
-    color: rgba(0,0,0,.4);
+    color: var(--ink-faint);
     line-height: 1.5;
 }
 

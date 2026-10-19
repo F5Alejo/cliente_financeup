@@ -2,39 +2,57 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-body);
 }
 
 .admin-menu {
     display: flex;
-    gap: 6px;
-    background: #f1f5f9;
-    padding: 5px;
-    border-radius: 999px;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    padding: 4px;
+    border-radius: var(--r-pill);
     width: fit-content;
-    margin: 0 auto 24px;
+    max-width: calc(100% - 32px);
+    margin: 24px auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.admin-menu::-webkit-scrollbar {
+    display: none;
 }
 
 .admin-menu a {
+    flex-shrink: 0;
     text-decoration: none;
-    color: #64748b;
-    font-size: 13.5px;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
     font-weight: 600;
-    padding: 8px 18px;
-    border-radius: 999px;
-    transition: .2s;
+    padding: 8px 16px;
+    border-radius: var(--r-pill);
+    transition: background-color .18s ease, color .18s ease;
 }
 
 .admin-menu a:hover {
-    color: #0f172a;
+    color: var(--ink);
+    background: var(--surface-sunk);
 }
 
 .admin-menu a.activo {
-    background: #0f766e;
-    color: white;
+    background: var(--brand-deep);
+    color: #fff;
+}
+
+/* "Resumen" (/admin) también coincide con las subrutas; si otra opción está
+   activa, se apaga. Lo ideal sería routerLinkActiveOptions exact en la plantilla. */
+.admin-menu:has(a.activo ~ a.activo) a.activo:first-child {
+    background: transparent;
+    color: var(--ink-soft);
 }
 
 .admin-menu a:focus-visible {
-    outline: 3px solid #0f766e;
+    outline: 2px solid var(--brand-strong);
     outline-offset: 2px;
 }

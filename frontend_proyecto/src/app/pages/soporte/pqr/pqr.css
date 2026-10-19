@@ -1,25 +1,25 @@
 /* Mis PQR: cada caso en una tarjeta amable, con su estado y su avance a la vista. */
 
 :host {
-  --lienzo: #f2f6f4;
-  --panel: #ffffff;
-  --tinta: #14231c;
-  --tinta-2: #5a6f65;
-  --borde: #e6ece9;
+  --lienzo: var(--paper);
+  --panel: var(--surface);
+  --tinta: var(--ink);
+  --tinta-2: var(--ink-soft);
+  --borde: var(--line);
   --verde: var(--green-primary);
-  --verde-hondo: #0a5c28;
-  --verde-noche: #0b3a22;
-  --verde-humo: #eef7f1;
+  --verde-hondo: var(--brand-hover);
+  --verde-noche: var(--brand-deep);
+  --verde-humo: var(--brand-wash);
 
-  --ok-fondo: #e8f5ec;
-  --ok-texto: #0a5c28;
-  --espera-fondo: #fdf3e0;
-  --espera-texto: #8a5a12;
-  --alto-fondo: #fdeeeb;
-  --alto-texto: #a3271f;
+  --ok-fondo: var(--positive-wash);
+  --ok-texto: var(--positive);
+  --espera-fondo: var(--warning-wash);
+  --espera-texto: var(--warning);
+  --alto-fondo: var(--negative-wash);
+  --alto-texto: var(--negative);
 
-  --sombra: 0 1px 2px rgba(20, 35, 28, 0.04), 0 4px 12px rgba(20, 35, 28, 0.05);
-  --sombra-alta: 0 2px 4px rgba(20, 35, 28, 0.05), 0 14px 30px rgba(20, 35, 28, 0.09);
+  --sombra: var(--shadow-sm);
+  --sombra-alta: var(--shadow-md);
 
   display: block;
   width: 100%;
@@ -151,8 +151,8 @@
 }
 
 .search-container:focus-within {
-  border-color: #bfe0cd;
-  box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.12), var(--sombra);
+  border-color: var(--line-strong);
+  box-shadow: 0 0 0 4px rgba(30, 122, 59, 0.12), var(--sombra);
 }
 
 .search-icon {
@@ -189,7 +189,7 @@
 }
 
 .search-container input::placeholder {
-  color: #8a9c93;
+  color: var(--ink-faint);
 }
 
 .search-button {
@@ -216,7 +216,7 @@
   gap: 4px;
   flex-wrap: wrap;
   padding: 5px;
-  background: #e7ede9;
+  background: var(--surface-sunk);
   border-radius: 999px;
 }
 
@@ -263,7 +263,7 @@
 }
 
 .pqr-card:hover {
-  border-color: #d3e3d9;
+  border-color: var(--line-strong);
   box-shadow: var(--sombra-alta);
 }
 
@@ -394,7 +394,7 @@
 .pqr-progress__track {
   height: 7px;
   border-radius: 999px;
-  background: #e7ede9;
+  background: var(--surface-sunk);
   overflow: hidden;
 }
 
@@ -428,7 +428,7 @@
 
 .view-button {
   padding: 11px 22px;
-  border: 1px solid #cfe3d8;
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   background: var(--panel);
   font-family: inherit;
@@ -468,7 +468,7 @@
   font-size: 26px;
   font-weight: 400;
   line-height: 1;
-  color: #a7e9c2;
+  color: var(--lime);
 }
 
 .new-pqr-card h2 {
@@ -489,18 +489,17 @@
   padding: 13px 26px;
   border: none;
   border-radius: 999px;
-  background: var(--verde);
+  background: var(--lime);
   font-family: inherit;
   font-size: 14.5px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--ink);
   cursor: pointer;
   transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .create-button:hover {
   background: #ffffff;
-  color: var(--verde-hondo);
 }
 
 /* ---------- Responsive ---------- */
