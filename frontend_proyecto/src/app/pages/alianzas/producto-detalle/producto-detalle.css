@@ -55,6 +55,16 @@
   color: var(--texto);
 }
 
+/* Foto de portada del producto */
+.ficha-producto__foto {
+  display: block;
+  width: 100%;
+  height: clamp(140px, 15vw, 210px);
+  margin-bottom: 32px;
+  border-radius: var(--r-xl);
+  object-fit: cover;
+}
+
 /* Cabecera */
 .cabecera {
   display: grid;

@@ -38,6 +38,7 @@
     </div>
 
     <div class="portada__visual" aria-hidden="true">
+      <img class="portada__foto" src="assets/img/alianzas/portada.webp" alt="" width="960" height="640" />
       <div class="tarjeta-visual">
         <span class="tarjeta-visual__chip"></span>
         <span class="tarjeta-visual__numero">•••• •••• •••• 8842</span>
@@ -116,6 +117,9 @@
     @for (producto of productos(); track producto.id; let i = $index) {
       <article class="producto" [style.animation-delay]="i * 60 + 'ms'">
         <div class="producto__id">
+          @if (producto.imagen) {
+            <img class="producto__foto" [src]="producto.imagen" alt="" loading="lazy" width="208" height="124" />
+          }
           <span class="marca" [style.background]="producto.logoBg">{{ producto.logoText }}</span>
           <p class="producto__aliado">{{ producto.aliado }}</p>
           <p class="producto__familia">{{ producto.categoria }}</p>
