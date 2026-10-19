@@ -90,6 +90,7 @@ export class MetasComponent {
     }
 
     this.metasService.editarMeta(meta.id, { actual: meta.actual + this.montoAbono });
+    console.log('[Metas] Abono registrado:', { meta: meta.nombre, monto: this.montoAbono });
     this.toastService.success(`Abonaste ${this.formatearCOP(this.montoAbono)} a "${meta.nombre}".`);
     this.cancelarAbono();
   }
@@ -118,6 +119,7 @@ export class MetasComponent {
       actual: 0,
       objetivo,
     });
+    console.log('[Metas] Meta creada:', { nombre, objetivo });
     this.toastService.success('Meta creada correctamente');
 
     this.nombreNuevaMeta = '';

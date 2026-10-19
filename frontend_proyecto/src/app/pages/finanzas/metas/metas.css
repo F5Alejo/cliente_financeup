@@ -163,7 +163,6 @@ h1, h2, h3 {
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 13.5px;
-    outline: none;
     transition: .2s;
 }
 
