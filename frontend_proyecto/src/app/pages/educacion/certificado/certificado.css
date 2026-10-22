@@ -1,14 +1,14 @@
 /* Entrega del certificado: superficie clara del aula. */
 
 :host {
-  --tinta: #f4f6f5;
-  --tinta-2: #ffffff;
+  --tinta: var(--paper);
+  --tinta-2: var(--surface);
   --verde: var(--green-primary);
-  --verde-claro: #0a5c28;
-  --humo: #16211c;
-  --humo-2: #5c7266;
-  --linea: #dde5e0;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --verde-claro: var(--brand-hover);
+  --humo: var(--ink);
+  --humo-2: var(--ink-soft);
+  --linea: var(--line);
+  --mono: var(--font-body);
 
   display: block;
   min-height: 100vh;
@@ -36,8 +36,7 @@
   margin: 0 0 10px;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--verde-claro);
 }
 
@@ -59,15 +58,15 @@
 /* Diploma en papel claro */
 .diploma {
   padding: 10px;
-  background: linear-gradient(150deg, var(--verde) 0%, #0a5c28 100%);
-  border-radius: 18px;
+  background: linear-gradient(150deg, var(--verde) 0%, var(--brand-hover) 100%);
+  border-radius: var(--r-lg);
 }
 
 .diploma__marco {
   padding: clamp(28px, 5vw, 52px);
-  background: #f7faf8;
+  background: var(--gray-50);
   border-radius: 12px;
-  color: #16211c;
+  color: var(--ink);
   text-align: center;
 }
 
@@ -78,7 +77,7 @@
   gap: 14px;
   padding-bottom: 22px;
   margin-bottom: 30px;
-  border-bottom: 1px solid #dfe8e2;
+  border-bottom: 1px solid var(--line-strong);
 }
 
 .diploma__marca {
@@ -92,13 +91,13 @@
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #5c7266;
+  color: var(--ink-soft);
 }
 
 .diploma__leyenda {
   margin: 0;
   font-size: 12.5px;
-  color: #5c7266;
+  color: var(--ink-soft);
 }
 
 .diploma__nombre {
@@ -112,7 +111,7 @@
   margin: 10px 0 34px;
   font-size: clamp(17px, 2.4vw, 22px);
   font-weight: 700;
-  color: #0a5c28;
+  color: var(--brand-hover);
 }
 
 .diploma__pie {
@@ -121,7 +120,7 @@
   gap: 18px;
   margin: 0;
   padding-top: 24px;
-  border-top: 1px solid #dfe8e2;
+  border-top: 1px solid var(--line-strong);
   text-align: left;
 }
 
@@ -130,7 +129,7 @@
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #5c7266;
+  color: var(--ink-soft);
 }
 
 .diploma__pie dd {
@@ -150,7 +149,7 @@
 
 .btn {
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--r-pill);
   padding: 13px 22px;
   font-family: inherit;
   font-size: 14px;
@@ -165,7 +164,7 @@
 
 .btn--play {
   background: var(--verde);
-  color: #06210f;
+  color: #ffffff;
 }
 
 .btn--play:hover {
@@ -212,6 +211,6 @@
   }
 
   .diploma__marco {
-    border: 1px solid #dfe8e2;
+    border: 1px solid var(--line-strong);
   }
 }

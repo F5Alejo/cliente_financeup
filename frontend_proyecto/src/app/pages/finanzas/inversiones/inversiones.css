@@ -5,15 +5,20 @@
     font-family: var(--font-family-base);
 }
 
+h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+}
+
 .inversiones {
-    --sage: #24554C;
-    --sage-dark: #25312B;
-    --sage-tint: #E5EBEA;
-    --sage-tint-strong: #CAD6D4;
-    --black: #25312B;
-    --sand: #A3A7A9;
-    --floral-white: #E7E8E9;
-    --cloud: #C8CACB;
+    --sage: var(--brand-strong);
+    --sage-dark: var(--brand-deep);
+    --sage-tint: var(--brand-wash);
+    --sage-tint-strong: var(--brand-wash-strong);
+    --black: var(--ink);
+    --sand: var(--ink-soft);
+    --floral-white: var(--surface);
+    --cloud: var(--line);
 
     padding: 28px 32px;
     max-width: 1100px;
@@ -60,7 +65,7 @@
 .btn-secundario,
 .btn-primario {
     border: none;
-    border-radius: 10px;
+    border-radius: var(--r-pill);
     padding: 10px 18px;
     font-size: 13.5px;
     font-weight: 600;
@@ -89,8 +94,8 @@
 
 /* ALERTA DE CONCENTRACIÓN DE RIESGO */
 .alerta-riesgo {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--warning-wash);
+    color: var(--warning);
     padding: 12px 18px;
     border-radius: 12px;
     font-size: 13.5px;
@@ -108,7 +113,7 @@
 .card-resumen {
     background: var(--floral-white);
     border: 1px solid var(--cloud);
-    border-radius: 16px;
+    border-radius: var(--r-lg);
     padding: 18px 20px;
     display: flex;
     flex-direction: column;
@@ -117,11 +122,13 @@
 
 .card-titulo {
     font-size: 12.5px;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
     font-weight: 600;
 }
 
 .card-valor {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
     font-size: 21px;
     font-weight: 700;
     color: var(--black);
@@ -133,7 +140,7 @@
 
 .card-nota {
     font-size: 11.5px;
-    color: rgba(0,0,0,.4);
+    color: var(--ink-faint);
 }
 
 .card-nota.positivo {
@@ -154,7 +161,7 @@
 .panel {
     background: var(--floral-white);
     border: 1px solid var(--cloud);
-    border-radius: 18px;
+    border-radius: var(--r-lg);
     padding: 22px;
     margin-bottom: 20px;
 }
@@ -193,7 +200,7 @@
 .filtros button {
     border: none;
     background: transparent;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
     font-size: 12px;
     font-weight: 600;
     padding: 6px 12px;
@@ -224,7 +231,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
     font-size: 12px;
     margin-top: 8px;
 }
@@ -267,7 +274,7 @@
     flex-direction: column;
     gap: 9px;
     font-size: 12.5px;
-    color: rgba(0,0,0,.65);
+    color: var(--ink-soft);
 }
 
 .leyenda li {
@@ -318,7 +325,7 @@ table {
 thead th {
     text-align: left;
     font-size: 12px;
-    color: rgba(0,0,0,.4);
+    color: var(--ink-faint);
     font-weight: 600;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--cloud);
@@ -329,7 +336,7 @@ tfoot td {
     padding: 14px 0;
     border-bottom: 1px solid var(--cloud);
     font-size: 13.5px;
-    color: rgba(0,0,0,.78);
+    color: var(--ink-body);
 }
 
 tfoot td {
@@ -346,7 +353,7 @@ td.positivo {
 }
 
 td.negativo {
-    color: #dc2626;
+    color: var(--negative);
     font-weight: 700;
 }
 
@@ -365,15 +372,15 @@ td.negativo {
 }
 
 .riesgo-bajo .punto-riesgo {
-    background: #16a34a;
+    background: var(--brand-strong);
 }
 
 .riesgo-medio .punto-riesgo {
-    background: #eab308;
+    background: #d4a017;
 }
 
 .riesgo-alto .punto-riesgo {
-    background: #dc2626;
+    background: var(--negative);
 }
 
 @media (max-width: 900px) {
@@ -415,7 +422,7 @@ td.negativo {
 
 .form-nueva-inversion label {
     font-size: 12px;
-    color: rgba(0,0,0,.65);
+    color: var(--ink-soft);
     font-weight: 600;
 }
 
@@ -437,7 +444,7 @@ td.negativo {
     background: var(--sage);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--r-pill);
     padding: 11px 18px;
     font-size: 13.5px;
     font-weight: 600;

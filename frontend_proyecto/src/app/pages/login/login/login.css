@@ -7,25 +7,21 @@
   --error: var(--color-error);
 
   /* Paleta propia de esta pantalla, derivada del verde de marca */
-  --forest: #123524;
-  --forest-deep: #0b2418;
-  --moss: #1f7a45;
-  --mint: #7be2a0;
-  --paper: #f6f8f6;
-  --line: #dfe4de;
-  --ink: #10241a;
-  --ink-soft: #5c6b62;
-  --white: #ffffff;
+  --forest: var(--brand-deep);
+  --forest-deep: var(--brand-night);
+  --moss: var(--brand-strong);
+  --mint: var(--lime);
+  --white: var(--surface);
 
-  /* Panel derecho: verde claro, como en la versión original */
-  --panel-1: #b8e0b8;
-  --panel-2: #a8d5a8;
-  --panel-3: #8fd08f;
-  --panel-ink: #12351b;
-  --panel-ink-soft: #33613b;
+  /* Panel derecho: gris neutro con un brillo verde al fondo */
+  --panel-1: #fbfbfd;
+  --panel-2: #f0f0f3;
+  --panel-3: var(--brand-wash-strong);
+  --panel-ink: var(--ink);
+  --panel-ink-soft: var(--ink-soft);
 
   display: block;
-  font-family: 'Inter', var(--font-family-base), sans-serif;
+  font-family: var(--font-body);
 }
 
 * {
@@ -45,8 +41,8 @@
   padding: 32px 24px;
 
   background:
-    radial-gradient(circle at 12% 8%, rgba(31, 122, 69, 0.07), transparent 32%),
-    radial-gradient(circle at 88% 92%, rgba(31, 122, 69, 0.06), transparent 32%),
+    radial-gradient(circle at 12% 8%, rgba(30, 122, 59, 0.07), transparent 32%),
+    radial-gradient(circle at 88% 92%, rgba(30, 122, 59, 0.06), transparent 32%),
     var(--paper);
 }
 
@@ -64,7 +60,7 @@
   display: flex;
   align-items: stretch;
 
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   overflow: hidden;
 
   background: var(--white);
@@ -120,7 +116,7 @@
 }
 
 .stage-heading h1 {
-  font-family: 'Manrope', var(--font-family-base), sans-serif;
+  font-family: var(--font-display);
   font-size: 25px;
   font-weight: 800;
   letter-spacing: -0.4px;
@@ -145,9 +141,9 @@
 }
 
 .alert-error {
-  background: #fff1f2;
+  background: var(--negative-wash);
   color: var(--error);
-  border: 1px solid #fecdd3;
+  border: 1px solid #f1c6bc;
 }
 
 .verificacion-texto {
@@ -182,11 +178,11 @@
 .form-group input[type="password"],
 .form-group input[type="text"] {
   width: 100%;
-  height: 47px;
-  padding: 0 15px;
+  height: 50px;
+  padding: 0 16px;
 
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
   background: var(--white);
   color: var(--ink);
   font-size: 14px;
@@ -194,15 +190,15 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-group input::placeholder { color: #9aa79f; }
+.form-group input::placeholder { color: var(--ink-faint); }
 
-.form-group input:hover { border-color: #c2ccc0; }
+.form-group input:hover { border-color: var(--line-strong); }
 
 .form-group input:focus-visible,
 .form-group input:focus {
   outline: none;
   border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(31, 122, 69, 0.14);
+  box-shadow: 0 0 0 3px rgba(30, 122, 59, 0.14);
 }
 
 .code-input {
@@ -240,7 +236,7 @@
 
 .toggle-password svg { width: 18px; height: 18px; }
 
-.toggle-password:hover { background: #eef2ee; color: var(--forest); }
+.toggle-password:hover { background: var(--surface-sunk); color: var(--forest); }
 .toggle-password:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
 /* RECORDAR / OLVIDASTE*/
@@ -284,43 +280,42 @@
 
 .btn-primary {
   width: 100%;
-  height: 48px;
+  height: 50px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--r-pill);
 
-  background: linear-gradient(135deg, var(--moss), var(--forest));
+  background: var(--brand-strong);
   color: var(--white);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
 
   margin-bottom: 11px;
-  box-shadow: 0 8px 18px rgba(18, 53, 36, 0.22);
 
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  transition: transform var(--dur-base) var(--ease-out), background-color 0.2s ease;
 }
 
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(18, 53, 36, 0.28); }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:hover { background: var(--brand-hover); transform: scale(1.015); }
+.btn-primary:active { transform: scale(0.98); }
 .btn-primary:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
 
 .register-button {
   width: 100%;
-  height: 48px;
+  height: 50px;
 
-  background: var(--white);
-  color: var(--moss);
-  border: 1.5px solid var(--moss);
-  border-radius: 10px;
+  background: var(--surface-sunk);
+  color: var(--ink);
+  border: none;
+  border-radius: var(--r-pill);
 
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
 
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease, transform var(--dur-base) var(--ease-out);
 }
 
-.register-button:hover { background: #eef7f0; transform: translateY(-1px); }
+.register-button:hover { background: var(--line); transform: scale(1.015); }
 .register-button:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
 
 /*SEPARADOR + SOCIAL*/
@@ -495,7 +490,7 @@
 }
 
 .showcase-title {
-  font-family: 'Manrope', var(--font-family-base), sans-serif;
+  font-family: var(--font-display);
   font-size: 32px;
   font-weight: 800;
   line-height: 1.16;
@@ -507,10 +502,7 @@
 }
 
 .showcase-title-accent {
-  background: linear-gradient(100deg, var(--forest) 15%, var(--moss) 55%, #3fae66 85%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--brand-strong);
 }
 
 .showcase-subtitle {
@@ -547,7 +539,7 @@
   gap: 10px;
 
   padding: 10px 14px;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
 
   background: rgba(255,255,255,0.68);
   border: 1px solid rgba(255,255,255,0.85);
@@ -675,7 +667,7 @@
   position: relative;
   width: 100%;
 
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   overflow: hidden;
 
   background: linear-gradient(165deg, rgba(18, 44, 30, 0.7), rgba(6, 18, 12, 0.85));
@@ -715,7 +707,7 @@
   flex: 1;
   text-align: center;
 
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 10px;
   color: rgba(255,255,255,0.4);
 
@@ -743,7 +735,7 @@
   align-items: center;
   gap: 5px;
 
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -838,7 +830,7 @@
 }
 
 .demo-scene-pill {
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 700;
   color: var(--mint);
@@ -849,7 +841,7 @@
 
 .demo-total-figure {
   display: inline-flex;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 27px;
   font-weight: 800;
   color: var(--white);
@@ -923,7 +915,7 @@
   top: 6px;
   z-index: 3;
 
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 700;
   color: var(--forest-deep);
@@ -1030,7 +1022,7 @@
 }
 
 .demo-txn-amount {
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
   color: var(--mint);
@@ -1098,7 +1090,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 16px;
   font-weight: 800;
   color: var(--white);
@@ -1141,7 +1133,7 @@
   width: 128px;
 
   padding: 10px 10px 14px;
-  border-radius: 20px;
+  border-radius: var(--r-xl);
 
   background: linear-gradient(165deg, #1a3d29, #0c2016);
   border: 1px solid rgba(255,255,255,0.18);
@@ -1294,7 +1286,7 @@
 
   .login-row {
     flex-direction: column;
-    border-radius: 18px;
+    border-radius: var(--r-lg);
   }
 
   .login-card,
