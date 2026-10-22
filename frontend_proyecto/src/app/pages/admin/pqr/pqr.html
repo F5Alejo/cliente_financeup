@@ -122,11 +122,16 @@
         <div><dt>Fecha de creación</dt><dd>{{ m.pqr.fechaCreacion }}</dd></div>
         <div><dt>Última actualización</dt><dd>{{ m.pqr.ultimaActualizacion }}</dd></div>
         <div class="full"><dt>Descripción</dt><dd>{{ m.pqr.descripcion }}</dd></div>
-        <div class="full"><dt>Respuesta enviada</dt><dd>{{ m.pqr.mensajeRespuesta }}</dd></div>
+        <div class="full"><dt>Última respuesta enviada</dt><dd>{{ m.pqr.mensajeRespuesta || 'Aún no hay una respuesta del asesor.' }}</dd></div>
         @if (m.pqr.archivosAdjuntos.length) {
           <div class="full"><dt>Adjuntos</dt><dd>{{ m.pqr.archivosAdjuntos.join(', ') }}</dd></div>
         }
       </dl>
+      <div class="field respuesta-campo">
+        <label for="pqr-respuesta">Mensaje para el cliente</label>
+        <textarea id="pqr-respuesta" class="input" rows="4" [(ngModel)]="mensajeAdmin" placeholder="Escribe aquí la respuesta que verá el dueño de la PQR"></textarea>
+        <button type="button" class="btn btn-primary" (click)="enviarRespuesta(m.pqr)" [disabled]="!mensajeAdmin.trim()">Enviar respuesta</button>
+      </div>
       <div class="field estado-campo">
         <label for="pqr-estado">Estado de la PQR</label>
         <select id="pqr-estado" class="input" [value]="m.pqr.estado" (change)="cambiarEstadoDesdeDetalle($event)">
