@@ -1,15 +1,15 @@
 /* Sala de clase: superficie clara del aula; el reproductor conserva su fondo oscuro de video. */
 
 :host {
-  --tinta: #f4f6f5;
-  --tinta-2: #ffffff;
-  --tinta-3: #e2e8e5;
+  --tinta: var(--paper);
+  --tinta-2: var(--surface);
+  --tinta-3: var(--surface-sunk);
   --verde: var(--green-primary);
-  --verde-claro: #0a5c28;
-  --humo: #16211c;
-  --humo-2: #5c7266;
-  --linea: #dde5e0;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --verde-claro: var(--brand-hover);
+  --humo: var(--ink);
+  --humo-2: var(--ink-soft);
+  --linea: var(--line);
+  --mono: var(--font-body);
 
   display: block;
   min-height: 100vh;
@@ -76,11 +76,11 @@
 .player {
   position: relative;
   aspect-ratio: 16 / 9;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   overflow: hidden;
   background-size: cover;
   background-position: center;
-  background-color: #1b2a23;
+  background-color: var(--brand-night);
   animation: fu-fade-in 0.4s ease both;
 }
 
@@ -102,7 +102,7 @@
   border: none;
   border-radius: 50%;
   background: var(--verde);
-  color: #06210f;
+  color: #ffffff;
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
 }
@@ -156,7 +156,7 @@
   padding: 34px;
   background: var(--tinta-2);
   border: 1px solid var(--linea);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   animation: fu-fade-in 0.4s ease both;
 }
 
@@ -164,8 +164,7 @@
   margin: 0 0 10px;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--verde-claro);
 }
 
@@ -201,8 +200,7 @@
   margin: 0 0 8px;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--verde-claro);
 }
 
@@ -280,7 +278,7 @@
   justify-content: center;
   gap: 8px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--r-pill);
   padding: 12px 20px;
   font-family: inherit;
   font-size: 14px;
@@ -295,7 +293,7 @@
 
 .btn--play {
   background: var(--verde);
-  color: #06210f;
+  color: #ffffff;
   margin-left: auto;
 }
 
@@ -341,7 +339,7 @@
   padding: 18px;
   background: var(--tinta-2);
   border: 1px solid var(--linea);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
 }
 
 .indice__head {
@@ -417,7 +415,7 @@
 .item--hecha .item__marca {
   background: var(--verde);
   border-color: var(--verde);
-  color: #06210f;
+  color: #ffffff;
 }
 
 .item--activa .item__marca {
@@ -426,7 +424,7 @@
 }
 
 .item--activa.item--hecha .item__marca {
-  color: #06210f;
+  color: #ffffff;
 }
 
 .item__texto {

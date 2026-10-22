@@ -18,18 +18,23 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-body);
+}
+
+h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
 }
 
 .libro-mayor {
-    --sage: #24554C;
-    --sage-dark: #25312B;
-    --sage-tint: #E5EBEA;
-    --sage-tint-strong: #CAD6D4;
-    --black: #25312B;
-    --sand: #A3A7A9;
-    --floral-white: #E7E8E9;
-    --cloud: #C8CACB;
+    --sage: var(--brand-strong);
+    --sage-dark: var(--brand-deep);
+    --sage-tint: var(--brand-wash);
+    --sage-tint-strong: var(--brand-wash-strong);
+    --black: var(--ink);
+    --sand: var(--ink-soft);
+    --floral-white: var(--surface);
+    --cloud: var(--line);
 
     padding: 28px 32px;
     max-width: 1200px;
@@ -75,7 +80,7 @@
 
 .subtitulo {
     font-size: 13px;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
     margin-top: 4px;
 }
 
@@ -90,7 +95,7 @@
     display: inline-block; /* así "Ver mis deudas" (un <a>) se ve igual que los <button> */
     text-decoration: none;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--r-pill);
     padding: 10px 16px;
     font-size: 13.5px;
     font-weight: 600;
@@ -133,8 +138,8 @@
 }
 
 .toast.error {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: var(--negative-wash);
+    color: var(--negative);
 }
 
 @keyframes aparecer {
@@ -153,7 +158,7 @@
 .card-resumen {
     background: var(--floral-white);
     border: 1px solid var(--cloud);
-    border-radius: 14px;
+    border-radius: var(--r-lg);
     padding: 16px 18px;
     display: flex;
     flex-direction: column;
@@ -162,11 +167,13 @@
 
 .card-titulo {
     font-size: 12px;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
     font-weight: 600;
 }
 
 .card-valor {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
     font-size: 19px;
     font-weight: 700;
     color: var(--black);
@@ -177,14 +184,14 @@
 }
 
 .card-valor.negativo {
-    color: #dc2626;
+    color: var(--negative);
 }
 
 /* PANEL BASE */
 .panel {
     background: var(--floral-white);
     border: 1px solid var(--cloud);
-    border-radius: 16px;
+    border-radius: var(--r-lg);
     padding: 20px;
     margin-bottom: 18px;
 }
@@ -216,7 +223,7 @@
 
 .campo label {
     font-size: 12px;
-    color: rgba(0,0,0,.65);
+    color: var(--ink-soft);
     font-weight: 600;
 }
 
@@ -247,13 +254,13 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
-    background: #fff7ed;
-    border-color: #fed7aa;
+    background: var(--warning-wash);
+    border-color: #ecd3a0;
 }
 
 .confirmacion-eliminar span {
     font-size: 13.5px;
-    color: #9a3412;
+    color: var(--warning);
 }
 
 .confirmacion-botones {
@@ -262,10 +269,10 @@
 }
 
 .btn-eliminar-confirmar {
-    background: #dc2626;
+    background: var(--negative);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--r-pill);
     padding: 10px 16px;
     font-size: 13.5px;
     font-weight: 600;
@@ -273,7 +280,7 @@
 }
 
 .btn-eliminar-confirmar:hover {
-    background: #b91c1c;
+    background: var(--negative);
 }
 
 /* FILTROS */
@@ -322,7 +329,7 @@ table {
 thead th {
     text-align: left;
     font-size: 12px;
-    color: rgba(0,0,0,.4);
+    color: var(--ink-faint);
     font-weight: 600;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--cloud);
@@ -341,7 +348,7 @@ tbody td {
     padding: 12px 8px;
     border-bottom: 1px solid var(--cloud);
     font-size: 13.5px;
-    color: rgba(0,0,0,.78);
+    color: var(--ink-body);
 }
 
 td.positivo {
@@ -350,13 +357,13 @@ td.positivo {
 }
 
 td.negativo {
-    color: #dc2626;
+    color: var(--negative);
     font-weight: 700;
 }
 
 .badge-categoria {
     background: var(--cloud);
-    color: rgba(0,0,0,.65);
+    color: var(--ink-soft);
     font-size: 11.5px;
     font-weight: 600;
     padding: 4px 10px;
@@ -376,8 +383,8 @@ td.negativo {
 }
 
 .badge-tipo.gasto {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: var(--negative-wash);
+    color: var(--negative);
 }
 
 .acciones-fila {
@@ -388,7 +395,7 @@ td.negativo {
 .btn-icono-fila {
     background: var(--cloud);
     border: none;
-    color: rgba(0,0,0,.65);
+    color: var(--ink-soft);
     width: 30px;
     height: 30px;
     border-radius: 8px;
@@ -402,15 +409,15 @@ td.negativo {
 }
 
 .btn-icono-fila.btn-eliminar:hover {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--negative-wash);
+    color: var(--negative);
 }
 
 /* ESTADO VACÍO */
 .estado-vacio {
     text-align: center;
     padding: 40px 20px;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
 }
 
 .estado-vacio p {
@@ -419,7 +426,7 @@ td.negativo {
 
 .estado-vacio-ayuda {
     font-size: 12.5px;
-    color: rgba(0,0,0,.4);
+    color: var(--ink-faint);
 }
 
 @media (max-width: 900px) {
@@ -465,7 +472,7 @@ td.negativo {
 .overlay-importador {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, .5);
+    background: rgba(10, 42, 23, .55);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -475,7 +482,7 @@ td.negativo {
 
 .modal-importador {
     background: var(--floral-white);
-    border-radius: 16px;
+    border-radius: var(--r-lg);
     width: 100%;
     max-width: 820px;
     max-height: 90vh;
@@ -503,7 +510,7 @@ td.negativo {
     height: 32px;
     border-radius: 50%;
     cursor: pointer;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
     font-size: 13px;
 }
 
@@ -531,7 +538,7 @@ td.negativo {
 }
 
 .banner-alerta {
-    background: #b91c1c;
+    background: var(--negative);
 }
 
 .link-en-banner {
@@ -561,7 +568,7 @@ td.negativo {
 
 .campos-opcionales-panel p {
     margin-top: 4px;
-    color: rgba(0,0,0,.65);
+    color: var(--ink-soft);
 }
 
 .pasos-importacion {
@@ -594,7 +601,7 @@ td.negativo {
 
 .paso-columna p {
     font-size: 12.5px;
-    color: rgba(0,0,0,.55);
+    color: var(--ink-soft);
     line-height: 1.5;
 }
 
@@ -614,7 +621,7 @@ td.negativo {
     border: 1px solid var(--sage);
     color: var(--sage);
     padding: 10px 16px;
-    border-radius: 10px;
+    border-radius: var(--r-pill);
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -653,12 +660,12 @@ td.negativo {
 }
 
 .resultado-resumen .fallo {
-    color: #dc2626;
+    color: var(--negative);
 }
 
 .lista-errores {
     list-style: none;
-    background: #fef2f2;
+    background: var(--negative-wash);
     border-radius: 10px;
     padding: 10px 14px;
     margin-bottom: 14px;
@@ -668,7 +675,7 @@ td.negativo {
 
 .lista-errores li {
     font-size: 12px;
-    color: #b91c1c;
+    color: var(--negative);
     padding: 3px 0;
 }
 

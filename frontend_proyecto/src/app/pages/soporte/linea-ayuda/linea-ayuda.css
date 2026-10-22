@@ -1,19 +1,19 @@
 /* Linea de ayuda: bloque de atencion con el numero al frente y preguntas en tarjetas. */
 
 :host {
-  --lienzo: #f2f6f4;
-  --panel: #ffffff;
-  --tinta: #14231c;
-  --tinta-2: #5a6f65;
-  --borde: #e6ece9;
+  --lienzo: var(--paper);
+  --panel: var(--surface);
+  --tinta: var(--ink);
+  --tinta-2: var(--ink-soft);
+  --borde: var(--line);
   --verde: var(--green-primary);
-  --verde-hondo: #0a5c28;
-  --verde-noche: #0b3a22;
-  --verde-humo: #eef7f1;
-  --menta: #a7e9c2;
+  --verde-hondo: var(--brand-hover);
+  --verde-noche: var(--brand-deep);
+  --verde-humo: var(--brand-wash);
+  --menta: var(--lime);
 
-  --sombra: 0 1px 2px rgba(20, 35, 28, 0.04), 0 4px 12px rgba(20, 35, 28, 0.05);
-  --sombra-alta: 0 2px 4px rgba(20, 35, 28, 0.05), 0 14px 30px rgba(20, 35, 28, 0.09);
+  --sombra: var(--shadow-sm);
+  --sombra-alta: var(--shadow-md);
 
   display: block;
   width: 100%;
@@ -43,7 +43,7 @@
   padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 56px);
   margin-bottom: 56px;
   background: var(--verde-noche);
-  border-radius: 24px;
+  border-radius: var(--r-xl);
   color: #ffffff;
 }
 
@@ -209,7 +209,7 @@
   flex-wrap: wrap;
   margin-bottom: 26px;
   padding: 5px;
-  background: #e7ede9;
+  background: var(--surface-sunk);
   border-radius: 999px;
 }
 
@@ -245,25 +245,25 @@
 
 .faq-empty {
   margin: 24px 0;
-  color: #667085;
+  color: var(--ink-soft);
   text-align: center;
 }
 
 .faq-item {
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
   overflow: hidden;
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .faq-item:hover {
-  border-color: #d3e3d9;
+  border-color: var(--line-strong);
 }
 
 .faq-item--open {
-  border-color: #d3e3d9;
+  border-color: var(--line-strong);
   box-shadow: var(--sombra-alta);
 }
 
@@ -405,7 +405,7 @@
   }
 
   .banner {
-    border-radius: 20px;
+    border-radius: var(--r-xl);
   }
 
   .banner__phone {

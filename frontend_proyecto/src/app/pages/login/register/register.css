@@ -1,31 +1,29 @@
 /* ============================================= */
 /* Finance Up — Registro                          */
-/* Paleta: verde bosque + acento dorado "crecimiento" */
+/* Paleta: escala verde global + acento dorado "crecimiento" */
 /* ============================================= */
-
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 :host {
   /* Marca */
-  --forest-950: #0b2e22;
-  --forest-800: #123f2f;
-  --green-700:  #146c46;
-  --green-600:  #1b8a56;
-  --green-500:  #22a866;
-  --green-400:  #7cd497;
-  --green-300:  #a4e2b6;
-  --green-200:  #cdedd6;
-  --green-100:  #e8f6ec;
+  --forest-950: var(--brand-night);
+  --forest-800: var(--verde-900);
+  --green-700:  var(--verde-800);
+  --green-600:  var(--verde-700);
+  --green-500:  var(--verde-500);
+  --green-400:  var(--verde-300);
+  --green-300:  var(--verde-200);
+  --green-200:  var(--verde-100);
+  --green-100:  var(--verde-50);
   --gold-500:   #f4b400;
   --gold-600:   #d99a00;
   --gold-100:   #fff4d6;
 
   /* Neutrales */
-  --cream:       #f8f7f2;
-  --ink:         #12241c;
-  --muted:       #67746e;
-  --border:      #e2e5df;
-  --error:       #c74343;
+  /* --ink llega del sistema global */
+  --cream:       var(--fondo);
+  --muted:       var(--texto-tenue);
+  --border:      var(--borde);
+  --error:       var(--peligro);
 
   --color-primary: var(--green-600);
   --color-primary-dark: var(--green-700);
@@ -34,11 +32,9 @@
   --color-text-muted: var(--muted);
   --color-border: var(--border);
   --color-error: var(--error);
-  --font-display: 'Sora', var(--font-family-base, sans-serif);
-  --font-body: 'Inter', var(--font-family-base, sans-serif);
 
-  --shadow-soft: 0 10px 28px rgba(11, 46, 34, 0.08);
-  --shadow-lift: 0 22px 48px rgba(11, 46, 34, 0.16);
+  --shadow-soft: var(--sombra-md);
+  --shadow-lift: var(--sombra-lg);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   display: block;
@@ -54,7 +50,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(120deg, #f4f6f2 0%, #eef6ef 45%, #e7f2ea 100%);
+  background: var(--fondo);
   background-size: 200% 200%;
   animation: bg-drift 18s ease-in-out infinite;
   position: relative;
@@ -265,7 +261,7 @@
   left: 12px;
   width: 16px;
   height: 16px;
-  color: #a3ada6;
+  color: var(--neutro-400);
   pointer-events: none;
   transition: color 0.2s var(--ease);
 }
@@ -280,16 +276,16 @@
   font-size: 14px;
   font-family: var(--font-body);
   color: var(--ink);
-  background: #fcfdfb;
+  background: var(--neutro-50);
   transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease), transform 0.2s var(--ease), background 0.2s var(--ease);
 }
 
 .form-group input::placeholder {
-  color: #9aa39c;
+  color: var(--neutro-400);
 }
 
 .form-group input:hover {
-  border-color: #b9c2cc;
+  border-color: var(--neutro-300);
 }
 
 .form-group input:focus {
@@ -367,7 +363,7 @@
 }
 
 .terms-label:hover {
-  background-color: #dcefdd;
+  background-color: var(--verde-50);
 }
 
 .terms-label input {
@@ -437,8 +433,8 @@
 }
 
 .btn-secondary:hover {
-  background-color: #f5f5f5;
-  border-color: #b9c2cc;
+  background-color: var(--surface-sunk);
+  border-color: var(--neutro-300);
   transform: translateY(-1px);
 }
 
@@ -489,7 +485,7 @@
 }
 
 .btn-social:hover {
-  background-color: #f5f5f5;
+  background-color: var(--surface-sunk);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
 }
@@ -509,9 +505,9 @@
 }
 
 .alert-error {
-  background-color: #fdecea;
+  background-color: var(--peligro-flojo);
   color: var(--error);
-  border: 1px solid #f5c6c3;
+  border: 1px solid #f1c6bc;
   animation: shake 0.35s var(--ease);
 }
 
@@ -578,7 +574,7 @@
   gap: 10px;
   font-size: 12.5px;
   line-height: 1.45;
-  color: #1f3b2c;
+  color: var(--ink);
   opacity: 0;
   animation: item-in 0.5s var(--ease) forwards;
   position: relative;
@@ -615,7 +611,7 @@
 
 .social-proof {
   font-size: 11px;
-  color: #3c5a49;
+  color: var(--ink-body);
   border-top: 1px solid rgba(11, 46, 34, 0.15);
   padding-top: 12px;
   margin-bottom: 16px;

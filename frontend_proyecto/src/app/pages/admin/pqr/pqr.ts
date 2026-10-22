@@ -58,6 +58,7 @@ export class AdminPqrComponent {
   filtroPrioridad = signal<PrioridadPqr | ''>('');
   pestana = signal<Pestana>('');
   modal = signal<ModalPqr | null>(null);
+  mensajeAdmin = '';
 
   private esPendiente = (p: Pqr) => p.estado === 'Radicado' || p.estado === 'En revisión';
 
@@ -128,6 +129,17 @@ export class AdminPqrComponent {
     this.refrescar();
   }
 
+  enviarRespuesta(pqr: Pqr): void {
+    if (!this.pqrService.responderPqr(pqr.numero, this.mensajeAdmin)) {
+      this.toastService.info('Escribe un mensaje antes de enviarlo.');
+      return;
+    }
+    this.actividad.registrar('PQR', `Respuesta enviada a PQR ${pqr.numero}`, 'El cliente podrá verla en el detalle de su solicitud.');
+    this.toastService.success('Respuesta enviada al cliente.');
+    this.mensajeAdmin = '';
+    this.refrescar();
+  }
+
   cambiarEstadoDesdeDetalle(evento: Event): void {
     const actual = this.modal();
     if (actual) {
@@ -148,6 +160,7 @@ export class AdminPqrComponent {
 
   cerrarModal(): void {
     this.modal.set(null);
+    this.mensajeAdmin = '';
   }
 
   private refrescar(): void {

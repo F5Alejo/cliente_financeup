@@ -25,7 +25,7 @@
 .panel {
   background: var(--bg-panel);
   border: 1px solid var(--border-soft);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 20px;
   margin: 20px 0;
 }
@@ -120,7 +120,7 @@
   font-weight: 700;
   font-size: 13px;
   padding: 0.7rem 1.4rem;
-  border-radius: 8px;
+  border-radius: var(--r-pill);
   cursor: pointer;
 }
 

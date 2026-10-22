@@ -38,7 +38,7 @@ export class EducacionService {
         {
           id: 'presupuesto-50-30-20',
           titulo: 'Presupuesto 50/30/20',
-          imagen: '/assets/cursos/presupuesto.svg',
+          imagen: 'assets/img/educacion/presupuesto.webp',
           categoria: 'fundamentos',
           nivel: 'Básico',
           formato: 'Video',
@@ -74,7 +74,7 @@ export class EducacionService {
         {
           id: 'tarjetas-responsable',
           titulo: 'Usa bien tu tarjeta de crédito',
-          imagen: '/assets/cursos/tarjetas.svg',
+          imagen: 'assets/img/educacion/tarjeta-credito.webp',
           categoria: 'credito',
           nivel: 'Básico',
           formato: 'Video',
@@ -110,7 +110,7 @@ export class EducacionService {
         {
           id: 'historial-desde-cero',
           titulo: 'Entiende tu puntaje de crédito',
-          imagen: '/assets/cursos/historial.svg',
+          imagen: 'assets/img/educacion/puntaje-credito.webp',
           categoria: 'credito',
           nivel: 'Básico',
           formato: 'Video',
@@ -146,7 +146,7 @@ export class EducacionService {
         {
           id: 'salir-de-deudas',
           titulo: 'Sal de deudas con el método bola de nieve',
-          imagen: '/assets/cursos/deudas.svg',
+          imagen: 'assets/img/educacion/deudas.webp',
           categoria: 'deuda',
           nivel: 'Intermedio',
           formato: 'Artículo',
@@ -188,7 +188,7 @@ export class EducacionService {
         {
           id: 'intro-bolsa',
           titulo: 'Primeros pasos en la bolsa',
-          imagen: '/assets/cursos/bolsa.svg',
+          imagen: 'assets/img/educacion/bolsa.webp',
           categoria: 'fundamentos',
           nivel: 'Básico',
           formato: 'Video',
@@ -223,7 +223,7 @@ export class EducacionService {
         {
           id: 'intro-criptomonedas',
           titulo: 'Criptomonedas sin humo',
-          imagen: '/assets/cursos/cripto.svg',
+          imagen: 'assets/img/educacion/criptomonedas.webp',
           categoria: 'fundamentos',
           nivel: 'Básico',
           formato: 'Video',
@@ -258,7 +258,7 @@ export class EducacionService {
         {
           id: 'gestion-portafolio',
           titulo: 'Arma y rebalancea tu portafolio',
-          imagen: '/assets/cursos/portafolio.svg',
+          imagen: 'assets/img/educacion/portafolio.webp',
           categoria: 'fundamentos',
           nivel: 'Avanzado',
           formato: 'Quiz',

@@ -1,18 +1,18 @@
 /* Centro de ayuda: bloque de color con la busqueda al frente y tarjetas amables debajo. */
 
 :host {
-  --lienzo: #f2f6f4;
-  --panel: #ffffff;
-  --tinta: #14231c;
-  --tinta-2: #5a6f65;
-  --borde: #e6ece9;
+  --lienzo: var(--paper);
+  --panel: var(--surface);
+  --tinta: var(--ink);
+  --tinta-2: var(--ink-soft);
+  --borde: var(--line);
   --verde: var(--green-primary);
-  --verde-hondo: #0a5c28;
-  --verde-noche: #0b3a22;
-  --verde-humo: #eef7f1;
+  --verde-hondo: var(--brand-hover);
+  --verde-noche: var(--brand-deep);
+  --verde-humo: var(--brand-wash);
 
-  --sombra: 0 1px 2px rgba(20, 35, 28, 0.04), 0 4px 12px rgba(20, 35, 28, 0.05);
-  --sombra-alta: 0 2px 4px rgba(20, 35, 28, 0.05), 0 14px 30px rgba(20, 35, 28, 0.09);
+  --sombra: var(--shadow-sm);
+  --sombra-alta: var(--shadow-md);
 
   display: block;
   width: 100%;
@@ -38,7 +38,7 @@
   padding: clamp(34px, 5vw, 60px) clamp(24px, 4vw, 56px);
   margin-bottom: 56px;
   background: var(--verde-noche);
-  border-radius: 24px;
+  border-radius: var(--r-xl);
   color: #ffffff;
 }
 
@@ -52,7 +52,7 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: none;
-  color: #a7e9c2;
+  color: var(--lime);
 }
 
 .help-hero__title {
@@ -87,7 +87,7 @@
 }
 
 .help-search:focus-within {
-  box-shadow: 0 0 0 4px rgba(167, 233, 194, 0.35), 0 10px 30px rgba(6, 30, 18, 0.24);
+  box-shadow: 0 0 0 4px rgba(155, 225, 93, 0.35), 0 10px 30px rgba(6, 30, 18, 0.24);
 }
 
 .help-search__icon {
@@ -123,7 +123,7 @@
 }
 
 .help-search__input::placeholder {
-  color: #8a9c93;
+  color: var(--ink-faint);
 }
 
 .help-search__count {
@@ -204,7 +204,7 @@
   padding: 32px;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
   cursor: pointer;
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
@@ -212,7 +212,7 @@
 
 .category-card:hover,
 .category-card:focus-visible {
-  border-color: #d3e3d9;
+  border-color: var(--line-strong);
   box-shadow: var(--sombra-alta);
   outline: none;
 }
@@ -281,7 +281,7 @@
   width: 8px;
   height: 2px;
   border-radius: 2px;
-  background: #b9cec2;
+  background: var(--line-strong);
 }
 
 .category-card__link {
@@ -313,13 +313,13 @@
   padding: 28px;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .channel-card:hover {
-  border-color: #d3e3d9;
+  border-color: var(--line-strong);
   box-shadow: var(--sombra-alta);
 }
 
@@ -341,14 +341,14 @@
   gap: 7px;
   padding: 7px 14px;
   border-radius: 999px;
-  background: #e8f5ec;
+  background: var(--brand-wash);
   font-size: 12px;
   font-weight: 600;
   color: var(--verde-hondo);
 }
 
 .channel-card__status.offline {
-  background: #eef1f0;
+  background: var(--surface-sunk);
   color: var(--tinta-2);
 }
 
@@ -360,7 +360,7 @@
 }
 
 .channel-card__status.offline .channel-card__dot {
-  background: #b3c1ba;
+  background: var(--line-strong);
 }
 
 .channel-card__title {
@@ -387,7 +387,7 @@
   margin: 0 0 24px;
   padding: 20px;
   background: var(--verde-humo);
-  border-radius: 14px;
+  border-radius: var(--r-lg);
 }
 
 .channel-card__meta > div {
@@ -433,7 +433,7 @@
 
 .btn:hover {
   background: var(--verde-noche);
-  box-shadow: 0 8px 22px rgba(10, 92, 40, 0.26);
+  box-shadow: 0 8px 22px rgba(15, 61, 34, 0.26);
 }
 
 .btn:focus-visible {
@@ -454,7 +454,7 @@
   text-align: center;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
 }
 
@@ -483,7 +483,7 @@
   padding: 28px;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   box-shadow: var(--sombra);
 }
 
@@ -534,13 +534,13 @@
   }
 
   .help-hero {
-    border-radius: 20px;
+    border-radius: var(--r-xl);
   }
 
   .help-search {
     flex-wrap: wrap;
     padding: 14px 18px;
-    border-radius: 18px;
+    border-radius: var(--r-lg);
   }
 
   .help-search__input {
