@@ -11,11 +11,9 @@
         </div>
 
         <div class="stage-heading">
-          <h1>{{ stage === 'credenciales' ? 'Bienvenido de nuevo' : 'Verifica que eres tú' }}</h1>
-          <p>{{ stage === 'credenciales' ? 'Ingresa tus datos para continuar.' : 'El último paso antes de entrar.' }}</p>
+          <h1>Bienvenido de nuevo</h1>
+          <p>Ingresa tus datos para continuar.</p>
         </div>
-
-        @if (stage === 'credenciales') {
 
           <div class="alert alert-error" *ngIf="errorMessage">
             {{ errorMessage }}
@@ -204,55 +202,6 @@
             </button>
 
           </div>
-        }
-
-        @if (stage === 'verificacion') {
-
-          <p class="verificacion-texto">
-            Enviamos un código de 6 dígitos a
-            <strong>{{ email }}</strong>
-            (simulado, usa <strong>123456</strong>).
-          </p>
-
-          <div class="form-group">
-
-            <label>Código de verificación</label>
-
-            <input
-              type="text"
-              inputmode="numeric"
-              maxlength="6"
-              class="code-input"
-              [(ngModel)]="codigo"
-              name="codigo"
-              placeholder="· · · · · ·"
-            >
-
-          </div>
-
-          <button
-            class="btn-primary"
-            (click)="verificarCodigo()"
-          >
-            Verificar
-          </button>
-
-          <button
-            type="button"
-            class="register-button"
-            (click)="reenviarCodigo()"
-          >
-            Reenviar código
-          </button>
-
-          <a
-            class="link volver-link"
-            (click)="volverACredenciales()"
-          >
-            ← Volver
-          </a>
-
-        }
 
       </div>
 

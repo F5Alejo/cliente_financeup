@@ -26,6 +26,7 @@ export class HomeComponent {
     { icono: '💼', titulo: 'Gestión de Presupuestos', descripcion: 'Crea y monitorea presupuestos personalizados con alertas automáticas de gastos y ahorro.' },
     { icono: '🌐', titulo: 'Múltiples Monedas', descripcion: 'Soporte para más de 150 monedas con conversión automática y tasas actualizadas al instante.' },
     { icono: '🌎', titulo: 'En todo el mundo', descripcion: 'Ingresa desde cualquier parte del mundo a través de nuestra página web.' },
+    
   ];
 
   interactuar(): void {
