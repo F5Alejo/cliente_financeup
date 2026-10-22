@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, Usuario } from '../../../services/auth';
+import { AuthService, motivoSinAcceso, Usuario } from '../../../services/auth';
 import { ToastService } from '../../../shared/services/toast';
 
 @Component({
@@ -42,22 +42,58 @@ export class LoginComponent {
     );
 
     if (!usuario) {
+      console.log('[Login] Credenciales incorrectas:', { email: this.email.trim() });
       this.errorMessage = 'Credenciales incorrectas. Intenta de nuevo.';
       return;
     }
 
-    // Guardar o eliminar el correo según la opción Recordarme.
+    const sinAcceso = motivoSinAcceso(usuario);
+    if (sinAcceso) {
+      console.log('[Login] Cuenta sin acceso:', { email: usuario.email, motivo: sinAcceso });
+      this.errorMessage = sinAcceso;
+      return;
+    }
+
+    console.log('[Login] Credenciales válidas, se pide el código de verificación:', { email: usuario.email });
+    this.usuarioValidado = usuario;
+    this.codigo = '';
+    this.stage = 'verificacion';
+  }
+
+  verificarCodigo(): void {
+    if (!this.usuarioValidado) {
+      this.stage = 'credenciales';
+      return;
+    }
+
+    if (this.codigo.trim() !== CODIGO_2FA_MOCK) {
+      console.log('[Login] Código de verificación incorrecto:', { email: this.usuarioValidado.email });
+      this.toastService.error('Código incorrecto. Intenta de nuevo.');
+      this.codigo = '';
+      return;
+    }
+
     if (this.rememberMe) {
       localStorage.setItem('financeup_email', this.email.trim());
     } else {
       localStorage.removeItem('financeup_email');
     }
 
-    // Iniciar sesión directamente, sin pedir código 2FA.
-    this.authService.completarSesion(usuario);
-
-    this.toastService.success(`Bienvenido ${usuario.nombre}`);
+    this.authService.completarSesion(this.usuarioValidado);
+    console.log('[Login] Sesión iniciada:', { email: this.usuarioValidado.email, rol: this.usuarioValidado.rol });
+    this.toastService.success(`Bienvenido ${this.usuarioValidado.nombre}`);
     this.router.navigateByUrl('/home');
+  }
+
+  reenviarCodigo(): void {
+    console.log('[Login] Código de verificación reenviado:', { email: this.usuarioValidado?.email });
+    this.toastService.info('Código reenviado (simulado): 123456');
+  }
+
+  volverACredenciales(): void {
+    this.stage = 'credenciales';
+    this.usuarioValidado = null;
+    this.codigo = '';
   }
 
   togglePasswordVisibility(): void {
@@ -65,15 +101,15 @@ export class LoginComponent {
   }
 
   loginWithGoogle(): void {
-    console.log('Login con Google');
+    console.log('[Login] Inicio de sesión con Google');
   }
 
   loginWithApple(): void {
-    console.log('Login con Apple');
+    console.log('[Login] Inicio de sesión con Apple');
   }
 
   loginWithFacebook(): void {
-    console.log('Login con Facebook');
+    console.log('[Login] Inicio de sesión con Facebook');
   }
 
   goToRegister(): void {

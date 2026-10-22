@@ -1,15 +1,15 @@
 /* Aula FinanceUp: superficie clara acorde a la paleta del sitio, acento verde, cifras en mono. */
 
 :host {
-  --tinta: #f4f6f5;
-  --tinta-2: #ffffff;
-  --tinta-3: #e2e8e5;
+  --tinta: var(--paper);
+  --tinta-2: var(--surface);
+  --tinta-3: var(--surface-sunk);
   --verde: var(--green-primary);
-  --verde-claro: #0a5c28;
-  --humo: #16211c;
-  --humo-2: #5c7266;
-  --linea: #dde5e0;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --verde-claro: var(--brand-hover);
+  --humo: var(--ink);
+  --humo-2: var(--ink-soft);
+  --linea: var(--line);
+  --mono: var(--font-body);
 
   display: block;
   min-height: 100vh;
@@ -32,8 +32,7 @@
   margin: 0 0 10px;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--verde-claro);
 }
 
@@ -47,14 +46,14 @@
   margin-bottom: 44px;
   background: var(--tinta-2);
   border: 1px solid var(--linea);
-  border-radius: 20px;
+  border-radius: var(--r-xl);
   animation: fu-fade-up 0.5s ease both;
 }
 
 .reanudar__cover {
   position: relative;
   height: 132px;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   background-size: cover;
   background-position: center;
 }
@@ -62,7 +61,7 @@
 .reanudar__scrim {
   position: absolute;
   inset: 0;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   background: linear-gradient(105deg, rgba(13, 21, 18, 0.1), rgba(13, 21, 18, 0.75));
 }
 
@@ -143,7 +142,7 @@
   align-items: center;
   gap: 8px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--r-pill);
   padding: 11px 18px;
   font-family: inherit;
   font-size: 14px;
@@ -158,7 +157,7 @@
 
 .btn--play {
   background: var(--verde);
-  color: #06210f;
+  color: #ffffff;
 }
 
 .btn--play:hover {
@@ -214,7 +213,6 @@
 .buscador input {
   width: 100%;
   border: none;
-  outline: none;
   background: transparent;
   font-family: inherit;
   font-size: 14px;
@@ -259,7 +257,7 @@
 .chip--on {
   background: var(--verde);
   border-color: var(--verde);
-  color: #06210f;
+  color: #ffffff;
 }
 
 .chip--reset {
@@ -332,7 +330,7 @@
   scroll-snap-align: start;
   background: var(--tinta-2);
   border: 1px solid var(--linea);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   overflow: hidden;
   cursor: pointer;
   animation: fu-fade-up 0.45s ease both;
@@ -417,8 +415,7 @@
   margin: 0 0 6px;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--humo-2);
 }
 
@@ -519,5 +516,6 @@
     top: 34px;
     right: auto;
     width: 92px;
+    text-align: center;
   }
 }

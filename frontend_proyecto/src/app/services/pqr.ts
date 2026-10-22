@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { NotificacionesService } from './notificaciones';
 
 export type EstadoPqr = 'En revisión' | 'Resuelto' | 'Rechazado' | 'Radicado';
 export type PrioridadPqr = 'Alta' | 'Media' | 'Baja';
@@ -98,19 +99,69 @@ export class PqrService {
     },
   ];
 
+  private notificaciones = inject(NotificacionesService);
+
+  constructor() {
+    try {
+      const guardadas = localStorage.getItem('financeup_pqrs');
+      if (guardadas) {
+        const pqrs = JSON.parse(guardadas) as Pqr[];
+        if (Array.isArray(pqrs)) this.pqrs = pqrs;
+      }
+    } catch {
+      // Si el almacenamiento no está disponible, se conservan los datos iniciales.
+    }
+  }
+
+  private guardar(): void {
+    try {
+      localStorage.setItem('financeup_pqrs', JSON.stringify(this.pqrs));
+    } catch {
+      // La pantalla sigue funcionando durante la sesión aunque no pueda persistir.
+    }
+  }
+
   agregarPqr(pqr: Pqr): void {
     this.pqrs.unshift(pqr);
+    this.guardar();
+    this.notificaciones.agregar({
+      categoria: 'pqr',
+      titulo: 'Nueva PQR recibida',
+      detalle: `${pqr.titulo} · N.º ${pqr.numero}.`,
+      ruta: '/admin/pqr',
+      nivel: pqr.prioridad === 'Alta' ? 'warning' : 'info',
+    });
   }
 
   cambiarEstado(numero: string, nuevoEstado: string): void {
     const pqr = this.pqrs.find((p) => p.numero === numero);
     if (pqr) {
       pqr.estado = nuevoEstado as EstadoPqr;
-      pqr.progreso = nuevoEstado === 'Resuelto' ? 100 : pqr.progreso;
+      const progresoPorEstado: Record<EstadoPqr, number> = {
+        Radicado: 10,
+        'En revisión': 50,
+        Resuelto: 100,
+        Rechazado: 100,
+      };
+      pqr.progreso = progresoPorEstado[pqr.estado];
+      pqr.ultimaActualizacion = 'Hace un momento';
+      this.guardar();
     }
+  }
+
+  responderPqr(numero: string, mensaje: string): boolean {
+    const pqr = this.pqrs.find((item) => item.numero === numero);
+    const texto = mensaje.trim();
+    if (!pqr || !texto) return false;
+    pqr.mensajeRespuesta = texto;
+    pqr.respuestas += 1;
+    pqr.ultimaActualizacion = 'Hace un momento';
+    this.guardar();
+    return true;
   }
 
   eliminarPqr(numero: string): void {
     this.pqrs = this.pqrs.filter((p) => p.numero !== numero);
+    this.guardar();
   }
 }

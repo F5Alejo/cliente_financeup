@@ -1,0 +1,10 @@
+@if (curso) {
+    <a class="curso-banner" [routerLink]="['/educacion/curso', curso.id]">
+        <img [src]="curso.imagen" [alt]="curso.titulo" class="curso-banner-img" />
+        <div class="curso-banner-texto">
+            <span class="curso-banner-pregunta">{{ texto }}</span>
+            <span class="curso-banner-curso">🎓 {{ curso.titulo }} · {{ curso.duracion }}</span>
+        </div>
+        <span class="curso-banner-cta">Míralo aquí →</span>
+    </a>
+}

@@ -1,16 +1,16 @@
 /* Radicación de la solicitud: formulario sobrio, sin adornos que distraigan. */
 
 :host {
-  --papel: #ffffff;
-  --fondo: #f4f6f5;
-  --linea: #dde5e0;
-  --linea-fuerte: #c3d2c9;
-  --texto: #16211c;
-  --texto-2: #5c7266;
+  --papel: var(--surface);
+  --fondo: var(--paper);
+  --linea: var(--line);
+  --linea-fuerte: var(--line-strong);
+  --texto: var(--ink);
+  --texto-2: var(--ink-soft);
   --verde: var(--green-primary);
-  --verde-hondo: #0a5c28;
-  --verde-humo: #eef7f1;
-  --alerta: #8a5a12;
+  --verde-hondo: var(--brand-hover);
+  --verde-humo: var(--brand-wash);
+  --alerta: var(--warning);
   --mono: var(--font-family-base);
 
   display: block;
@@ -35,8 +35,7 @@
   margin: 0 0 10px;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--verde-hondo);
 }
 
@@ -181,7 +180,7 @@
 .campo input:focus {
   outline: none;
   border-color: var(--verde);
-  box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.16);
+  box-shadow: 0 0 0 3px rgba(30, 122, 59, 0.16);
 }
 
 .campo input::placeholder {
@@ -189,7 +188,7 @@
 }
 
 .campo--error {
-  border-color: #b03636 !important;
+  border-color: var(--negative) !important;
 }
 
 .campo__error {
@@ -197,7 +196,7 @@
   margin-top: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #b03636;
+  color: var(--negative);
 }
 
 .campo__ayuda {
@@ -257,7 +256,7 @@
 }
 
 .aviso--alerta {
-  background: #fdf6e9;
+  background: var(--warning-wash);
   border-left-color: var(--alerta);
   color: var(--alerta);
 }
@@ -296,7 +295,7 @@
   gap: 12px;
   align-items: start;
   padding: 16px;
-  background: #fbfdfc;
+  background: var(--gray-50);
   border: 1px solid var(--linea);
   font-size: 12.5px;
   line-height: 1.6;
@@ -305,7 +304,7 @@
 }
 
 .acepta--error {
-  border-color: #b03636;
+  border-color: var(--negative);
 }
 
 .acepta input {
@@ -502,8 +501,7 @@
 
 .acuse__datos dt {
   font-size: 12px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--texto-2);
 }
 

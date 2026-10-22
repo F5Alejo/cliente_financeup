@@ -1,0 +1,141 @@
+:host {
+  display: inline-flex;
+}
+
+:host(.bloque) {
+  display: flex;
+}
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+
+  font-family: var(--fuente-texto);
+  font-weight: var(--peso-semi);
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+
+  border: 1px solid transparent;
+  border-radius: var(--radio-md);
+  cursor: pointer;
+
+  transition:
+    background-color var(--dur-rapida) var(--curva),
+    border-color var(--dur-rapida) var(--curva),
+    color var(--dur-rapida) var(--curva),
+    transform var(--dur-rapida) var(--curva);
+}
+
+.boton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* ---------- Tamaños ----------
+   La altura mínima de 44px es el objetivo táctil recomendado.
+   Antes los controles medían 31px y fallaban en móvil. */
+.boton-sm {
+  min-height: 36px;
+  padding: 0 var(--esp-3);
+  font-size: var(--texto-sm);
+}
+
+.boton-md {
+  min-height: 44px;
+  padding: 0 var(--esp-5);
+  font-size: var(--texto-base);
+}
+
+.boton-lg {
+  min-height: 52px;
+  padding: 0 var(--esp-6);
+  font-size: var(--texto-md);
+}
+
+.boton-ancho {
+  width: 100%;
+}
+
+/* ---------- Variantes ---------- */
+.boton-primario {
+  background: var(--primario);
+  color: var(--texto-sobre-primario);
+}
+
+.boton-primario:hover:not(:disabled) {
+  background: var(--primario-hover);
+}
+
+.boton-secundario {
+  background: var(--superficie);
+  color: var(--primario);
+  border-color: var(--borde-fuerte);
+}
+
+.boton-secundario:hover:not(:disabled) {
+  border-color: var(--primario);
+  background: var(--primario-flojo);
+}
+
+.boton-suave {
+  background: var(--primario-flojo);
+  color: var(--verde-800);
+}
+
+.boton-suave:hover:not(:disabled) {
+  background: var(--verde-200);
+}
+
+.boton-texto {
+  background: transparent;
+  color: var(--primario);
+  padding-left: var(--esp-2);
+  padding-right: var(--esp-2);
+}
+
+.boton-texto:hover:not(:disabled) {
+  background: var(--primario-flojo);
+}
+
+.boton-peligro {
+  background: var(--peligro);
+  color: var(--neutro-0);
+}
+
+.boton-peligro:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+/* ---------- Estado de carga ---------- */
+.boton-indicador {
+  width: 15px;
+  height: 15px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radio-full);
+  animation: boton-girar 700ms linear infinite;
+  flex-shrink: 0;
+}
+
+.boton-cargando .boton-contenido {
+  opacity: 0.75;
+}
+
+@keyframes boton-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boton-indicador {
+    animation-duration: 1600ms;
+  }
+}

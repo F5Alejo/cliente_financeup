@@ -114,10 +114,13 @@ export class RegisterComponent {
 
     const { nombre, apellido, correo, password } = this.registerForm.value;
 
+    console.log('[Registro] Petición de registro:', { nombre, apellido, correo });
+
     // TODO: reemplazar por llamada HTTP real al backend cuando esté listo.
     const resultado = this.authService.registrarUsuario(nombre, apellido, correo, password);
 
     if (!resultado.exito) {
+      console.log('[Registro] No se pudo registrar:', resultado.mensaje);
       this.errorMessage = resultado.mensaje ?? 'No se pudo crear la cuenta.';
       return;
     }
@@ -128,20 +131,24 @@ export class RegisterComponent {
   correo, 
 });
 
+    console.log('[Registro] Usuario registrado:', { correo });
     this.toastService.success(`Usuario registrado. ¡Bienvenido ${nombre}!`);
     this.router.navigate(['/home']);
   }
 
   registerWithGoogle(): void {
-    console.log('Registro con Google');
+    console.log('[Registro] Registro con Google');
   }
 
   registerWithApple(): void {
-    console.log('Registro con Apple');
+    console.log('[Registro] Registro con Apple');
   }
 
   registerWithFacebook(): void {
-    console.log('Registro con Facebook');
+    console.log('[Registro] Registro con Facebook');
+  }
+  registrousu():void{
+    console.log(this.registerForm)
   }
 
   goToLogin(): void {

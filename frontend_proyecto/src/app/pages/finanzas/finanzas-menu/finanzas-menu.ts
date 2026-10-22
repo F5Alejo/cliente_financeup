@@ -14,9 +14,12 @@ interface SubMenuItem {
   styleUrl: './finanzas-menu.css',
 })
 export class FinanzasMenuComponent {
+  // Ítems del menú de navegación del módulo de finanzas.
+  // Cada uno debe apuntar a una ruta registrada en app.routes.ts.
   items: SubMenuItem[] = [
     { nombre: 'Finanzas', ruta: '/finanzas' },
     { nombre: 'Inversiones', ruta: '/inversiones' },
     { nombre: 'Metas', ruta: '/metas' },
+    { nombre: 'Libro Mayor', ruta: '/libro-mayor' },
   ];
 }

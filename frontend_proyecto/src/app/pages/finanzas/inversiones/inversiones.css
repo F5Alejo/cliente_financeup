@@ -5,14 +5,28 @@
     font-family: var(--font-family-base);
 }
 
+h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+}
+
 .inversiones {
+    --sage: var(--brand-strong);
+    --sage-dark: var(--brand-deep);
+    --sage-tint: var(--brand-wash);
+    --sage-tint-strong: var(--brand-wash-strong);
+    --black: var(--ink);
+    --sand: var(--ink-soft);
+    --floral-white: var(--surface);
+    --cloud: var(--line);
+
     padding: 28px 32px;
     max-width: 1100px;
     margin: 0 auto;
 }
 
 .inversiones button:focus-visible {
-    outline: 3px solid var(--green-primary);
+    outline: 3px solid var(--sage);
     outline-offset: 2px;
     border-radius: 8px;
 }
@@ -27,16 +41,11 @@
 
 .inversiones-header h1 {
     font-size: 24px;
-    color: #0f172a;
+    color: var(--black);
     font-weight: 700;
     line-height: 1.2;
 }
 
-.inversiones-header .mes-actual {
-    color: #64748b;
-    font-size: 13px;
-    margin-top: 4px;
-}
 
 .header-acciones {
     display: flex;
@@ -56,7 +65,7 @@
 .btn-secundario,
 .btn-primario {
     border: none;
-    border-radius: 10px;
+    border-radius: var(--r-pill);
     padding: 10px 18px;
     font-size: 13.5px;
     font-weight: 600;
@@ -65,22 +74,32 @@
 }
 
 .btn-secundario {
-    background: white;
-    border: 1px solid #e2e8f0;
-    color: #0f172a;
+    background: var(--floral-white);
+    border: 1px solid var(--cloud);
+    color: var(--black);
 }
 
 .btn-secundario:hover {
-    background: #f1f5f9;
+    background: var(--cloud);
 }
 
 .btn-primario {
-    background: var(--green-primary);
+    background: var(--sage);
     color: white;
 }
 
 .btn-primario:hover {
-    background: var(--green-dark);
+    background: var(--sage-dark);
+}
+
+/* ALERTA DE CONCENTRACIÓN DE RIESGO */
+.alerta-riesgo {
+    background: var(--warning-wash);
+    color: var(--warning);
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    margin-bottom: 20px;
 }
 
 /* TARJETAS DE RESUMEN */
@@ -92,9 +111,9 @@
 }
 
 .card-resumen {
-    background: white;
-    border: 1px solid #eef2f6;
-    border-radius: 16px;
+    background: var(--floral-white);
+    border: 1px solid var(--cloud);
+    border-radius: var(--r-lg);
     padding: 18px 20px;
     display: flex;
     flex-direction: column;
@@ -103,27 +122,29 @@
 
 .card-titulo {
     font-size: 12.5px;
-    color: #64748b;
+    color: var(--ink-soft);
     font-weight: 600;
 }
 
 .card-valor {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
     font-size: 21px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--black);
 }
 
 .card-valor.positivo {
-    color: var(--green-primary);
+    color: var(--sage);
 }
 
 .card-nota {
     font-size: 11.5px;
-    color: #94a3b8;
+    color: var(--ink-faint);
 }
 
 .card-nota.positivo {
-    color: var(--green-primary);
+    color: var(--sage);
 }
 
 .card-retiro {
@@ -138,16 +159,16 @@
 
 /* PANELES */
 .panel {
-    background: white;
-    border: 1px solid #eef2f6;
-    border-radius: 18px;
+    background: var(--floral-white);
+    border: 1px solid var(--cloud);
+    border-radius: var(--r-lg);
     padding: 22px;
     margin-bottom: 20px;
 }
 
 .panel h2 {
     font-size: 15px;
-    color: #0f172a;
+    color: var(--black);
     font-weight: 700;
     margin-bottom: 18px;
 }
@@ -170,7 +191,7 @@
 .filtros {
     display: flex;
     gap: 4px;
-    background: #f1f5f9;
+    background: var(--cloud);
     padding: 4px;
     border-radius: 999px;
 }
@@ -179,7 +200,7 @@
 .filtros button {
     border: none;
     background: transparent;
-    color: #64748b;
+    color: var(--ink-soft);
     font-size: 12px;
     font-weight: 600;
     padding: 6px 12px;
@@ -190,7 +211,7 @@
 
 .periodos button.activo,
 .filtros button.activo {
-    background: var(--green-primary);
+    background: var(--sage);
     color: white;
 }
 
@@ -210,14 +231,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #64748b;
+    color: var(--ink-soft);
     font-size: 12px;
     margin-top: 8px;
 }
 
 .badge-crecimiento {
-    background: #ccfbf1;
-    color: var(--green-primary);
+    background: var(--sage-tint-strong);
+    color: var(--sage);
     font-weight: 700;
     padding: 4px 10px;
     border-radius: 999px;
@@ -244,7 +265,7 @@
     width: 62px;
     height: 62px;
     border-radius: 50%;
-    background: white;
+    background: var(--floral-white);
 }
 
 .leyenda {
@@ -253,7 +274,7 @@
     flex-direction: column;
     gap: 9px;
     font-size: 12.5px;
-    color: #475569;
+    color: var(--ink-soft);
 }
 
 .leyenda li {
@@ -263,7 +284,7 @@
 }
 
 .leyenda strong {
-    color: #0f172a;
+    color: var(--black);
     margin-left: auto;
 }
 
@@ -278,14 +299,14 @@
     display: flex;
     gap: 16px;
     margin-top: 16px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--cloud);
     padding-top: 14px;
 }
 
 .link-boton {
     background: none;
     border: none;
-    color: var(--green-primary);
+    color: var(--sage);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -304,35 +325,35 @@ table {
 thead th {
     text-align: left;
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--ink-faint);
     font-weight: 600;
     padding-bottom: 12px;
-    border-bottom: 1px solid #eef2f6;
+    border-bottom: 1px solid var(--cloud);
 }
 
 tbody td,
 tfoot td {
     padding: 14px 0;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--cloud);
     font-size: 13.5px;
-    color: #334155;
+    color: var(--ink-body);
 }
 
 tfoot td {
     border-bottom: none;
-    border-top: 1px solid #eef2f6;
+    border-top: 1px solid var(--cloud);
     font-weight: 700;
-    color: #0f172a;
+    color: var(--black);
     padding-top: 16px;
 }
 
 td.positivo {
-    color: var(--green-primary);
+    color: var(--sage);
     font-weight: 700;
 }
 
 td.negativo {
-    color: #dc2626;
+    color: var(--negative);
     font-weight: 700;
 }
 
@@ -351,15 +372,15 @@ td.negativo {
 }
 
 .riesgo-bajo .punto-riesgo {
-    background: #16a34a;
+    background: var(--brand-strong);
 }
 
 .riesgo-medio .punto-riesgo {
-    background: #eab308;
+    background: #d4a017;
 }
 
 .riesgo-alto .punto-riesgo {
-    background: #dc2626;
+    background: var(--negative);
 }
 
 @media (max-width: 900px) {
@@ -401,30 +422,29 @@ td.negativo {
 
 .form-nueva-inversion label {
     font-size: 12px;
-    color: #475569;
+    color: var(--ink-soft);
     font-weight: 600;
 }
 
 .form-nueva-inversion input,
 .form-nueva-inversion select {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--cloud);
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 13.5px;
-    outline: none;
     transition: .2s;
 }
 
 .form-nueva-inversion input:focus,
 .form-nueva-inversion select:focus {
-    border-color: #0f766e;
+    border-color: var(--sage);
 }
 
 .btn-agregar {
-    background: #0f766e;
+    background: var(--sage);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--r-pill);
     padding: 11px 18px;
     font-size: 13.5px;
     font-weight: 600;
@@ -434,7 +454,7 @@ td.negativo {
 }
 
 .btn-agregar:hover {
-    background: #0d9488;
+    background: var(--sage-dark);
 }
 
 @media (max-width: 700px) {
