@@ -22,10 +22,10 @@ export class FooterComponent {
       title: 'Explorar',
       links: [
         { label: 'Inicio', path: '/home' },
-        { label: 'Educacion', path: '/educacion' },
+        { label: 'Educación', path: '/educacion' },
         { label: 'Alianzas', path: '/alianzas' },
         { label: 'Centro de ayuda', path: '/centro-ayuda' },
-        { label: 'Linea de ayuda', path: '/linea-ayuda' },
+        { label: 'Línea de ayuda', path: '/linea-ayuda' },
         { label: 'Finanzas', path: '/finanzas' },
       ]
     },

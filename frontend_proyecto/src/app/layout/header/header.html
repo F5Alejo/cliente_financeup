@@ -21,47 +21,36 @@
         <button
           type="button"
           class="perfil-boton"
-          (click)="toggleMenu()"
-          [attr.aria-expanded]="menuAbierto"
+          ngMenuTrigger
+          #disparador="ngMenuTrigger"
+          [menu]="menuPerfil"
         >
-          <span class="perfil-avatar" aria-hidden="true">
-            {{ iniciales }}
-          </span>
-
-          <span class="perfil-nombre">
-            {{ authService.obtenerNombre() }}
-          </span>
+          <span class="perfil-avatar" aria-hidden="true">{{ iniciales }}</span>
+          <span class="perfil-nombre">{{ authService.obtenerNombre() }}</span>
+          <app-icon nombre="chevron-down" [tamano]="14" class="perfil-chevron" />
         </button>
 
-        @if (menuAbierto) {
-          <div class="perfil-dropdown">
-            <a
-              routerLink="/perfil"
-              class="perfil-item"
-              (click)="cerrarMenu()"
-            >
-              Ver perfil
-            </a>
-
+        <div
+          ngMenu
+          #menuPerfil="ngMenu"
+          class="perfil-dropdown"
+          [class.abierto]="menuPerfil.visible()"
+          (itemSelected)="elegir($event)"
+        >
+          <ng-template ngMenuContent>
+            <div ngMenuItem value="perfil" class="perfil-item">
+              <app-icon nombre="user" [tamano]="16" /> Ver perfil
+            </div>
             @if (esAdmin) {
-              <a
-                routerLink="/admin"
-                class="perfil-item perfil-item-admin"
-                (click)="cerrarMenu()"
-              >
-                🛠️ Panel de administrador
-              </a>
+              <div ngMenuItem value="admin" class="perfil-item perfil-item-admin">
+                <app-icon nombre="settings" [tamano]="16" /> Panel de administrador
+              </div>
             }
-
-            <button
-              type="button"
-              class="perfil-item perfil-item-boton"
-              (click)="cerrarSesion()"
-            >
-              Cerrar sesión
-            </button>
-          </div>
-        }
+            <div ngMenuItem value="salir" class="perfil-item perfil-item-boton">
+              <app-icon nombre="log-out" [tamano]="16" /> Cerrar sesión
+            </div>
+          </ng-template>
+        </div>
       </div>
     } @else {
       <div class="auth-actions">

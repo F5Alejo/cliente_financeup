@@ -1,159 +1,244 @@
-<!-- ===== HERO ===== -->
+<!-- Barra de avance de lectura (la mueve GSAP) -->
+<div class="progreso" aria-hidden="true"></div>
+
+<!-- ===== HERO: verde de marca y el símbolo del logo ===== -->
 <section class="hero">
-  <div class="hero-bokeh" aria-hidden="true">
-    <span class="bokeh b1"></span>
-    <span class="bokeh b2"></span>
-    <span class="bokeh b3"></span>
-    <span class="bokeh b4"></span>
-    <span class="bokeh b5"></span>
-    <span class="bokeh b6"></span>
-    <span class="bokeh b7"></span>
-    <span class="bokeh b8"></span>
-    <span class="bokeh b9"></span>
-  </div>
-
-  <div class="hero-content">
-    <h1 class="hero-titulo">
-      {{ heroTituloPre }} <span class="hero-titulo-destacado">{{ heroTituloDestacado }}</span><br />
-      {{ heroTituloPost }}
-    </h1>
-    <p class="hero-subtitulo">{{ heroSubtitulo }}</p>
-    <button type="button" class="btn btn-hero" (click)="onComenzarAhora()">
-      {{ heroBoton }}
-    </button>
-  </div>
-</section>
-
-<!-- ===== CARACTERÍSTICAS ===== -->
-<section class="features">
-  <div class="section-heading">
-    <h2 class="section-title">
-      {{ featuresTituloPre }} <span class="text-accent">{{ featuresTituloDestacado }}</span>
-    </h2>
-    <p class="section-subtitle">{{ featuresSubtitulo }}</p>
-  </div>
-
-  <div class="features-grid">
-    <article class="feature-card" *ngFor="let feature of features">
-      <div class="feature-icon">
-        <!-- Dashboard -->
-        <svg *ngIf="feature.icono === 'dashboard'" width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="3" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
-          <rect x="14" y="3" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
-          <rect x="14" y="12" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
-          <rect x="3" y="16" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
-        </svg>
-        <!-- Seguridad -->
-        <svg *ngIf="feature.icono === 'seguridad'" width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2l8 3.5v5c0 5-3.4 8.9-8 10.5-4.6-1.6-8-5.5-8-10.5v-5L12 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <!-- Bancos -->
-        <svg *ngIf="feature.icono === 'bancos'" width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M3 10l9-6 9 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M5 10v9M9.5 10v9M14.5 10v9M19 10v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-          <path d="M3 20h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-        <!-- Presupuesto -->
-        <svg *ngIf="feature.icono === 'presupuesto'" width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/>
-          <path d="M3 9h18" stroke="currentColor" stroke-width="1.6"/>
-          <circle cx="8" cy="14" r="1.4" fill="currentColor"/>
-        </svg>
-        <!-- Monedas -->
-        <svg *ngIf="feature.icono === 'monedas'" width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.6"/>
-          <circle cx="15" cy="15" r="6" stroke="currentColor" stroke-width="1.6"/>
-        </svg>
-        <!-- Mundo -->
-        <svg *ngIf="feature.icono === 'mundo'" width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
-          <path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9s1.3-6.4 3.8-9z" stroke="currentColor" stroke-width="1.6"/>
-        </svg>
-      </div>
-
-      <h3 class="feature-title">{{ feature.titulo }}</h3>
-      <p class="feature-description">{{ feature.descripcion }}</p>
-    </article>
-  </div>
-</section>
-
-<!-- ===== SERVICIOS ===== -->
-<section class="services">
-  <div class="section-heading">
-    <h2 class="section-title">
-      {{ serviciosTituloPre }} <span class="text-accent">{{ serviciosTituloDestacado }}</span>
-    </h2>
-    <p class="section-subtitle">{{ serviciosSubtitulo }}</p>
-  </div>
-
-  <!-- Finanzas Personales: imagen izquierda, texto derecha -->
-  <div class="service-row">
-    <div class="service-media">
-      <div class="service-illustration illustration-personal" aria-hidden="true">
-        <img class="service-photo" src="assets/img/home/finanzas-personales.webp" alt="" width="960" height="640" loading="lazy" />
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
-          <path d="M12 3c2 2.2 3 4.4 3 6.5 0 2.5-1.3 4.5-3 4.5s-3-2-3-4.5c0-2.1 1-4.3 3-6.5z" fill="white" opacity="0.9"/>
-          <rect x="6" y="14" width="12" height="6" rx="1.5" fill="white" opacity="0.9"/>
-        </svg>
-      </div>
-    </div>
-    <div class="service-info">
-      <h3 class="service-title">{{ finanzasPersonalesTitulo }}</h3>
-      <p class="service-description">{{ finanzasPersonalesDescripcion }}</p>
-      <ul class="service-list">
-        <li *ngFor="let item of finanzasPersonalesItems">{{ item.texto }}</li>
-      </ul>
-      <button type="button" class="btn btn-service" (click)="onConocerFinanzasPersonales()">
-        {{ finanzasPersonalesBoton }}
-      </button>
+  <div class="hero-fondo" aria-hidden="true">
+    <span class="hero-brillo"></span>
+    <div class="horizonte">
+      <span *ngFor="let alto of horizonte" [style.height.%]="alto"></span>
     </div>
   </div>
 
-  <!-- Gestión Empresarial: texto izquierda, imagen derecha -->
-  <div class="service-row service-row-reverse">
-    <div class="service-info">
-      <h3 class="service-title">{{ gestionEmpresarialTitulo }}</h3>
-      <p class="service-description">{{ gestionEmpresarialDescripcion }}</p>
-      <ul class="service-list">
-        <li *ngFor="let item of gestionEmpresarialItems">{{ item.texto }}</li>
-      </ul>
-      <button type="button" class="btn btn-service" (click)="onConocerGestionEmpresarial()">
-        {{ gestionEmpresarialBoton }}
-      </button>
-    </div>
-    <div class="service-media">
-      <div class="service-illustration illustration-empresarial" aria-hidden="true">
-        <img class="service-photo" src="assets/img/home/gestion-empresarial.webp" alt="" width="960" height="640" loading="lazy" />
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
-          <path d="M4 19l6-7 4 4 6-8" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M14 8h6v6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== CTA FINAL ===== -->
-<section class="cta">
-  <div class="cta-panel">
-    <div class="cta-info">
-      <h2 class="cta-title">{{ ctaTitulo }}</h2>
-      <p class="cta-subtitle">{{ ctaSubtitulo }}</p>
-      <div class="cta-actions">
-        <button type="button" class="btn btn-cta-primary" (click)="onCrearCuenta()">
-          {{ ctaBotonPrimario }}
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <h1 class="hero-titulo">Tus finanzas, <span class="hero-up">hacia arriba.</span></h1>
+      <p class="hero-subtitulo">
+        Registra lo que ganas y lo que gastas, sigue tus metas de ahorro, aprende con cursos cortos y pide crédito a
+        entidades aliadas. Todo en un mismo lugar.
+      </p>
+      <div class="hero-acciones">
+        <button type="button" class="btn btn-lima" (click)="onEmpezar()">
+          {{ textoBotonPrincipal }} <app-icon nombre="arrow-up-right" [tamano]="18" />
         </button>
-        <button type="button" class="btn btn-cta-secondary" (click)="onConocerMasCta()">
-          {{ ctaBotonSecundario }}
-        </button>
+        <a routerLink="/educacion" class="btn btn-linea-clara">Ver los cursos</a>
       </div>
     </div>
-    <div class="cta-media" aria-hidden="true">
-      <svg width="120" height="120" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.4" opacity="0.85"/>
-        <path d="M12 3v9l7 3" stroke="white" stroke-width="1.4" opacity="0.85"/>
+
+    <div class="hero-simbolo" aria-hidden="true">
+      <div class="simbolo-grafica" data-prof="14">
+        <div class="barras">
+          <span *ngFor="let alto of barrasHero" class="barra" [style.height.%]="alto"></span>
+        </div>
+        <svg class="flecha" viewBox="0 0 400 300" preserveAspectRatio="none">
+          <polyline points="10,250 110,190 180,215 300,95 385,20" pathLength="1" />
+          <polyline class="punta" points="335,20 385,20 385,70" pathLength="1" />
+        </svg>
+      </div>
+
+      <div class="chip chip-ingreso" data-prof="34">
+        <div class="chip-cuerpo">
+          <span class="chip-icono chip-icono-lima"><app-icon nombre="arrow-up-right" [tamano]="16" /></span>
+          <span class="chip-texto"><strong class="cifra">+{{ 500000 | moneda }}</strong><small>Freelance diseño</small></span>
+        </div>
+      </div>
+
+      <div class="chip chip-meta" data-prof="48">
+        <div class="chip-cuerpo">
+          <span class="chip-texto">
+            <span class="chip-fila"><strong>Vacaciones</strong><span class="cifra">72%</span></span>
+            <span class="chip-barra"><span></span></span>
+          </span>
+        </div>
+      </div>
+
+      <div class="chip chip-curso" data-prof="26">
+        <div class="chip-cuerpo">
+          <span class="chip-icono"><app-icon nombre="check-circle" [tamano]="16" /></span>
+          <span class="chip-texto"><strong>Curso completado</strong><small>Presupuesto 50/30/20</small></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CINTA DE MARCA ===== -->
+<div class="cinta" role="presentation">
+  <div class="cinta-pista">
+    <ng-container *ngFor="let copia of [0, 1]">
+      <span class="cinta-grupo" [attr.aria-hidden]="copia === 1 ? 'true' : null">
+        <ng-container *ngFor="let palabra of cinta">
+          <span class="cinta-palabra">{{ palabra }}</span>
+          <span class="cinta-marca" aria-hidden="true"><i></i><i></i><i></i></span>
+        </ng-container>
+      </span>
+    </ng-container>
+  </div>
+</div>
+
+<!-- ===== MÓDULOS: lo que de verdad hace la app ===== -->
+<section class="modulo">
+  <div class="modulo-inner">
+    <div class="modulo-texto">
+      <h2 class="modulo-titulo">Sabes cuánto entra, cuánto sale y cuánto te queda.</h2>
+      <p class="modulo-desc">
+        Anota cada ingreso y gasto en tu libro mayor, míralos por categoría y separa dinero para tus metas e
+        inversiones.
+      </p>
+      <a routerLink="/finanzas" class="enlace-modulo">
+        Ir a mis finanzas <app-icon nombre="chevron-right" [tamano]="16" />
+      </a>
+    </div>
+
+    <figure class="vista" aria-label="Ejemplo del módulo de finanzas">
+      <div class="vista-cabeza">
+        <span class="vista-etiqueta">Saldo de marzo</span>
+        <strong class="vista-cifra cifra">{{ saldo | moneda }}</strong>
+      </div>
+      <ul class="movimientos">
+        <li *ngFor="let m of movimientos">
+          <span class="mov-concepto">{{ m.concepto }}<small>{{ m.categoria }}</small></span>
+          <span class="mov-valor cifra" [class.ingreso]="m.tipo === 'ingreso'">
+            {{ m.tipo === 'ingreso' ? '+' : '−' }}{{ m.valor | moneda }}
+          </span>
+        </li>
+      </ul>
+      <div class="metas">
+        <div class="meta" *ngFor="let meta of metas">
+          <div class="meta-fila">
+            <span>{{ meta.nombre }}</span>
+            <span class="cifra"><span class="meta-pct">{{ porcentaje(meta) }}</span>%</span>
+          </div>
+          <div class="meta-barra"><span [style.width.%]="porcentaje(meta)"></span></div>
+        </div>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<section class="modulo modulo-verde">
+  <div class="modulo-inner modulo-inner-invertido">
+    <div class="modulo-texto">
+      <h2 class="modulo-titulo">Aprende en clases cortas y llévate tu certificado.</h2>
+      <p class="modulo-desc">
+        Cursos de presupuesto, crédito, deudas e inversión explicados con ejemplos de Colombia. Avanzas a tu ritmo y al
+        terminar descargas el certificado.
+      </p>
+      <a routerLink="/educacion" class="enlace-modulo">
+        Ver los cursos <app-icon nombre="chevron-right" [tamano]="16" />
+      </a>
+    </div>
+
+    <figure class="vista" aria-label="Ejemplo de cursos disponibles">
+      <ol class="cursos">
+        <li *ngFor="let curso of cursos">
+          <span class="curso-icono"><app-icon nombre="graduation-cap" [tamano]="18" /></span>
+          <span class="curso-texto">
+            {{ curso.titulo }}
+            <small>{{ curso.nivel }} · {{ curso.duracion }}</small>
+          </span>
+        </li>
+      </ol>
+    </figure>
+  </div>
+</section>
+
+<section class="modulo">
+  <div class="modulo-inner">
+    <div class="modulo-texto">
+      <h2 class="modulo-titulo">Pide crédito a entidades aliadas sin salir de la app.</h2>
+      <p class="modulo-desc">
+        Compara créditos, tarjetas y cuentas de ahorro, revisa los requisitos antes de aplicar y envía tu solicitud desde
+        aquí.
+      </p>
+      <a routerLink="/alianzas" class="enlace-modulo">
+        Ver las alianzas <app-icon nombre="chevron-right" [tamano]="16" />
+      </a>
+    </div>
+
+    <figure class="vista" aria-label="Ejemplo de productos de entidades aliadas">
+      <ul class="productos">
+        <li *ngFor="let p of productos">
+          <span class="producto-texto">
+            {{ p.categoria }}
+            <small>{{ p.aliado }}</small>
+          </span>
+          <span class="producto-accion">Ver requisitos</span>
+        </li>
+      </ul>
+    </figure>
+  </div>
+</section>
+
+<section class="modulo modulo-gris">
+  <div class="modulo-inner modulo-inner-invertido">
+    <div class="modulo-texto">
+      <h2 class="modulo-titulo">Si algo falla, te responde una persona.</h2>
+      <p class="modulo-desc">
+        Escríbenos, llama a la línea de ayuda o radica una PQR y síguela con su número hasta que quede resuelta.
+      </p>
+      <a routerLink="/centro-ayuda" class="enlace-modulo">
+        Ir al centro de ayuda <app-icon nombre="chevron-right" [tamano]="16" />
+      </a>
+    </div>
+
+    <figure class="vista" aria-label="Ejemplo de seguimiento de una PQR">
+      <div class="vista-cabeza">
+        <span class="vista-etiqueta">PQR n.º 1516655</span>
+        <span class="estado-pqr">En revisión</span>
+      </div>
+      <p class="pqr-asunto">Cobro duplicado en transferencia</p>
+      <ol class="pasos">
+        <li *ngFor="let paso of pasosPqr" [class.hecho]="paso.hecho">
+          <span class="paso-punto" aria-hidden="true"></span>
+          <span class="paso-texto">{{ paso.texto }}</span>
+          <span class="paso-fecha">{{ paso.fecha }}</span>
+        </li>
+      </ol>
+    </figure>
+  </div>
+</section>
+
+<!-- ===== TRES PASOS: barras que suben como el logo ===== -->
+<section class="inicio">
+  <div class="inicio-inner">
+    <h2 class="inicio-titulo">Empieza en tres pasos.</h2>
+    <div class="inicio-pasos">
+      <svg class="inicio-flecha" viewBox="0 0 300 100" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="21,50 124,22 228,-12" pathLength="1" />
       </svg>
+      <ol class="inicio-lista">
+        <li class="inicio-paso" *ngFor="let paso of pasosInicio; let i = index">
+          <div class="inicio-columna" aria-hidden="true">
+            <span class="inicio-barra" [style.height.%]="paso.alto"><b>{{ i + 1 }}</b></span>
+          </div>
+          <div class="inicio-texto">
+            <h3>{{ paso.titulo }}</h3>
+            <p>{{ paso.texto }}</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CIERRE: banda verde de marca ===== -->
+<section class="cierre">
+  <div class="cierre-fondo" aria-hidden="true">
+    <span *ngFor="let alto of horizonte" [style.height.%]="alto"></span>
+  </div>
+  <div class="cierre-inner">
+    <div class="cierre-marca" aria-hidden="true">
+      <span class="cierre-halo"></span>
+      <img src="assets/logo1.png" alt="" class="cierre-simbolo" width="96" height="96" />
+    </div>
+    <h2 class="cierre-titulo">Empieza hoy a ordenar tu dinero.</h2>
+    <p class="cierre-desc">Crear tu cuenta es gratis y en minutos tienes tu primer registro.</p>
+    <div class="hero-acciones cierre-acciones">
+      <button type="button" class="btn btn-lima" (click)="onEmpezar()">
+        {{ textoBotonPrincipal }} <app-icon nombre="arrow-up-right" [tamano]="18" />
+      </button>
+      <a routerLink="/habla-con-nosostros" class="btn btn-linea-clara">Habla con nosotros</a>
     </div>
   </div>
 </section>
