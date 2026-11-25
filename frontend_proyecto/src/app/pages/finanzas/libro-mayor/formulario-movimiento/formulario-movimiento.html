@@ -1,0 +1,116 @@
+<app-modal
+  [titulo]="enEdicion() ? 'Editar movimiento' : 'Nuevo movimiento'"
+  [fondoFijo]="formulario().dirty()"
+  (cerrar)="cerrar.emit()">
+  <form id="form-movimiento" class="mov" [formRoot]="formulario" novalidate>
+    <fieldset class="mov-tipo">
+      <legend class="visualmente-oculto">Tipo de movimiento</legend>
+      <label class="mov-tipo-opcion">
+        <input type="radio" value="gasto" [formField]="formulario.tipo" />
+        <span>Gasto</span>
+      </label>
+      <label class="mov-tipo-opcion mov-tipo-ingreso">
+        <input type="radio" value="ingreso" [formField]="formulario.tipo" />
+        <span>Ingreso</span>
+      </label>
+    </fieldset>
+
+    <div class="mov-campo">
+      <label for="mov-valor">{{ modelo().tipo === 'gasto' ? '¿Cuánto gastaste?' : '¿Cuánto recibiste?' }}</label>
+      <div class="mov-importe" [class.mov-importe-error]="error('valor')">
+        <span class="mov-importe-simbolo" aria-hidden="true">$</span>
+        <input
+          id="mov-valor"
+          class="cifra"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="0"
+          [formField]="formulario.valor"
+          (input)="formatearValor($event)"
+          [attr.aria-invalid]="error('valor') ? 'true' : null"
+          [attr.aria-describedby]="error('valor') ? 'mov-valor-error' : null" />
+        <span class="mov-importe-moneda" aria-hidden="true">COP</span>
+      </div>
+      @if (error('valor'); as mensaje) {
+        <p class="mov-error" id="mov-valor-error">{{ mensaje }}</p>
+      }
+    </div>
+
+    <div class="mov-campo">
+      <label for="mov-concepto">Concepto</label>
+      <input
+        id="mov-concepto"
+        type="text"
+        autocomplete="off"
+        [placeholder]="modelo().tipo === 'gasto' ? 'Ej: Mercado, arriendo, taxi' : 'Ej: Salario de noviembre'"
+        [formField]="formulario.concepto"
+        [attr.aria-invalid]="error('concepto') ? 'true' : null"
+        [attr.aria-describedby]="error('concepto') ? 'mov-concepto-error' : null" />
+      @if (error('concepto'); as mensaje) {
+        <p class="mov-error" id="mov-concepto-error">{{ mensaje }}</p>
+      }
+    </div>
+
+    <div class="mov-fila">
+      <div class="mov-campo">
+        <label for="mov-fecha">Fecha</label>
+        <input
+          id="mov-fecha"
+          type="date"
+          [formField]="formulario.fecha"
+          [attr.aria-invalid]="error('fecha') ? 'true' : null"
+          [attr.aria-describedby]="error('fecha') ? 'mov-fecha-error' : null" />
+        @if (error('fecha'); as mensaje) {
+          <p class="mov-error" id="mov-fecha-error">{{ mensaje }}</p>
+        }
+      </div>
+
+      <div class="mov-campo">
+        <label for="mov-categoria">Categoría</label>
+        <select id="mov-categoria" [formField]="formulario.categoria">
+          @for (c of categorias(); track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="mov-campo">
+      <label for="mov-metodo">{{ modelo().tipo === 'gasto' ? '¿Cómo pagaste?' : '¿Cómo lo recibiste?' }}</label>
+      <select id="mov-metodo" [formField]="formulario.metodoPago">
+        @for (mp of metodosPago; track mp) {
+          <option [value]="mp">{{ mp }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="mov-campo">
+      <label for="mov-observaciones">Observaciones <span class="mov-opcional">(opcional)</span></label>
+      <textarea
+        id="mov-observaciones"
+        rows="2"
+        [formField]="formulario.observaciones"
+        [attr.aria-invalid]="error('observaciones') ? 'true' : null"
+        [attr.aria-describedby]="error('observaciones') ? 'mov-observaciones-error' : null"></textarea>
+      @if (error('observaciones'); as mensaje) {
+        <p class="mov-error" id="mov-observaciones-error">{{ mensaje }}</p>
+      }
+    </div>
+
+    <p class="mov-resumen" aria-live="polite">
+      @if (valorNumerico() > 0) {
+        Se registra como
+        <strong class="cifra" [class.positivo]="modelo().tipo === 'ingreso'">
+          {{ modelo().tipo === 'ingreso' ? '+' : '−' }}{{ valorNumerico() | moneda }}
+        </strong>
+        en {{ modelo().categoria }}.
+      }
+    </p>
+  </form>
+
+  <button pie type="button" class="mov-boton mov-boton-linea" (click)="cerrar.emit()">Cancelar</button>
+  <button pie type="submit" form="form-movimiento" class="mov-boton mov-boton-principal">
+    {{ enEdicion() ? 'Guardar cambios' : modelo().tipo === 'gasto' ? 'Registrar gasto' : 'Registrar ingreso' }}
+  </button>
+</app-modal>

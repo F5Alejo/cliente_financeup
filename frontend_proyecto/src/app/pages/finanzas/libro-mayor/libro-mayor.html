@@ -195,73 +195,12 @@
     }
   </section>
 
-  <!-- 6) MODAL: AGREGAR / EDITAR MOVIMIENTO -->
+  <!-- 6) FORMULARIO: AGREGAR / EDITAR MOVIMIENTO (componente propio con Signal Forms) -->
   @if (mostrarFormulario()) {
-    <div class="overlay-importador" (click)="cerrarFormulario()">
-      <div class="modal-importador" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>{{ modoEdicion() ? 'Editar movimiento' : 'Nuevo movimiento' }}</h2>
-          <button type="button" class="btn-cerrar" (click)="cerrarFormulario()" aria-label="Cerrar">✕</button>
-        </div>
-
-        <div class="modal-cuerpo">
-          <form class="form-grid" (ngSubmit)="guardarMovimiento()">
-            <div class="campo">
-              <label for="form-fecha">Fecha</label>
-              <input id="form-fecha" type="date" [(ngModel)]="formFecha" name="formFecha" required />
-            </div>
-
-            <div class="campo campo-ancho">
-              <label for="form-concepto">Concepto</label>
-              <input id="form-concepto" type="text" placeholder="Ej: Arriendo, Salario…" [(ngModel)]="formConcepto" name="formConcepto" required />
-            </div>
-
-            <div class="campo">
-              <label for="form-categoria">Categoría</label>
-              <select id="form-categoria" [(ngModel)]="formCategoria" name="formCategoria">
-                @for (c of categoriasDisponibles; track c) {
-                  <option [value]="c">{{ c }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="campo">
-              <label for="form-tipo">Tipo</label>
-              <select id="form-tipo" [(ngModel)]="formTipo" name="formTipo">
-                <option value="ingreso">Ingreso</option>
-                <option value="gasto">Gasto</option>
-              </select>
-            </div>
-
-            <div class="campo">
-              <label for="form-valor">Valor</label>
-              <input id="form-valor" type="number" min="1" placeholder="0" [(ngModel)]="formValor" name="formValor" required />
-            </div>
-
-            <div class="campo">
-              <label for="form-metodo">Método de pago</label>
-              <select id="form-metodo" [(ngModel)]="formMetodoPago" name="formMetodoPago">
-                @for (mp of metodosPago; track mp) {
-                  <option [value]="mp">{{ mp }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="campo campo-ancho">
-              <label for="form-observaciones">Observaciones (opcional)</label>
-              <input id="form-observaciones" type="text" placeholder="Notas adicionales…" [(ngModel)]="formObservaciones" name="formObservaciones" />
-            </div>
-          </form>
-
-          <div class="resultado-acciones">
-            <button type="button" class="btn-secundario" (click)="cerrarFormulario()">Cancelar</button>
-            <button type="button" class="btn-primario" (click)="guardarMovimiento()">
-              {{ modoEdicion() ? 'Guardar cambios' : 'Agregar movimiento' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <app-formulario-movimiento
+      [movimiento]="movimientoEnEdicion()"
+      (guardar)="guardarMovimiento($event)"
+      (cerrar)="cerrarFormulario()" />
   }
 
   <!-- 7) MODAL: IMPORTAR EXCEL (flujo de 3 pasos) -->

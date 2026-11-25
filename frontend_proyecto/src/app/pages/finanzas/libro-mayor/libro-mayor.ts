@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx'; // Librería para leer/escribir archivos Excel (.x
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
 import { FinanzasService, Movimiento } from '../../../services/finanzas';
+import { DatosMovimiento, FormularioMovimientoComponent } from './formulario-movimiento/formulario-movimiento';
 
 /**
  * COMPONENTE: Libro Mayor
@@ -36,7 +37,7 @@ type ColumnaOrden = 'fecha' | 'concepto' | 'categoria' | 'tipo' | 'valor';
 
 @Component({
   selector: 'app-libro-mayor',
-  imports: [FinanzasMenuComponent, FormsModule, CursoBannerComponent],
+  imports: [FinanzasMenuComponent, FormsModule, CursoBannerComponent, FormularioMovimientoComponent],
   templateUrl: './libro-mayor.html',
   styleUrl: './libro-mayor.css',
 })
@@ -49,9 +50,6 @@ export class LibroMayorComponent {
     'Servicios', 'Educación', 'Gastos hormiga', 'Salario', 'Otros ingresos',
     'Ahorro', 'Otros',
   ];
-
-  /** Opciones para el campo "Método de pago" del formulario. */
-  metodosPago: string[] = ['Efectivo', 'Tarjeta débito', 'Tarjeta crédito', 'Transferencia', 'Otro'];
 
   /** Los movimientos reales viven en el service compartido con Finanzas;
    *  este getter es solo una "ventana" de lectura hacia ellos. */
@@ -178,46 +176,20 @@ export class LibroMayorComponent {
   }
 
   /** ----- Formulario de agregar / editar -----
-   *  Un mismo formulario (y un mismo modal) sirve tanto para crear un
-   *  movimiento nuevo como para editar uno existente; `modoEdicion` indica
-   *  en cuál de los dos casos estamos. */
+   *  El formulario vive en `FormularioMovimientoComponent` (Signal Forms).
+   *  Aquí solo se decide si está abierto y con qué movimiento. */
   mostrarFormulario = signal(false);
-  modoEdicion = signal(false);
-  private idEnEdicion: number | null = null;
+  movimientoEnEdicion = signal<Movimiento | undefined>(undefined);
 
-  formFecha = '';
-  formConcepto = '';
-  formCategoria = 'Otros';
-  formTipo: 'ingreso' | 'gasto' = 'gasto';
-  formValor: number | null = null;
-  formMetodoPago = 'Efectivo';
-  formObservaciones = '';
-
-  /** Abre el modal limpio, listo para crear un movimiento nuevo. */
+  /** Abre el formulario limpio, listo para crear un movimiento nuevo. */
   abrirFormularioNuevo(): void {
-    this.modoEdicion.set(false);
-    this.idEnEdicion = null;
-    this.formFecha = '';
-    this.formConcepto = '';
-    this.formCategoria = 'Otros';
-    this.formTipo = 'gasto';
-    this.formValor = null;
-    this.formMetodoPago = 'Efectivo';
-    this.formObservaciones = '';
+    this.movimientoEnEdicion.set(undefined);
     this.mostrarFormulario.set(true);
   }
 
-  /** Abre el modal con los datos del movimiento ya cargados, para editarlo. */
+  /** Abre el formulario con los datos del movimiento ya cargados, para editarlo. */
   abrirFormularioEditar(movimiento: Movimiento): void {
-    this.modoEdicion.set(true);
-    this.idEnEdicion = movimiento.id;
-    this.formFecha = movimiento.fecha;
-    this.formConcepto = movimiento.concepto;
-    this.formCategoria = movimiento.categoria;
-    this.formTipo = movimiento.tipo;
-    this.formValor = movimiento.valor;
-    this.formMetodoPago = movimiento.metodoPago ?? 'Efectivo';
-    this.formObservaciones = movimiento.observaciones ?? '';
+    this.movimientoEnEdicion.set(movimiento);
     this.mostrarFormulario.set(true);
   }
 
@@ -225,38 +197,16 @@ export class LibroMayorComponent {
     this.mostrarFormulario.set(false);
   }
 
-  /** Valida el formulario y, según `modoEdicion`, actualiza el movimiento
-   *  existente o agrega uno nuevo, siempre a través del service compartido. */
-  guardarMovimiento(): void {
-    const concepto = this.formConcepto.trim();
-    const fecha = this.formFecha;
-    const valor = this.formValor;
-
-    if (!concepto || !fecha || valor === null || valor <= 0) {
-      this.emitirMensaje('error', 'Completa fecha, concepto y un valor mayor a 0.');
-      return;
-    }
-
-    const datos = {
-      fecha,
-      concepto,
-      categoria: this.formCategoria,
-      tipo: this.formTipo,
-      valor,
-      metodoPago: this.formMetodoPago,
-      observaciones: this.formObservaciones.trim(),
-    };
-
-    if (this.modoEdicion() && this.idEnEdicion !== null) {
-      this.finanzasService.editarMovimiento(this.idEnEdicion, datos);
-      console.log('[Libro mayor] Movimiento actualizado:', { id: this.idEnEdicion, ...datos });
-      this.emitirMensaje('exito', 'Movimiento actualizado correctamente.');
+  /** Recibe los datos ya validados y los guarda en el service compartido. */
+  guardarMovimiento(datos: DatosMovimiento): void {
+    const enEdicion = this.movimientoEnEdicion();
+    if (enEdicion) {
+      this.finanzasService.editarMovimiento(enEdicion.id, datos);
+      this.emitirMensaje('exito', 'Movimiento actualizado.');
     } else {
       this.finanzasService.agregarMovimiento(datos);
-      console.log('[Libro mayor] Movimiento agregado:', datos);
-      this.emitirMensaje('exito', 'Movimiento agregado correctamente.');
+      this.emitirMensaje('exito', datos.tipo === 'gasto' ? 'Gasto registrado.' : 'Ingreso registrado.');
     }
-
     this.mostrarFormulario.set(false);
   }
 
