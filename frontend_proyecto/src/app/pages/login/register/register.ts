@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth';
+import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
 
 @Component({
@@ -25,7 +26,9 @@ export class RegisterComponent {
   /** Formulario principal del componente */
   registerForm: FormGroup;
 
-  errorMessage: string = '';
+  // Cambian cuando responde el MID, por eso son signals (la app no usa zone.js)
+  errorMessage = signal('');
+  cargando = signal(false);
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
 
@@ -102,32 +105,31 @@ export class RegisterComponent {
   }
 
   registroUsuario(): void {
-    this.errorMessage = '';
+    this.errorMessage.set('');
 
     /** Validación si el formulario es válido */
     if (this.registerForm.invalid) {
       /** Marca todos los campos para que muestren su error */
       this.registerForm.markAllAsTouched();
-      this.errorMessage = 'Formulario inválido. Por favor, completa todos los campos correctamente.';
+      this.errorMessage.set('Formulario inválido. Por favor, completa todos los campos correctamente.');
       return;
     }
 
     const { nombre, apellido, correo, password } = this.registerForm.value;
+    this.cargando.set(true);
 
-    console.log('[Registro] Petición de registro:', { nombre, apellido, correo });
-
-    // TODO: reemplazar por llamada HTTP real al backend cuando esté listo.
-    const resultado = this.authService.registrarUsuario(nombre, apellido, correo, password);
-
-    if (!resultado.exito) {
-      console.log('[Registro] No se pudo registrar:', resultado.mensaje);
-      this.errorMessage = resultado.mensaje ?? 'No se pudo crear la cuenta.';
-      return;
-    }
-
-    console.log('[Registro] Usuario registrado:', { correo });
-    this.toastService.success(`Usuario registrado. ¡Bienvenido ${nombre}!`);
-    this.router.navigate(['/home']);
+    // El MID crea el usuario, su contraseña y su rol, y responde con la sesión iniciada
+    this.authService.registrar({ nombre, apellido, email: correo, contrasena: password }).subscribe({
+      next: () => {
+        this.cargando.set(false);
+        this.toastService.success(`Usuario registrado. ¡Bienvenido ${nombre}!`);
+        this.router.navigate(['/home']);
+      },
+      error: (error) => {
+        this.cargando.set(false);
+        this.errorMessage.set(mensajeDeError(error));
+      },
+    });
   }
 
   registerWithGoogle(): void {

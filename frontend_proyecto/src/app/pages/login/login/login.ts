@@ -1,14 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, motivoSinAcceso, Usuario } from '../../../services/auth';
+import { AuthService } from '../../../services/auth';
+import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
 
 type LoginStage = 'credenciales' | 'verificacion';
-
-// TODO: código de verificación quemado (mock de 2FA). Reemplazar por envío/validación real por SMS o correo.
-const CODIGO_2FA_MOCK = '123456';
 
 @Component({
   selector: 'app-login',
@@ -18,11 +16,25 @@ const CODIGO_2FA_MOCK = '123456';
   styleUrls: ['./login.css'],
 })
 export class LoginComponent {
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-    private toastService: ToastService
-  ) {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private toastService = inject(ToastService);
+
+  email = '';
+  password = '';
+  rememberMe = false;
+  showPassword = false;
+  codigo = '';
+
+  // Cambian cuando responde el MID, por eso son signals (la app no usa zone.js)
+  stage = signal<LoginStage>('credenciales');
+  errorMessage = signal('');
+  cargando = signal(false);
+
+  /** Token temporal que da el MID en el paso 1; se usa para verificar o reenviar el código. */
+  private tokenVerificacion = '';
+
+  constructor() {
     // Si el usuario marcó "Recordarme" antes, precargamos su correo
     const emailGuardado = localStorage.getItem('financeup_email');
     if (emailGuardado) {
@@ -31,73 +43,59 @@ export class LoginComponent {
     }
   }
 
-  email: string = '';
-  password: string = '';
-  rememberMe: boolean = false;
-  showPassword: boolean = false;
-  errorMessage: string = '';
-
-  stage: LoginStage = 'credenciales';
-  codigo: string = '';
-  private usuarioValidado: Usuario | null = null;
-
+  /** Paso 1: el MID revisa correo y contraseña y manda el código al correo. */
   login(): void {
-    this.errorMessage = '';
+    this.errorMessage.set('');
+    this.cargando.set(true);
 
-    const usuario = this.authService.validarCredenciales(this.email.trim(), this.password);
-
-    if (!usuario) {
-      console.log('[Login] Credenciales incorrectas:', { email: this.email.trim() });
-      this.errorMessage = 'Credenciales incorrectas. Intenta de nuevo.';
-      return;
-    }
-
-    const sinAcceso = motivoSinAcceso(usuario);
-    if (sinAcceso) {
-      console.log('[Login] Cuenta sin acceso:', { email: usuario.email, motivo: sinAcceso });
-      this.errorMessage = sinAcceso;
-      return;
-    }
-
-    console.log('[Login] Credenciales válidas, se pide el código de verificación:', { email: usuario.email });
-    this.usuarioValidado = usuario;
-    this.codigo = '';
-    this.stage = 'verificacion';
+    this.authService.iniciarSesion(this.email.trim(), this.password).subscribe({
+      next: (respuesta) => {
+        this.cargando.set(false);
+        this.tokenVerificacion = respuesta.token_verificacion;
+        this.codigo = '';
+        this.stage.set('verificacion');
+        this.toastService.info(respuesta.mensaje);
+      },
+      error: (error) => {
+        this.cargando.set(false);
+        this.errorMessage.set(mensajeDeError(error));
+      },
+    });
   }
 
+  /** Paso 2: con el código correcto el MID entrega el token y entramos. */
   verificarCodigo(): void {
-    if (!this.usuarioValidado) {
-      this.stage = 'credenciales';
-      return;
-    }
+    this.cargando.set(true);
 
-    if (this.codigo.trim() !== CODIGO_2FA_MOCK) {
-      console.log('[Login] Código de verificación incorrecto:', { email: this.usuarioValidado.email });
-      this.toastService.error('Código incorrecto. Intenta de nuevo.');
-      this.codigo = '';
-      return;
-    }
-
-    if (this.rememberMe) {
-      localStorage.setItem('financeup_email', this.email.trim());
-    } else {
-      localStorage.removeItem('financeup_email');
-    }
-
-    this.authService.completarSesion(this.usuarioValidado);
-    console.log('[Login] Sesión iniciada:', { email: this.usuarioValidado.email, rol: this.usuarioValidado.rol });
-    this.toastService.success(`Bienvenido ${this.usuarioValidado.nombre}`);
-    this.router.navigateByUrl('/home');
+    this.authService.verificarCodigo(this.tokenVerificacion, this.codigo.trim()).subscribe({
+      next: (usuario) => {
+        this.cargando.set(false);
+        if (this.rememberMe) {
+          localStorage.setItem('financeup_email', this.email.trim());
+        } else {
+          localStorage.removeItem('financeup_email');
+        }
+        this.toastService.success(`Bienvenido ${usuario.nombre}`);
+        this.router.navigateByUrl(usuario.rol === 'admin' ? '/admin' : '/home');
+      },
+      error: (error) => {
+        this.cargando.set(false);
+        this.codigo = '';
+        this.toastService.error(mensajeDeError(error));
+      },
+    });
   }
 
   reenviarCodigo(): void {
-    console.log('[Login] Código de verificación reenviado:', { email: this.usuarioValidado?.email });
-    this.toastService.info('Código reenviado (simulado): 123456');
+    this.authService.reenviarCodigo(this.tokenVerificacion).subscribe({
+      next: (respuesta) => this.toastService.info(respuesta.mensaje),
+      error: (error) => this.toastService.error(mensajeDeError(error)),
+    });
   }
 
   volverACredenciales(): void {
-    this.stage = 'credenciales';
-    this.usuarioValidado = null;
+    this.stage.set('credenciales');
+    this.tokenVerificacion = '';
     this.codigo = '';
   }
 

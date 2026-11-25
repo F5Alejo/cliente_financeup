@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AuthService } from './auth';
 import { UsuariosService } from './usuarios';
 
 const ADMIN = 'admin@gmail.com';
@@ -85,14 +84,13 @@ describe('UsuariosService', () => {
       telefono: ' 3001234567 ',
     };
 
-    it('crea un usuario activo que puede iniciar sesión', () => {
+    it('crea un usuario activo', () => {
       const resultado = service.crear(nuevo, ADMIN);
 
       expect(resultado.exito).toBe(true);
       const creado = service.listar().find((u) => u.email === nuevo.email);
       expect(creado).toMatchObject({ nombre: 'Marta', rol: 'user', estado: 'activo', telefono: '3001234567' });
       expect(creado && 'password' in creado).toBe(false);
-      expect(TestBed.inject(AuthService).validarCredenciales(nuevo.email, nuevo.password)).not.toBeNull();
     });
 
     it('rechaza un correo repetido (equivale al 409)', () => {
@@ -196,34 +194,5 @@ describe('UsuariosService', () => {
       service.bloquear(OBJETIVO, MOTIVO, ADMIN);
       expect(service.cambios()).toBeGreaterThan(antes);
     });
-
-    it('las cuentas pendientes y suspendidas tampoco pueden iniciar sesión', () => {
-      const auth = TestBed.inject(AuthService);
-
-      expect(auth.iniciarSesion('sofia@gmail.com', '123456')).toBe(false);
-      expect(auth.iniciarSesion('mateo@gmail.com', '123456')).toBe(false);
-      expect(auth.estaAutenticado()).toBe(false);
-    });
-
-    it('registra el último acceso al iniciar sesión', () => {
-      const auth = TestBed.inject(AuthService);
-      const antes = service.obtener('julian@gmail.com')?.ultimoAcceso;
-      expect(antes).toBeNull();
-
-      const usuario = service.buscar('usuario@gmail.com')!;
-      auth.completarSesion(usuario);
-
-      expect(service.obtener('usuario@gmail.com')?.ultimoAcceso).toBe(usuario.ultimoAcceso);
-      expect(Date.now() - new Date(usuario.ultimoAcceso!).getTime()).toBeLessThan(5000);
-    });
-  });
-
-  it('un usuario bloqueado no puede iniciar sesión', () => {
-    const auth = TestBed.inject(AuthService);
-    service.bloquear(OBJETIVO, MOTIVO, ADMIN);
-
-    expect(auth.validarCredenciales(OBJETIVO, '123456')?.estado).toBe('bloqueado');
-    expect(auth.iniciarSesion(OBJETIVO, '123456')).toBe(false);
-    expect(auth.estaAutenticado()).toBe(false);
   });
 });

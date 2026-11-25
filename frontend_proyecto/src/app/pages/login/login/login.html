@@ -6,14 +6,14 @@
       <div class="login-card">
 
         <!-- ETAPA 1: correo y contraseña -->
-        @if (stage === 'credenciales') {
+        @if (stage() === 'credenciales') {
           <div class="stage-heading">
             <h1>Bienvenido de nuevo</h1>
             <p>Ingresa tus datos para continuar.</p>
           </div>
 
-          @if (errorMessage) {
-            <div class="alert alert-error">{{ errorMessage }}</div>
+          @if (errorMessage()) {
+            <div class="alert alert-error" role="alert">{{ errorMessage() }}</div>
           }
 
           <form (ngSubmit)="login()">
@@ -40,7 +40,7 @@
               <a class="link" (click)="goToForgotPassword()">¿Olvidaste tu contraseña?</a>
             </div>
 
-            <button type="submit" class="btn-primary">Ingresar</button>
+            <button type="submit" class="btn-primary" [disabled]="cargando()">{{ cargando() ? 'Verificando…' : 'Ingresar' }}</button>
           </form>
 
           <button type="button" class="register-button" (click)="goToRegister()">Crear una cuenta</button>
@@ -71,24 +71,24 @@
           </div>
         }
 
-        <!-- ETAPA 2: código de verificación (2FA simulado) -->
-        @if (stage === 'verificacion') {
+        <!-- ETAPA 2: código de verificación que el MID envía al correo -->
+        @if (stage() === 'verificacion') {
           <div class="stage-heading">
             <h1>Verifica tu identidad</h1>
             <p>Ingresa el código que te enviamos.</p>
           </div>
 
           <p class="verificacion-texto">
-            Por seguridad, escribe el código de 6 dígitos. Como esta es una demo sin backend real, el código siempre es <strong>123456</strong>.
+            Por seguridad, escribe el código de 6 dígitos que te enviamos a <strong>{{ email }}</strong>. Vence en unos minutos.
           </p>
 
           <form (ngSubmit)="verificarCodigo()">
             <div class="form-group">
               <label for="codigo">Código de verificación</label>
-              <input id="codigo" class="code-input" type="text" inputmode="numeric" maxlength="6" placeholder="123456" [(ngModel)]="codigo" name="codigo" required>
+              <input id="codigo" class="code-input" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" [(ngModel)]="codigo" name="codigo" required>
             </div>
 
-            <button type="submit" class="btn-primary">Verificar e ingresar</button>
+            <button type="submit" class="btn-primary" [disabled]="cargando()">{{ cargando() ? 'Verificando…' : 'Verificar e ingresar' }}</button>
           </form>
 
           <button type="button" class="register-button" (click)="reenviarCodigo()">Reenviar código</button>

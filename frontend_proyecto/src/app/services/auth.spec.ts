@@ -1,16 +1,103 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { AuthService } from './auth';
+import { API_URL, mensajeDeError } from './api';
+
+// Respuesta del MID cuando la sesión queda iniciada (verificar código o registro)
+const SESION_MID = {
+  mensaje: 'Inicio de sesion exitoso',
+  token: 'token-de-prueba',
+  expira_en: 3600,
+  id_usuario: 7,
+  nombre: 'Ana',
+  apellido: 'Gómez',
+  email: 'ana@correo.com',
+  rol: 'user',
+  estado: 'activo',
+};
 
 describe('AuthService', () => {
   let service: AuthService;
+  let http: HttpTestingController;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    sessionStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(AuthService);
+    http = TestBed.inject(HttpTestingController);
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  afterEach(() => http.verify());
+
+  it('el paso 1 del login manda correo y contraseña al MID', () => {
+    let tokenVerificacion = '';
+    service.iniciarSesion('ana@correo.com', 'Clave1234').subscribe((r) => (tokenVerificacion = r.token_verificacion));
+
+    const peticion = http.expectOne(`${API_URL}/login`);
+    expect(peticion.request.method).toBe('POST');
+    expect(peticion.request.body).toEqual({ email: 'ana@correo.com', contrasena: 'Clave1234' });
+    peticion.flush({ mensaje: 'Te enviamos un codigo', requiere_codigo: true, token_verificacion: 'tv-1' });
+
+    expect(tokenVerificacion).toBe('tv-1');
+    expect(service.estaAutenticado()).toBe(false);
+  });
+
+  it('al verificar el código guarda la sesión con el token del MID', () => {
+    service.verificarCodigo('tv-1', '123456').subscribe();
+
+    const peticion = http.expectOne(`${API_URL}/login/verificar`);
+    expect(peticion.request.body).toEqual({ token_verificacion: 'tv-1', codigo: '123456' });
+    peticion.flush(SESION_MID);
+
+    const usuario = service.obtenerUsuario();
+    expect(usuario?.id).toBe(7);
+    expect(usuario?.token).toBe('token-de-prueba');
+    expect(usuario?.rol).toBe('user');
+    expect(JSON.parse(sessionStorage.getItem('financeup_user')!).token).toBe('token-de-prueba');
+  });
+
+  it('el registro manda los datos con los nombres del MID y deja la sesión iniciada', () => {
+    service
+      .registrar({ nombre: 'Ana', apellido: 'Gómez', email: 'ana@correo.com', contrasena: 'Clave1234' })
+      .subscribe();
+
+    const peticion = http.expectOne(`${API_URL}/registro`);
+    expect(peticion.request.body).toEqual({
+      nombre: 'Ana',
+      apellido: 'Gómez',
+      email: 'ana@correo.com',
+      contrasena: 'Clave1234',
+      acepta_terminos: true,
+    });
+    peticion.flush({ ...SESION_MID, mensaje: 'Usuario registrado' });
+
+    expect(service.obtenerUsuario()?.nombre).toBe('Ana');
+  });
+
+  it('cerrar sesión avisa al MID y borra la sesión local', () => {
+    service.verificarCodigo('tv-1', '123456').subscribe();
+    http.expectOne(`${API_URL}/login/verificar`).flush(SESION_MID);
+
+    service.cerrarSesion();
+
+    http.expectOne(`${API_URL}/logout`).flush({ mensaje: 'Sesion cerrada' });
+    expect(service.estaAutenticado()).toBe(false);
+    expect(sessionStorage.getItem('financeup_user')).toBeNull();
+  });
+});
+
+describe('mensajeDeError', () => {
+  it('usa el texto de error que manda el MID', () => {
+    const error = new HttpErrorResponse({ status: 401, error: { error: 'Correo o contrasena incorrectos' } });
+    expect(mensajeDeError(error)).toBe('Correo o contrasena incorrectos');
+  });
+
+  it('avisa cuando el MID no responde', () => {
+    const error = new HttpErrorResponse({ status: 0 });
+    expect(mensajeDeError(error)).toContain('No hay conexión con el servidor');
   });
 });

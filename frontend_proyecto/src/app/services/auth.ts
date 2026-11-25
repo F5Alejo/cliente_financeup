@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { NotificacionesService } from './notificaciones';
+import { HttpClient } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
+import { API_URL } from './api';
 import { UsuariosService } from './usuarios';
 
 export type Rol = 'admin' | 'user';
@@ -18,8 +20,12 @@ export function motivoSinAcceso(usuario: { estado?: EstadoUsuario }): string | n
 }
 
 export interface Usuario {
+  /** Id del usuario en la base (lo manda el MID). */
+  id?: number;
+  /** Token JWT que entrega el MID al iniciar sesión. */
+  token?: string;
   email: string;
-  password: string;
+  password?: string;
   nombre: string;
   apellido?: string;
   rol: Rol;
@@ -33,18 +39,42 @@ export interface Usuario {
   fechaNacimiento?: string;
 }
 
+/** Respuesta del paso 1 del login: el MID envía el código al correo. */
+export interface PasoLogin {
+  mensaje: string;
+  token_verificacion: string;
+}
+
+/** Datos del formulario de registro. */
+export interface DatosRegistro {
+  nombre: string;
+  apellido: string;
+  email: string;
+  contrasena: string;
+}
+
+/** Lo que responde el MID cuando la sesión queda iniciada. */
+interface SesionMid {
+  token: string;
+  id_usuario: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  rol: Rol;
+  estado: EstadoUsuario;
+}
+
 const STORAGE_KEY = 'financeup_user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private http = inject(HttpClient);
   private usuarioActual: Usuario | null = null;
 
-  // La lista de usuarios (mock en memoria) vive en UsuariosService.
-  // TODO: al conectar el backend real, registrarUsuario() pasa a ser un POST /api/auth/register.
+  // Todavía simulado: la lista de usuarios que usa actualizarPerfil (se conecta en el paso de perfil).
   private usuariosService = inject(UsuariosService);
-  private notificaciones = inject(NotificacionesService);
 
   constructor() {
     // Recupera la sesión si ya había un usuario logueado (persistencia entre recargas)
@@ -54,101 +84,45 @@ export class AuthService {
     }
   }
 
-  /**
-   * Valida credenciales contra los usuarios quemados (mock), sin crear sesión.
-   * Se usa como primer paso del login, antes de pedir el código de verificación (2FA).
-   */
-  validarCredenciales(email: string, password: string): Usuario | null {
-    const usuario = this.usuariosService.buscar(email);
-    return usuario && usuario.password === password ? usuario : null;
+  /** Login, paso 1: el MID revisa correo y contraseña y envía un código al correo. */
+  iniciarSesion(email: string, contrasena: string): Observable<PasoLogin> {
+    return this.http.post<PasoLogin>(`${API_URL}/login`, { email, contrasena });
   }
 
-  /**
-   * Persiste la sesión de un usuario ya validado (segundo paso del login, tras el 2FA).
-   */
-  completarSesion(usuario: Usuario): void {
-    usuario.ultimoAcceso = new Date().toISOString();
+  /** Login, paso 2: con el código correcto el MID entrega el token y se guarda la sesión. */
+  verificarCodigo(tokenVerificacion: string, codigo: string): Observable<Usuario> {
+    return this.http
+      .post<SesionMid>(`${API_URL}/login/verificar`, { token_verificacion: tokenVerificacion, codigo })
+      .pipe(map((sesion) => this.guardarSesion(sesion)));
+  }
+
+  /** Botón "Reenviar código" del paso 2. */
+  reenviarCodigo(tokenVerificacion: string): Observable<{ mensaje: string }> {
+    return this.http.post<{ mensaje: string }>(`${API_URL}/login/reenviar`, { token_verificacion: tokenVerificacion });
+  }
+
+  /** Crea la cuenta en el MID; el MID responde con la sesión ya iniciada. */
+  registrar(datos: DatosRegistro): Observable<Usuario> {
+    return this.http
+      .post<SesionMid>(`${API_URL}/registro`, { ...datos, acepta_terminos: true })
+      .pipe(map((sesion) => this.guardarSesion(sesion)));
+  }
+
+  /** Pasa la respuesta del MID al formato del cliente y la guarda en sessionStorage. */
+  private guardarSesion(sesion: SesionMid): Usuario {
+    const usuario: Usuario = {
+      id: sesion.id_usuario,
+      token: sesion.token,
+      email: sesion.email,
+      nombre: sesion.nombre,
+      apellido: sesion.apellido,
+      rol: sesion.rol,
+      estado: sesion.estado,
+      ultimoAcceso: new Date().toISOString(),
+    };
     this.usuarioActual = usuario;
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
-  }
-
-  /**
-   * Valida credenciales y crea la sesión en un solo paso (sin 2FA).
-   * Devuelve true si el login fue exitoso, false si las credenciales son incorrectas.
-   */
-  iniciarSesion(email: string, password: string): boolean {
-    const usuario = this.validarCredenciales(email, password);
-    if (!usuario || motivoSinAcceso(usuario)) {
-      return false;
-    }
-    this.completarSesion(usuario);
-    return true;
-  }
-
-  /**
-   * Login con proveedor social (Google/Apple/Facebook).
-   * MOCK: simula la respuesta del proveedor mientras no haya SDK/backend real conectado.
-   * TODO: reemplazar por el flujo real de cada proveedor (ver notas de integración).
-   */
-  iniciarSesionConProveedor(proveedor: 'google' | 'apple' | 'facebook'): Promise<Usuario> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const emailSimulado = `usuario@${proveedor}.com`;
-
-        let usuario = this.usuariosService.buscar(emailSimulado);
-
-        const sinAcceso = usuario ? motivoSinAcceso(usuario) : null;
-        if (sinAcceso) {
-          reject(new Error(sinAcceso));
-          return;
-        }
-
-        // Si es la primera vez que "entra" con ese proveedor, se crea el usuario
-        if (!usuario) {
-          usuario = {
-            email: emailSimulado,
-            password: '', // no aplica en login social
-            nombre: `Usuario ${proveedor.charAt(0).toUpperCase() + proveedor.slice(1)}`,
-            rol: 'user'
-          };
-          this.usuariosService.agregar(usuario);
-        }
-
-        this.usuarioActual = usuario;
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
-        resolve(usuario);
-      }, 1200);
-    });
-  }
-
-  /**
-   * Registra un nuevo usuario (mock, en memoria) y lo deja autenticado.
-   * Devuelve { exito: true } si se creó, o { exito: false, mensaje } si el correo ya existe.
-   */
-  registrarUsuario(nombre: string, apellido: string, email: string, password: string): { exito: boolean; mensaje?: string } {
-    if (this.usuariosService.buscar(email)) {
-      return { exito: false, mensaje: 'Ya existe una cuenta registrada con ese correo.' };
-    }
-
-    const nuevoUsuario: Usuario = {
-      email,
-      password,
-      nombre,
-      apellido,
-      rol: 'user'
-    };
-
-    this.usuariosService.agregar(nuevoUsuario);
-    this.notificaciones.agregar({
-      categoria: 'usuarios',
-      titulo: 'Nuevo usuario registrado',
-      detalle: `${nombre} ${apellido} (${email}).`,
-      ruta: '/admin/usuarios',
-      nivel: 'info',
-    });
-    this.completarSesion(nuevoUsuario);
-
-    return { exito: true };
+    return usuario;
   }
 
   /**
@@ -207,9 +181,18 @@ export class AuthService {
   }
 
   /**
-   * Cierra la sesión actual.
+   * Cierra la sesión: le avisa al MID (queda en la auditoría) y borra la sesión local.
+   * Si el MID no responde, la sesión local se borra igual.
    */
   cerrarSesion(): void {
+    if (this.usuarioActual?.token) {
+      this.http.post(`${API_URL}/logout`, {}).subscribe({ error: () => {} });
+    }
+    this.borrarSesion();
+  }
+
+  /** Borra la sesión guardada en el navegador (sin llamar al MID). */
+  borrarSesion(): void {
     this.usuarioActual = null;
     sessionStorage.removeItem(STORAGE_KEY);
   }
