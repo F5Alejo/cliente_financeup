@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { LoginComponent} from './login';
 
@@ -8,7 +9,9 @@ describe('Login', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoginComponent]
+      imports: [LoginComponent],
+      // Rutas vacías: RouterLink necesita el router y '**' absorbe navegaciones como /login.
+      providers: [provideRouter([{ path: '**', children: [] }])],
     })
     .compileComponents();
 
