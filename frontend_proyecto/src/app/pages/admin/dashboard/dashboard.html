@@ -42,10 +42,10 @@
     [cargando]="cargando()" />
   <app-kpi
     etiqueta="Cursos publicados"
-    [valor]="cursosPublicados"
+    [valor]="cursosPublicados()"
     icono="graduation-cap"
     tono="neutral"
-    [pie]="'en ' + escuelas + ' escuelas'"
+    [pie]="'en ' + escuelas() + ' escuelas'"
     [cargando]="cargando()" />
 </section>
 

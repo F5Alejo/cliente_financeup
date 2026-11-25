@@ -63,12 +63,12 @@
     </label>
 
     <div class="chips">
-      @for (escuela of escuelas; track escuela.id) {
+      @for (escuela of escuelas(); track escuela.id) {
         <button
           type="button"
           class="chip"
-          [class.chip--on]="escuelaActiva() === escuela.id"
-          (click)="alternarEscuela(escuela.id)"
+          [class.chip--on]="escuelaActiva() === escuela.slug"
+          (click)="alternarEscuela(escuela.slug)"
         >
           {{ escuela.nombre }}
         </button>
@@ -109,6 +109,17 @@
   </section>
 
   <!-- ============ ESCUELAS ============ -->
+  @if (error()) {
+    <section class="vacio" role="alert">
+      <h2>No pudimos cargar los cursos</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="btn btn--play" (click)="cargar()">Intentar de nuevo</button>
+    </section>
+  } @else if (cargando()) {
+    <section class="vacio" aria-live="polite">
+      <p>Cargando cursos…</p>
+    </section>
+  } @else {
   @for (escuela of escuelasFiltradas(); track escuela.id) {
     <section class="escuela">
       <header class="escuela__head">
@@ -162,12 +173,13 @@
       <h2>No hay cursos con esos filtros</h2>
       <p>
         Buscaste “{{ terminoBusqueda() }}”. Prueba con otro tema o quita los filtros
-        para ver los {{ escuelas.length }} programas completos.
+        para ver los {{ escuelas().length }} programas completos.
       </p>
       <button type="button" class="btn btn--play" (click)="limpiarFiltros()">
         Ver todos los cursos
       </button>
     </section>
+  }
   }
 
 </div>

@@ -135,8 +135,8 @@
           }
 
           @if (curso.progreso > 0) {
-            <button type="button" class="btn btn--texto" (click)="reiniciar()">
-              Reiniciar progreso
+            <button type="button" class="btn btn--texto" (click)="reiniciar()" [disabled]="reiniciando()">
+              {{ reiniciando() ? 'Reiniciando…' : 'Reiniciar progreso' }}
             </button>
           }
 
@@ -158,10 +158,14 @@
       </aside>
     </div>
   </div>
-} @else {
-  <div class="ficha ficha--vacia">
-    <h1>Ese curso ya no está disponible</h1>
-    <p>Es posible que lo hayamos retirado del catálogo. Revisa los cursos vigentes.</p>
+} @else if (errorCarga()) {
+  <div class="ficha ficha--vacia" role="alert">
+    <h1>No pudimos abrir este curso</h1>
+    <p>{{ errorCarga() }}</p>
     <button type="button" class="btn btn--play" (click)="volver()">Ver el catálogo</button>
+  </div>
+} @else {
+  <div class="ficha ficha--vacia" aria-live="polite">
+    <p>Cargando el curso…</p>
   </div>
 }

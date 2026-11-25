@@ -73,6 +73,8 @@ export class AdminDashboardComponent {
   private pqrService = inject(PqrService);
   private alianzasService = inject(AlianzasService);
   private educacionService = inject(EducacionService);
+  // Los cursos salen del catálogo del MID; se pide una vez y lo comparten todas las pantallas
+  private readonly catalogo = this.educacionService.escuelas().length === 0 && this.educacionService.cargarCatalogo();
   private actividadAdmin = inject(ActividadAdminService);
   private shell = inject(AdminBusquedaService);
   private router = inject(Router);
@@ -107,8 +109,8 @@ export class AdminDashboardComponent {
   pqrAlta = this.pqrPendientes.filter((p) => p.prioridad === 'Alta').length;
   alianzasActivas = this.alianzasService.ofertas.length;
   solicitudesEnEstudio = this.alianzasService.solicitudes.filter((s) => s.estado === 'En estudio').length;
-  cursosPublicados = this.educacionService.todosLosCursos().length;
-  escuelas = this.educacionService.escuelas.length;
+  cursosPublicados = computed(() => this.educacionService.todosLosCursos().length);
+  escuelas = computed(() => this.educacionService.escuelas().length);
 
   eventos = computed<EventoLinea[]>(() => {
     const lista: EventoLinea[] = [];

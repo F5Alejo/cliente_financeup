@@ -1,11 +1,13 @@
-@if (curso(); as curso) {
+@if (certificado(); as certificado) {
   <div class="entrega">
 
     <header class="entrega__head">
       <p class="eyebrow">Curso completado</p>
-      <h1>Terminaste {{ curso.titulo }}</h1>
+      <h1>Terminaste {{ certificado.curso }}</h1>
       <p class="entrega__sub">
-        Viste las {{ curso.lecciones.length }} clases y {{ minutos() }} minutos de contenido.
+        @if (curso(); as curso) {
+          Viste las {{ curso.lecciones.length }} clases y {{ minutos() }} minutos de contenido.
+        }
         Tu certificado queda asociado a tu cuenta.
       </p>
     </header>
@@ -19,26 +21,26 @@
         </header>
 
         <p class="diploma__leyenda">Certifica que</p>
-        <p class="diploma__nombre">{{ estudiante }}</p>
+        <p class="diploma__nombre">{{ certificado.estudiante }}</p>
         <p class="diploma__leyenda">completó satisfactoriamente el curso</p>
-        <p class="diploma__curso">{{ curso.titulo }}</p>
+        <p class="diploma__curso">{{ certificado.curso }}</p>
 
         <dl class="diploma__pie">
           <div>
             <dt>Fecha</dt>
-            <dd>{{ fecha }}</dd>
+            <dd>{{ fecha() }}</dd>
           </div>
           <div>
             <dt>Duración</dt>
-            <dd>{{ minutos() }} minutos</dd>
+            <dd>{{ certificado.duracion }}</dd>
           </div>
           <div>
             <dt>Instructor</dt>
-            <dd>{{ curso.instructor.nombre }}</dd>
+            <dd>{{ curso()?.instructor?.nombre }}</dd>
           </div>
           <div>
             <dt>Código</dt>
-            <dd>{{ codigo() }}</dd>
+            <dd>{{ certificado.codigo }}</dd>
           </div>
         </dl>
       </div>
@@ -56,12 +58,16 @@
       </button>
     </div>
   </div>
-} @else {
-  <div class="entrega entrega--vacia">
-    <h1>No encontramos ese certificado</h1>
-    <p>El curso ya no está disponible en el catálogo.</p>
-    <button type="button" class="btn btn--play" (click)="seguirAprendiendo()">
-      Ver el catálogo
+} @else if (error()) {
+  <div class="entrega entrega--vacia" role="alert">
+    <h1>Todavía no hay certificado</h1>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn btn--play" (click)="volverAlCurso()">
+      Volver al curso
     </button>
+  </div>
+} @else {
+  <div class="entrega entrega--vacia" aria-live="polite">
+    <p>Preparando tu certificado…</p>
   </div>
 }

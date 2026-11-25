@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,11 +13,15 @@ import { EducacionService } from '../../../services/educacion';
   styleUrls: ['./educacion.css'],
 })
 export class EducacionComponent implements OnInit {
-  constructor(
-    private educacionService: EducacionService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+  private educacionService = inject(EducacionService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  readonly cargando = this.educacionService.cargando;
+  readonly error = this.educacionService.error;
+
+  /** Curso a medias con sus lecciones (el catálogo solo trae el %). */
+  readonly cursoEnProgreso = signal<Curso | null>(null);
 
   /** Si se llega con ?escuela=... (ej. desde la campana de Finanzas), se preselecciona ese filtro */
   ngOnInit(): void {
@@ -25,6 +29,29 @@ export class EducacionComponent implements OnInit {
     if (escuela) {
       this.escuelaActiva.set(escuela);
     }
+    this.cargar();
+  }
+
+  /** Pide el catálogo al MID; el % de avance llega aparte y luego se busca el curso a medias. */
+  cargar(): void {
+    this.educacionService.cargarCatalogo();
+  }
+
+  constructor() {
+    // Cuando llega el avance, se pide el detalle del curso a medias para la banda "continuar"
+    effect(() => {
+      const curso = this.educacionService.cursoEnProgreso();
+      if (!curso) {
+        this.cursoEnProgreso.set(null);
+        return;
+      }
+      untracked(() =>
+        this.educacionService.cargarCurso(curso.id).subscribe({
+          next: (detalle) => this.cursoEnProgreso.set(detalle),
+          error: () => this.cursoEnProgreso.set(null),
+        })
+      );
+    });
   }
 
   // ---------------------------------------------------------------------
@@ -44,6 +71,7 @@ export class EducacionComponent implements OnInit {
   ];
 
   readonly terminoBusqueda = signal('');
+  /** Slug de la escuela, ej: "inversion" */
   readonly escuelaActiva = signal<string | null>(null);
   readonly nivelActivo = signal<string | null>(null);
   readonly formatoActivo = signal<string | null>(null);
@@ -75,21 +103,18 @@ export class EducacionComponent implements OnInit {
       this.formatoActivo() !== null
   );
 
-  get escuelas(): EscuelaCursos[] {
-    return this.educacionService.escuelas;
-  }
+  readonly escuelas = this.educacionService.escuelas;
 
   /** Escuelas ya filtradas por búsqueda/escuela/nivel/formato, listas para pintar. */
   readonly escuelasFiltradas = computed<EscuelaCursos[]>(() => {
-    this.educacionService.version();
-
     const termino = this.terminoBusqueda().trim().toLowerCase();
     const escuelaId = this.escuelaActiva();
     const nivel = this.niveles.find((n) => n.id === this.nivelActivo())?.etiqueta;
     const formato = this.formatos.find((f) => f.id === this.formatoActivo())?.etiqueta;
 
-    return this.educacionService.escuelas
-      .filter((escuela) => !escuelaId || escuela.id === escuelaId)
+    return this.educacionService
+      .escuelas()
+      .filter((escuela) => !escuelaId || escuela.slug === escuelaId)
       .map((escuela) => ({
         ...escuela,
         cursos: escuela.cursos.filter((curso) => {
@@ -117,11 +142,6 @@ export class EducacionComponent implements OnInit {
   // BANDA "CONTINÚA DONDE QUEDASTE"
   // ---------------------------------------------------------------------
 
-  readonly cursoEnProgreso = computed(() => {
-    this.educacionService.version();
-    return this.educacionService.cursoEnProgreso();
-  });
-
   leccionesHechas(curso: Curso): number {
     return curso.lecciones.filter((l) => l.completada).length;
   }
@@ -131,12 +151,12 @@ export class EducacionComponent implements OnInit {
   }
 
   siguienteLeccionTitulo(curso: Curso): string {
-    return this.educacionService.siguienteLeccion(curso).titulo;
+    return this.educacionService.siguienteLeccion(curso)?.titulo ?? '';
   }
 
   siguienteLeccionNumero(curso: Curso): number {
     const siguiente = this.educacionService.siguienteLeccion(curso);
-    return this.educacionService.indiceDeLeccion(curso, siguiente.id) + 1;
+    return siguiente ? curso.lecciones.indexOf(siguiente) + 1 : 1;
   }
 
   /** Perímetro restante del anillo de progreso (r = 26). */
@@ -156,6 +176,10 @@ export class EducacionComponent implements OnInit {
 
   reanudar(curso: Curso): void {
     const leccion = this.educacionService.siguienteLeccion(curso);
+    if (!leccion) {
+      this.abrirCurso(curso);
+      return;
+    }
     this.router.navigate(['/educacion/curso', curso.id, 'clase', leccion.id]);
   }
 }

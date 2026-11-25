@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { EducacionService } from '../../../services/educacion';
 
@@ -15,14 +15,21 @@ import { EducacionService } from '../../../services/educacion';
   styleUrl: './curso-banner.css',
 })
 export class CursoBannerComponent {
+  private educacionService = inject(EducacionService);
+
   /** Pregunta o frase gancho, ej: "¿Por qué el interés compuesto rinde más?" */
   @Input() texto = '';
-  /** Id de un curso real del catálogo de EducacionService */
+  /** Slug de un curso del catálogo del MID, ej: "presupuesto-50-30-20" */
   @Input() cursoId = '';
 
-  constructor(private educacionService: EducacionService) {}
+  constructor() {
+    // El catálogo se pide una sola vez y lo comparten todas las pantallas
+    if (this.educacionService.escuelas().length === 0) {
+      this.educacionService.cargarCatalogo();
+    }
+  }
 
   get curso() {
-    return this.educacionService.buscarCurso(this.cursoId);
+    return this.educacionService.buscarPorSlug(this.cursoId);
   }
 }

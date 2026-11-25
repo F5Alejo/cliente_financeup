@@ -88,6 +88,8 @@ export class AdminReportesComponent {
   private usuariosService = inject(UsuariosService);
   private pqrService = inject(PqrService);
   private educacionService = inject(EducacionService);
+  // Los cursos salen del catálogo del MID; se pide una vez y lo comparten todas las pantallas
+  private readonly catalogo = this.educacionService.escuelas().length === 0 && this.educacionService.cargarCatalogo();
   private alianzasService = inject(AlianzasService);
   private finanzasService = inject(FinanzasService);
   private actividadService = inject(ActividadAdminService);
@@ -241,7 +243,7 @@ export class AdminReportesComponent {
   }
 
   private reporteCursos(): Reporte {
-    const escuelas = this.educacionService.escuelas;
+    const escuelas = this.educacionService.escuelas();
     const cursos = this.educacionService.todosLosCursos();
     const estudiantes = cursos.reduce((s, c) => s + c.estudiantes, 0);
     const conNota = cursos.filter((c) => c.calificacion > 0);

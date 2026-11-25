@@ -11,7 +11,7 @@ import { PaginacionComponent } from '../../../shared/components/paginacion/pagin
 import { AccionMenu, RowMenuComponent } from '../../../shared/components/row-menu/row-menu';
 import { ActividadAdminService } from '../../../shared/services/actividad-admin';
 import { ToastService } from '../../../shared/services/toast';
-import { crearPaginador, enlazarConShell, normalizarTexto, simularCarga } from '../../../shared/utils/lista';
+import { crearPaginador, enlazarConShell, normalizarTexto } from '../../../shared/utils/lista';
 
 interface FilaCurso {
   curso: Curso;
@@ -52,9 +52,16 @@ export class AdminEducacionComponent {
   readonly claseNivel = CLASE_NIVEL;
   readonly esqueletos = [1, 2, 3, 4, 5];
 
-  escuelas = signal(this.leerEscuelas());
-  filas = signal<FilaCurso[]>(this.leerFilas());
-  cargando = simularCarga();
+  // Lista real: sale del catálogo del MID (GET /v1/cursos)
+  escuelas = computed(() =>
+    this.educacionService.escuelas().map((e) => ({ id: e.slug, nombre: e.nombre }))
+  );
+  filas = computed<FilaCurso[]>(() =>
+    this.educacionService.escuelas().flatMap((e) =>
+      e.cursos.map((curso) => ({ curso, escuelaId: e.slug, escuela: e.nombre }))
+    )
+  );
+  cargando = this.educacionService.cargando;
   busqueda = signal('');
   filtroEscuela = signal('');
   filtroNivel = signal<NivelCurso | ''>('');
@@ -103,6 +110,9 @@ export class AdminEducacionComponent {
   );
 
   constructor() {
+    if (this.educacionService.escuelas().length === 0) {
+      this.educacionService.cargarCatalogo();
+    }
     enlazarConShell(
       (texto) => this.filtrar(this.busqueda, texto),
       () => this.abrirFormulario()
@@ -162,77 +172,13 @@ export class AdminEducacionComponent {
       return;
     }
 
-    const valores = this.formulario.getRawValue();
-    const datos = {
-      titulo: valores.titulo.trim(),
-      descripcion: valores.descripcion.trim(),
-      nivel: valores.nivel,
-      formato: valores.formato,
-      duracion: valores.duracion.trim(),
-    };
-
-    const edicion = this.modal()?.fila;
-    if (edicion) {
-      this.educacionService.editarCurso(edicion.curso.id, datos);
-      console.log('[Admin Educación] Curso actualizado:', { id: edicion.curso.id, ...datos });
-      this.actividad.registrar('Educación', 'Curso actualizado', datos.titulo);
-      this.toastService.success('Curso actualizado correctamente.');
-    } else {
-      this.educacionService.agregarCurso(valores.escuela, { ...this.cursoVacio(), ...datos, id: 'curso-' + Date.now() });
-      console.log('[Admin Educación] Curso publicado:', { escuela: valores.escuela, ...datos });
-      this.actividad.registrar('Educación', 'Curso publicado', datos.titulo);
-      this.toastService.success('Curso publicado correctamente.');
-    }
+    // El MID todavía no tiene rutas para crear o editar cursos: se conectan en el módulo de administración
+    this.toastService.info('Publicar y editar cursos se conecta con el backend en el módulo de administración.');
     this.cerrarModal();
-    this.refrescar();
   }
 
   confirmarEliminacion(): void {
-    const fila = this.modal()?.fila;
-    if (!fila) return;
-
-    this.educacionService.eliminarCurso(fila.curso.id);
-    this.actividad.registrar('Educación', 'Curso eliminado', fila.curso.titulo);
-    this.toastService.success(`Curso «${fila.curso.titulo}» eliminado.`);
+    this.toastService.info('Eliminar cursos se conecta con el backend en el módulo de administración.');
     this.cerrarModal();
-    this.refrescar();
-  }
-
-  private cursoVacio(): Curso {
-    return {
-      id: '',
-      titulo: '',
-      imagen: 'https://picsum.photos/seed/nuevo/400/220',
-      categoria: 'fundamentos',
-      nivel: 'Básico',
-      formato: 'Video',
-      duracion: '',
-      resumenLecciones: '',
-      certificado: false,
-      descripcion: '',
-      progreso: 0,
-      contenido: [],
-      instructor: { nombre: '', cargo: '', iniciales: '' },
-      estudiantes: 0,
-      calificacion: 0,
-      actualizado: '',
-      aprenderas: [],
-      requisitos: [],
-      lecciones: [],
-    };
-  }
-
-  private leerEscuelas() {
-    return this.educacionService.escuelas.map((e) => ({ id: e.id, nombre: e.nombre }));
-  }
-
-  private leerFilas(): FilaCurso[] {
-    return this.educacionService.escuelas.flatMap((e) =>
-      e.cursos.map((curso) => ({ curso, escuelaId: e.id, escuela: e.nombre }))
-    );
-  }
-
-  private refrescar(): void {
-    this.filas.set(this.leerFilas());
   }
 }

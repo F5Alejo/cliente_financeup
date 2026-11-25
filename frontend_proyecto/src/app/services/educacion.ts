@@ -1,401 +1,307 @@
-import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, map } from 'rxjs';
+
+import { API_URL, mensajeDeError } from './api';
+import { AuthService } from './auth';
 import {
+  AvanceCurso,
+  Certificado,
+  Clase,
   Curso,
   EscuelaCursos,
+  FormatoCurso,
   Leccion,
+  NivelCurso,
   TipoLeccion,
 } from '../pages/educacion/educacion/educacion.model';
 
-// Arma las lecciones de un curso a partir de tuplas [título, tipo, minutos, resumen].
-function lecciones(
-  cursoId: string,
-  items: [string, TipoLeccion, number, string][]
-): Leccion[] {
-  return items.map(([titulo, tipo, duracionMin, resumen], i) => ({
-    id: `${cursoId}-l${i + 1}`,
-    titulo,
-    tipo,
-    duracionMin,
-    resumen,
-    completada: false,
-  }));
+// ------------------------------------------------------------
+// Cómo responde el MID (nombres en snake_case, textos en minúscula)
+// ------------------------------------------------------------
+
+interface CursoMid {
+  id: number;
+  slug: string;
+  titulo: string;
+  imagen: string;
+  categoria: string;
+  nivel: string;
+  formato: string;
+  duracion: string;
+  resumen_lecciones: string;
+  certificado: boolean;
+  descripcion: string;
+  estudiantes: number;
+  calificacion: number;
+  // En el catálogo el instructor es solo el nombre; en el detalle es un objeto
+  instructor: string | { nombre: string; cargo: string; iniciales: string };
+  // Solo en el detalle (GET /cursos/:id)
+  actualizado?: string;
+  aprenderas?: string[];
+  requisitos?: string[];
+  progreso?: number;
+  lecciones?: LeccionMid[];
 }
 
+interface LeccionMid {
+  id: number;
+  titulo: string;
+  tipo: string;
+  duracion_min: number;
+  resumen: string;
+  completada: boolean;
+}
+
+interface EscuelaMid {
+  id: number;
+  slug: string;
+  nombre: string;
+  descripcion: string;
+  cursos: CursoMid[];
+}
+
+interface ProgresoMid {
+  modulos: { id_modulo: number; porcentaje: number }[];
+}
+
+interface ClaseMid {
+  id: number;
+  id_curso: number;
+  numero: number;
+  titulo: string;
+  tipo: string;
+  duracion_min: number;
+  resumen: string;
+  url_video: string;
+  contenido: string;
+  id_siguiente_clase: number;
+}
+
+// ------------------------------------------------------------
+// Traducción MID → pantalla
+// ------------------------------------------------------------
+
+const NIVELES: Record<string, NivelCurso> = { basico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado' };
+const FORMATOS: Record<string, FormatoCurso> = { video: 'Video', articulo: 'Artículo', quiz: 'Quiz' };
+const TIPOS: Record<string, TipoLeccion> = { video: 'Video', lectura: 'Lectura', quiz: 'Quiz' };
+
+/** "Mariana Escobar Uribe" → "ME" */
+function iniciales(nombre: string): string {
+  return nombre
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((parte) => parte[0].toUpperCase())
+    .join('');
+}
+
+/** "2026-11-25" → "noviembre de 2026" */
+function mesYAnio(fecha: string | undefined): string {
+  if (!fecha) return '';
+  const [anio, mes] = fecha.split('-').map(Number);
+  return new Date(anio, mes - 1, 1).toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+}
+
+function aLeccion(leccion: LeccionMid): Leccion {
+  return {
+    id: leccion.id,
+    titulo: leccion.titulo,
+    tipo: TIPOS[leccion.tipo] ?? 'Video',
+    duracionMin: leccion.duracion_min,
+    resumen: leccion.resumen,
+    completada: leccion.completada,
+  };
+}
+
+function aCurso(curso: CursoMid): Curso {
+  const instructor =
+    typeof curso.instructor === 'string'
+      ? { nombre: curso.instructor, cargo: '', iniciales: iniciales(curso.instructor) }
+      : curso.instructor;
+
+  return {
+    id: curso.id,
+    slug: curso.slug,
+    titulo: curso.titulo,
+    // Las rutas vienen como "/assets/..."; sin la barra funcionan también en GitHub Pages
+    imagen: curso.imagen.replace(/^\//, ''),
+    categoria: curso.categoria,
+    nivel: NIVELES[curso.nivel] ?? 'Básico',
+    formato: FORMATOS[curso.formato] ?? 'Video',
+    duracion: curso.duracion,
+    resumenLecciones: curso.resumen_lecciones,
+    certificado: curso.certificado,
+    descripcion: curso.descripcion,
+    progreso: curso.progreso ?? 0,
+    instructor,
+    estudiantes: curso.estudiantes,
+    calificacion: curso.calificacion,
+    actualizado: mesYAnio(curso.actualizado),
+    aprenderas: curso.aprenderas ?? [],
+    requisitos: curso.requisitos ?? [],
+    lecciones: (curso.lecciones ?? []).map(aLeccion),
+  };
+}
+
+/**
+ * Educación: catálogo, detalle de curso, clases, avance y certificado.
+ * Todo sale del MID; el avance se guarda con el id del usuario de la sesión.
+ */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EducacionService {
-  // Señal que cambia cada vez que se completa una lección, para refrescar las vistas.
-  readonly version = signal(0);
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
 
-  // TODO: reemplazar por llamadas HTTP al backend real cuando esté listo.
-  escuelas: EscuelaCursos[] = [
-    {
-      id: 'finanzas-personales',
-      nombre: 'Finanzas Personales',
-      descripcion: 'Ordena tu plata mes a mes: presupuesto, crédito y deuda.',
-      cursos: [
-        {
-          id: 'presupuesto-50-30-20',
-          titulo: 'Presupuesto 50/30/20',
-          imagen: 'assets/img/educacion/presupuesto.webp',
-          categoria: 'fundamentos',
-          nivel: 'Básico',
-          formato: 'Video',
-          duracion: '30 minutos',
-          resumenLecciones: '4 lecciones + evaluación',
-          certificado: true,
-          descripcion:
-            'Reparte tu sueldo entre necesidades, gustos y ahorro sin llevar una hoja de cálculo interminable.',
-          progreso: 0,
-          contenido: [],
-          instructor: {
-            nombre: 'Mariana Escobar Uribe',
-            cargo: 'Asesora financiera, 9 años en banca personal',
-            iniciales: 'ME',
-          },
-          estudiantes: 4812,
-          calificacion: 4.7,
-          actualizado: 'Julio 2026',
-          aprenderas: [
-            'Repartir tu ingreso mensual en tres bolsillos',
-            'Distinguir un gasto fijo de uno que puedes recortar',
-            'Ajustar la regla cuando tu ingreso es variable',
-          ],
-          requisitos: ['Conocer tu ingreso mensual aproximado'],
-          lecciones: lecciones('presupuesto-50-30-20', [
-            ['Qué resuelve la regla 50/30/20', 'Video', 6, 'De dónde sale la regla y por qué funciona mejor que anotar cada gasto.'],
-            ['Clasifica tus gastos en tres bolsillos', 'Video', 8, 'Necesidades, gustos y ahorro: dónde entra el arriendo, el plan de datos y las salidas.'],
-            ['Los tres errores que rompen el presupuesto', 'Lectura', 5, 'Presupuestar sobre el bruto, olvidar los gastos anuales y no dejar colchón.'],
-            ['Arma tu primer presupuesto', 'Video', 9, 'Aterrizamos la regla sobre un sueldo real de 2.800.000 al mes.'],
-            ['Evaluación final', 'Quiz', 4, 'Cinco preguntas para confirmar que puedes repartir tu ingreso solo.'],
-          ]),
-        },
-        {
-          id: 'tarjetas-responsable',
-          titulo: 'Usa bien tu tarjeta de crédito',
-          imagen: 'assets/img/educacion/tarjeta-credito.webp',
-          categoria: 'credito',
-          nivel: 'Básico',
-          formato: 'Video',
-          duracion: '35 minutos',
-          resumenLecciones: '4 lecciones + evaluación',
-          certificado: true,
-          descripcion:
-            'Entiende el cupo, la cuota mínima y los intereses antes de que ellos te entiendan a ti.',
-          progreso: 0,
-          contenido: [],
-          instructor: {
-            nombre: 'Julián Restrepo Vélez',
-            cargo: 'Ex analista de riesgo crediticio',
-            iniciales: 'JR',
-          },
-          estudiantes: 6390,
-          calificacion: 4.8,
-          actualizado: 'Agosto 2026',
-          aprenderas: [
-            'Leer un extracto sin perderte',
-            'Calcular cuánto te cuesta pagar la cuota mínima',
-            'Aprovechar el período de gracia a tu favor',
-          ],
-          requisitos: ['Tener o estar por pedir una tarjeta de crédito'],
-          lecciones: lecciones('tarjetas-responsable', [
-            ['Cómo funciona una tarjeta por dentro', 'Video', 7, 'Cupo, fecha de corte y fecha límite de pago explicados sobre un extracto real.'],
-            ['El costo real de la cuota mínima', 'Video', 9, 'Qué pasa con una deuda de 1.200.000 si solo pagas el mínimo durante un año.'],
-            ['Diferir a cuotas sin perder plata', 'Lectura', 6, 'Cuándo diferir sale barato y cuándo es mejor pagar de contado.'],
-            ['Señales de que la tarjeta te está ganando', 'Video', 8, 'Los cuatro comportamientos que anteceden a un sobreendeudamiento.'],
-            ['Evaluación final', 'Quiz', 5, 'Pon a prueba lo que aprendiste sobre intereses y fechas de corte.'],
-          ]),
-        },
-        {
-          id: 'historial-desde-cero',
-          titulo: 'Entiende tu puntaje de crédito',
-          imagen: 'assets/img/educacion/puntaje-credito.webp',
-          categoria: 'credito',
-          nivel: 'Básico',
-          formato: 'Video',
-          duracion: '45 minutos',
-          resumenLecciones: '4 lecciones + evaluación',
-          certificado: true,
-          descripcion:
-            'Qué mira una entidad cuando te consulta en centrales de riesgo y cómo subir tu score.',
-          progreso: 0,
-          contenido: [],
-          instructor: {
-            nombre: 'Julián Restrepo Vélez',
-            cargo: 'Ex analista de riesgo crediticio',
-            iniciales: 'JR',
-          },
-          estudiantes: 8145,
-          calificacion: 4.9,
-          actualizado: 'Agosto 2026',
-          aprenderas: [
-            'Qué pesa y qué no pesa en tu score',
-            'Cada cuánto conviene consultar tu historial',
-            'Cómo recuperarte de un reporte negativo',
-          ],
-          requisitos: ['Ninguno, puedes empezar sin historial crediticio'],
-          lecciones: lecciones('historial-desde-cero', [
-            ['Qué es el puntaje y quién lo calcula', 'Video', 8, 'Datacrédito, TransUnion y de dónde salen los datos que reportan sobre ti.'],
-            ['Los cinco factores que mueven tu score', 'Video', 11, 'Historial de pago, uso del cupo, antigüedad, mezcla de productos y consultas.'],
-            ['Mitos que circulan sobre el crédito', 'Lectura', 7, 'Consultar tu score no lo baja, y cerrar tarjetas no siempre ayuda.'],
-            ['Plan de 6 meses para subir tu puntaje', 'Video', 12, 'Qué hacer mes a mes si vienes de un reporte negativo.'],
-            ['Evaluación final', 'Quiz', 5, 'Confirma que sabes leer tu historial antes de pedir un crédito.'],
-          ]),
-        },
-        {
-          id: 'salir-de-deudas',
-          titulo: 'Sal de deudas con el método bola de nieve',
-          imagen: 'assets/img/educacion/deudas.webp',
-          categoria: 'deuda',
-          nivel: 'Intermedio',
-          formato: 'Artículo',
-          duracion: '28 minutos',
-          resumenLecciones: '3 lecciones + evaluación',
-          certificado: false,
-          descripcion:
-            'Ordena tus deudas y decide cuál pagar primero cuando el dinero no alcanza para todas.',
-          progreso: 0,
-          contenido: [],
-          instructor: {
-            nombre: 'Daniela Cifuentes Mora',
-            cargo: 'Educadora financiera',
-            iniciales: 'DC',
-          },
-          estudiantes: 3127,
-          calificacion: 4.6,
-          actualizado: 'Junio 2026',
-          aprenderas: [
-            'Inventariar todo lo que debes en una sola tabla',
-            'Elegir entre bola de nieve y avalancha',
-            'Negociar un acuerdo de pago sin miedo',
-          ],
-          requisitos: ['Tener al menos una deuda activa'],
-          lecciones: lecciones('salir-de-deudas', [
-            ['Inventario: cuánto debes de verdad', 'Lectura', 8, 'Saldo, tasa y cuota de cada deuda en una sola tabla.'],
-            ['Bola de nieve contra avalancha', 'Lectura', 9, 'Una da motivación temprana, la otra ahorra más intereses. Cuál te sirve.'],
-            ['Cómo negociar con la entidad', 'Lectura', 7, 'Qué pedir, con quién hablar y qué dejar por escrito.'],
-            ['Evaluación final', 'Quiz', 4, 'Arma el orden de pago de un caso con cuatro deudas.'],
-          ]),
-        },
-      ],
-    },
-    {
-      id: 'inversion',
-      nombre: 'Inversión',
-      descripcion: 'Del primer fondo a un portafolio que puedas sostener.',
-      cursos: [
-        {
-          id: 'intro-bolsa',
-          titulo: 'Primeros pasos en la bolsa',
-          imagen: 'assets/img/educacion/bolsa.webp',
-          categoria: 'fundamentos',
-          nivel: 'Básico',
-          formato: 'Video',
-          duracion: '35 minutos',
-          resumenLecciones: '3 lecciones + evaluación',
-          certificado: true,
-          descripcion:
-            'Qué se compra y se vende en una bolsa de valores, y cómo abrir tu primera cuenta en Colombia.',
-          progreso: 0,
-          contenido: [],
-          instructor: {
-            nombre: 'Óscar Bermúdez Lara',
-            cargo: 'Gestor de portafolios',
-            iniciales: 'OB',
-          },
-          estudiantes: 5674,
-          calificacion: 4.7,
-          actualizado: 'Julio 2026',
-          aprenderas: [
-            'Diferenciar acción, bono y fondo',
-            'Abrir cuenta en una comisionista',
-            'Calcular cuánto te cobran por operar',
-          ],
-          requisitos: ['Tener un fondo de emergencia armado'],
-          lecciones: lecciones('intro-bolsa', [
-            ['Qué es y para qué sirve una bolsa', 'Video', 9, 'Quién emite, quién compra y qué papel juega la comisionista.'],
-            ['Acciones, bonos y fondos', 'Video', 11, 'Tres instrumentos, tres niveles de riesgo, tres horizontes de tiempo.'],
-            ['Abre tu primera cuenta', 'Lectura', 10, 'Documentos, montos mínimos y comisiones de las casas más usadas.'],
-            ['Evaluación final', 'Quiz', 5, 'Identifica qué instrumento encaja en cada objetivo.'],
-          ]),
-        },
-        {
-          id: 'intro-criptomonedas',
-          titulo: 'Criptomonedas sin humo',
-          imagen: 'assets/img/educacion/criptomonedas.webp',
-          categoria: 'fundamentos',
-          nivel: 'Básico',
-          formato: 'Video',
-          duracion: '40 minutos',
-          resumenLecciones: '3 lecciones + evaluación',
-          certificado: true,
-          descripcion:
-            'Qué hay detrás de una criptomoneda, qué riesgos asumes y cómo evitar las estafas más comunes.',
-          progreso: 0,
-          contenido: [],
-          instructor: {
-            nombre: 'Óscar Bermúdez Lara',
-            cargo: 'Gestor de portafolios',
-            iniciales: 'OB',
-          },
-          estudiantes: 7203,
-          calificacion: 4.4,
-          actualizado: 'Agosto 2026',
-          aprenderas: [
-            'Explicar qué es una blockchain sin tecnicismos',
-            'Reconocer una estafa piramidal disfrazada',
-            'Custodiar tus llaves de forma segura',
-          ],
-          requisitos: ['Ninguno'],
-          lecciones: lecciones('intro-criptomonedas', [
-            ['Qué es una criptomoneda', 'Video', 10, 'Por qué existe, quién la emite y qué la respalda.'],
-            ['Blockchain explicada con un ejemplo', 'Video', 12, 'Un libro contable que nadie puede borrar, contado con una cuenta de tienda.'],
-            ['Riesgos y estafas frecuentes', 'Lectura', 13, 'Rendimientos garantizados, referidos obligatorios y otras banderas rojas.'],
-            ['Evaluación final', 'Quiz', 5, 'Detecta las banderas rojas en tres casos reales.'],
-          ]),
-        },
-        {
-          id: 'gestion-portafolio',
-          titulo: 'Arma y rebalancea tu portafolio',
-          imagen: 'assets/img/educacion/portafolio.webp',
-          categoria: 'fundamentos',
-          nivel: 'Avanzado',
-          formato: 'Quiz',
-          duracion: '30 minutos',
-          resumenLecciones: '3 lecciones + evaluación',
-          certificado: true,
-          descripcion:
-            'Cómo repartir lo que inviertes y cada cuánto volver a ajustar los pesos.',
-          progreso: 0,
-          contenido: [],
-          instructor: {
-            nombre: 'Óscar Bermúdez Lara',
-            cargo: 'Gestor de portafolios',
-            iniciales: 'OB',
-          },
-          estudiantes: 1948,
-          calificacion: 4.8,
-          actualizado: 'Mayo 2026',
-          aprenderas: [
-            'Definir pesos objetivo por tipo de activo',
-            'Rebalancear sin disparar impuestos ni comisiones',
-            'Medir tu portafolio con tres métricas',
-          ],
-          requisitos: ['Haber invertido antes', 'Curso de bolsa completado'],
-          lecciones: lecciones('gestion-portafolio', [
-            ['Pesos objetivo según tu horizonte', 'Lectura', 10, 'Cómo cambia la mezcla si tu meta está a 3, 10 o 25 años.'],
-            ['Cuándo y cómo rebalancear', 'Video', 11, 'Por calendario o por desviación: dos disciplinas para no improvisar.'],
-            ['Tres métricas para hacer seguimiento', 'Lectura', 6, 'Rentabilidad real, volatilidad y máxima caída.'],
-            ['Evaluación final', 'Quiz', 5, 'Rebalancea un portafolio desviado 12 puntos de su objetivo.'],
-          ]),
-        },
-      ],
-    },
-  ];
+  // Signals: las pantallas se actualizan cuando responde el MID (la app no usa zone.js)
+  readonly escuelas = signal<EscuelaCursos[]>([]);
+  readonly cargando = signal(false);
+  readonly error = signal('');
 
-  constructor() {
-    for (const escuela of this.escuelas) {
-      for (const curso of escuela.cursos) {
-        curso.contenido = curso.lecciones.map((l) => l.titulo);
-      }
-    }
-
-    // Estado inicial de ejemplo: el usuario ya avanzó en el curso de puntaje.
-    const enCurso = this.buscarCurso('historial-desde-cero');
-    if (enCurso) {
-      enCurso.lecciones[0].completada = true;
-      enCurso.lecciones[1].completada = true;
-    }
-
-    this.recalcularTodo();
+  private get idUsuario(): number | undefined {
+    return this.authService.obtenerUsuario()?.id;
   }
 
-  buscarCurso(cursoId: string): Curso | undefined {
-    for (const escuela of this.escuelas) {
-      const curso = escuela.cursos.find((c) => c.id === cursoId);
-      if (curso) return curso;
-    }
-    return undefined;
+  // ---------- Catálogo ----------
+
+  /** Trae escuelas y cursos; con sesión, también el % de avance de cada curso. */
+  cargarCatalogo(): void {
+    this.cargando.set(true);
+    this.error.set('');
+
+    this.http.get<EscuelaMid[]>(`${API_URL}/cursos`).subscribe({
+      next: (escuelas) => {
+        this.escuelas.set(
+          escuelas.map((escuela) => ({
+            id: escuela.id,
+            slug: escuela.slug,
+            nombre: escuela.nombre,
+            descripcion: escuela.descripcion,
+            cursos: escuela.cursos.map(aCurso),
+          }))
+        );
+        this.cargando.set(false);
+        this.cargarAvance();
+      },
+      error: (error) => {
+        this.error.set(mensajeDeError(error));
+        this.cargando.set(false);
+      },
+    });
   }
 
-  escuelaDeCurso(cursoId: string): EscuelaCursos | undefined {
-    return this.escuelas.find((e) => e.cursos.some((c) => c.id === cursoId));
-  }
+  /** Pone en cada curso del catálogo el % que lleva el usuario. */
+  private cargarAvance(): void {
+    if (!this.idUsuario) return;
 
-  /** Curso que el usuario dejó a medias, para la banda de "continuar". */
-  cursoEnProgreso(): Curso | undefined {
-    const iniciados = this.todosLosCursos().filter(
-      (c) => c.progreso > 0 && c.progreso < 100
-    );
-    return iniciados.sort((a, b) => b.progreso - a.progreso)[0];
-  }
+    this.http.get<ProgresoMid>(`${API_URL}/progreso-educativo/${this.idUsuario}`).subscribe((progreso) => {
+      const porcentaje = new Map(progreso.modulos.map((m) => [m.id_modulo, m.porcentaje]));
 
-  /** Primera lección sin completar; si están todas, la última. */
-  siguienteLeccion(curso: Curso): Leccion {
-    return curso.lecciones.find((l) => !l.completada) ?? curso.lecciones[curso.lecciones.length - 1];
-  }
-
-  indiceDeLeccion(curso: Curso, leccionId: string): number {
-    return curso.lecciones.findIndex((l) => l.id === leccionId);
-  }
-
-  completarLeccion(cursoId: string, leccionId: string): void {
-    const curso = this.buscarCurso(cursoId);
-    const leccion = curso?.lecciones.find((l) => l.id === leccionId);
-    if (!curso || !leccion) return;
-
-    leccion.completada = true;
-    this.recalcularProgreso(curso);
-    this.version.update((v) => v + 1);
-  }
-
-  reiniciarCurso(cursoId: string): void {
-    const curso = this.buscarCurso(cursoId);
-    if (!curso) return;
-
-    curso.lecciones.forEach((l) => (l.completada = false));
-    this.recalcularProgreso(curso);
-    this.version.update((v) => v + 1);
+      this.escuelas.update((escuelas) =>
+        escuelas.map((escuela) => ({
+          ...escuela,
+          cursos: escuela.cursos.map((curso) => ({ ...curso, progreso: porcentaje.get(curso.id) ?? 0 })),
+        }))
+      );
+    });
   }
 
   todosLosCursos(): Curso[] {
-    return this.escuelas.flatMap((e) => e.cursos);
+    return this.escuelas().flatMap((escuela) => escuela.cursos);
+  }
+
+  buscarPorSlug(slug: string): Curso | undefined {
+    return this.todosLosCursos().find((curso) => curso.slug === slug);
+  }
+
+  escuelaDeCurso(cursoId: number): EscuelaCursos | undefined {
+    return this.escuelas().find((escuela) => escuela.cursos.some((curso) => curso.id === cursoId));
+  }
+
+  /** Curso que el usuario dejó a medias (el más avanzado), para la banda de "continuar". */
+  cursoEnProgreso(): Curso | undefined {
+    return this.todosLosCursos()
+      .filter((curso) => curso.progreso > 0 && curso.progreso < 100)
+      .sort((a, b) => b.progreso - a.progreso)[0];
+  }
+
+  // ---------- Curso y clases ----------
+
+  /** Detalle con lecciones; con sesión marca las que el usuario ya completó. */
+  cargarCurso(id: number): Observable<Curso> {
+    const usuario = this.idUsuario ? `?usuario=${this.idUsuario}` : '';
+    return this.http.get<CursoMid>(`${API_URL}/cursos/${id}${usuario}`).pipe(map(aCurso));
+  }
+
+  obtenerClase(id: number): Observable<Clase> {
+    return this.http.get<ClaseMid>(`${API_URL}/clase/${id}`).pipe(
+      map((clase) => ({
+        id: clase.id,
+        idCurso: clase.id_curso,
+        numero: clase.numero,
+        titulo: clase.titulo,
+        tipo: TIPOS[clase.tipo] ?? 'Video',
+        duracionMin: clase.duracion_min,
+        resumen: clase.resumen,
+        urlVideo: clase.url_video,
+        contenido: clase.contenido,
+        idSiguiente: clase.id_siguiente_clase,
+      }))
+    );
+  }
+
+  /** Marca la clase como vista; el MID recalcula el % del curso. */
+  completarLeccion(leccionId: number): Observable<AvanceCurso> {
+    return this.http
+      .post<{ id_curso: number; lecciones_completadas: number; lecciones_totales: number; porcentaje: number }>(
+        `${API_URL}/clase/${leccionId}/completar`,
+        { id_usuario: this.idUsuario }
+      )
+      .pipe(
+        map((avance) => ({
+          idCurso: avance.id_curso,
+          leccionesCompletadas: avance.lecciones_completadas,
+          leccionesTotales: avance.lecciones_totales,
+          porcentaje: avance.porcentaje,
+        }))
+      );
+  }
+
+  /** Deja todas las clases del curso sin ver y el % en 0. */
+  reiniciarCurso(cursoId: number): Observable<unknown> {
+    return this.http.post(`${API_URL}/cursos/${cursoId}/reiniciar`, { id_usuario: this.idUsuario });
+  }
+
+  /** El MID solo lo entrega si el curso da certificado y va al 100%. */
+  emitirCertificado(cursoId: number): Observable<Certificado> {
+    return this.http
+      .post<{ codigo: string; estudiante: string; curso: string; duracion: string; fecha_emision: string }>(
+        `${API_URL}/certificado`,
+        { id_usuario: this.idUsuario, id_modulo: cursoId }
+      )
+      .pipe(
+        map((certificado) => ({
+          codigo: certificado.codigo,
+          estudiante: certificado.estudiante,
+          curso: certificado.curso,
+          duracion: certificado.duracion,
+          fechaEmision: certificado.fecha_emision,
+        }))
+      );
+  }
+
+  // ---------- Ayudas para las pantallas ----------
+
+  /** Primera lección sin completar; si están todas, la última. */
+  siguienteLeccion(curso: Curso): Leccion | undefined {
+    return curso.lecciones.find((leccion) => !leccion.completada) ?? curso.lecciones[curso.lecciones.length - 1];
   }
 
   minutosRestantes(curso: Curso): number {
     return curso.lecciones
-      .filter((l) => !l.completada)
-      .reduce((total, l) => total + l.duracionMin, 0);
-  }
-
-  private recalcularTodo(): void {
-    this.todosLosCursos().forEach((curso) => this.recalcularProgreso(curso));
-  }
-
-  private recalcularProgreso(curso: Curso): void {
-    const total = curso.lecciones.length;
-    const hechas = curso.lecciones.filter((l) => l.completada).length;
-    curso.progreso = total === 0 ? 0 : Math.round((hechas / total) * 100);
-  }
-
-  agregarCurso(escuelaId: string, curso: Curso): void {
-    const escuela = this.escuelas.find((e) => e.id === escuelaId);
-    if (escuela) {
-      escuela.cursos.push(curso);
-    }
-  }
-
-  editarCurso(cursoId: string, cambios: Partial<Curso>): void {
-    const curso = this.buscarCurso(cursoId);
-    if (curso) {
-      Object.assign(curso, cambios);
-    }
-  }
-
-  eliminarCurso(cursoId: string): void {
-    for (const escuela of this.escuelas) {
-      escuela.cursos = escuela.cursos.filter((c) => c.id !== cursoId);
-    }
+      .filter((leccion) => !leccion.completada)
+      .reduce((total, leccion) => total + leccion.duracionMin, 0);
   }
 }
