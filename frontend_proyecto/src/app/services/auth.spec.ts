@@ -78,6 +78,82 @@ describe('AuthService', () => {
     expect(service.obtenerUsuario()?.nombre).toBe('Ana');
   });
 
+  describe('perfil (con sesión iniciada)', () => {
+    const PERFIL_MID = {
+      id_usuario: 7,
+      nombre: 'Ana',
+      apellido: 'Gómez',
+      email: 'ana@correo.com',
+      tipo_documento: '',
+      cedula: '',
+      telefono: '3001234567',
+      ciudad: 'Bogotá',
+      direccion: 'Calle 1',
+      fecha_nacimiento: '2000-05-14',
+      estado: 'activo',
+      rol: 'user',
+    };
+
+    beforeEach(() => {
+      service.verificarCodigo('tv-1', '123456').subscribe();
+      http.expectOne(`${API_URL}/login/verificar`).flush(SESION_MID);
+    });
+
+    it('trae el perfil del usuario de la sesión', () => {
+      let perfil: unknown;
+      service.obtenerPerfil().subscribe((p) => (perfil = p));
+
+      const peticion = http.expectOne(`${API_URL}/perfil/7`);
+      expect(peticion.request.method).toBe('GET');
+      peticion.flush(PERFIL_MID);
+
+      expect(perfil).toEqual(PERFIL_MID);
+    });
+
+    it('guarda los datos personales y actualiza el nombre de la sesión', () => {
+      const datos = {
+        nombre: 'Ana María',
+        apellido: 'Gómez',
+        telefono: '3001234567',
+        ciudad: 'Bogotá',
+        direccion: 'Calle 1',
+        fecha_nacimiento: '2000-05-14',
+      };
+      service.actualizarPerfil(datos).subscribe();
+
+      const peticion = http.expectOne(`${API_URL}/perfil/7`);
+      expect(peticion.request.method).toBe('PUT');
+      expect(peticion.request.body).toEqual(datos);
+      peticion.flush({ ...PERFIL_MID, nombre: 'Ana María' });
+
+      expect(service.obtenerUsuario()?.nombre).toBe('Ana María');
+      expect(JSON.parse(sessionStorage.getItem('financeup_user')!).nombre).toBe('Ana María');
+    });
+
+    it('cambia la contraseña con los nombres que espera el MID', () => {
+      service.cambiarContrasena('Vieja1234', 'Nueva1234').subscribe();
+
+      const peticion = http.expectOne(`${API_URL}/perfil/7/contrasena`);
+      expect(peticion.request.method).toBe('PUT');
+      expect(peticion.request.body).toEqual({ contrasena_actual: 'Vieja1234', contrasena_nueva: 'Nueva1234' });
+      peticion.flush({ mensaje: 'Contrasena actualizada' });
+    });
+  });
+
+  it('recuperar contraseña: pide el código y luego guarda la clave nueva', () => {
+    service.pedirCodigoRecuperacion('ana@correo.com').subscribe();
+    const pedir = http.expectOne(`${API_URL}/recuperar-contrasena`);
+    expect(pedir.request.method).toBe('POST');
+    expect(pedir.request.body).toEqual({ email: 'ana@correo.com' });
+    pedir.flush({ mensaje: 'Si el correo esta registrado, te enviamos un codigo' });
+
+    service.restablecerContrasena('ana@correo.com', '654321', 'Nueva1234').subscribe();
+    const guardar = http.expectOne(`${API_URL}/recuperar-contrasena`);
+    expect(guardar.request.method).toBe('PUT');
+    expect(guardar.request.body).toEqual({ email: 'ana@correo.com', codigo: '654321', contrasena_nueva: 'Nueva1234' });
+    guardar.flush({ mensaje: 'Contrasena actualizada' });
+  });
+
   it('cerrar sesión avisa al MID y borra la sesión local', () => {
     service.verificarCodigo('tv-1', '123456').subscribe();
     http.expectOne(`${API_URL}/login/verificar`).flush(SESION_MID);

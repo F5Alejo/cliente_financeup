@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { API_URL } from './api';
-import { UsuariosService } from './usuarios';
 
 export type Rol = 'admin' | 'user';
 export type EstadoUsuario = 'activo' | 'bloqueado' | 'pendiente' | 'suspendido';
@@ -64,6 +63,37 @@ interface SesionMid {
   estado: EstadoUsuario;
 }
 
+/** Perfil como lo devuelve el MID (GET /perfil/:id). */
+export interface Perfil {
+  id_usuario: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  tipo_documento: string;
+  cedula: string;
+  telefono: string;
+  ciudad: string;
+  direccion: string;
+  fecha_nacimiento: string;
+  estado: EstadoUsuario;
+  rol: Rol;
+}
+
+/** Datos personales que se pueden editar en "Mi perfil" (el correo y la cédula no). */
+export interface DatosPerfil {
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  ciudad: string;
+  direccion: string;
+  fecha_nacimiento: string;
+}
+
+/** Respuesta simple del MID: solo un mensaje. */
+export interface Mensaje {
+  mensaje: string;
+}
+
 const STORAGE_KEY = 'financeup_user';
 
 @Injectable({
@@ -72,9 +102,6 @@ const STORAGE_KEY = 'financeup_user';
 export class AuthService {
   private http = inject(HttpClient);
   private usuarioActual: Usuario | null = null;
-
-  // Todavía simulado: la lista de usuarios que usa actualizarPerfil (se conecta en el paso de perfil).
-  private usuariosService = inject(UsuariosService);
 
   constructor() {
     // Recupera la sesión si ya había un usuario logueado (persistencia entre recargas)
@@ -97,8 +124,8 @@ export class AuthService {
   }
 
   /** Botón "Reenviar código" del paso 2. */
-  reenviarCodigo(tokenVerificacion: string): Observable<{ mensaje: string }> {
-    return this.http.post<{ mensaje: string }>(`${API_URL}/login/reenviar`, { token_verificacion: tokenVerificacion });
+  reenviarCodigo(tokenVerificacion: string): Observable<Mensaje> {
+    return this.http.post<Mensaje>(`${API_URL}/login/reenviar`, { token_verificacion: tokenVerificacion });
   }
 
   /** Crea la cuenta en el MID; el MID responde con la sesión ya iniciada. */
@@ -125,38 +152,40 @@ export class AuthService {
     return usuario;
   }
 
-  /**
-   * Actualiza los datos personales del usuario autenticado (mock, en memoria).
-   */
-  actualizarPerfil(datos: Partial<Usuario>): { exito: boolean } {
-    if (!this.usuarioActual) {
-      return { exito: false };
-    }
-
-    const actualizado: Usuario = { ...this.usuarioActual, ...datos, email: this.usuarioActual.email };
-    this.usuarioActual = actualizado;
-
-    this.usuariosService.reemplazar(actualizado);
-
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(actualizado));
-    return { exito: true };
+  /** Trae el perfil del usuario que tiene la sesión. */
+  obtenerPerfil(): Observable<Perfil> {
+    return this.http.get<Perfil>(`${API_URL}/perfil/${this.usuarioActual?.id}`);
   }
 
-  /**
-   * Cambia la contraseña del usuario autenticado, validando la contraseña actual.
-   */
-  cambiarPassword(actual: string, nueva: string): { exito: boolean; mensaje?: string } {
-    if (!this.usuarioActual) {
-      return { exito: false, mensaje: 'No hay una sesión activa.' };
-    }
+  /** Guarda los datos personales y deja el nombre nuevo en la sesión (lo usa el menú). */
+  actualizarPerfil(datos: DatosPerfil): Observable<Perfil> {
+    return this.http.put<Perfil>(`${API_URL}/perfil/${this.usuarioActual?.id}`, datos).pipe(
+      map((perfil) => {
+        if (this.usuarioActual) {
+          this.usuarioActual = { ...this.usuarioActual, nombre: perfil.nombre, apellido: perfil.apellido };
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(this.usuarioActual));
+        }
+        return perfil;
+      })
+    );
+  }
 
-    if (this.usuarioActual.password !== actual) {
-      return { exito: false, mensaje: 'La contraseña actual no es correcta.' };
-    }
+  /** Cambia la contraseña desde el perfil (el MID revisa que la actual sea correcta). */
+  cambiarContrasena(actual: string, nueva: string): Observable<Mensaje> {
+    return this.http.put<Mensaje>(`${API_URL}/perfil/${this.usuarioActual?.id}/contrasena`, {
+      contrasena_actual: actual,
+      contrasena_nueva: nueva,
+    });
+  }
 
-    return this.actualizarPerfil({ password: nueva }).exito
-      ? { exito: true }
-      : { exito: false, mensaje: 'No se pudo actualizar la contraseña.' };
+  /** "Olvidé mi contraseña", paso 1: el MID envía un código al correo. */
+  pedirCodigoRecuperacion(email: string): Observable<Mensaje> {
+    return this.http.post<Mensaje>(`${API_URL}/recuperar-contrasena`, { email });
+  }
+
+  /** "Olvidé mi contraseña", paso 2: con el código se guarda la contraseña nueva. */
+  restablecerContrasena(email: string, codigo: string, nueva: string): Observable<Mensaje> {
+    return this.http.put<Mensaje>(`${API_URL}/recuperar-contrasena`, { email, codigo, contrasena_nueva: nueva });
   }
 
   /**

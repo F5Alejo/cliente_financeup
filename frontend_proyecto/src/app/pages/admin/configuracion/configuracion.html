@@ -42,6 +42,7 @@
               <div class="field">
                 <label for="pf-apellido">Apellido</label>
                 <input id="pf-apellido" class="input" type="text" formControlName="apellido" autocomplete="off" />
+                @if (perfilForm.controls.apellido.touched && perfilForm.controls.apellido.invalid) { <span class="field-error">Escribe tu apellido (mínimo 3 caracteres).</span> }
               </div>
               <div class="field full">
                 <label for="pf-email">Correo electrónico</label>
@@ -53,8 +54,8 @@
                 <input id="pf-tel" class="input" type="tel" formControlName="telefono" autocomplete="off" />
               </div>
               <div class="field">
-                <label for="pf-doc">Documento</label>
-                <input id="pf-doc" class="input" type="text" formControlName="documento" autocomplete="off" />
+                <label for="pf-ciudad">Ciudad</label>
+                <input id="pf-ciudad" class="input" type="text" formControlName="ciudad" autocomplete="off" />
               </div>
               <div class="field full">
                 <label for="pf-dir">Dirección</label>

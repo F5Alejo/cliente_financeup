@@ -1,10 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth';
+import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
 
-type StageId = 's1' | 's2' | 's3';
-type RecoveryMethod = 'email' | 'sms';
+// Pasos: 1) escribir el correo, 2) código + clave nueva, 3) listo
+type Paso = 'correo' | 'codigo' | 'listo';
 
 interface PasswordRules {
   minLength: boolean;
@@ -20,15 +22,18 @@ interface PasswordRules {
 })
 export class RecuperarContrasena {
   private router = inject(Router);
+  private authService = inject(AuthService);
   private toastService = inject(ToastService);
 
-  // ---------- Estado del flujo ----------
+  // Signals: la pantalla cambia cuando responde el MID (la app no usa zone.js)
+  paso = signal<Paso>('correo');
+  errorMessage = signal('');
+  cargando = signal(false);
 
-  currentStage: StageId = 's1';
-  selectedMethod: RecoveryMethod = 'email';
-
-  newPassword = '';
-  confirmPassword = '';
+  email = '';
+  codigo = '';
+  nuevaPassword = '';
+  confirmarPassword = '';
 
   rules: PasswordRules = {
     minLength: false,
@@ -36,36 +41,37 @@ export class RecuperarContrasena {
     hasUppercase: false,
   };
 
-  // ---------- Navegación entre etapas ----------
+  // ---------- Paso 1: pedir el código ----------
 
-  goTo(stage: StageId): void {
-    this.currentStage = stage;
+  enviarCodigo(): void {
+    this.errorMessage.set('');
+    if (!this.email.trim()) {
+      this.errorMessage.set('Escribe el correo con el que te registraste.');
+      return;
+    }
+
+    this.cargando.set(true);
+    this.authService.pedirCodigoRecuperacion(this.email.trim()).subscribe({
+      next: () => {
+        this.cargando.set(false);
+        this.paso.set('codigo');
+        // El MID responde igual exista o no el correo, para no revelar qué cuentas hay
+        this.toastService.success('Si el correo está registrado, te llegará un código.');
+      },
+      error: (error) => {
+        this.cargando.set(false);
+        this.errorMessage.set(mensajeDeError(error));
+      },
+    });
   }
 
-  // ---------- Selección de método de recuperación ----------
-
-  selectMethod(method: RecoveryMethod): void {
-    this.selectedMethod = method;
-  }
-
-  sendCode(): void {
-    // Aquí iría la llamada real al servicio de autenticación para
-    // enviar el código según this.selectedMethod ('email' | 'sms').
-    console.log('[Recuperar contraseña] Código de verificación enviado por:', this.selectedMethod);
-    this.goTo('s2');
-  }
-
-  // ---------- Validación de nueva contraseña ----------
+  // ---------- Paso 2: código y contraseña nueva ----------
 
   onPasswordInput(): void {
-    this.rules = this.evaluatePassword(this.newPassword);
-  }
-
-  private evaluatePassword(value: string): PasswordRules {
-    return {
-      minLength: value.length >= 8,
-      hasNumber: /\d/.test(value),
-      hasUppercase: /[A-Z]/.test(value),
+    this.rules = {
+      minLength: this.nuevaPassword.length >= 8,
+      hasNumber: /\d/.test(this.nuevaPassword),
+      hasUppercase: /[A-Z]/.test(this.nuevaPassword),
     };
   }
 
@@ -73,24 +79,40 @@ export class RecuperarContrasena {
     return this.rules.minLength && this.rules.hasNumber && this.rules.hasUppercase;
   }
 
-  savePassword(): void {
+  guardarPassword(): void {
+    this.errorMessage.set('');
+
+    if (!/^\d{6}$/.test(this.codigo.trim())) {
+      this.errorMessage.set('El código tiene 6 dígitos.');
+      return;
+    }
     if (!this.allRulesPassed) {
-      this.toastService.error('La contraseña no cumple con todos los requisitos.');
+      this.errorMessage.set('La contraseña no cumple con todos los requisitos.');
+      return;
+    }
+    if (this.nuevaPassword !== this.confirmarPassword) {
+      this.errorMessage.set('Las contraseñas no coinciden.');
       return;
     }
 
-    if (this.newPassword !== this.confirmPassword) {
-      this.toastService.error('Las contraseñas no coinciden.');
-      return;
-    }
-
-    // Aquí iría la llamada real al servicio para guardar la nueva contraseña.
-    console.log('[Recuperar contraseña] Contraseña actualizada');
-    this.toastService.success('Contraseña actualizada correctamente.');
-    this.goTo('s3');
+    this.cargando.set(true);
+    this.authService.restablecerContrasena(this.email.trim(), this.codigo.trim(), this.nuevaPassword).subscribe({
+      next: () => {
+        this.cargando.set(false);
+        this.paso.set('listo');
+      },
+      error: (error) => {
+        this.cargando.set(false);
+        this.errorMessage.set(mensajeDeError(error));
+      },
+    });
   }
 
-  // ---------- Navegación de salida ----------
+  volverAlCorreo(): void {
+    this.errorMessage.set('');
+    this.codigo = '';
+    this.paso.set('correo');
+  }
 
   goToLogin(): void {
     this.router.navigate(['/login']);

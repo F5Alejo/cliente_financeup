@@ -1,7 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../services/auth';
+import { AuthService, Perfil } from '../../../services/auth';
+import { mensajeDeError } from '../../../services/api';
 import { ETIQUETA_CATEGORIA } from '../../../services/notificaciones';
 import { CategoriaNotificacion, PreferenciasAdminService } from '../../../services/preferencias-admin';
 import { RolesService, TODOS_LOS_PERMISOS } from '../../../services/roles';
@@ -81,12 +82,34 @@ export class AdminConfiguracionComponent {
 
   perfilForm = this.fb.group({
     nombre: [this.usuario()?.nombre ?? '', [Validators.required, Validators.minLength(3)]],
-    apellido: [this.usuario()?.apellido ?? ''],
+    apellido: [this.usuario()?.apellido ?? '', [Validators.required, Validators.minLength(3)]],
     email: [{ value: this.usuario()?.email ?? '', disabled: true }],
-    telefono: [this.usuario()?.telefono ?? ''],
-    documento: [this.usuario()?.documento ?? ''],
-    direccion: [this.usuario()?.direccion ?? ''],
+    telefono: ['', Validators.maxLength(20)],
+    ciudad: [''],
+    direccion: [''],
   });
+
+  // La fecha de nacimiento no se edita aquí, pero se reenvía para no borrarla
+  private fechaNacimiento = '';
+
+  constructor() {
+    this.authService.obtenerPerfil().subscribe({
+      next: (perfil) => this.llenarPerfil(perfil),
+      error: (error) => this.toastService.error(mensajeDeError(error)),
+    });
+  }
+
+  private llenarPerfil(perfil: Perfil): void {
+    this.fechaNacimiento = perfil.fecha_nacimiento;
+    this.perfilForm.reset({
+      nombre: perfil.nombre,
+      apellido: perfil.apellido,
+      email: perfil.email,
+      telefono: perfil.telefono,
+      ciudad: perfil.ciudad,
+      direccion: perfil.direccion,
+    });
+  }
 
   passwordForm = this.fb.group(
     {
@@ -128,24 +151,24 @@ export class AdminConfiguracionComponent {
       return;
     }
     const v = this.perfilForm.getRawValue();
-    const datos = {
-      nombre: v.nombre.trim(),
-      apellido: v.apellido.trim(),
-      telefono: v.telefono.trim(),
-      documento: v.documento.trim(),
-      direccion: v.direccion.trim(),
-    };
-    const resultado = this.authService.actualizarPerfil(datos);
-    if (!resultado.exito) {
-      console.log('[Admin Configuración] No se pudo actualizar el perfil');
-      this.toastService.error('No se pudo actualizar el perfil.');
-      return;
-    }
-    console.log('[Admin Configuración] Perfil actualizado:', datos);
-    this.usuario.set(this.authService.obtenerUsuario());
-    this.perfilForm.markAsPristine();
-    this.actividad.registrar('Configuración', 'Actualizó su perfil');
-    this.toastService.success('Perfil actualizado correctamente.');
+    this.authService
+      .actualizarPerfil({
+        nombre: v.nombre.trim(),
+        apellido: v.apellido.trim(),
+        telefono: v.telefono.trim(),
+        ciudad: v.ciudad.trim(),
+        direccion: v.direccion.trim(),
+        fecha_nacimiento: this.fechaNacimiento,
+      })
+      .subscribe({
+        next: (perfil) => {
+          this.llenarPerfil(perfil);
+          this.usuario.set(this.authService.obtenerUsuario());
+          this.actividad.registrar('Configuración', 'Actualizó su perfil');
+          this.toastService.success('Perfil actualizado correctamente.');
+        },
+        error: (error) => this.toastService.error(mensajeDeError(error)),
+      });
   }
 
   cambiarPassword(): void {
@@ -159,16 +182,14 @@ export class AdminConfiguracionComponent {
       this.errorPassword.set('La nueva contraseña debe ser distinta de la actual.');
       return;
     }
-    const resultado = this.authService.cambiarPassword(actual, nueva);
-    if (!resultado.exito) {
-      console.log('[Admin Configuración] No se pudo cambiar la contraseña:', resultado.mensaje);
-      this.errorPassword.set(resultado.mensaje ?? 'No se pudo cambiar la contraseña.');
-      return;
-    }
-    console.log('[Admin Configuración] Contraseña cambiada');
-    this.passwordForm.reset();
-    this.actividad.registrar('Seguridad', 'Cambió su contraseña');
-    this.toastService.success('Contraseña actualizada correctamente.');
+    this.authService.cambiarContrasena(actual, nueva).subscribe({
+      next: () => {
+        this.passwordForm.reset();
+        this.actividad.registrar('Seguridad', 'Cambió su contraseña');
+        this.toastService.success('Contraseña actualizada correctamente.');
+      },
+      error: (error) => this.errorPassword.set(mensajeDeError(error)),
+    });
   }
 
   alternarDosFactores(evento: Event): void {

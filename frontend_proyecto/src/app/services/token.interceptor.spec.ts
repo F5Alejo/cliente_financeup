@@ -39,4 +39,20 @@ describe('tokenInterceptor', () => {
     expect(peticion.request.headers.get('Authorization')).toBe('Bearer abc');
     peticion.flush({});
   });
+
+  it('un 401 del MID borra la sesión', () => {
+    sessionStorage.setItem('financeup_user', JSON.stringify({ email: 'a@b.co', nombre: 'A', rol: 'user', token: 'abc' }));
+    http.get(`${API_URL}/perfil/1`).subscribe({ error: () => {} });
+    backend.expectOne(`${API_URL}/perfil/1`).flush({ error: 'La sesion vencio' }, { status: 401, statusText: 'Unauthorized' });
+    expect(sessionStorage.getItem('financeup_user')).toBeNull();
+  });
+
+  it('un 400 (dato mal escrito) no cierra la sesión', () => {
+    sessionStorage.setItem('financeup_user', JSON.stringify({ email: 'a@b.co', nombre: 'A', rol: 'user', token: 'abc' }));
+    http.put(`${API_URL}/perfil/1/contrasena`, {}).subscribe({ error: () => {} });
+    backend
+      .expectOne(`${API_URL}/perfil/1/contrasena`)
+      .flush({ error: 'La contrasena actual no es correcta' }, { status: 400, statusText: 'Bad Request' });
+    expect(sessionStorage.getItem('financeup_user')).not.toBeNull();
+  });
 });
