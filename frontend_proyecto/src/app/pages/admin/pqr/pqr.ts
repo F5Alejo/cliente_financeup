@@ -69,6 +69,7 @@ export class AdminPqrComponent {
   mensajeAdmin = '';
   estadoRespuesta: EstadoPqr = 'En revisión';
   enviando = signal(false);
+  errorModal = signal('');
 
   private esPendiente = (p: Pqr) => p.estado === 'Abierta' || p.estado === 'En revisión';
   private esResuelta = (p: Pqr) => p.estado === 'Resuelta' || p.estado === 'Cerrada';
@@ -163,14 +164,28 @@ export class AdminPqrComponent {
     this.enviar(pqr, this.mensajeAdmin.trim(), this.estadoRespuesta);
   }
 
-  /** La base no tiene ruta para borrar PQR: queda como registro del caso. */
   confirmarEliminacion(): void {
-    this.toastService.info('Eliminar PQR se conecta con el backend en el módulo de administración.');
-    this.cerrarModal();
+    const pqr = this.modal()?.pqr;
+    if (!pqr) return;
+    this.enviando.set(true);
+    this.errorModal.set('');
+    this.pqrService.eliminarPqr(pqr.id).subscribe({
+      next: () => {
+        this.enviando.set(false);
+        this.actividad.registrar('PQR', `PQR ${pqr.radicado} eliminada`, pqr.titulo);
+        this.toastService.success(`PQR ${pqr.radicado} eliminada.`);
+        this.cerrarModal();
+      },
+      error: (error) => {
+        this.enviando.set(false);
+        this.errorModal.set(mensajeDeError(error));
+      },
+    });
   }
 
   cerrarModal(): void {
     this.modal.set(null);
+    this.errorModal.set('');
     this.detalle.set(null);
     this.mensajeAdmin = '';
   }

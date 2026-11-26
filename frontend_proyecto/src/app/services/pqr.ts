@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 
 import { API_URL, mensajeDeError } from './api';
 import { AuthService } from './auth';
@@ -223,6 +223,13 @@ export class PqrService {
       estado: enBase.nombre,
       progreso: enBase.progreso,
     });
+  }
+
+  /** El admin quita la PQR de las listas. El MID no la borra: la deja inactiva. */
+  eliminarPqr(idPqr: number): Observable<unknown> {
+    return this.http
+      .delete(`${API_URL}/admin/pqr/${idPqr}`)
+      .pipe(tap(() => this.pqrsAdmin.update((lista) => lista.filter((pqr) => pqr.id !== idPqr))));
   }
 
   private cargarLista(url: string, guardar: (lista: Pqr[]) => void): void {

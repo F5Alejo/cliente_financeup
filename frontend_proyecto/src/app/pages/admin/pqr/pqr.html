@@ -166,12 +166,17 @@
   } @else {
     <app-modal
       titulo="Eliminar PQR"
-      [subtitulo]="'Se eliminará la PQR «' + m.pqr.titulo + '» (' + m.pqr.radicado + ').'"
+      [subtitulo]="'«' + m.pqr.titulo + '» (' + m.pqr.radicado + ') dejará de verse en el panel y en la cuenta del usuario. El registro del caso se conserva.'"
       ancho="sm"
       [alertdialog]="true"
       (cerrar)="cerrarModal()">
+      @if (errorModal()) {
+        <p class="form-error" role="alert">{{ errorModal() }}</p>
+      }
       <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar PQR</button>
+      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()" [disabled]="enviando()">
+        {{ enviando() ? 'Eliminando…' : 'Eliminar PQR' }}
+      </button>
     </app-modal>
   }
 }

@@ -162,4 +162,28 @@ describe('PqrService', () => {
     expect(pqr.usuario).toBe('Ana Gómez');
     expect(pqr.estado).toBe('Abierta');
   });
+
+  it('el admin elimina una PQR y sale de la lista sin recargar', () => {
+    crear(true);
+    service.cargarPqrAdmin();
+    http.expectOne(`${API_URL}/admin/pqr`).flush([PQR_MID, { ...PQR_MID, id_pqr: 5 }]);
+
+    service.eliminarPqr(4).subscribe();
+    const peticion = http.expectOne(`${API_URL}/admin/pqr/4`);
+    expect(peticion.request.method).toBe('DELETE');
+    peticion.flush({ mensaje: 'PQR eliminada' });
+
+    expect(service.pqrsAdmin().map((pqr) => pqr.id)).toEqual([5]);
+  });
+
+  it('si eliminar falla la PQR sigue en la lista', () => {
+    crear(true);
+    service.cargarPqrAdmin();
+    http.expectOne(`${API_URL}/admin/pqr`).flush([PQR_MID]);
+
+    service.eliminarPqr(4).subscribe({ error: () => undefined });
+    http.expectOne(`${API_URL}/admin/pqr/4`).flush({ error: 'La PQR no existe' }, { status: 404, statusText: 'Not Found' });
+
+    expect(service.pqrsAdmin().length).toBe(1);
+  });
 });
