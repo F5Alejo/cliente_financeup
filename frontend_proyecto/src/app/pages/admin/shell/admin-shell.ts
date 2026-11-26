@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter, map, startWith } from 'rxjs';
 import { AuthService } from '../../../services/auth';
 import { NotificacionAdmin, NotificacionesService } from '../../../services/notificaciones';
+import { UsuariosService } from '../../../services/usuarios';
 import { IconComponent, NombreIcono } from '../../../shared/components/icon/icon';
 import { ToastContainerComponent } from '../../../shared/components/toast-container/toast-container';
 import { AdminBusquedaService } from '../../../shared/services/admin-busqueda';
@@ -99,6 +100,9 @@ export class AdminShellComponent {
   sinLeer = this.notificacionesService.sinLeer;
 
   constructor() {
+    // Usuarios lo leen la tabla, el dashboard, roles, reportes y auditoría: se pide una vez al entrar.
+    inject(UsuariosService).cargar();
+
     effect(() => {
       this.info();
       this.menuMovil.set(false);

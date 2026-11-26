@@ -35,8 +35,7 @@ const BITACORA: Record<AccionBitacora, { titulo: string; icono: NombreIcono; ton
   'cambio-rol': { titulo: 'Cambio de permisos', icono: 'shield-check', tono: 'warning' },
   bloqueo: { titulo: 'Usuario bloqueado', icono: 'ban', tono: 'danger' },
   desbloqueo: { titulo: 'Usuario desbloqueado', icono: 'unlock', tono: 'primary' },
-  restablecimiento: { titulo: 'Restablecimiento de contraseña', icono: 'key', tono: 'neutral' },
-  eliminacion: { titulo: 'Usuario eliminado', icono: 'trash', tono: 'danger' },
+  restablecimiento: { titulo: 'Código de recuperación enviado', icono: 'key', tono: 'neutral' },
 };
 
 const ICONO_MODULO: Record<ModuloAdmin, NombreIcono> = {
@@ -97,7 +96,6 @@ export class AdminDashboardComponent {
   totalUsuarios = computed(() => this.usuarios().length);
   activos = computed(() => this.usuarios().filter((u) => u.estado === 'activo').length);
   bloqueados = computed(() => this.usuarios().filter((u) => u.estado === 'bloqueado').length);
-  pendientes = computed(() => this.usuarios().filter((u) => u.estado === 'pendiente').length);
   suspendidos = computed(() => this.usuarios().filter((u) => u.estado === 'suspendido').length);
   porcentajeActivos = computed(() => (this.totalUsuarios() ? Math.round((this.activos() / this.totalUsuarios()) * 100) : 0));
 
@@ -162,14 +160,6 @@ export class AdminDashboardComponent {
         titulo: `${plural(this.solicitudesEnEstudio(), 'solicitud de alianza', 'solicitudes de alianza')} en estudio`,
         detalle: 'Esperan una decisión del equipo.',
         ruta: '/admin/alianzas',
-        nivel: 'warning',
-      });
-    }
-    if (this.pendientes()) {
-      lista.push({
-        titulo: `${plural(this.pendientes(), 'cuenta pendiente', 'cuentas pendientes')} de activación`,
-        detalle: 'Usuarios que aún no confirman su registro.',
-        ruta: '/admin/usuarios',
         nivel: 'warning',
       });
     }
