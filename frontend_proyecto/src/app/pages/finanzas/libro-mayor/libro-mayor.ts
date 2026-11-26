@@ -1,10 +1,18 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx'; // Librería para leer/escribir archivos Excel (.xlsx) en el navegador
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
 import { FinanzasService, Movimiento } from '../../../services/finanzas';
 import { DatosMovimiento, FormularioMovimientoComponent } from './formulario-movimiento/formulario-movimiento';
+import { ToastService } from '../../../shared/services/toast';
+import { MonedaPipe } from '../../../pipes/moneda.pipe';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent, NombreIcono } from '../../../shared/components/icon/icon';
+import { BotonComponent } from '../../../shared/components/ui/boton/boton';
+import { GraficaLineaComponent, PuntoLinea } from '../../../shared/graficas/grafica-linea';
+import { BarraPartesComponent, Parte } from '../../../shared/graficas/barra-partes';
+import { MedidorComponent } from '../../../shared/graficas/medidor';
 
 /**
  * COMPONENTE: Libro Mayor
@@ -37,12 +45,25 @@ type ColumnaOrden = 'fecha' | 'concepto' | 'categoria' | 'tipo' | 'valor';
 
 @Component({
   selector: 'app-libro-mayor',
-  imports: [FinanzasMenuComponent, FormsModule, CursoBannerComponent, FormularioMovimientoComponent],
+  imports: [
+    FinanzasMenuComponent,
+    FormsModule,
+    CursoBannerComponent,
+    FormularioMovimientoComponent,
+    MonedaPipe,
+    BandaSeccionComponent,
+    IconComponent,
+    BotonComponent,
+    GraficaLineaComponent,
+    BarraPartesComponent,
+    MedidorComponent,
+  ],
   templateUrl: './libro-mayor.html',
-  styleUrl: './libro-mayor.css',
+  styleUrls: ['../finanzas-pagina.css', './libro-mayor.css'],
 })
 export class LibroMayorComponent {
-  constructor(private finanzasService: FinanzasService) {}
+  private finanzasService = inject(FinanzasService);
+  private toastService = inject(ToastService);
 
   /** Categorías que el usuario puede elegir tanto en el formulario como en los filtros. */
   categoriasDisponibles: string[] = [
@@ -170,6 +191,103 @@ export class LibroMayorComponent {
     return this.ahorro * 12;
   }
 
+  /** ----- Gráficas (también sobre lo filtrado) ----- */
+
+  /** Saldo acumulado al cierre de cada mes que tiene movimientos, del más antiguo al más reciente. */
+  get saldoMensual(): PuntoLinea[] {
+    const porMes = new Map<string, number>();
+    for (const m of this.movimientosFiltrados) {
+      const clave = m.fecha.slice(0, 7);
+      porMes.set(clave, (porMes.get(clave) ?? 0) + (m.tipo === 'ingreso' ? m.valor : -m.valor));
+    }
+    let saldo = 0;
+    return [...porMes.keys()].sort().map((clave) => {
+      saldo += porMes.get(clave)!;
+      const [anio, mes] = clave.split('-').map(Number);
+      const etiqueta = new Date(anio, mes - 1, 1).toLocaleDateString('es-CO', { month: 'short' }).replace('.', '');
+      return { etiqueta, valor: saldo };
+    });
+  }
+
+  /** El horizonte del fondo de la banda: el mismo saldo, siempre de todo el historial. */
+  get horizonteBanda(): number[] {
+    let saldo = 0;
+    return this.finanzasService.resumenMensual(12).map((m) => (saldo += m.ingresos - m.gastos));
+  }
+
+  /** Gasto por categoría de lo filtrado, de mayor a menor. */
+  get gastosPorCategoria(): Parte[] {
+    const mapa = new Map<string, number>();
+    for (const m of this.movimientosFiltrados) {
+      if (m.tipo === 'gasto') mapa.set(m.categoria, (mapa.get(m.categoria) ?? 0) + m.valor);
+    }
+    return [...mapa.entries()].map(([etiqueta, valor]) => ({ etiqueta, valor })).sort((a, b) => b.valor - a.valor);
+  }
+
+  get pctMayorGasto(): number {
+    const mayor = this.gastosPorCategoria[0];
+    return mayor && this.totalGastos > 0 ? Math.round((mayor.valor / this.totalGastos) * 100) : 0;
+  }
+
+  /** Qué parte de los gastos se fue en gastos hormiga. */
+  get pctHormiga(): number {
+    return this.totalGastos > 0 ? Math.round((this.gastosHormiga / this.totalGastos) * 100) : 0;
+  }
+
+  /** Opciones del control segmentado de tipo. */
+  readonly tipos: { id: 'todos' | 'ingreso' | 'gasto'; etiqueta: string }[] = [
+    { id: 'todos', etiqueta: 'Todo' },
+    { id: 'ingreso', etiqueta: 'Ingresos' },
+    { id: 'gasto', etiqueta: 'Gastos' },
+  ];
+
+  get hayFiltros(): boolean {
+    return !!(this.textoBusqueda() || this.categoriaFiltro() !== 'Todas' || this.tipoFiltro() !== 'todos' || this.fechaDesde() || this.fechaHasta());
+  }
+
+  /** Solo se muestra la columna Método si algún movimiento la tiene. */
+  get hayMetodos(): boolean {
+    return this.movimientos.some((m) => !!m.metodoPago);
+  }
+
+  /** ----- Paginación simple: 20 filas y "Ver más" ----- */
+  limite = signal(20);
+
+  get movimientosVisibles(): Movimiento[] {
+    return this.movimientosFiltrados.slice(0, this.limite());
+  }
+
+  get restantes(): number {
+    return this.movimientosFiltrados.length - this.limite();
+  }
+
+  verMas(): void {
+    this.limite.update((n) => n + 20);
+  }
+
+  iconoDe(categoria: string): NombreIcono {
+    return this.finanzasService.iconoPorCategoria(categoria);
+  }
+
+  /** '2026-11-12' → '12 nov' (y el año si no es el actual). */
+  fechaCorta(iso: string): string {
+    const [anio, mes, dia] = iso.split('-').map(Number);
+    const fecha = new Date(anio, mes - 1, dia);
+    const opciones: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+    if (anio !== new Date().getFullYear()) opciones.year = 'numeric';
+    return fecha.toLocaleDateString('es-CO', opciones).replace('.', '');
+  }
+
+  /** Valor de aria-sort del encabezado de una columna. */
+  ordenAria(columna: ColumnaOrden): 'ascending' | 'descending' | 'none' {
+    if (this.columnaOrden() !== columna) return 'none';
+    return this.direccionOrden() === 'asc' ? 'ascending' : 'descending';
+  }
+
+  abs(n: number): number {
+    return Math.abs(n);
+  }
+
   /** Da formato de pesos colombianos a un número, ej: 1200000 -> "$1.200.000". */
   formatearCOP(valor: number): string {
     return `$${Math.abs(valor).toLocaleString('es-CO')}`;
@@ -232,14 +350,10 @@ export class LibroMayorComponent {
   }
 
   /** ----- Mensajes de éxito / error (toast) -----
-   *  Se muestra un mensaje arriba de la página y se oculta solo a los 3 segundos. */
-  mensaje = signal<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
-  private temporizadorMensaje: ReturnType<typeof setTimeout> | undefined;
-
+   *  Usan el aviso flotante compartido de la app (ToastService). */
   private emitirMensaje(tipo: 'exito' | 'error', texto: string): void {
-    this.mensaje.set({ tipo, texto });
-    clearTimeout(this.temporizadorMensaje); // evita que un mensaje anterior lo cierre antes de tiempo
-    this.temporizadorMensaje = setTimeout(() => this.mensaje.set(null), 3000);
+    if (tipo === 'exito') this.toastService.success(texto);
+    else this.toastService.error(texto);
   }
 
   /** ============================================================

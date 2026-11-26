@@ -1,0 +1,51 @@
+<figure class="linea" [style.--linea-color]="color()">
+  <div class="linea__lienzo" [style.height.px]="alto()">
+    <div class="linea__rejilla" aria-hidden="true">
+      @for (m of marcas(); track m.pct) {
+        <div class="linea__marca" [class.linea__marca--base]="m.pct === 0" [style.bottom.%]="m.pct">
+          <span>{{ m.texto }}</span>
+        </div>
+      }
+    </div>
+
+    <div
+      #plano
+      class="linea__plano"
+      tabindex="0"
+      role="img"
+      [attr.aria-label]="resumen() + ' Usa las flechas para recorrer los puntos.'"
+      (pointermove)="alMover($event, plano)"
+      (pointerleave)="activo.set(null)"
+      (keydown)="alTeclado($event)"
+      (blur)="activo.set(null)">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path class="linea__area" [attr.d]="area()" />
+        <polyline class="linea__trazo" [attr.points]="trazo()" />
+      </svg>
+
+      @if (ultimo(); as u) {
+        <span class="linea__punto linea__punto--fin" [style.left.%]="u.x" [style.bottom.%]="u.y" aria-hidden="true"></span>
+      }
+
+      @if (info(); as p) {
+        <span class="linea__guia" [style.left.%]="p.x" aria-hidden="true"></span>
+        <span class="linea__punto" [style.left.%]="p.x" [style.bottom.%]="p.y" aria-hidden="true"></span>
+        <div
+          class="linea__tip"
+          [class.linea__tip--inicio]="p.x < 18"
+          [class.linea__tip--fin]="p.x > 82"
+          [style.left.%]="p.x"
+          aria-live="polite">
+          <span>{{ p.etiqueta }}</span>
+          <strong class="cifra">{{ formato()(p.valor) }}</strong>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="linea__x" aria-hidden="true">
+    @for (p of posiciones(); track $index; let ultima = $last) {
+      <span [style.left.%]="p.x" [class.actual]="ultima">{{ p.etiqueta }}</span>
+    }
+  </div>
+</figure>

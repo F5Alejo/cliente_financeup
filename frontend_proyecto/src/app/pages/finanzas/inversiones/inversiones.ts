@@ -1,169 +1,188 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { InversionesService, Inversion } from '../../../services/inversiones';
 import { ToastService } from '../../../shared/services/toast';
 import { MonedaPipe } from '../../../pipes/moneda.pipe';
-import * as XLSX from 'xlsx';
 import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { BotonComponent } from '../../../shared/components/ui/boton/boton';
+import { GraficaLineaComponent, PuntoLinea } from '../../../shared/graficas/grafica-linea';
+import { BarraPartesComponent, Parte } from '../../../shared/graficas/barra-partes';
+import { MedidorComponent } from '../../../shared/graficas/medidor';
 
-interface SegmentoCartera {
-  etiqueta: string;
-  porcentaje: number;
-  color: string;
-}
+type Riesgo = Inversion['riesgo'];
+type Reparto = 'inversion' | 'riesgo';
+type FiltroTabla = 'todas' | 'corto' | 'largo';
 
-interface PuntoRendimiento {
-  periodo: string;
-  valor: number;
-}
+/** Altura de cada nivel de riesgo, en tramos de 1 a 3 (la misma forma del logo). */
+const NIVEL_RIESGO: Record<Riesgo, number> = { Bajo: 1, Medio: 2, Alto: 3 };
 
 @Component({
   selector: 'app-inversiones',
-  imports: [FinanzasMenuComponent, FormsModule, MonedaPipe, CursoBannerComponent],
+  imports: [
+    FinanzasMenuComponent,
+    FormsModule,
+    MonedaPipe,
+    CursoBannerComponent,
+    BandaSeccionComponent,
+    IconComponent,
+    BotonComponent,
+    GraficaLineaComponent,
+    BarraPartesComponent,
+    MedidorComponent,
+  ],
   templateUrl: './inversiones.html',
-  styleUrl: './inversiones.css',
+  styleUrls: ['../finanzas-pagina.css', './inversiones.css'],
 })
 export class InversionesComponent {
-  constructor(
-    private inversionesService: InversionesService,
-    private toastService: ToastService
-  ) {}
+  private inversionesService = inject(InversionesService);
+  private toastService = inject(ToastService);
 
+  // ---------------------------------------------------------------
+  // Resumen
+  // ---------------------------------------------------------------
 
-  /** ----- Tarjetas superiores, calculadas sumando las inversiones reales ----- */
-  get balanceInversiones(): number {
+  get totalInvertido(): number {
     return this.inversionesService.inversiones.reduce((s, i) => s + i.monto, 0);
   }
-  get balanceSemana() { return this.inversionesService.balanceSemana; }
+
   get rendimientoTotal(): number {
     return this.inversionesService.inversiones.reduce((s, i) => s + i.rendimiento, 0);
   }
-  get rendimientoPorcentaje(): number {
-    return this.balanceInversiones > 0 ? Math.round((this.rendimientoTotal / this.balanceInversiones) * 1000) / 10 : 0;
-  }
-  get proximoRetiro() { return this.inversionesService.proximoRetiro; }
-  get progresoRetiro() { return this.inversionesService.progresoRetiro; }
 
-  /** ----- Alerta si el usuario tiene mucho dinero concentrado en riesgo Alto ----- */
-  get alertaConcentracion(): { mostrar: boolean; mensaje: string } {
-    const total = this.balanceInversiones;
-    if (total === 0) return { mostrar: false, mensaje: '' };
-
-    const enRiesgoAlto = this.inversionesService.inversiones
-      .filter(i => i.riesgo === 'Alto')
-      .reduce((s, i) => s + i.monto, 0);
-    const porcentaje = Math.round((enRiesgoAlto / total) * 100);
-
-    if (porcentaje >= 50) {
-      return { mostrar: true, mensaje: `El ${porcentaje}% de tu dinero invertido está en riesgo alto. Considera diversificar en opciones de menor riesgo.` };
-    }
-    return { mostrar: false, mensaje: '' };
+  get valorActual(): number {
+    return this.inversionesService.valorActual;
   }
 
-  radioAnillo = 30;
-  circunferencia = 2 * Math.PI * this.radioAnillo;
-
-  get offsetRetiro(): number {
-    return this.circunferencia * (1 - this.progresoRetiro / 100);
+  get rendimientoPct(): number {
+    return this.totalInvertido > 0 ? Math.round((this.rendimientoTotal / this.totalInvertido) * 1000) / 10 : 0;
   }
 
-  /** ----- Crecimiento de rendimiento ----- */
-  periodos = ['1M', '3M', '6M', '1A', 'Todos'];
-  periodoActivo = signal('6M');
+  get balanceSemana(): number {
+    return this.inversionesService.balanceSemana;
+  }
 
-  crecimiento: PuntoRendimiento[] = [
-    { periodo: 'Ene', valor: 14.5 }, { periodo: 'Feb', valor: 14.7 }, { periodo: 'Mar', valor: 14.6 },
-    { periodo: 'Abr', valor: 14.9 }, { periodo: 'May', valor: 15.1 }, { periodo: 'Jun', valor: 15.3 },
+  get proximoRetiro(): string {
+    return this.inversionesService.proximoRetiro;
+  }
+
+  get progresoRetiro(): number {
+    return this.inversionesService.progresoRetiro;
+  }
+
+  /** Aviso si la mitad o más de lo invertido está en riesgo alto. */
+  get pctRiesgoAlto(): number {
+    const total = this.totalInvertido;
+    if (total === 0) return 0;
+    const alto = this.inversionesService.inversiones.filter((i) => i.riesgo === 'Alto').reduce((s, i) => s + i.monto, 0);
+    return Math.round((alto / total) * 100);
+  }
+
+  // ---------------------------------------------------------------
+  // Crecimiento
+  // ---------------------------------------------------------------
+
+  readonly periodos = [
+    { meses: 3, etiqueta: '3 meses' },
+    { meses: 6, etiqueta: '6 meses' },
+    { meses: 12, etiqueta: '1 año' },
   ];
+  periodo = signal(6);
 
-  seleccionarPeriodo(p: string): void {
-    this.periodoActivo.set(p);
+  get crecimiento(): PuntoLinea[] {
+    return this.inversionesService.historial(this.periodo());
   }
 
-  get puntosLinea(): string {
-    const datos = this.crecimiento;
-    const max = Math.max(...datos.map(d => d.valor));
-    const min = Math.min(...datos.map(d => d.valor));
-    const ancho = 320;
-    const alto = 90;
-    return datos
-      .map((d, i) => {
-        const x = (i / (datos.length - 1)) * ancho;
-        const y = alto - ((d.valor - min) / (max - min || 1)) * alto;
-        return `${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(' ');
+  /** Los 12 meses, para el horizonte del fondo de la banda. */
+  get horizonteBanda(): number[] {
+    return this.inversionesService.historial(12).map((p) => p.valor);
   }
 
-  get crecimientoInicio(): PuntoRendimiento {
-    return this.crecimiento[0];
+  get crecimientoPct(): number {
+    const p = this.crecimiento;
+    return p.length > 1 && p[0].valor > 0 ? Math.round(((p[p.length - 1].valor - p[0].valor) / p[0].valor) * 1000) / 10 : 0;
   }
 
-  get crecimientoFin(): PuntoRendimiento {
-    return this.crecimiento[this.crecimiento.length - 1];
+  get etiquetaPeriodo(): string {
+    return this.periodos.find((p) => p.meses === this.periodo())?.etiqueta ?? '';
   }
 
-  /** ----- Distribución de carteras (dona), calculada desde las inversiones reales ----- */
-  private paletaCarteras = ['var(--sage)', 'var(--black)', 'var(--sand)', 'var(--cloud)', 'var(--sage-dark)', 'var(--sage-tint)'];
+  // ---------------------------------------------------------------
+  // Reparto
+  // ---------------------------------------------------------------
 
-  get carteras(): SegmentoCartera[] {
-    const total = this.balanceInversiones;
-    if (total === 0) return [];
-    return this.inversionesService.inversiones.map((inv, i) => ({
-      etiqueta: inv.nombre,
-      porcentaje: Math.round((inv.monto / total) * 100),
-      color: this.paletaCarteras[i % this.paletaCarteras.length],
-    }));
+  reparto = signal<Reparto>('inversion');
+
+  get partes(): Parte[] {
+    const lista = this.inversionesService.inversiones;
+    if (this.reparto() === 'inversion') {
+      return lista.map((i) => ({ etiqueta: i.nombre, valor: i.monto }));
+    }
+    const porRiesgo: Riesgo[] = ['Bajo', 'Medio', 'Alto'];
+    return porRiesgo
+      .map((r) => ({ etiqueta: `Riesgo ${r.toLowerCase()}`, valor: lista.filter((i) => i.riesgo === r).reduce((s, i) => s + i.monto, 0) }))
+      .filter((p) => p.valor > 0);
   }
 
-  get gradienteCarteras(): string {
-    if (this.carteras.length === 0) return 'var(--cloud)';
-    let acumulado = 0;
-    const partes = this.carteras.map(seg => {
-      const inicio = acumulado;
-      acumulado += seg.porcentaje;
-      return `${seg.color} ${inicio}% ${acumulado}%`;
-    });
-    return `conic-gradient(${partes.join(', ')})`;
+  /** La parte más grande, para la frase de lectura. */
+  get mayorParte(): { etiqueta: string; pct: number } | null {
+    const partes = [...this.partes].sort((a, b) => b.valor - a.valor);
+    const total = this.totalInvertido;
+    if (!partes.length || total === 0) return null;
+    return { etiqueta: partes[0].etiqueta, pct: Math.round((partes[0].valor / total) * 100) };
   }
 
-  /** ----- Tabla de inversiones ----- */
-  filtros = ['Todos', 'Corto plazo', 'Largo plazo', 'Mejores'];
-  filtroActivo = signal('Todos');
+  // ---------------------------------------------------------------
+  // Tabla
+  // ---------------------------------------------------------------
+
+  readonly filtros: { id: FiltroTabla; etiqueta: string }[] = [
+    { id: 'todas', etiqueta: 'Todas' },
+    { id: 'corto', etiqueta: 'Corto plazo' },
+    { id: 'largo', etiqueta: 'Largo plazo' },
+  ];
+  filtro = signal<FiltroTabla>('todas');
+  /** Ordenar por rendimiento (de mayor a menor) en lugar del orden de registro. */
+  porRendimiento = signal(false);
 
   get inversiones(): Inversion[] {
-    const todas = this.inversionesService.inversiones;
-    switch (this.filtroActivo()) {
-      case 'Corto plazo':
-        return todas.filter((inv) => inv.duracion.includes('mes') || inv.duracion === 'Flexible');
-      case 'Largo plazo':
-        return todas.filter((inv) => inv.duracion.includes('año'));
-      case 'Mejores':
-        return [...todas].sort((a, b) => b.rendimiento - a.rendimiento);
-      default:
-        return todas;
-    }
+    let lista = [...this.inversionesService.inversiones];
+    if (this.filtro() === 'corto') lista = lista.filter((i) => i.duracion.includes('mes') || i.duracion === 'Flexible');
+    if (this.filtro() === 'largo') lista = lista.filter((i) => i.duracion.includes('año'));
+    if (this.porRendimiento()) lista.sort((a, b) => this.pctDe(b) - this.pctDe(a));
+    return lista;
   }
 
-  seleccionarFiltro(f: string): void {
-    this.filtroActivo.set(f);
+  get montoTabla(): number {
+    return this.inversiones.reduce((s, i) => s + i.monto, 0);
   }
 
-  get montoTotal(): number {
-    return this.inversiones.reduce((suma, inv) => suma + inv.monto, 0);
+  get rendimientoTabla(): number {
+    return this.inversiones.reduce((s, i) => s + i.rendimiento, 0);
   }
 
-  get rendimientoTotalTabla(): number {
-    return this.inversiones.reduce((suma, inv) => suma + inv.rendimiento, 0);
+  pctDe(inv: Inversion): number {
+    return inv.monto > 0 ? Math.round((inv.rendimiento / inv.monto) * 1000) / 10 : 0;
   }
 
-  /** Descarga un Excel real con todas las inversiones */
+  nivel(riesgo: Riesgo): number {
+    return NIVEL_RIESGO[riesgo];
+  }
+
+  abs(n: number): number {
+    return Math.abs(n);
+  }
+
+  /** Descarga un Excel con todas las inversiones. */
   exportar(): void {
-    const datos = this.inversionesService.inversiones.map(inv => ({
+    const datos = this.inversionesService.inversiones.map((inv) => ({
       Nombre: inv.nombre,
       Monto: inv.monto,
       Rendimiento: inv.rendimiento,
+      'Rendimiento %': this.pctDe(inv),
       Riesgo: inv.riesgo,
       Duracion: inv.duracion,
     }));
@@ -171,42 +190,45 @@ export class InversionesComponent {
     const libro = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(libro, hoja, 'Inversiones');
     XLSX.writeFile(libro, 'mis-inversiones.xlsx');
-    this.toastService.success('Inversiones exportadas correctamente.');
+    this.toastService.success('Descargaste tus inversiones en Excel.');
   }
 
-  /** ----- Formulario de nueva inversión (funcional) ----- */
+  // ---------------------------------------------------------------
+  // Nueva inversión
+  // ---------------------------------------------------------------
+
   mostrarFormularioInversion = signal(false);
   private siguienteIdInversion = 100;
 
-  nombreNuevaInversion: string = '';
+  nombreNuevaInversion = '';
   montoNuevaInversion: number | null = null;
-  riesgoNuevaInversion: 'Bajo' | 'Medio' | 'Alto' = 'Bajo';
-  duracionNuevaInversion: string = '';
+  riesgoNuevaInversion: Riesgo = 'Bajo';
+  duracionNuevaInversion = '';
+
+  readonly riesgos: Riesgo[] = ['Bajo', 'Medio', 'Alto'];
 
   toggleFormularioInversion(): void {
-    this.mostrarFormularioInversion.update(v => !v);
+    this.mostrarFormularioInversion.update((v) => !v);
   }
 
   guardarNuevaInversion(): void {
     const nombre = this.nombreNuevaInversion.trim();
     const monto = this.montoNuevaInversion;
-
     if (!nombre || monto === null || monto <= 0) {
-      return; // validación mínima
+      this.toastService.info('Ponle un nombre y un monto a la inversión.');
+      return;
     }
 
-    const nueva = {
+    this.inversionesService.agregarInversion({
       id: this.siguienteIdInversion++,
       nombre,
       monto,
-      rendimiento: 0, // rendimiento inicial en 0, aún no ha generado retorno
+      rendimiento: 0, // aún no ha generado retorno
       riesgo: this.riesgoNuevaInversion,
       duracion: this.duracionNuevaInversion.trim() || 'Sin definir',
-    };
-    this.inversiones.push(nueva);
-    console.log('[Inversiones] Inversión creada:', nueva);
+    });
+    this.toastService.success(`Agregaste «${nombre}» a tu portafolio.`);
 
-    // limpiar formulario
     this.nombreNuevaInversion = '';
     this.montoNuevaInversion = null;
     this.riesgoNuevaInversion = 'Bajo';

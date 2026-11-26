@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 /**
  * Banda verde de marca que abre cada sección (educación, alianzas, soporte...).
@@ -13,6 +13,21 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
  *     <div banda-lado>...</div>      ← columna derecha opcional
  *   </app-banda-seccion>
  */
+const BARRAS = 40;
+const HORIZONTE_LOGO = Array.from({ length: BARRAS }, (_, i) =>
+  Math.round(14 + (i / (BARRAS - 1)) * 76 + Math.sin(i * 1.7) * 6),
+);
+
+/** Lleva la serie a n puntos por interpolación lineal, para llenar siempre el mismo ancho. */
+function remuestrear(serie: readonly number[], n: number): number[] {
+  return Array.from({ length: n }, (_, i) => {
+    const pos = (i / (n - 1)) * (serie.length - 1);
+    const a = Math.floor(pos);
+    const b = Math.min(serie.length - 1, a + 1);
+    return serie[a] + (serie[b] - serie[a]) * (pos - a);
+  });
+}
+
 @Component({
   selector: 'app-banda-seccion',
   standalone: true,
@@ -30,8 +45,21 @@ export class BandaSeccionComponent {
   /** id del h1, para enlazarlo con aria-labelledby si hace falta. */
   idTitulo = input('banda-titulo');
 
-  /** Barras del horizonte: suben de izquierda a derecha, igual que el logo. */
-  readonly horizonte = Array.from({ length: 40 }, (_, i) =>
-    Math.round(14 + (i / 39) * 76 + Math.sin(i * 1.7) * 6),
-  );
+  /**
+   * Datos reales para el horizonte (por ejemplo, el saldo acumulado del usuario).
+   * Sin datos se dibuja el horizonte del logo, que sube de izquierda a derecha.
+   */
+  serie = input<readonly number[] | null>(null);
+
+  /** Alturas en % de las 40 barras del fondo. Con datos, la última barra es el hoy y se enciende. */
+  readonly horizonte = computed(() => {
+    const serie = this.serie();
+    if (!serie || serie.length < 2) return HORIZONTE_LOGO;
+    const muestra = remuestrear(serie, BARRAS);
+    const min = Math.min(...muestra);
+    const max = Math.max(...muestra);
+    return muestra.map((v) => Math.round(14 + ((v - min) / (max - min || 1)) * 76));
+  });
+
+  readonly conDatos = computed(() => (this.serie()?.length ?? 0) >= 2);
 }

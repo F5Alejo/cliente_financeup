@@ -1,0 +1,86 @@
+<figure class="col">
+  <div class="col__cabeza">
+    @if (series().length > 1) {
+      <ul class="col__leyenda" aria-hidden="true">
+        @for (s of series(); track s.nombre; let j = $index) {
+          <li><i [style.background]="colores()[j]"></i>{{ s.nombre }}</li>
+        }
+      </ul>
+    }
+    <button type="button" class="col__vista" [attr.aria-pressed]="vistaTabla()" (click)="vistaTabla.set(!vistaTabla())">
+      {{ vistaTabla() ? 'Ver gráfica' : 'Ver tabla' }}
+    </button>
+  </div>
+
+  @if (vistaTabla()) {
+    <div class="col__tabla">
+      <table>
+        <caption class="visualmente-oculto">{{ titulo() }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ columnaEtiqueta() }}</th>
+            @for (s of series(); track s.nombre) {
+              <th scope="col" class="num">{{ s.nombre }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (g of grupos(); track g.etiqueta) {
+            <tr>
+              <th scope="row">{{ g.etiqueta }}</th>
+              @for (b of g.barras; track b.nombre) {
+                <td class="num cifra">{{ formato()(b.valor) }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="col__lienzo" role="group" [attr.aria-label]="titulo()" [style.height.px]="alto()" (mouseleave)="activo.set(null)">
+      <div class="col__rejilla" aria-hidden="true">
+        @for (m of marcas(); track m.pct) {
+          <div class="col__linea" [class.col__linea--base]="m.pct === 0" [style.bottom.%]="m.pct">
+            <span>{{ m.texto }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="col__grupos">
+        @for (g of grupos(); track g.etiqueta; let i = $index) {
+          <div
+            class="col__grupo"
+            [class.col__grupo--pasado]="resaltarUltimo() && !g.actual"
+            [class.col__grupo--activo]="activo() === i"
+            tabindex="0"
+            role="img"
+            [attr.aria-label]="g.descripcion"
+            (mouseenter)="activo.set(i)"
+            (focus)="activo.set(i)"
+            (blur)="activo.set(null)">
+            <div class="col__barras">
+              @for (b of g.barras; track b.nombre) {
+                <i [style.height.%]="b.pct" [style.background]="b.color"></i>
+              }
+            </div>
+            <span class="col__x" [class.col__x--actual]="g.actual">{{ g.etiqueta }}</span>
+          </div>
+        }
+        @if (info(); as i) {
+          <div
+            class="col__tip"
+            [class.col__tip--inicio]="i.ancla === 'inicio'"
+            [class.col__tip--fin]="i.ancla === 'fin'"
+            [style.left.%]="i.ancla === 'centro' ? i.centro : null"
+            [style.bottom]="'calc((100% - 28px) * ' + i.cima / 100 + ' + 36px)'"
+            aria-hidden="true">
+            <strong>{{ i.etiqueta }}</strong>
+            @for (b of i.barras; track b.nombre) {
+              <span><i [style.background]="b.color"></i>{{ b.nombre }} <b class="cifra">{{ formato()(b.valor) }}</b></span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</figure>

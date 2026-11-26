@@ -1,8 +1,8 @@
 <section class="banda" [attr.aria-labelledby]="idTitulo()">
   <div class="banda__fondo" aria-hidden="true">
     <span class="banda__brillo"></span>
-    <div class="banda__horizonte">
-      @for (alto of horizonte; track $index) {
+    <div class="banda__horizonte" [class.banda__horizonte--datos]="conDatos()">
+      @for (alto of horizonte(); track $index) {
         <span [style.height.%]="alto"></span>
       }
     </div>

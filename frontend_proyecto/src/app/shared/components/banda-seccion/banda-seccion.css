@@ -55,6 +55,15 @@
   background: linear-gradient(180deg, rgba(46, 155, 78, 0.6), rgba(23, 100, 49, 0.08));
 }
 
+/* Con datos del usuario el horizonte se ve un poco más y la barra de hoy se enciende en lima */
+.banda__horizonte--datos {
+  opacity: 0.42;
+}
+
+.banda__horizonte--datos span:last-child {
+  background: linear-gradient(180deg, var(--lime), rgba(155, 225, 93, 0.1));
+}
+
 .banda__inner {
   max-width: var(--banda-max, var(--page-max));
   margin: 0 auto;

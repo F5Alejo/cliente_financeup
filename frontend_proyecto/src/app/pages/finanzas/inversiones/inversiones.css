@@ -1,465 +1,142 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: var(--font-family-base);
+/* Inversiones: lo propio de la página. Lo común está en ../finanzas-pagina.css. */
+
+/* ---------- Tarjeta de la banda ---------- */
+.valor__cambio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--lime);
 }
 
-h1, h2, h3 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
+.valor__retiro {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(182, 223, 192, 0.18);
+  font-size: 0.9rem;
+  --medidor-alto: 18px;
 }
 
-.inversiones {
-    --sage: var(--brand-strong);
-    --sage-dark: var(--brand-deep);
-    --sage-tint: var(--brand-wash);
-    --sage-tint-strong: var(--brand-wash-strong);
-    --black: var(--ink);
-    --sand: var(--ink-soft);
-    --floral-white: var(--surface);
-    --cloud: var(--line);
-
-    padding: 28px 32px;
-    max-width: 1100px;
-    margin: 0 auto;
+.valor__retiro-fila {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.inversiones button:focus-visible {
-    outline: 3px solid var(--sage);
-    outline-offset: 2px;
-    border-radius: 8px;
+/* ---------- Distribución de bloques ---------- */
+.panel > .bloque--crecimiento {
+  grid-column: span 7;
 }
 
-/* ENCABEZADO */
-.inversiones-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 26px;
+.panel > .bloque--reparto {
+  grid-column: span 5;
 }
 
-.inversiones-header h1 {
-    font-size: 24px;
-    color: var(--black);
-    font-weight: 700;
-    line-height: 1.2;
+/* ---------- Nivel de riesgo: 1 a 3 columnas que suben ---------- */
+.nivel {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
 }
 
-
-.header-acciones {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
+.nivel i {
+  width: 4px;
+  border-radius: 2px 2px 0 0;
+  background: var(--line-strong);
 }
 
-.icono-titulo {
-    font-size: 18px;
-}
+.nivel i:nth-child(1) { height: 40%; }
+.nivel i:nth-child(2) { height: 70%; }
+.nivel i:nth-child(3) { height: 100%; }
 
-.header-acciones {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-secundario,
-.btn-primario {
-    border: none;
-    border-radius: var(--r-pill);
-    padding: 10px 18px;
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.btn-secundario {
-    background: var(--floral-white);
-    border: 1px solid var(--cloud);
-    color: var(--black);
-}
-
-.btn-secundario:hover {
-    background: var(--cloud);
-}
-
-.btn-primario {
-    background: var(--sage);
-    color: white;
-}
-
-.btn-primario:hover {
-    background: var(--sage-dark);
-}
-
-/* ALERTA DE CONCENTRACIÓN DE RIESGO */
-.alerta-riesgo {
-    background: var(--warning-wash);
-    color: var(--warning);
-    padding: 12px 18px;
-    border-radius: 12px;
-    font-size: 13.5px;
-    margin-bottom: 20px;
-}
-
-/* TARJETAS DE RESUMEN */
-.cards-resumen {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.card-resumen {
-    background: var(--floral-white);
-    border: 1px solid var(--cloud);
-    border-radius: var(--r-lg);
-    padding: 18px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.card-titulo {
-    font-size: 12.5px;
-    color: var(--ink-soft);
-    font-weight: 600;
-}
-
-.card-valor {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
-    font-size: 21px;
-    font-weight: 700;
-    color: var(--black);
-}
-
-.card-valor.positivo {
-    color: var(--sage);
-}
-
-.card-nota {
-    font-size: 11.5px;
-    color: var(--ink-faint);
-}
-
-.card-nota.positivo {
-    color: var(--sage);
-}
-
-.card-retiro {
-    position: relative;
-}
-
-.anillo-retiro {
-    position: absolute;
-    top: 16px;
-    right: 18px;
-}
-
-/* PANELES */
-.panel {
-    background: var(--floral-white);
-    border: 1px solid var(--cloud);
-    border-radius: var(--r-lg);
-    padding: 22px;
-    margin-bottom: 20px;
-}
-
-.panel h2 {
-    font-size: 15px;
-    color: var(--black);
-    font-weight: 700;
-    margin-bottom: 18px;
-}
-
-.panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.panel-header h2 {
-    margin-bottom: 0;
-}
-
-/* PESTAÑAS DE PERIODO / FILTRO */
-.periodos,
-.filtros {
-    display: flex;
-    gap: 4px;
-    background: var(--cloud);
-    padding: 4px;
-    border-radius: 999px;
-}
-
-.periodos button,
-.filtros button {
-    border: none;
-    background: transparent;
-    color: var(--ink-soft);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.periodos button.activo,
-.filtros button.activo {
-    background: var(--sage);
-    color: white;
-}
-
-/* GRÁFICAS */
-.graficas {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    gap: 20px;
-}
-
-.linea-chart {
-    width: 100%;
-    height: 100px;
-}
-
-.linea-rango {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--ink-soft);
-    font-size: 12px;
-    margin-top: 8px;
-}
-
-.badge-crecimiento {
-    background: var(--sage-tint-strong);
-    color: var(--sage);
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11.5px;
-}
-
-.donut-wrap {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-}
-
-.donut {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.donut-hueco {
-    width: 62px;
-    height: 62px;
-    border-radius: 50%;
-    background: var(--floral-white);
-}
-
-.leyenda {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-    font-size: 12.5px;
-    color: var(--ink-soft);
-}
-
-.leyenda li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.leyenda strong {
-    color: var(--black);
-    margin-left: auto;
-}
-
-.punto {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.panel-acciones {
-    display: flex;
-    gap: 16px;
-    margin-top: 16px;
-    border-top: 1px solid var(--cloud);
-    padding-top: 14px;
-}
-
-.link-boton {
-    background: none;
-    border: none;
-    color: var(--sage);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.link-boton:hover {
-    text-decoration: underline;
-}
-
-/* TABLA */
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-thead th {
-    text-align: left;
-    font-size: 12px;
-    color: var(--ink-faint);
-    font-weight: 600;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--cloud);
-}
-
-tbody td,
-tfoot td {
-    padding: 14px 0;
-    border-bottom: 1px solid var(--cloud);
-    font-size: 13.5px;
-    color: var(--ink-body);
-}
-
-tfoot td {
-    border-bottom: none;
-    border-top: 1px solid var(--cloud);
-    font-weight: 700;
-    color: var(--black);
-    padding-top: 16px;
-}
-
-td.positivo {
-    color: var(--sage);
-    font-weight: 700;
-}
-
-td.negativo {
-    color: var(--negative);
-    font-weight: 700;
+.nivel i.lleno {
+  background: var(--ink);
 }
 
 .riesgo {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12.5px;
-    font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.punto-riesgo {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+/* Opciones de riesgo en el formulario */
+.riesgos {
+  display: flex;
+  gap: 6px;
 }
 
-.riesgo-bajo .punto-riesgo {
-    background: var(--brand-strong);
+.riesgo-opcion {
+  position: relative;
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.riesgo-medio .punto-riesgo {
-    background: #d4a017;
+.riesgo-opcion input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.riesgo-alto .punto-riesgo {
-    background: var(--negative);
+.riesgo-opcion--activa {
+  border-color: var(--brand-strong);
+  background: var(--brand-wash);
+  color: var(--ink);
 }
 
-@media (max-width: 900px) {
-    .cards-resumen {
-        grid-template-columns: 1fr;
-    }
-
-    .graficas {
-        grid-template-columns: 1fr;
-    }
-
-    table {
-        display: block;
-        overflow-x: auto;
-    }
+.riesgo-opcion:has(input:focus-visible) {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
 }
 
-@media (max-width: 560px) {
-    .inversiones {
-        padding: 20px;
-    }
+/* ---------- Tabla ---------- */
+.tabla-controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
-/* FORMULARIO DE NUEVA INVERSIÓN */
-.form-nueva-inversion {
-    display: flex;
-    align-items: flex-end;
-    gap: 14px;
-    flex-wrap: wrap;
+.rend {
+  font-weight: 600;
 }
 
-.form-nueva-inversion .campo {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
-    min-width: 160px;
+.rend--gana {
+  color: var(--positive);
 }
 
-.form-nueva-inversion label {
-    font-size: 12px;
-    color: var(--ink-soft);
-    font-weight: 600;
+.rend--pierde {
+  color: var(--negative);
 }
 
-.form-nueva-inversion input,
-.form-nueva-inversion select {
-    border: 1px solid var(--cloud);
-    border-radius: 10px;
-    padding: 10px 12px;
-    font-size: 13.5px;
-    transition: .2s;
+.rend__pct {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
 }
 
-.form-nueva-inversion input:focus,
-.form-nueva-inversion select:focus {
-    border-color: var(--sage);
+.tabla__vacio {
+  padding: 32px 12px;
+  text-align: center;
+  color: var(--ink-soft);
 }
 
-.btn-agregar {
-    background: var(--sage);
-    color: white;
-    border: none;
-    border-radius: var(--r-pill);
-    padding: 11px 18px;
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .2s;
-    white-space: nowrap;
-}
-
-.btn-agregar:hover {
-    background: var(--sage-dark);
-}
-
-@media (max-width: 700px) {
-    .form-nueva-inversion {
-        flex-direction: column;
-        align-items: stretch;
-    }
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .panel > .bloque--crecimiento,
+  .panel > .bloque--reparto {
+    grid-column: span 12;
+  }
 }

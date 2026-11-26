@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { EducacionService } from '../../../services/educacion';
+import { IconComponent } from '../icon/icon';
 
 /**
  * Banner reutilizable que invita a tomar un curso real de Educación.
@@ -10,7 +11,7 @@ import { EducacionService } from '../../../services/educacion';
 @Component({
   selector: 'app-curso-banner',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, IconComponent],
   templateUrl: './curso-banner.html',
   styleUrl: './curso-banner.css',
 })
