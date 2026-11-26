@@ -1,0 +1,30 @@
+<section class="banda" [attr.aria-labelledby]="idTitulo()">
+  <div class="banda__fondo" aria-hidden="true">
+    <span class="banda__brillo"></span>
+    <div class="banda__horizonte">
+      @for (alto of horizonte; track $index) {
+        <span [style.height.%]="alto"></span>
+      }
+    </div>
+  </div>
+
+  <div class="banda__inner">
+    <div class="banda__copy">
+      <ng-content select="[banda-antes]" />
+      <h1 class="banda__titulo" [id]="idTitulo()">
+        {{ titulo() }}
+        @if (acento()) {
+          <span class="banda__acento">{{ acento() }}</span>
+        }
+      </h1>
+      @if (texto()) {
+        <p class="banda__texto">{{ texto() }}</p>
+      }
+      <ng-content />
+    </div>
+
+    <div class="banda__lado">
+      <ng-content select="[banda-lado]" />
+    </div>
+  </div>
+</section>

@@ -1,11 +1,25 @@
 @if (producto(); as producto) {
-  <div class="tramite">
+  @if (!radicado()) {
+    <app-banda-seccion
+      titulo="Solicita tu producto"
+      [texto]="producto.aliado + ' · ' + producto.categoria"
+    >
+      <button type="button" class="banda-volver" banda-antes (click)="atras()">
+        <app-icon nombre="chevron-left" />
+        {{ paso() === 0 ? 'Volver al producto' : 'Paso anterior' }}
+      </button>
+    </app-banda-seccion>
+  }
+
+  <div class="tramite" [class.tramite--acuse]="radicado()">
 
     <!-- Confirmación -->
     @if (radicado(); as solicitud) {
-      <section class="acuse">
-        <p class="eyebrow">Solicitud radicada</p>
-        <h1 class="acuse__titulo">Quedó en estudio con {{ solicitud.aliado }}</h1>
+      <section class="acuse" aria-labelledby="acuse-titulo">
+        <span class="acuse__sello" aria-hidden="true">
+          <app-icon nombre="check-circle" [tamano]="28" />
+        </span>
+        <h1 id="acuse-titulo" class="acuse__titulo">Quedó en estudio con {{ solicitud.aliado }}</h1>
         <p class="acuse__texto">
           Guarda este número. Con él puedes preguntar por el estado de tu solicitud
           en cualquier canal de atención.
@@ -70,7 +84,13 @@
             <span class="ruta__marca" aria-hidden="true"></span>
             <div>
               <p class="ruta__titulo">Te avisamos por correo</p>
-              <p class="ruta__detalle">Respuesta en {{ producto.aprobacion }} a {{ solicitud.correo }}</p>
+              <p class="ruta__detalle">
+                @if (producto.aprobacion) {
+                  Respuesta en {{ producto.aprobacion }} a {{ solicitud.correo }}
+                } @else {
+                  Llega a {{ solicitud.correo }}
+                }
+              </p>
             </div>
           </li>
         </ol>
@@ -87,25 +107,13 @@
     } @else {
 
       <!-- Formulario -->
-      <button type="button" class="volver" (click)="atras()">
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-          <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        {{ paso() === 0 ? 'Volver al producto' : 'Paso anterior' }}
-      </button>
-
-      <header class="tramite__head">
-        <p class="eyebrow">{{ producto.aliado }} · {{ producto.categoria }}</p>
-        <h1 class="tramite__titulo">Solicita tu producto</h1>
-      </header>
-
-      <ol class="pasos">
+      <ol class="pasos" aria-label="Pasos de la solicitud">
         @for (nombrePaso of pasos; track nombrePaso; let i = $index) {
           <li
             class="paso"
             [class.paso--activo]="paso() === i"
             [class.paso--hecho]="paso() > i"
+            [attr.aria-current]="paso() === i ? 'step' : null"
           >
             <span class="paso__n">{{ i + 1 }}</span>
             {{ nombrePaso }}
@@ -338,18 +346,22 @@
                 <dd class="resumen__fuerte">{{ formatCOP(cuotaEstimada()) }}</dd>
               </div>
             }
-            <div>
-              <dt>Respuesta</dt>
-              <dd>{{ producto.aprobacion }}</dd>
-            </div>
+            @if (producto.aprobacion) {
+              <div>
+                <dt>Respuesta</dt>
+                <dd>{{ producto.aprobacion }}</dd>
+              </div>
+            }
           </dl>
 
-          <h3 class="resumen__sub">Ten a la mano</h3>
-          <ul class="resumen__docs">
-            @for (documento of producto.documentos; track documento) {
-              <li>{{ documento }}</li>
-            }
-          </ul>
+          @if (producto.documentos.length) {
+            <h3 class="resumen__sub">Ten a la mano</h3>
+            <ul class="resumen__docs">
+              @for (documento of producto.documentos; track documento) {
+                <li>{{ documento }}</li>
+              }
+            </ul>
+          }
         </aside>
       </div>
     }

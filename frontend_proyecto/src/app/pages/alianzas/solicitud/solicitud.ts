@@ -6,6 +6,8 @@ import { AlianzasService, FichaOferta, plazosPosibles } from '../../../services/
 import { mensajeDeError } from '../../../services/api';
 import { AuthService } from '../../../services/auth';
 import { ToastService } from '../../../shared/services/toast';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
 
 /** Lo que se muestra en el acuse cuando el MID radica la solicitud. */
 interface Acuse {
@@ -24,7 +26,7 @@ interface Acuse {
 @Component({
   selector: 'app-solicitud',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BandaSeccionComponent, IconComponent],
   templateUrl: './solicitud.html',
   styleUrl: './solicitud.css',
 })

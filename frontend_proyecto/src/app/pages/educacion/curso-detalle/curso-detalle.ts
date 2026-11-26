@@ -5,11 +5,13 @@ import { Curso, Leccion } from '../educacion/educacion.model';
 import { EducacionService } from '../../../services/educacion';
 import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
 
 @Component({
   selector: 'app-curso-detalle',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BandaSeccionComponent, IconComponent],
   templateUrl: './curso-detalle.html',
   styleUrl: './curso-detalle.css',
 })

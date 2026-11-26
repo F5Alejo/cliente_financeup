@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
 import { AuthService } from '../../../services/auth';
 import {
   AlianzasService,
@@ -15,7 +17,7 @@ type FiltroFamilia = 'Todos' | FamiliaProducto;
 @Component({
   selector: 'app-alianzas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BandaSeccionComponent, IconComponent],
   templateUrl: './alianzas.html',
   styleUrl: './alianzas.css',
 })

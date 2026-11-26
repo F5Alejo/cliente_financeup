@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Curso, EscuelaCursos, OpcionFiltro } from './educacion.model';
 import { EducacionService } from '../../../services/educacion';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
 
 @Component({
   selector: 'app-educacion',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BandaSeccionComponent, IconComponent],
   templateUrl: './educacion.html',
   styleUrls: ['./educacion.css'],
 })
@@ -157,13 +159,6 @@ export class EducacionComponent implements OnInit {
   siguienteLeccionNumero(curso: Curso): number {
     const siguiente = this.educacionService.siguienteLeccion(curso);
     return siguiente ? curso.lecciones.indexOf(siguiente) + 1 : 1;
-  }
-
-  /** Perímetro restante del anillo de progreso (r = 26). */
-  trazoAnillo(progreso: number): string {
-    const circunferencia = 2 * Math.PI * 26;
-    const avance = (progreso / 100) * circunferencia;
-    return `${avance} ${circunferencia - avance}`;
   }
 
   // ---------------------------------------------------------------------

@@ -1,0 +1,108 @@
+/* Banda de sección: la superficie de marca de la portada, en versión de trabajo.
+   Cada página puede alinear el contenido con el suyo usando --banda-max y --banda-gutter. */
+
+:host {
+  display: block;
+  --banda: var(--verde-900);
+  --banda-texto: #f2faf4;
+  --banda-texto-suave: #b6dfc0;
+}
+
+.banda {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--banda);
+  color: var(--banda-texto);
+}
+
+/* Trama de barras finas, un brillo lima y el horizonte del logo, todo muy bajo de tono */
+.banda__fondo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(90deg, rgba(155, 225, 93, 0.045) 0 1px, transparent 1px 56px);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 55%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 55%);
+}
+
+.banda__brillo {
+  position: absolute;
+  right: -12%;
+  bottom: -70%;
+  width: 60vw;
+  max-width: 760px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(155, 225, 93, 0.22) 0%, rgba(46, 155, 78, 0.12) 40%, transparent 70%);
+}
+
+.banda__horizonte {
+  position: absolute;
+  inset: auto 0 0;
+  height: 38%;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  padding: 0 3px;
+  opacity: 0.28;
+}
+
+.banda__horizonte span {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, rgba(46, 155, 78, 0.6), rgba(23, 100, 49, 0.08));
+}
+
+.banda__inner {
+  max-width: var(--banda-max, var(--page-max));
+  margin: 0 auto;
+  padding: clamp(2.75rem, 2rem + 3vw, 4.75rem) var(--banda-gutter, var(--page-gutter))
+    clamp(3rem, 2rem + 3.5vw, 5.25rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  align-items: end;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+/* Sin columna derecha, el texto toma todo el ancho */
+.banda__lado:empty {
+  display: none;
+}
+
+.banda__inner:has(.banda__lado:empty) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.banda__titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 1.4rem + 3vw, 3.75rem);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+  color: var(--banda-texto);
+}
+
+.banda__acento {
+  display: block;
+  color: var(--lime);
+}
+
+.banda__texto {
+  margin: 1.25rem 0 0;
+  max-width: 38rem;
+  font-size: clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
+  line-height: 1.5;
+  color: var(--banda-texto-suave);
+  text-wrap: pretty;
+}
+
+@media (max-width: 760px) {
+  .banda__inner {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+}

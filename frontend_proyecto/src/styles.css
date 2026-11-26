@@ -395,6 +395,118 @@ app-root {
 }
 
 /* =========================================================================
+   DENTRO DE LA BANDA DE SECCIÓN (<app-banda-seccion>)
+   Piezas que las páginas proyectan sobre el verde 900.
+   ========================================================================= */
+
+/* Buscador sobre verde: campo claro, alto de 52px y foco en lima */
+.banda-buscador {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 34rem;
+  min-height: 52px;
+  margin-top: 1.75rem;
+  padding: 0 1.1rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: var(--neutro-0);
+  color: var(--ink);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.45);
+  transition: box-shadow var(--dur-fast) ease;
+}
+
+.banda-buscador:focus-within {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+}
+
+.banda-buscador svg,
+.banda-buscador app-icon {
+  flex: none;
+  color: var(--brand-strong);
+}
+
+.banda-buscador input {
+  flex: 1;
+  min-width: 0;
+  height: 50px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.banda-buscador input::placeholder {
+  color: var(--ink-soft);
+}
+
+.banda-buscador input:focus {
+  outline: none;
+}
+
+/* Regreso a la página anterior, arriba del título */
+.banda-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  margin: -0.75rem 0 1rem -0.25rem;
+  padding: 0 0.6rem 0 0.25rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: none;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #b6dfc0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--dur-fast) ease;
+}
+
+.banda-volver:hover {
+  color: #f2faf4;
+}
+
+.banda-volver:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+}
+
+/* Datos reales en fila, separados por una línea teñida de verde */
+.banda-cifras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2.5rem;
+  margin: 2rem 0 0;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(182, 223, 192, 0.22);
+}
+
+.banda-cifras div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.2rem;
+}
+
+.banda-cifras dt {
+  font-size: 0.875rem;
+  color: #b6dfc0;
+}
+
+.banda-cifras dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: #f2faf4;
+}
+
+/* =========================================================================
    MOVIMIENTO
    ========================================================================= */
 @keyframes fu-fade-up {
@@ -456,10 +568,6 @@ app-root {
     .feature-card,
     .service-row,
     .cta-panel,
-    .curso,
-    .escuela__head,
-    .reanudar,
-    .producto,
     .card-resumen,
     .panel,
     .pqr-card,

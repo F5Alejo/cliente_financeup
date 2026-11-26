@@ -1,37 +1,25 @@
 @if (producto(); as producto) {
-  <div class="ficha-producto">
+  <app-banda-seccion [titulo]="producto.promesa" [texto]="producto.descripcion">
+    <button type="button" class="banda-volver" banda-antes (click)="volver()">
+      <app-icon nombre="chevron-left" />
+      Alianzas · {{ producto.familia }}
+    </button>
 
-    <nav class="miga" aria-label="Ruta de navegación">
-      <button type="button" (click)="volver()">Alianzas</button>
-      <span aria-hidden="true">/</span>
-      <span>{{ producto.familia }}</span>
-      <span aria-hidden="true">/</span>
-      <span class="miga__actual">{{ producto.aliado }}</span>
-    </nav>
+    <div class="banda-acciones">
+      <button type="button" class="btn btn--lima" (click)="solicitar()">
+        {{ producto.ctaPrimaria }}
+      </button>
+      @if (producto.aprobacion) {
+        <span class="banda-acciones__nota">Respuesta en {{ producto.aprobacion }}</span>
+      }
+    </div>
 
-    @if (producto.imagen) {
-      <img class="ficha-producto__foto" [src]="producto.imagen" alt="" width="960" height="320" />
-    }
-
-    <!-- Encabezado del producto -->
-    <header class="cabecera">
-      <div class="cabecera__copy">
-        <div class="cabecera__aliado">
-          <span class="marca" [style.background]="producto.logoBg">{{ producto.logoText }}</span>
-          <div>
-            <p class="cabecera__nombre">{{ producto.aliado }}</p>
-            <p class="cabecera__categoria">{{ producto.categoria }}</p>
-          </div>
-        </div>
-
-        <h1 class="cabecera__titulo">{{ producto.promesa }}</h1>
-        <p class="cabecera__texto">{{ producto.descripcion }}</p>
-
-        <div class="cabecera__acciones">
-          <button type="button" class="btn btn--solido" (click)="solicitar()">
-            {{ producto.ctaPrimaria }}
-          </button>
-          <span class="cabecera__respuesta">Respuesta en {{ producto.aprobacion }}</span>
+    <div class="emisor" banda-lado>
+      <div class="emisor__aliado">
+        <span class="marca" [style.background]="producto.logoBg">{{ producto.logoText }}</span>
+        <div>
+          <p class="emisor__nombre">{{ producto.aliado }}</p>
+          <p class="emisor__categoria">{{ producto.categoria }}</p>
         </div>
       </div>
 
@@ -48,13 +36,17 @@
           <dt>Plazo máximo</dt>
           <dd>{{ formatPlazo(producto.plazoMaximo) }}</dd>
         </div>
-        <div>
-          <dt>Calificación</dt>
-          <dd>{{ producto.calificacion }} / 5</dd>
-        </div>
+        @if (producto.calificacion) {
+          <div>
+            <dt>Calificación</dt>
+            <dd>{{ producto.calificacion }} / 5</dd>
+          </div>
+        }
       </dl>
-    </header>
+    </div>
+  </app-banda-seccion>
 
+  <div class="ficha-producto">
     <div class="cuerpo">
       <main>
         <!-- Pestañas -->
@@ -64,6 +56,7 @@
               type="button"
               class="pestana"
               [class.pestana--on]="pestanaActiva() === pestana"
+              [attr.aria-current]="pestanaActiva() === pestana ? 'true' : null"
               (click)="seleccionarPestana(pestana)"
             >
               {{ pestana }}
@@ -87,14 +80,18 @@
                 }
               </ul>
 
-              <h3 class="panel__sub">Para quién es</h3>
-              <p class="panel__texto">
-                @if (producto.perfiles.length) {
-                  Está pensado para el perfil
-                  <strong>{{ producto.perfiles.join(' e ') }}</strong>.
-                }
-                Hoy lo tienen {{ producto.usuarios | number }} personas en FinanceUp.
-              </p>
+              @if (producto.perfiles.length || producto.usuarios) {
+                <h3 class="panel__sub">Para quién es</h3>
+                <p class="panel__texto">
+                  @if (producto.perfiles.length) {
+                    Está pensado para el perfil
+                    <strong>{{ producto.perfiles.join(' e ') }}</strong>.
+                  }
+                  @if (producto.usuarios) {
+                    Hoy lo tienen {{ producto.usuarios | number }} personas en FinanceUp.
+                  }
+                </p>
+              }
             }
 
             @case ('Requisitos') {
@@ -136,7 +133,12 @@
               <div class="faq">
                 @for (item of producto.preguntas; track item.pregunta) {
                   <div class="faq__item" [class.faq__item--on]="preguntaAbierta() === item.pregunta">
-                    <button type="button" class="faq__btn" (click)="alternarPregunta(item.pregunta)">
+                    <button
+                      type="button"
+                      class="faq__btn"
+                      [attr.aria-expanded]="preguntaAbierta() === item.pregunta"
+                      (click)="alternarPregunta(item.pregunta)"
+                    >
                       {{ item.pregunta }}
                       <span class="faq__signo" aria-hidden="true"></span>
                     </button>
@@ -153,6 +155,10 @@
 
       <!-- Simulador -->
       <aside class="lateral">
+        @if (producto.imagen) {
+          <img class="lateral__foto" [src]="producto.imagen" alt="" width="960" height="320" />
+        }
+
         @if (simulable()) {
           <section class="simulador">
             <h2 class="simulador__titulo">Simula tu cuota</h2>
@@ -180,6 +186,8 @@
                   type="button"
                   class="plazo"
                   [class.plazo--on]="plazoMeses() === plazo"
+                [attr.aria-pressed]="plazoMeses() === plazo"
+                [attr.aria-label]="plazo + ' meses'"
                   (click)="seleccionarPlazo(plazo)"
                 >
                   {{ plazo }}

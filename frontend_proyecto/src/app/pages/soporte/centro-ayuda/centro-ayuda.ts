@@ -65,11 +65,11 @@ export class CentroAyudaConponent implements OnDestroy {
     60_000,
   );
 
-  // Indicadores del encabezado
+  // Datos del encabezado: los mismos horarios y plazos que publican los canales de abajo
   readonly indicadores = [
-    { valor: '< 2 h', etiqueta: 'Tiempo de respuesta' },
-    { valor: '98%', etiqueta: 'Casos resueltos' },
-    { valor: '24/7', etiqueta: 'Canales disponibles' },
+    { valor: '48 h hábiles', etiqueta: 'Respuesta a una PQR' },
+    { valor: '7 a.m. – 9 p.m.', etiqueta: 'Línea de ayuda, lunes a sábado' },
+    { valor: '6 a.m. – 6 p.m.', etiqueta: 'WhatsApp, todos los días' },
   ];
 
   // Categorías de ayuda

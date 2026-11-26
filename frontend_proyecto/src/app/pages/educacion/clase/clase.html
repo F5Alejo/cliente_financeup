@@ -63,8 +63,8 @@
             </div>
           } @else {
             <article class="lectura">
-              <p class="lectura__tipo">{{ clase.tipo }} · {{ clase.duracionMin }} min</p>
               <h2 class="lectura__titulo">{{ clase.titulo }}</h2>
+              <p class="lectura__tipo">{{ clase.tipo }} · {{ clase.duracionMin }} min</p>
               <p class="lectura__cuerpo">{{ clase.contenido || clase.resumen }}</p>
               <p class="lectura__nota">
                 Cuando termines de leer, marca la clase para que quede en tu progreso.
@@ -74,7 +74,6 @@
 
           <!-- Ficha de la clase -->
           <div class="detalle">
-            <p class="eyebrow">Clase {{ indice() + 1 }}</p>
             <h1 class="detalle__titulo">{{ clase.titulo }}</h1>
             <p class="detalle__resumen">{{ clase.resumen }}</p>
 

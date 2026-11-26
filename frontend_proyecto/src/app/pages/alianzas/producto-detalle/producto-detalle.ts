@@ -4,13 +4,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlianzasService, FichaOferta, plazosPosibles } from '../../../services/alianzas';
 import { mensajeDeError } from '../../../services/api';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
 
 type Pestana = 'Características' | 'Requisitos' | 'Tarifas' | 'Preguntas';
 
 @Component({
   selector: 'app-producto-detalle',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BandaSeccionComponent, IconComponent],
   templateUrl: './producto-detalle.html',
   styleUrl: './producto-detalle.css',
 })
