@@ -213,6 +213,8 @@ export const routes: Routes = [
 
       {
         path: 'alianzas/producto/:productoId/solicitud',
+        // Radicar pide sesión: el MID guarda la solicitud a nombre del usuario
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/alianzas/solicitud/solicitud')
             .then((m) => m.SolicitudComponent),

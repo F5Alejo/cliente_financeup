@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   AlianzasService,
@@ -19,10 +19,21 @@ type FiltroFamilia = 'Todos' | FamiliaProducto;
   styleUrl: './alianzas.css',
 })
 export class AlianzasComponent {
-  constructor(
-    private alianzasService: AlianzasService,
-    private router: Router
-  ) {}
+  private alianzasService = inject(AlianzasService);
+  private router = inject(Router);
+
+  // El catálogo viene del MID (GET /ofertas)
+  readonly ofertas = this.alianzasService.ofertas;
+  readonly cargando = this.alianzasService.cargando;
+  readonly error = this.alianzasService.error;
+
+  constructor() {
+    this.cargar();
+  }
+
+  cargar(): void {
+    this.alianzasService.cargarOfertas();
+  }
 
   // ---------- Filtros ----------
   readonly familias: FiltroFamilia[] = ['Todos', 'Créditos', 'Tarjetas', 'Ahorro', 'Comercios'];
@@ -70,7 +81,7 @@ export class AlianzasComponent {
     const beneficio = this.beneficioSeleccionado();
     const perfil = this.perfilSeleccionado();
 
-    return this.alianzasService.ofertas
+    return this.ofertas()
       .filter((oferta) => {
         if (familia !== 'Todos' && oferta.familia !== familia) return false;
         if (beneficio && oferta.beneficio !== beneficio) return false;
@@ -96,15 +107,15 @@ export class AlianzasComponent {
   });
 
   conteoFamilia(familia: FiltroFamilia): number {
-    if (familia === 'Todos') return this.alianzasService.ofertas.length;
-    return this.alianzasService.ofertasDeFamilia(familia).length;
+    if (familia === 'Todos') return this.ofertas().length;
+    return this.ofertas().filter((o) => o.familia === familia).length;
   }
 
   // ---------- Cifras del encabezado ----------
-  readonly totalAliados = computed(() => this.alianzasService.ofertas.length);
+  readonly totalAliados = computed(() => this.ofertas().length);
 
   readonly tasaMinima = computed(() => {
-    const tasas = this.alianzasService.ofertas
+    const tasas = this.ofertas()
       .map((o) => o.tasaDesde)
       .filter((t) => t > 0);
     return tasas.length ? Math.min(...tasas) : 0;
@@ -112,7 +123,7 @@ export class AlianzasComponent {
 
   readonly aprobacionRapida = computed(
     () =>
-      this.alianzasService.ofertas.find((o) => o.aprobacion === 'Inmediata')?.aprobacion ??
+      this.ofertas().find((o) => o.aprobacion === 'Inmediata')?.aprobacion ??
       '10 minutos'
   );
 

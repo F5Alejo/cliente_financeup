@@ -79,6 +79,12 @@ export class AdminDashboardComponent {
   private shell = inject(AdminBusquedaService);
   private router = inject(Router);
 
+  constructor() {
+    // Ofertas y solicitudes de crédito salen del MID
+    this.alianzasService.cargarOfertas();
+    this.alianzasService.cargarSolicitudesAdmin();
+  }
+
   readonly esqueletos = [1, 2, 3, 4, 5];
   cargando = simularCarga();
 
@@ -107,8 +113,8 @@ export class AdminDashboardComponent {
 
   pqrPendientes = this.pqrService.pqrs.filter((p) => p.estado === 'Radicado' || p.estado === 'En revisión');
   pqrAlta = this.pqrPendientes.filter((p) => p.prioridad === 'Alta').length;
-  alianzasActivas = this.alianzasService.ofertas.length;
-  solicitudesEnEstudio = this.alianzasService.solicitudes.filter((s) => s.estado === 'En estudio').length;
+  alianzasActivas = computed(() => this.alianzasService.ofertas().length);
+  solicitudesEnEstudio = computed(() => this.alianzasService.solicitudes().filter((s) => s.estado === 'En estudio').length);
   cursosPublicados = computed(() => this.educacionService.todosLosCursos().length);
   escuelas = computed(() => this.educacionService.escuelas().length);
 
@@ -149,9 +155,9 @@ export class AdminDashboardComponent {
         nivel: 'warning',
       });
     }
-    if (this.solicitudesEnEstudio) {
+    if (this.solicitudesEnEstudio()) {
       lista.push({
-        titulo: `${plural(this.solicitudesEnEstudio, 'solicitud de alianza', 'solicitudes de alianza')} en estudio`,
+        titulo: `${plural(this.solicitudesEnEstudio(), 'solicitud de alianza', 'solicitudes de alianza')} en estudio`,
         detalle: 'Esperan una decisión del equipo.',
         ruta: '/admin/alianzas',
         nivel: 'warning',

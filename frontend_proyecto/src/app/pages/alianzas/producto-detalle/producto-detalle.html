@@ -89,8 +89,10 @@
 
               <h3 class="panel__sub">Para quién es</h3>
               <p class="panel__texto">
-                Está pensado para el perfil
-                <strong>{{ producto.perfiles.join(' e ') }}</strong>.
+                @if (producto.perfiles.length) {
+                  Está pensado para el perfil
+                  <strong>{{ producto.perfiles.join(' e ') }}</strong>.
+                }
                 Hoy lo tienen {{ producto.usuarios | number }} personas en FinanceUp.
               </p>
             }
@@ -163,7 +165,7 @@
               <span class="campo__valor">{{ formatCOP(monto()) }}</span>
               <input
                 type="range"
-                [min]="producto.montoMaximo / 20"
+                [min]="montoMinimo()"
                 [max]="producto.montoMaximo"
                 [step]="producto.montoMaximo / 40"
                 [value]="monto()"
@@ -225,13 +227,32 @@
             <li>Te avisamos por correo cada vez que cambie el estado.</li>
           </ul>
         </section>
+
+        @if (producto.relacionadas.length) {
+          <section class="apoyo">
+            <h3>Productos parecidos</h3>
+            <ul>
+              @for (relacionado of producto.relacionadas; track relacionado.id) {
+                <li>
+                  <button type="button" class="apoyo__enlace" (click)="verRelacionado(relacionado.id)">
+                    {{ relacionado.categoria }} · {{ formatTasa(relacionado.tasaDesde) }}
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+        }
       </aside>
     </div>
   </div>
+} @else if (cargando()) {
+  <div class="ficha-producto ficha-producto--vacia" aria-live="polite">
+    <p>Cargando el producto…</p>
+  </div>
 } @else {
-  <div class="ficha-producto ficha-producto--vacia">
+  <div class="ficha-producto ficha-producto--vacia" role="alert">
     <h1>Este producto ya no está vigente</h1>
-    <p>La alianza pudo haber terminado. Revisa los productos disponibles hoy.</p>
+    <p>{{ error() || 'La alianza pudo haber terminado. Revisa los productos disponibles hoy.' }}</p>
     <button type="button" class="btn btn--solido" (click)="volver()">Ver alianzas</button>
   </div>
 }

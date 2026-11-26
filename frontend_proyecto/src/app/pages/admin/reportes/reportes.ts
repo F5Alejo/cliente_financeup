@@ -95,6 +95,12 @@ export class AdminReportesComponent {
   private actividadService = inject(ActividadAdminService);
   private toastService = inject(ToastService);
 
+  constructor() {
+    // Ofertas y solicitudes de crédito salen del MID
+    this.alianzasService.cargarOfertas();
+    this.alianzasService.cargarSolicitudesAdmin();
+  }
+
   readonly temas: { valor: Tema; etiqueta: string; icono: NombreIcono }[] = [
     { valor: 'usuarios', etiqueta: 'Usuarios', icono: 'users' },
     { valor: 'pqr', etiqueta: 'PQR', icono: 'life-buoy' },
@@ -263,13 +269,13 @@ export class AdminReportesComponent {
   }
 
   private reporteAlianzas(): Reporte {
-    const ofertas = this.alianzasService.ofertas;
-    const solicitudes = this.alianzasService.solicitudes;
+    const ofertas = this.alianzasService.ofertas();
+    const solicitudes = this.alianzasService.solicitudes();
     return {
       kpis: [
         { etiqueta: 'Alianzas activas', valor: formatoNumero(ofertas.length), icono: 'briefcase', pie: 'ofertas publicadas' },
         { etiqueta: 'Destacadas', valor: formatoNumero(ofertas.filter((o) => o.destacada).length), icono: 'shield-check', pie: 'visibles en primer lugar', tono: 'neutral' },
-        { etiqueta: 'Solicitudes', valor: formatoNumero(solicitudes.length), icono: 'file-text', pie: 'recibidas en esta sesión', tono: 'neutral' },
+        { etiqueta: 'Solicitudes', valor: formatoNumero(solicitudes.length), icono: 'file-text', pie: 'radicadas por los usuarios', tono: 'neutral' },
         { etiqueta: 'Usuarios vinculados', valor: formatoNumero(ofertas.reduce((s, o) => s + o.usuarios, 0)), icono: 'users', pie: 'entre todas las ofertas', tono: 'neutral' },
       ],
       secciones: [

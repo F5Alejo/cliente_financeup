@@ -546,6 +546,23 @@
   color: var(--texto-2);
 }
 
+.apoyo__enlace {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--verde-hondo);
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.apoyo__enlace:hover {
+  color: var(--texto);
+}
+
 /* Botones */
 .btn {
   display: inline-flex;

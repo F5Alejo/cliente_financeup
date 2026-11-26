@@ -2,9 +2,24 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlianzasService, Oferta, Solicitud } from '../../../services/alianzas';
+import { AlianzasService, FichaOferta, plazosPosibles } from '../../../services/alianzas';
+import { mensajeDeError } from '../../../services/api';
 import { AuthService } from '../../../services/auth';
 import { ToastService } from '../../../shared/services/toast';
+
+/** Lo que se muestra en el acuse cuando el MID radica la solicitud. */
+interface Acuse {
+  radicado: string;
+  producto: string;
+  aliado: string;
+  monto: number;
+  plazoMeses: number;
+  cuotaEstimada: number;
+  asesor: string;
+  fecha: string;
+  estado: string;
+  correo: string;
+}
 
 @Component({
   selector: 'app-solicitud',
@@ -20,18 +35,16 @@ export class SolicitudComponent {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
 
-  private readonly productoId = signal(
-    this.ruta.snapshot.paramMap.get('productoId') ?? ''
-  );
+  private readonly productoId = Number(this.ruta.snapshot.paramMap.get('productoId'));
 
-  readonly producto = computed<Oferta | undefined>(() =>
-    this.alianzasService.buscarOferta(this.productoId())
-  );
+  // Ficha del producto que llega del MID (GET /ofertas/:id)
+  readonly producto = signal<FichaOferta | undefined>(undefined);
+  readonly cargando = signal(true);
 
   readonly pasos = ['Tus datos', 'Condiciones', 'Confirmación'];
   readonly paso = signal(0);
   readonly enviando = signal(false);
-  readonly radicado = signal<Solicitud | null>(null);
+  readonly radicado = signal<Acuse | null>(null);
 
   // Modelo del formulario
   nombre = '';
@@ -52,36 +65,49 @@ export class SolicitudComponent {
       this.correo = usuario.email;
     }
 
-    const producto = this.producto();
-    if (producto && producto.montoMaximo > 0) {
-      this.monto = Math.round(producto.montoMaximo * 0.25);
-      this.plazoMeses = Math.min(24, producto.plazoMaximo);
-    }
+    this.alianzasService.obtenerFicha(this.productoId).subscribe({
+      next: (ficha) => {
+        this.producto.set(ficha);
+        // Se arranca en el 25% del monto máximo, sin bajar del mínimo del producto
+        if (ficha.montoMaximo > 0) {
+          this.monto = Math.max(ficha.montoMinimo, Math.round(ficha.montoMaximo * 0.25));
+          this.plazoMeses = this.plazosDisponibles().find((p) => p >= 24) ?? ficha.plazoMaximo;
+        }
+        this.cargando.set(false);
+      },
+      error: () => this.cargando.set(false),
+    });
   }
 
   readonly pideMonto = computed(() => (this.producto()?.montoMaximo ?? 0) > 0);
 
-  readonly plazosDisponibles = computed(() => {
-    const maximo = this.producto()?.plazoMaximo ?? 0;
-    return [12, 24, 36, 48, 60, 120, 240].filter((p) => p <= maximo);
+  readonly montoMinimo = computed(() => {
+    const producto = this.producto();
+    if (!producto) return 0;
+    return producto.montoMinimo || producto.montoMaximo / 20;
   });
 
-  readonly cuotaEstimada = computed(() => {
+  readonly plazosDisponibles = computed(() => {
     const producto = this.producto();
-    if (!producto || !this.pideMonto()) return 0;
+    return producto ? plazosPosibles(producto.plazoMinimo, producto.plazoMaximo) : [];
+  });
+
+  // monto, plazo e ingresos son campos del formulario (no signals), por eso estos dos son métodos
+  cuotaEstimada(): number {
+    const producto = this.producto();
+    if (!producto || !this.pideMonto() || this.plazoMeses === 0) return 0;
 
     const tasa = producto.tasaDesde / 100 / 12;
-    if (this.plazoMeses === 0) return 0;
     if (tasa === 0) return Math.round(this.monto / this.plazoMeses);
 
     return Math.round((this.monto * tasa) / (1 - Math.pow(1 + tasa, -this.plazoMeses)));
-  });
+  }
 
   /** Peso de la cuota sobre el ingreso declarado: el dato que define la aprobación. */
-  readonly cargaIngreso = computed(() => {
+  cargaIngreso(): number {
     if (!this.ingresos || !this.cuotaEstimada()) return 0;
     return Math.round((this.cuotaEstimada() / this.ingresos) * 100);
-  });
+  }
 
   // ---------- Validación ----------
 
@@ -107,8 +133,8 @@ export class SolicitudComponent {
       if (this.ingresos <= 0) {
         errores['ingresos'] = 'Necesitamos tu ingreso mensual para estudiar la solicitud.';
       }
-      if (this.pideMonto() && this.monto <= 0) {
-        errores['monto'] = 'Indica cuánto necesitas.';
+      if (this.pideMonto() && (this.monto < this.montoMinimo() || this.monto > (this.producto()?.montoMaximo ?? 0))) {
+        errores['monto'] = `El monto va entre ${this.formatCOP(this.montoMinimo())} y ${this.formatCOP(this.producto()?.montoMaximo ?? 0)}.`;
       }
     }
 
@@ -130,7 +156,6 @@ export class SolicitudComponent {
     if (!this.validarPasoActual()) return;
 
     if (this.paso() < 2) {
-      console.log('[Solicitud] Paso completado:', this.paso() + 1, 'de 3');
       this.paso.update((p) => p + 1);
       return;
     }
@@ -141,7 +166,7 @@ export class SolicitudComponent {
   atras(): void {
     this.errores.set({});
     if (this.paso() === 0) {
-      this.router.navigate(['/alianzas/producto', this.productoId()]);
+      this.router.navigate(['/alianzas/producto', this.productoId]);
       return;
     }
     this.paso.update((p) => p - 1);
@@ -152,14 +177,9 @@ export class SolicitudComponent {
     if (!producto) return;
 
     this.enviando.set(true);
-    console.log('[Solicitud] Enviando solicitud al aliado:', { aliado: producto.aliado, producto: producto.categoria });
-
-    // Simula el tiempo de radicación contra el aliado.
-    setTimeout(() => {
-      const solicitud = this.alianzasService.radicarSolicitud({
-        productoId: producto.id,
-        producto: producto.categoria,
-        aliado: producto.aliado,
+    this.alianzasService
+      .radicarSolicitud({
+        idProducto: producto.id,
         monto: this.pideMonto() ? this.monto : 0,
         plazoMeses: this.pideMonto() ? this.plazoMeses : 0,
         nombre: this.nombre.trim(),
@@ -167,20 +187,25 @@ export class SolicitudComponent {
         correo: this.correo.trim(),
         celular: this.celular.trim(),
         ingresos: this.ingresos,
+        aceptaTerminos: this.aceptaTerminos,
+      })
+      .subscribe({
+        next: (respuesta) => {
+          this.enviando.set(false);
+          this.radicado.set({
+            ...respuesta,
+            aliado: producto.aliado,
+            correo: this.correo.trim(),
+            fecha: new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }),
+          });
+          this.toastService.success(`Solicitud radicada con el número ${respuesta.radicado}.`);
+        },
+        error: (error) => {
+          // El MID explica qué falló (monto fuera de rango, datos incompletos...)
+          this.enviando.set(false);
+          this.toastService.error(mensajeDeError(error));
+        },
       });
-
-      this.enviando.set(false);
-      this.radicado.set(solicitud);
-      console.log('[Solicitud] Solicitud radicada:', {
-        radicado: solicitud.radicado,
-        producto: solicitud.producto,
-        aliado: solicitud.aliado,
-        monto: solicitud.monto,
-        plazoMeses: solicitud.plazoMeses,
-        estado: solicitud.estado,
-      });
-      this.toastService.success(`Solicitud radicada con el número ${solicitud.radicado}.`);
-    }, 900);
   }
 
   seleccionarPlazo(plazo: number): void {
@@ -204,7 +229,7 @@ export class SolicitudComponent {
   // ---------- Salidas ----------
 
   volverAlProducto(): void {
-    this.router.navigate(['/alianzas/producto', this.productoId()]);
+    this.router.navigate(['/alianzas/producto', this.productoId]);
   }
 
   volverAAlianzas(): void {

@@ -8,9 +8,8 @@ import { KpiComponent } from '../../../shared/components/kpi/kpi';
 import { ModalComponent } from '../../../shared/components/modal/modal';
 import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion';
 import { AccionMenu, RowMenuComponent } from '../../../shared/components/row-menu/row-menu';
-import { ActividadAdminService } from '../../../shared/services/actividad-admin';
 import { ToastService } from '../../../shared/services/toast';
-import { crearPaginador, enlazarConShell, normalizarTexto, simularCarga } from '../../../shared/utils/lista';
+import { crearPaginador, enlazarConShell, normalizarTexto } from '../../../shared/utils/lista';
 
 type Vista = 'ofertas' | 'solicitudes';
 
@@ -33,19 +32,16 @@ const MENSAJES_ERROR: Record<string, string> = {
 export class AdminAlianzasComponent {
   private alianzasService = inject(AlianzasService);
   private toastService = inject(ToastService);
-  private actividad = inject(ActividadAdminService);
   private fb = inject(FormBuilder).nonNullable;
 
   readonly familias: FamiliaProducto[] = ['Créditos', 'Tarjetas', 'Ahorro', 'Comercios'];
   readonly tipos: TipoAliado[] = ['Bancos', 'Fintech', 'Comercio'];
   readonly esqueletos = [1, 2, 3, 4];
 
-  ofertas = signal<Oferta[]>([...this.alianzasService.ofertas]);
-  solicitudes = computed(() => {
-    this.alianzasService.version();
-    return [...this.alianzasService.solicitudes].reverse();
-  });
-  cargando = simularCarga();
+  // Ofertas y solicitudes reales del MID
+  ofertas = this.alianzasService.ofertas;
+  solicitudes = this.alianzasService.solicitudes;
+  cargando = this.alianzasService.cargando;
   vista = signal<Vista>('ofertas');
   busqueda = signal('');
   filtroFamilia = signal<FamiliaProducto | ''>('');
@@ -96,6 +92,9 @@ export class AdminAlianzasComponent {
   );
 
   constructor() {
+    this.alianzasService.cargarOfertas();
+    this.alianzasService.cargarSolicitudesAdmin();
+
     enlazarConShell(
       (texto) => {
         this.vista.set('ofertas');
@@ -124,11 +123,7 @@ export class AdminAlianzasComponent {
     if (id === 'editar') this.abrirFormulario(oferta);
     if (id === 'eliminar') this.modal.set({ tipo: 'eliminar', oferta });
     if (id === 'destacar') {
-      const destacar = !oferta.destacada;
-      this.alianzasService.editarOferta(oferta.id, { destacada: destacar });
-      this.actividad.registrar('Alianzas', destacar ? 'Alianza destacada' : 'Alianza quitada de destacadas', oferta.aliado);
-      this.toastService.success(destacar ? 'La oferta ahora está destacada.' : 'La oferta ya no está destacada.');
-      this.refrescar();
+      this.toastService.info('Destacar ofertas se conecta con el backend en el módulo de administración.');
     }
   }
 
@@ -168,79 +163,13 @@ export class AdminAlianzasComponent {
       return;
     }
 
-    const valores = this.formulario.getRawValue();
-    const datos = {
-      aliado: valores.aliado.trim(),
-      logoText: valores.logoText.trim(),
-      descripcion: valores.descripcion.trim(),
-      meta: valores.meta.trim(),
-      familia: valores.familia,
-      tipo: valores.tipo,
-      ctaPrimaria: valores.ctaPrimaria.trim(),
-      ctaSecundaria: valores.ctaSecundaria.trim() || undefined,
-      destacada: valores.destacada,
-    };
-
-    const edicion = this.modal()?.oferta;
-    if (edicion) {
-      this.alianzasService.editarOferta(edicion.id, datos);
-      console.log('[Admin Alianzas] Oferta actualizada:', { id: edicion.id, ...datos });
-      this.actividad.registrar('Alianzas', 'Alianza actualizada', datos.aliado);
-      this.toastService.success('Oferta actualizada correctamente.');
-    } else {
-      this.alianzasService.agregarOferta({ ...this.ofertaVacia(), ...datos, id: 'oferta-' + Date.now() });
-      console.log('[Admin Alianzas] Oferta creada:', datos);
-      this.actividad.registrar('Alianzas', 'Nueva alianza creada', datos.aliado);
-      this.toastService.success('Oferta creada correctamente.');
-    }
+    // El MID todavía no tiene rutas para crear o editar ofertas
+    this.toastService.info('Crear y editar ofertas se conecta con el backend en el módulo de administración.');
     this.cerrarModal();
-    this.refrescar();
   }
 
   confirmarEliminacion(): void {
-    const oferta = this.modal()?.oferta;
-    if (!oferta) return;
-
-    this.alianzasService.eliminarOferta(oferta.id);
-    this.actividad.registrar('Alianzas', 'Alianza eliminada', oferta.aliado);
-    this.toastService.success(`Oferta de ${oferta.aliado} eliminada.`);
+    this.toastService.info('Eliminar ofertas se conecta con el backend en el módulo de administración.');
     this.cerrarModal();
-    this.refrescar();
-  }
-
-  private ofertaVacia(): Oferta {
-    return {
-      id: '',
-      aliado: '',
-      descripcion: '',
-      meta: '',
-      logoBg: 'linear-gradient(135deg, #0f3d22 0%, #0a5c28 100%)',
-      logoText: '',
-      ctaPrimaria: 'Solicitar',
-      tipo: 'Bancos',
-      beneficio: '0% Interés',
-      perfiles: ['Score Alto'],
-      categoria: '',
-      tasaDesde: 0,
-      montoMaximo: 0,
-      plazoMaximo: 0,
-      aprobacion: '',
-      calificacion: 0,
-      usuarios: 0,
-      compatibilidad: 0,
-      destacada: false,
-      etiquetas: [],
-      requisitos: [],
-      familia: 'Créditos',
-      promesa: '',
-      caracteristicas: [],
-      documentos: [],
-      tarifas: [],
-      preguntas: [],
-    };
-  }
-
-  private refrescar(): void {
-    this.ofertas.set([...this.alianzasService.ofertas]);
   }
 }

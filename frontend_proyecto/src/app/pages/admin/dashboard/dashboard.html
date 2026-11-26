@@ -35,10 +35,10 @@
     [cargando]="cargando()" />
   <app-kpi
     etiqueta="Alianzas activas"
-    [valor]="alianzasActivas"
+    [valor]="alianzasActivas()"
     icono="briefcase"
     tono="neutral"
-    [pie]="solicitudesEnEstudio + ' solicitudes en estudio'"
+    [pie]="solicitudesEnEstudio() + ' solicitudes en estudio'"
     [cargando]="cargando()" />
   <app-kpi
     etiqueta="Cursos publicados"

@@ -19,8 +19,6 @@
         condiciones completas: tasa, plazo, tarifas y requisitos. Sin letra menuda.
       </p>
 
-   
-
       <dl class="cifras">
         <div>
           <dt>Aliados vigentes</dt>
@@ -111,6 +109,15 @@
   </section>
 
   <!-- Listado de productos -->
+  @if (error()) {
+    <div class="sin-datos" role="alert">
+      <h2>No pudimos cargar los productos</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="btn btn--solido" (click)="cargar()">Intentar de nuevo</button>
+    </div>
+  } @else if (cargando()) {
+    <p class="conteo" aria-live="polite">Cargando productos…</p>
+  } @else {
   <p class="conteo">{{ productos().length }} productos disponibles</p>
 
   <div class="lista">
@@ -256,6 +263,7 @@
         </table>
       </div>
     </section>
+  }
   }
 
 </div>

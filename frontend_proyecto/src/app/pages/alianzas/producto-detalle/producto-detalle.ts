@@ -1,7 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlianzasService, Oferta } from '../../../services/alianzas';
+import { AlianzasService, FichaOferta, plazosPosibles } from '../../../services/alianzas';
+import { mensajeDeError } from '../../../services/api';
 
 type Pestana = 'Características' | 'Requisitos' | 'Tarifas' | 'Preguntas';
 
@@ -17,13 +19,12 @@ export class ProductoDetalleComponent {
   private readonly router = inject(Router);
   private readonly alianzasService = inject(AlianzasService);
 
-  private readonly productoId = signal(
-    this.ruta.snapshot.paramMap.get('productoId') ?? ''
-  );
+  private productoId = 0;
 
-  readonly producto = computed<Oferta | undefined>(() =>
-    this.alianzasService.buscarOferta(this.productoId())
-  );
+  // Ficha que llega del MID (GET /ofertas/:id)
+  readonly producto = signal<FichaOferta | undefined>(undefined);
+  readonly cargando = signal(true);
+  readonly error = signal('');
 
   readonly pestanas: Pestana[] = ['Características', 'Requisitos', 'Tarifas', 'Preguntas'];
   readonly pestanaActiva = signal<Pestana>('Características');
@@ -48,16 +49,46 @@ export class ProductoDetalleComponent {
   readonly plazoMeses = signal(24);
 
   constructor() {
-    const producto = this.producto();
-    if (producto && producto.montoMaximo > 0) {
-      this.monto.set(Math.round(producto.montoMaximo * 0.25));
-      this.plazoMeses.set(Math.min(24, producto.plazoMaximo));
-    }
+    // Se escucha la ruta porque desde "productos parecidos" se cambia de id sin salir de la página
+    this.ruta.paramMap.pipe(takeUntilDestroyed()).subscribe((parametros) => {
+      this.productoId = Number(parametros.get('productoId'));
+      this.cargar();
+    });
   }
 
+  private cargar(): void {
+    this.cargando.set(true);
+    this.error.set('');
+    this.producto.set(undefined);
+    this.pestanaActiva.set('Características');
+
+    this.alianzasService.obtenerFicha(this.productoId).subscribe({
+      next: (ficha) => {
+        this.producto.set(ficha);
+        // El simulador arranca en el 25% del monto máximo, sin bajar del mínimo
+        if (ficha.montoMaximo > 0) {
+          this.monto.set(Math.max(ficha.montoMinimo, Math.round(ficha.montoMaximo * 0.25)));
+          this.plazoMeses.set(this.plazosDisponibles().find((p) => p >= 24) ?? ficha.plazoMaximo);
+        }
+        this.cargando.set(false);
+      },
+      error: (error) => {
+        this.error.set(mensajeDeError(error));
+        this.cargando.set(false);
+      },
+    });
+  }
+
+  /** Monto mínimo del deslizador: el del producto o, si no tiene, un 5% del máximo. */
+  readonly montoMinimo = computed(() => {
+    const producto = this.producto();
+    if (!producto) return 0;
+    return producto.montoMinimo || producto.montoMaximo / 20;
+  });
+
   readonly plazosDisponibles = computed(() => {
-    const maximo = this.producto()?.plazoMaximo ?? 0;
-    return [12, 24, 36, 48, 60, 120, 240].filter((p) => p <= maximo);
+    const producto = this.producto();
+    return producto ? plazosPosibles(producto.plazoMinimo, producto.plazoMaximo) : [];
   });
 
   readonly cuotaMensual = computed(() => {
@@ -107,7 +138,11 @@ export class ProductoDetalleComponent {
 
   // ---------- Navegación ----------
   solicitar(): void {
-    this.router.navigate(['/alianzas/producto', this.productoId(), 'solicitud']);
+    this.router.navigate(['/alianzas/producto', this.productoId, 'solicitud']);
+  }
+
+  verRelacionado(id: number): void {
+    this.router.navigate(['/alianzas/producto', id]);
   }
 
   volver(): void {

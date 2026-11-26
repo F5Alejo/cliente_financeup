@@ -29,6 +29,16 @@
               <dt>Plazo</dt>
               <dd>{{ solicitud.plazoMeses }} meses</dd>
             </div>
+            <div>
+              <dt>Cuota estimada</dt>
+              <dd>{{ formatCOP(solicitud.cuotaEstimada) }}</dd>
+            </div>
+          }
+          @if (solicitud.asesor) {
+            <div>
+              <dt>Asesor asignado</dt>
+              <dd>{{ solicitud.asesor }}</dd>
+            </div>
           }
           <div>
             <dt>Fecha</dt>
@@ -181,7 +191,7 @@
                   <input
                     type="range"
                     name="monto"
-                    [min]="producto.montoMaximo / 20"
+                    [min]="montoMinimo()"
                     [max]="producto.montoMaximo"
                     [step]="producto.montoMaximo / 40"
                     [(ngModel)]="monto"
@@ -344,8 +354,12 @@
       </div>
     }
   </div>
+} @else if (cargando()) {
+  <div class="tramite tramite--vacio" aria-live="polite">
+    <p>Cargando el producto…</p>
+  </div>
 } @else {
-  <div class="tramite tramite--vacio">
+  <div class="tramite tramite--vacio" role="alert">
     <h1>No podemos abrir esa solicitud</h1>
     <p>El producto ya no está vigente en la vitrina de alianzas.</p>
     <button type="button" class="btn btn--solido" (click)="volverAAlianzas()">
