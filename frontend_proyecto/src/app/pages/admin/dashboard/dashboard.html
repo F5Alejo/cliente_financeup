@@ -28,10 +28,10 @@
     [cargando]="cargando()" />
   <app-kpi
     etiqueta="PQR pendientes"
-    [valor]="pqrPendientes.length"
+    [valor]="pqrPendientes().length"
     icono="life-buoy"
     tono="warning"
-    [pie]="pqrAlta + ' con prioridad alta'"
+    [pie]="pqrAlta() + ' con prioridad alta'"
     [cargando]="cargando()" />
   <app-kpi
     etiqueta="Alianzas activas"

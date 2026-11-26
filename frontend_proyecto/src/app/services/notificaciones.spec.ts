@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { NotificacionesService } from './notificaciones';
 import { PreferenciasAdminService } from './preferencias-admin';
-import { PqrService } from './pqr';
 
 describe('NotificacionesService', () => {
   let service: NotificacionesService;
@@ -45,18 +44,5 @@ describe('NotificacionesService', () => {
     service.agregar({ categoria: 'pqr', titulo: 'Silenciada', detalle: '', ruta: '/admin/pqr', nivel: 'info' });
 
     expect(service.notificaciones()).toHaveLength(total);
-  });
-
-  it('se crea una notificación cuando un usuario envía una PQR', () => {
-    const total = service.notificaciones().length;
-
-    TestBed.inject(PqrService).agregarPqr({
-      titulo: 'Consulta', numero: '999', estado: 'Radicado', tipo: 'Petición', categoria: 'General', descripcion: '',
-      prioridad: 'Baja', fechaCreacion: '', ultimaActualizacion: '', asesor: '', respuestas: 0, adjuntos: 0, progreso: 0,
-      usuario: 'Nora', archivosAdjuntos: [], mensajeRespuesta: '',
-    });
-
-    expect(service.notificaciones()).toHaveLength(total + 1);
-    expect(service.notificaciones()[0].categoria).toBe('pqr');
   });
 });

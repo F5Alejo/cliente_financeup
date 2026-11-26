@@ -80,9 +80,10 @@ export class AdminDashboardComponent {
   private router = inject(Router);
 
   constructor() {
-    // Ofertas y solicitudes de crédito salen del MID
+    // Ofertas, solicitudes de crédito y PQR salen del MID
     this.alianzasService.cargarOfertas();
     this.alianzasService.cargarSolicitudesAdmin();
+    this.pqrService.cargarPqrAdmin();
   }
 
   readonly esqueletos = [1, 2, 3, 4, 5];
@@ -111,8 +112,8 @@ export class AdminDashboardComponent {
     };
   });
 
-  pqrPendientes = this.pqrService.pqrs.filter((p) => p.estado === 'Radicado' || p.estado === 'En revisión');
-  pqrAlta = this.pqrPendientes.filter((p) => p.prioridad === 'Alta').length;
+  pqrPendientes = computed(() => this.pqrService.pqrsAdmin().filter((p) => p.estado === 'Abierta' || p.estado === 'En revisión'));
+  pqrAlta = computed(() => this.pqrPendientes().filter((p) => p.prioridad === 'Alta').length);
   alianzasActivas = computed(() => this.alianzasService.ofertas().length);
   solicitudesEnEstudio = computed(() => this.alianzasService.solicitudes().filter((s) => s.estado === 'En estudio').length);
   cursosPublicados = computed(() => this.educacionService.todosLosCursos().length);
@@ -133,9 +134,9 @@ export class AdminDashboardComponent {
       const info = BITACORA[r.accion];
       agregar(r.fecha, parsearFecha(r.fecha).getTime(), info.titulo, `${r.email} · ${r.motivo}`, info.icono, info.tono);
     }
-    for (const p of this.pqrService.pqrs) {
+    for (const p of this.pqrService.pqrsAdmin()) {
       const ms = fechaTextoAMs(p.fechaCreacion);
-      if (ms !== null) agregar(new Date(ms).toISOString(), ms, 'PQR recibido', `${p.titulo} · N.º ${p.numero}`, 'life-buoy', 'warning');
+      if (ms !== null) agregar(new Date(ms).toISOString(), ms, 'PQR recibido', `${p.titulo} · ${p.radicado}`, 'life-buoy', 'warning');
     }
     for (const e of this.actividadAdmin.eventos()) {
       agregar(e.fecha, parsearFecha(e.fecha).getTime(), e.titulo, e.detalle ?? e.modulo, ICONO_MODULO[e.modulo], 'primary');
@@ -147,10 +148,11 @@ export class AdminDashboardComponent {
     const lista: Alerta[] = [];
     const plural = (n: number, singular: string, plural: string) => `${n} ${n === 1 ? singular : plural}`;
 
-    if (this.pqrPendientes.length) {
+    const pendientes = this.pqrPendientes().length;
+    if (pendientes) {
       lista.push({
-        titulo: `${plural(this.pqrPendientes.length, 'PQR pendiente', 'PQR pendientes')} de respuesta`,
-        detalle: this.pqrAlta ? `${this.pqrAlta} con prioridad alta.` : 'Ninguna con prioridad alta.',
+        titulo: `${plural(pendientes, 'PQR pendiente', 'PQR pendientes')} de respuesta`,
+        detalle: this.pqrAlta() ? `${this.pqrAlta()} con prioridad alta.` : 'Ninguna con prioridad alta.',
         ruta: '/admin/pqr',
         nivel: 'warning',
       });

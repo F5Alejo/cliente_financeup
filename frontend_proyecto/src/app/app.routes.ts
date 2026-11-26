@@ -252,12 +252,14 @@ export const routes: Routes = [
       },
       {
         path: 'nuevo-pqr',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/soporte/nuevo-pqr/nuevo-pqr').then((m) => m.NuevoPqrComponent),
         title: 'Linea de ayuda - FinanceUp',
       },
       {
         path: 'ver-pqr/:numero',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/soporte/ver-pqr/ver-pqr').then((m) => m.VerPqrComponent),
         title: 'Detalle PQR - FinanceUp',

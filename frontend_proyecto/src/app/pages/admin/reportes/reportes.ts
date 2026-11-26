@@ -96,9 +96,10 @@ export class AdminReportesComponent {
   private toastService = inject(ToastService);
 
   constructor() {
-    // Ofertas y solicitudes de crédito salen del MID
+    // Ofertas, solicitudes de crédito y PQR salen del MID
     this.alianzasService.cargarOfertas();
     this.alianzasService.cargarSolicitudesAdmin();
+    this.pqrService.cargarPqrAdmin();
   }
 
   readonly temas: { valor: Tema; etiqueta: string; icono: NombreIcono }[] = [
@@ -231,19 +232,19 @@ export class AdminReportesComponent {
   }
 
   private reportePqr(): Reporte {
-    const pqrs = this.pqrService.pqrs;
-    const pendientes = pqrs.filter((p) => p.estado === 'Radicado' || p.estado === 'En revisión').length;
+    const pqrs = this.pqrService.pqrsAdmin();
+    const pendientes = pqrs.filter((p) => p.estado === 'Abierta' || p.estado === 'En revisión').length;
     return {
       kpis: [
         { etiqueta: 'PQR recibidas', valor: formatoNumero(pqrs.length), icono: 'life-buoy', pie: 'en total', tono: 'neutral' },
         { etiqueta: 'Pendientes', valor: formatoNumero(pendientes), icono: 'clock', pie: 'sin resolver', tono: 'warning' },
-        { etiqueta: 'Resueltas', valor: formatoNumero(pqrs.filter((p) => p.estado === 'Resuelto').length), icono: 'check-circle', pie: 'cerradas con respuesta' },
+        { etiqueta: 'Resueltas', valor: formatoNumero(pqrs.filter((p) => p.estado === 'Resuelta' || p.estado === 'Cerrada').length), icono: 'check-circle', pie: 'cerradas con respuesta' },
         { etiqueta: 'Prioridad alta', valor: formatoNumero(pqrs.filter((p) => p.prioridad === 'Alta').length), icono: 'alert-triangle', pie: 'del total', tono: 'neutral' },
       ],
       secciones: [
         { titulo: 'PQR por estado', descripcion: 'Situación actual de las solicitudes.', tipo: 'distribucion', datos: agrupar(pqrs, (p) => p.estado), formato: 'numero', columna: 'PQR' },
         { titulo: 'PQR por prioridad', descripcion: 'Urgencia asignada a cada solicitud.', tipo: 'distribucion', datos: agrupar(pqrs, (p) => p.prioridad), formato: 'numero', columna: 'PQR' },
-        { titulo: 'PQR por tipo', descripcion: 'Petición, queja o reclamo.', tipo: 'distribucion', datos: agrupar(pqrs, (p) => p.tipo), formato: 'numero', columna: 'PQR' },
+        { titulo: 'PQR por tipo', descripcion: 'Petición, queja, reclamo o sugerencia.', tipo: 'distribucion', datos: agrupar(pqrs, (p) => p.tipo), formato: 'numero', columna: 'PQR' },
       ],
     };
   }

@@ -14,10 +14,6 @@
 
       <div class="pqr-datos">
         <p class="pqr-meta">
-          <span>{{ labelNumeroPeticion }}</span>
-          <strong>{{ numeroPeticion }}</strong>
-        </p>
-        <p class="pqr-meta">
           <span>{{ labelUsuario }}</span>
           <strong>{{ usuario }}</strong>
         </p>
@@ -103,6 +99,7 @@
               id="archivo"
               name="archivo"
               type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
               class="pqr-dropzone-input"
               (change)="onArchivoSeleccionado($event)"
             />
@@ -112,7 +109,9 @@
 
       <div class="pqr-actions">
         <button type="button" class="btn-cancelar" (click)="volver()">Cancelar</button>
-        <button type="submit" class="btn-enviar">{{ textoBotonEnviar }}</button>
+        <button type="submit" class="btn-enviar" [disabled]="enviando()">
+          {{ enviando() ? 'Enviando…' : textoBotonEnviar }}
+        </button>
       </div>
     </form>
   </div>

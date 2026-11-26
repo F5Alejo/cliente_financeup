@@ -25,7 +25,7 @@
       <input
         type="search"
         class="input"
-        placeholder="Buscar por título, número, categoría o usuario"
+        placeholder="Buscar por título, radicado, categoría o usuario"
         aria-label="Buscar PQR"
         [ngModel]="busqueda()"
         (ngModelChange)="filtrar(busqueda, $event)" />
@@ -45,6 +45,12 @@
       </button>
     }
   </div>
+
+  @if (error()) {
+    <app-estado-vacio titulo="No pudimos cargar las PQR." [texto]="error()">
+      <button type="button" class="btn btn-secondary" (click)="cargar()">Intentar de nuevo</button>
+    </app-estado-vacio>
+  }
 
   <div class="table-wrap">
     <table class="table">
@@ -72,19 +78,19 @@
             </tr>
           }
         } @else {
-          @for (fila of filas(); track fila.pqr.numero) {
+          @for (fila of filas(); track fila.pqr.id) {
             @let p = fila.pqr;
             <tr>
               <td>
                 <span class="cell-strong">{{ p.titulo }}</span>
-                <span class="cell-sub">N.º {{ p.numero }} · {{ p.categoria }}</span>
+                <span class="cell-sub">{{ p.radicado }} · {{ p.usuario }}</span>
               </td>
               <td class="hide-md">{{ p.tipo }}</td>
               <td><span [class]="'badge ' + clasePrioridad[p.prioridad]">{{ p.prioridad }}</span></td>
               <td><span [class]="'badge ' + claseEstado[p.estado]">{{ p.estado }}</span></td>
               <td class="hide-lg">{{ p.fechaCreacion }}</td>
               <td class="col-actions">
-                <app-row-menu [acciones]="fila.acciones" [etiqueta]="'Acciones de la PQR ' + p.numero" (seleccion)="alElegirAccion($event, p)" />
+                <app-row-menu [acciones]="fila.acciones" [etiqueta]="'Acciones de la PQR ' + p.radicado" (seleccion)="alElegirAccion($event, p)" />
               </td>
             </tr>
           }
@@ -92,7 +98,7 @@
       </tbody>
     </table>
 
-    @if (!cargando() && filtrados().length === 0) {
+    @if (!cargando() && !error() && filtrados().length === 0) {
       <app-estado-vacio titulo="No hay PQR que coincidan con estos filtros." texto="Prueba con otra búsqueda o cambia de pestaña.">
         <button type="button" class="btn btn-secondary" (click)="filtrar(busqueda, ''); filtrar(filtroPrioridad, ''); filtrar(pestana, '')">Limpiar filtros</button>
       </app-estado-vacio>
@@ -113,7 +119,7 @@
 
 @if (modal(); as m) {
   @if (m.tipo === 'detalle') {
-    <app-modal [titulo]="m.pqr.titulo" [subtitulo]="'N.º ' + m.pqr.numero + ' · ' + m.pqr.categoria" ancho="lg" (cerrar)="cerrarModal()">
+    <app-modal [titulo]="m.pqr.titulo" [subtitulo]="m.pqr.radicado + ' · ' + m.pqr.categoria" ancho="lg" (cerrar)="cerrarModal()">
       <dl class="detail-list">
         <div><dt>Solicitante</dt><dd>{{ m.pqr.usuario }}</dd></div>
         <div><dt>Tipo</dt><dd>{{ m.pqr.tipo }}</dd></div>
@@ -122,30 +128,45 @@
         <div><dt>Fecha de creación</dt><dd>{{ m.pqr.fechaCreacion }}</dd></div>
         <div><dt>Última actualización</dt><dd>{{ m.pqr.ultimaActualizacion }}</dd></div>
         <div class="full"><dt>Descripción</dt><dd>{{ m.pqr.descripcion }}</dd></div>
-        <div class="full"><dt>Última respuesta enviada</dt><dd>{{ m.pqr.mensajeRespuesta || 'Aún no hay una respuesta del asesor.' }}</dd></div>
-        @if (m.pqr.archivosAdjuntos.length) {
-          <div class="full"><dt>Adjuntos</dt><dd>{{ m.pqr.archivosAdjuntos.join(', ') }}</dd></div>
+        @if (detalle(); as d) {
+          @if (d.adjuntos.length) {
+            <div class="full"><dt>Adjuntos</dt><dd>@for (a of d.adjuntos; track a.nombre) { {{ a.nombre }}@if (!$last) {, } }</dd></div>
+          }
+          <div class="full">
+            <dt>Conversación</dt>
+            <dd>
+              @for (r of d.respuestas; track $index) {
+                <p><strong>{{ r.autor }}</strong> · {{ r.fecha }}<br />{{ r.mensaje }}</p>
+              } @empty {
+                Aún no hay mensajes en este caso.
+              }
+            </dd>
+          </div>
+        } @else {
+          <div class="full"><dt>Conversación</dt><dd>Cargando…</dd></div>
         }
       </dl>
-      <div class="field respuesta-campo">
-        <label for="pqr-respuesta">Mensaje para el cliente</label>
-        <textarea id="pqr-respuesta" class="input" rows="4" [(ngModel)]="mensajeAdmin" placeholder="Escribe aquí la respuesta que verá el dueño de la PQR"></textarea>
-        <button type="button" class="btn btn-primary" (click)="enviarRespuesta(m.pqr)" [disabled]="!mensajeAdmin.trim()">Enviar respuesta</button>
-      </div>
       <div class="field estado-campo">
-        <label for="pqr-estado">Estado de la PQR</label>
-        <select id="pqr-estado" class="input" [value]="m.pqr.estado" (change)="cambiarEstadoDesdeDetalle($event)">
+        <label for="pqr-estado">Estado al responder</label>
+        <select id="pqr-estado" class="input" [(ngModel)]="estadoRespuesta">
           @for (estado of estados; track estado) {
             <option [value]="estado">{{ estado }}</option>
           }
         </select>
+      </div>
+      <div class="field respuesta-campo">
+        <label for="pqr-respuesta">Mensaje para el cliente</label>
+        <textarea id="pqr-respuesta" class="input" rows="4" maxlength="1000" [(ngModel)]="mensajeAdmin" placeholder="Escribe aquí la respuesta que verá el dueño de la PQR"></textarea>
+        <button type="button" class="btn btn-primary" (click)="enviarRespuesta(m.pqr)" [disabled]="!mensajeAdmin.trim() || enviando()">
+          {{ enviando() ? 'Enviando…' : 'Enviar respuesta' }}
+        </button>
       </div>
       <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cerrar</button>
     </app-modal>
   } @else {
     <app-modal
       titulo="Eliminar PQR"
-      [subtitulo]="'Se eliminará la PQR «' + m.pqr.titulo + '» (N.º ' + m.pqr.numero + '). Esta acción no se puede deshacer.'"
+      [subtitulo]="'Se eliminará la PQR «' + m.pqr.titulo + '» (' + m.pqr.radicado + ').'"
       ancho="sm"
       [alertdialog]="true"
       (cerrar)="cerrarModal()">
