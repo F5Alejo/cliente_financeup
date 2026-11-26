@@ -45,7 +45,9 @@
 
   <div class="linea__x" aria-hidden="true">
     @for (p of posiciones(); track $index; let ultima = $last) {
-      <span [style.left.%]="p.x" [class.actual]="ultima">{{ p.etiqueta }}</span>
+      @if (mostrarEtiqueta($index)) {
+        <span [style.left.%]="p.x" [class.actual]="ultima">{{ p.etiqueta }}</span>
+      }
     }
   </div>
 </figure>

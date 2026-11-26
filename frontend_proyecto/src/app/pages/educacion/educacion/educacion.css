@@ -71,18 +71,8 @@ app-banda-seccion {
   color: #b6dfc0;
 }
 
-.seguir__barra {
-  height: 6px;
-  border-radius: var(--r-pill);
-  background: rgba(182, 223, 192, 0.2);
-  overflow: hidden;
-}
-
-.seguir__barra i {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--lime);
+.seguir__medidor {
+  --medidor-alto: 24px;
 }
 
 .seguir__dato {
@@ -363,22 +353,6 @@ app-banda-seccion {
   color: #e6efe9;
 }
 
-.curso__barra {
-  position: absolute;
-  z-index: 1;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
-  background: rgba(230, 239, 233, 0.18);
-}
-
-.curso__barra i {
-  display: block;
-  height: 100%;
-  background: var(--verde);
-}
-
 .curso__body {
   display: flex;
   flex-direction: column;
@@ -479,4 +453,32 @@ app-banda-seccion {
   .seguir__cover {
     aspect-ratio: 16 / 7;
   }
+}
+
+/* Avance dentro de la tarjeta: el mismo medidor del horizonte, plano. */
+.curso__avance {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0 6px;
+  --medidor-alto: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--brand-strong);
+}
+
+.curso__estado {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--lime);
+  color: var(--verde-900);
+  font-size: 0.75rem;
+  font-weight: 700;
 }

@@ -19,6 +19,8 @@ export interface PuntoLinea {
 })
 export class GraficaLineaComponent {
   puntos = input.required<readonly PuntoLinea[]>();
+  /** Cuántas etiquetas caben en el eje x; en columnas angostas conviene bajarlo. */
+  maxEtiquetas = input(7);
   titulo = input.required<string>();
   formato = input<(n: number) => string>(pesos);
   formatoEje = input<(n: number) => string>(pesosCortos);
@@ -58,6 +60,15 @@ export class GraficaLineaComponent {
       y: ((p.valor - bajo) / (alto - bajo)) * 100,
     }));
   });
+
+  /** Con muchos puntos se muestra una etiqueta de cada `paso` (siempre la primera y la última). */
+  private readonly pasoEtiquetas = computed(() => Math.max(1, Math.ceil(this.puntos().length / this.maxEtiquetas())));
+
+  mostrarEtiqueta(i: number): boolean {
+    const ultimo = this.puntos().length - 1;
+    const paso = this.pasoEtiquetas();
+    return i === 0 || i === ultimo || (i % paso === 0 && ultimo - i >= paso / 2);
+  }
 
   readonly trazo = computed(() => this.posiciones().map((p) => `${p.x},${100 - p.y}`).join(' '));
   readonly area = computed(() => {

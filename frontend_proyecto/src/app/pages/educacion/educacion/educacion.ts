@@ -6,11 +6,12 @@ import { Curso, EscuelaCursos, OpcionFiltro } from './educacion.model';
 import { EducacionService } from '../../../services/educacion';
 import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
 import { IconComponent } from '../../../shared/components/icon/icon';
+import { MedidorComponent } from '../../../shared/graficas/medidor';
 
 @Component({
   selector: 'app-educacion',
   standalone: true,
-  imports: [CommonModule, FormsModule, BandaSeccionComponent, IconComponent],
+  imports: [CommonModule, FormsModule, BandaSeccionComponent, IconComponent, MedidorComponent],
   templateUrl: './educacion.html',
   styleUrls: ['./educacion.css'],
 })
@@ -143,6 +144,22 @@ export class EducacionComponent implements OnInit {
   // ---------------------------------------------------------------------
   // BANDA "CONTINÚA DONDE QUEDASTE"
   // ---------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------
+  // AVANCE (cifras de la banda y horizonte)
+  // ---------------------------------------------------------------------
+
+  private readonly todosLosCursos = computed(() => this.escuelas().flatMap((e) => e.cursos));
+  readonly totalCursos = computed(() => this.todosLosCursos().length);
+  readonly cursosTerminados = computed(() => this.todosLosCursos().filter((c) => c.progreso >= 100).length);
+  readonly cursosEmpezados = computed(() => this.todosLosCursos().filter((c) => c.progreso > 0 && c.progreso < 100).length);
+
+  /** El avance de cada curso empezado, de menor a mayor: el horizonte de la banda.
+   *  Si aún no hay avance, la banda dibuja el horizonte del logo. */
+  readonly horizonteAvance = computed(() => {
+    const avances = this.todosLosCursos().map((c) => c.progreso).filter((p) => p > 0).sort((a, b) => a - b);
+    return avances.length >= 2 ? [0, ...avances] : null;
+  });
 
   leccionesHechas(curso: Curso): number {
     return curso.lecciones.filter((l) => l.completada).length;

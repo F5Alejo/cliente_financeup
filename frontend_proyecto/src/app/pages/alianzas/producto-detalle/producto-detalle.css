@@ -633,3 +633,22 @@ app-banda-seccion {
     position: static;
   }
 }
+
+/* Gráficas del simulador: la identidad del horizonte en pequeño. */
+.simulador__grafica {
+  display: grid;
+  gap: 10px;
+  margin: 4px 0 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.simulador__lectura {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-body);
+}
+
+.simulador__lectura strong {
+  color: var(--ink);
+}

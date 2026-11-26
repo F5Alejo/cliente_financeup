@@ -10,9 +10,13 @@ type FiltroEstado = 'Todas' | EstadoPqr;
 
 const RUTA_LOGIN = '/login';
 
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { MedidorComponent } from '../../../shared/graficas/medidor';
+import { BarraPartesComponent, Parte } from '../../../shared/graficas/barra-partes';
 @Component({
   selector: 'app-pqr',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BandaSeccionComponent, IconComponent, MedidorComponent, BarraPartesComponent],
   templateUrl: './pqr.html',
   styleUrl: './pqr.css',
 })
@@ -80,6 +84,18 @@ export class PqrComponent {
   readonly resueltas = computed(() => this.pqrs().filter((p) => p.estado === 'Resuelta' || p.estado === 'Cerrada').length);
 
   // Clase CSS del distintivo según el estado del caso.
+  /** Casos por estado, para la barra segmentada (solo estados con casos). */
+  readonly porEstado = computed<Parte[]>(() =>
+    this.estados
+      .filter((e) => e !== 'Todas')
+      .map((e) => ({ etiqueta: e, valor: this.pqrs().filter((p) => p.estado === e).length }))
+      .filter((p) => p.valor > 0)
+  );
+
+  readonly pctResueltas = computed(() =>
+    this.totalPqrs() ? Math.round((this.resueltas() / this.totalPqrs()) * 100) : 0
+  );
+
   claseEstado(estado: EstadoPqr): string {
     if (estado === 'Resuelta' || estado === 'Cerrada') return 'is-resuelto';
     if (estado === 'Rechazada') return 'is-rechazado';

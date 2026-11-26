@@ -140,6 +140,19 @@ export class AlianzasComponent {
     return tasas.length ? Math.min(...tasas) : 0;
   });
 
+  /** Horizonte de la banda: las tasas de mayor a menor, invertidas, para que suba hasta la más baja
+   *  (la última barra, la que se enciende). */
+  readonly horizonteTasas = computed(() => {
+    const tasas = this.ofertas().map((o) => o.tasaDesde).filter((t) => t > 0).sort((a, b) => b - a);
+    return tasas.length >= 2 ? tasas.map((t) => -t) : null;
+  });
+
+  /** La tasa más baja entre los productos que se están comparando. */
+  readonly tasaMasBajaComparable = computed(() => {
+    const tasas = this.comparables().map((o) => o.tasaDesde).filter((t) => t > 0);
+    return tasas.length ? Math.min(...tasas) : null;
+  });
+
   readonly aprobacionRapida = computed(
     () =>
       this.ofertas().find((o) => o.aprobacion === 'Inmediata')?.aprobacion ??

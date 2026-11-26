@@ -1,46 +1,56 @@
+<app-banda-seccion
+  titulo="Tus PQR,"
+  acento="con su avance a la vista."
+  [texto]="subtituloPagina"
+  idTitulo="pqr-titulo">
+  <label class="banda-buscador">
+    <app-icon nombre="search" [tamano]="20" />
+    <span class="visualmente-oculto">Buscar PQR</span>
+    <input
+      type="search"
+      [placeholder]="placeholderBuscador"
+      [value]="busqueda()"
+      (input)="busqueda.set($any($event.target).value)"
+    />
+  </label>
+
+  <dl class="banda-cifras">
+    <div><dt>Radicadas</dt><dd class="cifra">{{ totalPqrs() }}</dd></div>
+    <div><dt>En curso</dt><dd class="cifra">{{ enCurso() }}</dd></div>
+    <div><dt>Resueltas</dt><dd class="cifra">{{ resueltas() }}</dd></div>
+  </dl>
+
+  <div banda-lado class="tarjeta-banda resumen">
+    @if (totalPqrs()) {
+      <p class="tarjeta-banda__etiqueta">Casos resueltos</p>
+      <p class="tarjeta-banda__cifra cifra">{{ pctResueltas() }} %</p>
+      <app-medidor [valor]="resueltas()" [maximo]="totalPqrs()" sobre="oscuro" etiqueta="Casos resueltos del total" />
+      <p class="resumen__nota"><span class="cifra">{{ resueltas() }}</span> de <span class="cifra">{{ totalPqrs() }}</span> casos. Respondemos en 48 horas hábiles.</p>
+    } @else {
+      <p class="tarjeta-banda__etiqueta">¿Algo no salió bien?</p>
+      <p class="resumen__nota">Cuéntanos y te respondemos en 48 horas hábiles. Puedes seguir el caso desde aquí.</p>
+    }
+    <button type="button" class="boton-lima" (click)="crearNuevaPqr()">
+      <app-icon nombre="plus" [tamano]="18" /> {{ botonCrearNuevo }}
+    </button>
+  </div>
+</app-banda-seccion>
+
 <div class="pqr-container">
-
-  <!-- Encabezado -->
-  <header class="pqr-hero">
-    <div class="pqr-hero__copy">
-      <span class="pqr-hero__badge">SOPORTE</span>
-      <h1 class="pqr-hero__title">{{ tituloPagina }}</h1>
-      <p class="pqr-hero__subtitle">{{ subtituloPagina }}</p>
-    </div>
-
-    <div class="pqr-hero__stats">
-      <div class="pqr-stat">
-        <span class="pqr-stat__value">{{ totalPqrs() }}</span>
-        <span class="pqr-stat__label">Radicadas</span>
-      </div>
-      <div class="pqr-stat">
-        <span class="pqr-stat__value">{{ enCurso() }}</span>
-        <span class="pqr-stat__label">En curso</span>
-      </div>
-      <div class="pqr-stat">
-        <span class="pqr-stat__value">{{ resueltas() }}</span>
-        <span class="pqr-stat__label">Resueltas</span>
-      </div>
-    </div>
-  </header>
 
   @if (!estaAutenticado) {
     <p class="pqr-sin-sesion">{{ mensajeSinSesion }}</p>
   }
 
-  <!-- Buscador y filtros -->
-  <div class="pqr-toolbar">
-    <div class="search-container">
-      <span class="search-icon" aria-hidden="true"></span>
-      <input
-        type="search"
-        aria-label="Buscar PQR"
-        [placeholder]="placeholderBuscador"
-        [value]="busqueda()"
-        (input)="busqueda.set($any($event.target).value)"
-      />
-    </div>
+  @if (porEstado().length > 1) {
+    <section class="pqr-estados" aria-labelledby="estados-titulo">
+      <h2 id="estados-titulo" class="pqr-estados__titulo">Cómo van tus casos</h2>
+      <app-barra-partes [datos]="porEstado()" titulo="PQR por estado" />
+    </section>
+  }
 
+  <!-- Filtros por estado -->
+  <div class="pqr-toolbar">
     <div class="estado-tabs">
       @for (estado of estados; track estado) {
         <button
@@ -104,9 +114,7 @@
             <span>Avance del caso</span>
             <span class="pqr-progress__value">{{ pqr.progreso }}%</span>
           </div>
-          <div class="pqr-progress__track">
-            <span class="pqr-progress__fill" [style.width]="pqr.progreso + '%'"></span>
-          </div>
+          <app-medidor [valor]="pqr.progreso" [maximo]="100" [plano]="true" [etiqueta]="'Avance del caso ' + pqr.radicado" />
         </div>
 
         <div class="pqr-card__footer">

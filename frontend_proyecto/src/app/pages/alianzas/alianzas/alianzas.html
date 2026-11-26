@@ -2,6 +2,7 @@
   titulo="Compara antes de pedir,"
   acento="solicita en un solo lugar."
   texto="Reunimos los créditos, tarjetas y cuentas de los aliados de FinanceUp con sus condiciones completas: tasa, plazo, tarifas y requisitos. Sin letra menuda."
+  [serie]="horizonteTasas()"
 >
   <label class="banda-buscador">
     <app-icon nombre="search" [tamano]="20" />
@@ -235,7 +236,12 @@
             <tr>
               <th scope="row">Tasa de interés</th>
               @for (producto of comparables(); track producto.id) {
-                <td>{{ formatTasa(producto.tasaDesde) }}</td>
+                <td>
+                  {{ formatTasa(producto.tasaDesde) }}
+                  @if (producto.tasaDesde === tasaMasBajaComparable()) {
+                    <span class="mejor"><app-icon nombre="check-circle" [tamano]="14" /> Más baja</span>
+                  }
+                </td>
               }
             </tr>
             <tr>

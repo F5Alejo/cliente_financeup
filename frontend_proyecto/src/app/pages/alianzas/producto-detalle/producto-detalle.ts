@@ -6,13 +6,15 @@ import { AlianzasService, FichaOferta, plazosPosibles } from '../../../services/
 import { mensajeDeError } from '../../../services/api';
 import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
 import { IconComponent } from '../../../shared/components/icon/icon';
+import { BarraPartesComponent, Parte } from '../../../shared/graficas/barra-partes';
+import { GraficaLineaComponent, PuntoLinea } from '../../../shared/graficas/grafica-linea';
 
 type Pestana = 'Características' | 'Requisitos' | 'Tarifas' | 'Preguntas';
 
 @Component({
   selector: 'app-producto-detalle',
   standalone: true,
-  imports: [CommonModule, BandaSeccionComponent, IconComponent],
+  imports: [CommonModule, BandaSeccionComponent, IconComponent, BarraPartesComponent, GraficaLineaComponent],
   templateUrl: './producto-detalle.html',
   styleUrl: './producto-detalle.css',
 })
@@ -105,6 +107,34 @@ export class ProductoDetalleComponent {
     if (tasaMensual === 0) return Math.round(capital / n);
 
     return Math.round((capital * tasaMensual) / (1 - Math.pow(1 + tasaMensual, -n)));
+  });
+
+  /** Cuánto de lo que pagas es capital y cuánto intereses. */
+  readonly partesPago = computed<Parte[]>(() => [
+    { etiqueta: 'Capital', valor: this.monto() },
+    { etiqueta: 'Intereses', valor: Math.max(0, this.interesesTotales()) },
+  ]);
+
+  /** Lo que aún debes al cierre de cada mes (amortización con cuota fija). */
+  readonly saldoDeuda = computed<PuntoLinea[]>(() => {
+    const producto = this.producto();
+    const n = this.plazoMeses();
+    if (!producto || n <= 0) return [];
+    const tasa = producto.tasaDesde / 100 / 12;
+    const cuota = this.cuotaMensual();
+    let saldo = this.monto();
+    const puntos: PuntoLinea[] = [{ etiqueta: 'Hoy', valor: saldo }];
+    for (let mes = 1; mes <= n; mes++) {
+      saldo = Math.max(0, saldo * (1 + tasa) - cuota);
+      puntos.push({ etiqueta: `Mes ${mes}`, valor: Math.round(saldo) });
+    }
+    return puntos;
+  });
+
+  /** % del total pagado que se va en intereses, para la frase de lectura. */
+  readonly pctIntereses = computed(() => {
+    const total = this.cuotaMensual() * this.plazoMeses();
+    return total > 0 ? Math.round((Math.max(0, this.interesesTotales()) / total) * 100) : 0;
   });
 
   readonly interesesTotales = computed(

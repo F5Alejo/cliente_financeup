@@ -2,6 +2,7 @@
   titulo="Aprende a manejar tu dinero,"
   acento="clase por clase."
   texto="Cursos cortos agrupados por escuela, que avanzas a tu ritmo y terminas con certificado."
+  [serie]="horizonteAvance()"
 >
   <label class="banda-buscador">
     <app-icon nombre="search" [tamano]="20" />
@@ -14,6 +15,14 @@
     />
   </label>
 
+  @if (totalCursos()) {
+    <dl class="banda-cifras">
+      <div><dt>Cursos</dt><dd class="cifra">{{ totalCursos() }}</dd></div>
+      <div><dt>En curso</dt><dd class="cifra">{{ cursosEmpezados() }}</dd></div>
+      <div><dt>Terminados</dt><dd class="cifra">{{ cursosTerminados() }} de {{ totalCursos() }}</dd></div>
+    </dl>
+  }
+
   <!-- Continúa donde quedaste -->
   @if (cursoEnProgreso(); as curso) {
     <section class="seguir" banda-lado aria-label="Continúa donde quedaste">
@@ -23,16 +32,7 @@
         <p class="seguir__siguiente">
           Sigue la clase {{ siguienteLeccionNumero(curso) }}: {{ siguienteLeccionTitulo(curso) }}
         </p>
-        <div
-          class="seguir__barra"
-          role="progressbar"
-          aria-label="Avance del curso"
-          [attr.aria-valuenow]="curso.progreso"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          <i [style.width.%]="curso.progreso"></i>
-        </div>
+        <app-medidor class="seguir__medidor" [valor]="curso.progreso" [maximo]="100" sobre="oscuro" etiqueta="Avance del curso" />
         <p class="seguir__dato">
           <span class="cifra">{{ curso.progreso }}%</span> ·
           {{ leccionesHechas(curso) }} de {{ curso.lecciones.length }} clases ·
@@ -144,16 +144,20 @@
                 </svg>
               </span>
               <span class="curso__dur">{{ curso.duracion }}</span>
-              @if (curso.progreso > 0) {
-                <span class="curso__barra">
-                  <i [style.width.%]="curso.progreso"></i>
-                </span>
+              @if (curso.progreso >= 100) {
+                <span class="curso__estado"><app-icon nombre="check-circle" [tamano]="14" /> Terminado</span>
               }
             </div>
 
             <div class="curso__body">
               <p class="curso__meta">{{ curso.nivel }} · {{ curso.formato }}</p>
               <h3 class="curso__titulo">{{ curso.titulo }}</h3>
+              @if (curso.progreso > 0 && curso.progreso < 100) {
+                <div class="curso__avance">
+                  <app-medidor [valor]="curso.progreso" [maximo]="100" [plano]="true" [etiqueta]="'Avance de ' + curso.titulo" />
+                  <span class="cifra">{{ curso.progreso }} %</span>
+                </div>
+              }
               <p class="curso__desc">{{ curso.descripcion }}</p>
 
               <footer class="curso__pie">

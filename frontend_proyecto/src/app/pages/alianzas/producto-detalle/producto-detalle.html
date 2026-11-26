@@ -210,6 +210,18 @@
               </div>
             </dl>
 
+            <div class="simulador__grafica">
+              <p class="simulador__lectura">
+                De lo que pagas, el <strong class="cifra">{{ pctIntereses() }} %</strong> son intereses.
+              </p>
+              <app-barra-partes [datos]="partesPago()" titulo="Capital e intereses del total a pagar" />
+            </div>
+
+            <div class="simulador__grafica">
+              <p class="simulador__lectura">Así baja tu deuda mes a mes.</p>
+              <app-grafica-linea [puntos]="saldoDeuda()" titulo="Saldo pendiente al cierre de cada mes" [alto]="140" [desdeCero]="true" [maxEtiquetas]="4" />
+            </div>
+
             <button type="button" class="btn btn--solido btn--ancho" (click)="solicitar()">
               Solicitar con estas condiciones
             </button>
