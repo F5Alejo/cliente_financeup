@@ -105,6 +105,17 @@ export interface Solicitud {
   estado: string;
 }
 
+/** Solicitud que el usuario ve en "Mis solicitudes". */
+export interface MiSolicitud {
+  idSolicitud: number;
+  radicado: string;
+  producto: string;
+  monto: number;
+  plazoMeses: number;
+  estado: string;
+  fecha: string;
+}
+
 // ---- Formato en que responde el MID (snake_case) ----
 
 interface OfertaMid {
@@ -158,6 +169,16 @@ interface SolicitudAdminMid {
   estado: string;
 }
 
+interface MiSolicitudMid {
+  id_solicitud: number;
+  radicado: string;
+  producto: string;
+  monto: number;
+  plazo_meses: number;
+  estado: string;
+  fecha_solicitud: string;
+}
+
 // Traducción de los códigos de la base a los textos de pantalla
 const TIPOS: Record<string, TipoAliado> = { banco: 'Bancos', fintech: 'Fintech', comercio: 'Comercio' };
 const FAMILIAS: Record<string, FamiliaProducto> = {
@@ -202,9 +223,9 @@ function iniciales(nombre: string): string {
     .join('');
 }
 
-/** "2026-11-25" → "25 de noviembre de 2026" */
+/** "2026-11-25" o "2026-11-25T14:21:23Z" → "25 de noviembre de 2026" */
 function fechaLarga(texto: string): string {
-  const [anio, mes, dia] = texto.split('-').map(Number);
+  const [anio, mes, dia] = texto.slice(0, 10).split('-').map(Number);
   if (!anio || !mes || !dia) return texto;
   return new Date(anio, mes - 1, dia).toLocaleDateString('es-CO', {
     day: 'numeric',
@@ -272,6 +293,11 @@ export class AlianzasService {
 
   /** Solicitudes que ve el admin (GET /admin/solicitudes-credito). */
   readonly solicitudes = signal<Solicitud[]>([]);
+
+  /** Solicitudes del usuario con sesión (GET /solicitud-credito/usuario/:id). */
+  readonly misSolicitudes = signal<MiSolicitud[]>([]);
+  /** Error propio de esa lista, para no tapar el catálogo si solo falla esto. */
+  readonly errorSolicitudes = signal('');
 
   cargarOfertas(): void {
     this.cargando.set(true);
@@ -343,6 +369,32 @@ export class AlianzasService {
         };
       })
     );
+  }
+
+  /** Carga las solicitudes que radicó el usuario. Sin sesión no pide nada. */
+  cargarMisSolicitudes(): void {
+    const idUsuario = this.authService.obtenerUsuario()?.id;
+    if (!idUsuario) {
+      this.misSolicitudes.set([]);
+      return;
+    }
+
+    this.errorSolicitudes.set('');
+    this.http.get<MiSolicitudMid[]>(`${API_URL}/solicitud-credito/usuario/${idUsuario}`).subscribe({
+      next: (lista) =>
+        this.misSolicitudes.set(
+          lista.map((s) => ({
+            idSolicitud: s.id_solicitud,
+            radicado: s.radicado,
+            producto: s.producto,
+            monto: s.monto,
+            plazoMeses: s.plazo_meses,
+            estado: ESTADOS[s.estado] ?? s.estado,
+            fecha: fechaLarga(s.fecha_solicitud),
+          }))
+        ),
+      error: (error) => this.errorSolicitudes.set(mensajeDeError(error)),
+    });
   }
 
   /** Carga las solicitudes de crédito para el panel de administración. */

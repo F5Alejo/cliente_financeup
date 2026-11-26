@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth';
 import {
   AlianzasService,
   Beneficio,
@@ -21,11 +22,17 @@ type FiltroFamilia = 'Todos' | FamiliaProducto;
 export class AlianzasComponent {
   private alianzasService = inject(AlianzasService);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   // El catálogo viene del MID (GET /ofertas)
   readonly ofertas = this.alianzasService.ofertas;
   readonly cargando = this.alianzasService.cargando;
   readonly error = this.alianzasService.error;
+
+  // Solicitudes que ya radicó el usuario (GET /solicitud-credito/usuario/:id)
+  readonly misSolicitudes = this.alianzasService.misSolicitudes;
+  readonly errorSolicitudes = this.alianzasService.errorSolicitudes;
+  readonly conSesion = this.authService.estaAutenticado();
 
   constructor() {
     this.cargar();
@@ -33,6 +40,16 @@ export class AlianzasComponent {
 
   cargar(): void {
     this.alianzasService.cargarOfertas();
+    this.alianzasService.cargarMisSolicitudes();
+  }
+
+  /** Monto exacto en pesos, para lo que pidió el usuario. */
+  formatPesos(valor: number): string {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      maximumFractionDigits: 0,
+    }).format(valor);
   }
 
   // ---------- Filtros ----------

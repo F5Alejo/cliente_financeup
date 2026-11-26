@@ -104,6 +104,19 @@ describe('EducacionService', () => {
     expect(service.cursoEnProgreso()?.id).toBe(5);
   });
 
+  it('si falla el progreso el catálogo sigue visible con 0%', () => {
+    crear(true);
+    service.cargarCatalogo();
+    http.expectOne(`${API_URL}/cursos`).flush(CATALOGO_MID);
+    http
+      .expectOne(`${API_URL}/progreso-educativo/6`)
+      .flush({ error: 'El CRUD no responde' }, { status: 502, statusText: 'Bad Gateway' });
+
+    expect(service.todosLosCursos().length).toBeGreaterThan(0);
+    expect(service.todosLosCursos().every((curso) => curso.progreso === 0)).toBe(true);
+    expect(service.error()).toBe('');
+  });
+
   it('si el MID falla deja el mensaje de error', () => {
     crear(false);
     service.cargarCatalogo();

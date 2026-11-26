@@ -718,3 +718,24 @@
     border-right: none;
   }
 }
+
+/* Mis solicitudes */
+.mis-solicitudes {
+  margin: 0 0 36px;
+}
+
+.mis-solicitudes__radicado {
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mis-solicitudes__estado {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--verde-humo);
+  color: var(--verde-hondo);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}

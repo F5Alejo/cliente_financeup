@@ -196,15 +196,19 @@ export class EducacionService {
   private cargarAvance(): void {
     if (!this.idUsuario) return;
 
-    this.http.get<ProgresoMid>(`${API_URL}/progreso-educativo/${this.idUsuario}`).subscribe((progreso) => {
-      const porcentaje = new Map(progreso.modulos.map((m) => [m.id_modulo, m.porcentaje]));
+    this.http.get<ProgresoMid>(`${API_URL}/progreso-educativo/${this.idUsuario}`).subscribe({
+      next: (progreso) => {
+        const porcentaje = new Map(progreso.modulos.map((m) => [m.id_modulo, m.porcentaje]));
 
-      this.escuelas.update((escuelas) =>
-        escuelas.map((escuela) => ({
-          ...escuela,
-          cursos: escuela.cursos.map((curso) => ({ ...curso, progreso: porcentaje.get(curso.id) ?? 0 })),
-        }))
-      );
+        this.escuelas.update((escuelas) =>
+          escuelas.map((escuela) => ({
+            ...escuela,
+            cursos: escuela.cursos.map((curso) => ({ ...curso, progreso: porcentaje.get(curso.id) ?? 0 })),
+          }))
+        );
+      },
+      // Si el avance no llega, los cursos se quedan en 0% y el catálogo sigue usable
+      error: () => {},
     });
   }
 

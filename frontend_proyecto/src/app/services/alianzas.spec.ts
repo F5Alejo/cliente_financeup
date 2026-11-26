@@ -209,4 +209,45 @@ describe('AlianzasService', () => {
     expect(solicitud.plazoMeses).toBe(24);
     expect(solicitud.fecha).toBe('25 de noviembre de 2026');
   });
+
+  it('carga las solicitudes del usuario de la sesión con estado y fecha legibles', () => {
+    crear(true);
+    service.cargarMisSolicitudes();
+    http.expectOne(`${API_URL}/solicitud-credito/usuario/6`).flush([
+      {
+        id_solicitud: 12,
+        radicado: 'SOL-123456',
+        producto: 'Tarjeta de crédito digital',
+        monto: 3000000,
+        plazo_meses: 24,
+        estado: 'nuevo',
+        fecha_solicitud: '2026-11-25T14:21:23.112789Z',
+      },
+    ]);
+
+    const solicitud = service.misSolicitudes()[0];
+    expect(solicitud.radicado).toBe('SOL-123456');
+    expect(solicitud.plazoMeses).toBe(24);
+    expect(solicitud.estado).toBe('En estudio');
+    expect(solicitud.fecha).toBe('25 de noviembre de 2026');
+  });
+
+  it('si falla mis solicitudes no toca el error del catálogo', () => {
+    crear(true);
+    service.cargarMisSolicitudes();
+    http
+      .expectOne(`${API_URL}/solicitud-credito/usuario/6`)
+      .flush({ error: 'El CRUD no responde' }, { status: 502, statusText: 'Bad Gateway' });
+
+    expect(service.errorSolicitudes()).toBe('El CRUD no responde');
+    expect(service.error()).toBe('');
+  });
+
+  it('sin sesión no pide solicitudes', () => {
+    crear(false);
+    service.cargarMisSolicitudes();
+
+    http.expectNone(() => true);
+    expect(service.misSolicitudes()).toEqual([]);
+  });
 });

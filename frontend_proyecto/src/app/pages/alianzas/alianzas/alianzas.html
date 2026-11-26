@@ -108,6 +108,44 @@
     }
   </section>
 
+  <!-- Solicitudes que ya radicó el usuario -->
+  @if (conSesion && (misSolicitudes().length > 0 || errorSolicitudes())) {
+    <section class="mis-solicitudes" aria-labelledby="mis-solicitudes-titulo">
+      <h2 id="mis-solicitudes-titulo" class="comparativo__titulo">Mis solicitudes</h2>
+
+      @if (errorSolicitudes()) {
+        <p class="conteo" role="alert">No pudimos cargar tus solicitudes: {{ errorSolicitudes() }}</p>
+      } @else {
+        <div class="comparativo__scroll">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th scope="col">Radicado</th>
+                <th scope="col">Producto</th>
+                <th scope="col">Monto</th>
+                <th scope="col">Plazo</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (solicitud of misSolicitudes(); track solicitud.idSolicitud) {
+                <tr>
+                  <td class="mis-solicitudes__radicado">{{ solicitud.radicado }}</td>
+                  <td>{{ solicitud.producto }}</td>
+                  <td>{{ formatPesos(solicitud.monto) }}</td>
+                  <td>{{ solicitud.plazoMeses }} meses</td>
+                  <td>{{ solicitud.fecha }}</td>
+                  <td><span class="mis-solicitudes__estado">{{ solicitud.estado }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+
   <!-- Listado de productos -->
   @if (error()) {
     <div class="sin-datos" role="alert">
