@@ -205,4 +205,61 @@ describe('EducacionService', () => {
     expect(certificado.codigo).toBe('FUP-5-6-20261125');
     expect(certificado.fechaEmision).toBe('2026-11-25');
   });
+
+  // ---- Administración de cursos ----
+
+  const DATOS_CURSO = {
+    idEscuela: 1,
+    titulo: '  Tarjetas sin sustos ',
+    descripcion: 'Cómo usar la tarjeta',
+    categoria: 'credito',
+    nivel: 'Intermedio' as const,
+    formato: 'Artículo' as const,
+    duracion: '20 minutos',
+  };
+  const CUERPO_CURSO = {
+    id_escuela: 1,
+    titulo: 'Tarjetas sin sustos',
+    descripcion: 'Cómo usar la tarjeta',
+    categoria: 'credito',
+    nivel: 'intermedio',
+    formato: 'articulo',
+    duracion: '20 minutos',
+  };
+
+  it('crear un curso manda nivel y formato con el código de la base y recarga el catálogo', () => {
+    crear(false);
+    service.guardarCurso(DATOS_CURSO).subscribe();
+
+    const peticion = http.expectOne(`${API_URL}/admin/cursos`);
+    expect(peticion.request.method).toBe('POST');
+    expect(peticion.request.body).toEqual(CUERPO_CURSO);
+    peticion.flush({ mensaje: 'Curso creado', id: 12 });
+
+    http.expectOne(`${API_URL}/cursos`).flush([]);
+  });
+
+  it('editar un curso usa PUT con su id', () => {
+    crear(false);
+    service.guardarCurso(DATOS_CURSO, 5).subscribe();
+
+    const peticion = http.expectOne(`${API_URL}/admin/cursos/5`);
+    expect(peticion.request.method).toBe('PUT');
+    peticion.flush({ mensaje: 'Curso actualizado', id: 5 });
+
+    http.expectOne(`${API_URL}/cursos`).flush([]);
+  });
+
+  it('retirar un curso usa DELETE; si el MID lo rechaza no recarga', () => {
+    crear(false);
+    let error = '';
+    service.retirarCurso(5).subscribe({ error: (e) => (error = e.error.error) });
+
+    const peticion = http.expectOne(`${API_URL}/admin/cursos/5`);
+    expect(peticion.request.method).toBe('DELETE');
+    peticion.flush({ error: 'El curso no existe' }, { status: 404, statusText: 'Not Found' });
+
+    expect(error).toBe('El curso no existe');
+    http.expectNone(`${API_URL}/cursos`);
+  });
 });

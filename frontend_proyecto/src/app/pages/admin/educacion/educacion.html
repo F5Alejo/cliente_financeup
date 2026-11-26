@@ -24,9 +24,9 @@
       <input type="search" class="input" placeholder="Buscar por curso o escuela" aria-label="Buscar cursos" [ngModel]="busqueda()" (ngModelChange)="filtrar(busqueda, $event)" />
     </div>
     <select class="input select" aria-label="Filtrar por escuela" [ngModel]="filtroEscuela()" (ngModelChange)="filtrar(filtroEscuela, $event)">
-      <option value="">Todas las escuelas</option>
+      <option [ngValue]="0">Todas las escuelas</option>
       @for (escuela of escuelas(); track escuela.id) {
-        <option [value]="escuela.id">{{ escuela.nombre }}</option>
+        <option [ngValue]="escuela.id">{{ escuela.nombre }}</option>
       }
     </select>
     <select class="input select" aria-label="Filtrar por nivel" [ngModel]="filtroNivel()" (ngModelChange)="filtrar(filtroNivel, $event)">
@@ -118,7 +118,7 @@
           <label for="cur-escuela">Escuela</label>
           <select id="cur-escuela" class="input" formControlName="escuela">
             @for (escuela of escuelas(); track escuela.id) {
-              <option [value]="escuela.id">{{ escuela.nombre }}</option>
+              <option [ngValue]="escuela.id">{{ escuela.nombre }}</option>
             }
           </select>
           @if (errorDe('escuela')) { <span class="field-error">{{ errorDe('escuela') }}</span> }
@@ -135,6 +135,14 @@
         <div class="field full">
           <label for="cur-descripcion">Descripción <span class="opcional">(opcional)</span></label>
           <textarea id="cur-descripcion" class="input" rows="2" formControlName="descripcion"></textarea>
+        </div>
+        <div class="field">
+          <label for="cur-categoria">Categoría</label>
+          <select id="cur-categoria" class="input" formControlName="categoria">
+            @for (categoria of categorias; track categoria.id) {
+              <option [value]="categoria.id">{{ categoria.nombre }}</option>
+            }
+          </select>
         </div>
         <div class="field">
           <label for="cur-nivel">Nivel</label>
@@ -157,17 +165,20 @@
         <p class="form-error" role="alert">{{ errorModal() }}</p>
       }
       <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-      <button pie type="submit" form="form-curso" class="btn btn-primary">{{ m.fila ? 'Guardar cambios' : 'Publicar curso' }}</button>
+      <button pie type="submit" form="form-curso" class="btn btn-primary" [disabled]="enviando()">{{ enviando() ? 'Guardando…' : m.fila ? 'Guardar cambios' : 'Publicar curso' }}</button>
     </app-modal>
   } @else if (m.fila; as f) {
     <app-modal
-      titulo="Eliminar curso"
-      [subtitulo]="'Se eliminará «' + f.curso.titulo + '». Esta acción no se puede deshacer y el curso dejará de estar disponible para los usuarios.'"
+      titulo="Retirar curso"
+      [subtitulo]="'«' + f.curso.titulo + '» dejará de verse en el catálogo. El avance y los certificados de los usuarios se conservan.'"
       ancho="sm"
       [alertdialog]="true"
       (cerrar)="cerrarModal()">
+      @if (errorModal()) {
+        <p class="form-error" role="alert">{{ errorModal() }}</p>
+      }
       <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar curso</button>
+      <button pie type="button" class="btn btn-danger" [disabled]="enviando()" (click)="confirmarEliminacion()">{{ enviando() ? 'Retirando…' : 'Retirar curso' }}</button>
     </app-modal>
   }
 }

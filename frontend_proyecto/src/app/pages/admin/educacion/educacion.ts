@@ -1,6 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { mensajeDeError } from '../../../services/api';
 import { EducacionService } from '../../../services/educacion';
 import { Curso, FormatoCurso, NivelCurso } from '../../educacion/educacion/educacion.model';
 import { EstadoVacioComponent } from '../../../shared/components/estado-vacio/estado-vacio';
@@ -9,13 +11,12 @@ import { KpiComponent } from '../../../shared/components/kpi/kpi';
 import { ModalComponent } from '../../../shared/components/modal/modal';
 import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion';
 import { AccionMenu, RowMenuComponent } from '../../../shared/components/row-menu/row-menu';
-import { ActividadAdminService } from '../../../shared/services/actividad-admin';
 import { ToastService } from '../../../shared/services/toast';
 import { crearPaginador, enlazarConShell, normalizarTexto } from '../../../shared/utils/lista';
 
 interface FilaCurso {
   curso: Curso;
-  escuelaId: string;
+  escuelaId: number;
   escuela: string;
 }
 
@@ -29,6 +30,14 @@ const CLASE_NIVEL: Record<NivelCurso, string> = {
   Intermedio: 'badge-pendiente',
   Avanzado: 'badge-suspendido',
 };
+// Las mismas que acepta la base (CHECK de modulo_educativo.categoria)
+const CATEGORIAS = [
+  { id: 'fundamentos', nombre: 'Fundamentos' },
+  { id: 'credito', nombre: 'Crédito' },
+  { id: 'ahorro', nombre: 'Ahorro' },
+  { id: 'deuda', nombre: 'Deuda' },
+  { id: 'fraude', nombre: 'Fraude' },
+];
 const MENSAJES_ERROR: Record<string, string> = {
   titulo: 'Escribe un título de al menos 3 caracteres.',
   escuela: 'Selecciona la escuela del curso.',
@@ -43,35 +52,37 @@ const MENSAJES_ERROR: Record<string, string> = {
 export class AdminEducacionComponent {
   private educacionService = inject(EducacionService);
   private toastService = inject(ToastService);
-  private actividad = inject(ActividadAdminService);
   private router = inject(Router);
   private fb = inject(FormBuilder).nonNullable;
 
   readonly niveles: NivelCurso[] = ['Básico', 'Intermedio', 'Avanzado'];
   readonly formatos: FormatoCurso[] = ['Video', 'Artículo', 'Quiz'];
+  readonly categorias = CATEGORIAS;
   readonly claseNivel = CLASE_NIVEL;
   readonly esqueletos = [1, 2, 3, 4, 5];
 
   // Lista real: sale del catálogo del MID (GET /v1/cursos)
   escuelas = computed(() =>
-    this.educacionService.escuelas().map((e) => ({ id: e.slug, nombre: e.nombre }))
+    this.educacionService.escuelas().map((e) => ({ id: e.id, nombre: e.nombre }))
   );
   filas = computed<FilaCurso[]>(() =>
     this.educacionService.escuelas().flatMap((e) =>
-      e.cursos.map((curso) => ({ curso, escuelaId: e.slug, escuela: e.nombre }))
+      e.cursos.map((curso) => ({ curso, escuelaId: e.id, escuela: e.nombre }))
     )
   );
   cargando = this.educacionService.cargando;
   busqueda = signal('');
-  filtroEscuela = signal('');
+  filtroEscuela = signal(0);
   filtroNivel = signal<NivelCurso | ''>('');
   modal = signal<ModalCurso | null>(null);
   errorModal = signal('');
+  enviando = signal(false);
 
   formulario = this.fb.group({
-    escuela: ['', Validators.required],
+    escuela: [0, Validators.min(1)],
     titulo: ['', [Validators.required, Validators.minLength(3)]],
     descripcion: [''],
+    categoria: ['fundamentos'],
     nivel: ['Básico' as NivelCurso],
     formato: ['Video' as FormatoCurso],
     duracion: [''],
@@ -104,7 +115,7 @@ export class AdminEducacionComponent {
       acciones: [
         { id: 'ver', etiqueta: 'Ver en el sitio', icono: 'eye' },
         { id: 'editar', etiqueta: 'Editar', icono: 'pencil' },
-        { id: 'eliminar', etiqueta: 'Eliminar', icono: 'trash', peligro: true, separador: true },
+        { id: 'eliminar', etiqueta: 'Retirar del catálogo', icono: 'trash', peligro: true, separador: true },
       ] as AccionMenu[],
     }))
   );
@@ -130,7 +141,7 @@ export class AdminEducacionComponent {
 
   limpiarFiltros(): void {
     this.busqueda.set('');
-    this.filtroEscuela.set('');
+    this.filtroEscuela.set(0);
     this.filtroNivel.set('');
     this.paginador.reiniciar();
   }
@@ -138,21 +149,23 @@ export class AdminEducacionComponent {
   alElegirAccion(id: string, fila: FilaCurso): void {
     if (id === 'ver') this.router.navigate(['/educacion/curso', fila.curso.id]);
     if (id === 'editar') this.abrirFormulario(fila);
-    if (id === 'eliminar') this.modal.set({ tipo: 'eliminar', fila });
+    if (id === 'eliminar') {
+      this.errorModal.set('');
+      this.modal.set({ tipo: 'eliminar', fila });
+    }
   }
 
   abrirFormulario(fila: FilaCurso | null = null): void {
     this.errorModal.set('');
-    this.formulario.enable();
     this.formulario.reset({
-      escuela: fila?.escuelaId ?? this.escuelas()[0]?.id ?? '',
+      escuela: fila?.escuelaId ?? this.escuelas()[0]?.id ?? 0,
       titulo: fila?.curso.titulo ?? '',
       descripcion: fila?.curso.descripcion ?? '',
+      categoria: fila?.curso.categoria || 'fundamentos',
       nivel: fila?.curso.nivel ?? 'Básico',
       formato: fila?.curso.formato ?? 'Video',
       duracion: fila?.curso.duracion ?? '',
     });
-    if (fila) this.formulario.controls.escuela.disable();
     this.modal.set({ tipo: 'formulario', fila });
   }
 
@@ -166,19 +179,41 @@ export class AdminEducacionComponent {
   }
 
   guardar(): void {
-    if (this.formulario.invalid) {
+    const valores = this.formulario.getRawValue();
+
+    if (this.formulario.invalid || valores.titulo.trim().length < 3) {
       this.formulario.markAllAsTouched();
       this.errorModal.set('Revisa los campos marcados.');
       return;
     }
 
-    // El MID todavía no tiene rutas para crear o editar cursos: se conectan en el módulo de administración
-    this.toastService.info('Publicar y editar cursos se conecta con el backend en el módulo de administración.');
-    this.cerrarModal();
+    const fila = this.modal()?.fila;
+    this.ejecutar(
+      this.educacionService.guardarCurso({ ...valores, idEscuela: valores.escuela }, fila?.curso.id),
+      fila ? 'Curso actualizado.' : 'Curso publicado. Ya se ve en el catálogo de Educación.'
+    );
   }
 
   confirmarEliminacion(): void {
-    this.toastService.info('Eliminar cursos se conecta con el backend en el módulo de administración.');
-    this.cerrarModal();
+    const fila = this.modal()?.fila;
+    if (!fila) return;
+    this.ejecutar(this.educacionService.retirarCurso(fila.curso.id), `Se retiró «${fila.curso.titulo}» del catálogo.`);
+  }
+
+  /** Manda la petición; si sale bien cierra el modal, si no deja el error del MID en el modal. */
+  private ejecutar(peticion: Observable<unknown>, exito: string): void {
+    this.enviando.set(true);
+    this.errorModal.set('');
+    peticion.subscribe({
+      next: () => {
+        this.enviando.set(false);
+        this.toastService.success(exito);
+        this.cerrarModal();
+      },
+      error: (error) => {
+        this.enviando.set(false);
+        this.errorModal.set(mensajeDeError(error));
+      },
+    });
   }
 }

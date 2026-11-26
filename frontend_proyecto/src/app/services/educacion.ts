@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 
 import { API_URL, mensajeDeError } from './api';
 import { AuthService } from './auth';
@@ -85,6 +85,21 @@ interface ClaseMid {
 const NIVELES: Record<string, NivelCurso> = { basico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado' };
 const FORMATOS: Record<string, FormatoCurso> = { video: 'Video', articulo: 'Artículo', quiz: 'Quiz' };
 const TIPOS: Record<string, TipoLeccion> = { video: 'Video', lectura: 'Lectura', quiz: 'Quiz' };
+
+/** Al revés: 'Básico' → 'basico', para mandarle al MID el código de la base. */
+const codigoDe = (tabla: Record<string, string>, texto: string) =>
+  Object.keys(tabla).find((codigo) => tabla[codigo] === texto) ?? '';
+
+/** Lo que el admin llena en el formulario de un curso. */
+export interface DatosCurso {
+  idEscuela: number;
+  titulo: string;
+  descripcion: string;
+  categoria: string;
+  nivel: NivelCurso;
+  formato: FormatoCurso;
+  duracion: string;
+}
 
 /** "Mariana Escobar Uribe" → "ME" */
 function iniciales(nombre: string): string {
@@ -307,5 +322,31 @@ export class EducacionService {
     return curso.lecciones
       .filter((leccion) => !leccion.completada)
       .reduce((total, leccion) => total + leccion.duracionMin, 0);
+  }
+
+  // ---------- Administración de cursos (solo admin) ----------
+
+  /** Crea el curso, o lo edita si llega el id. Si el MID lo guarda, se recarga el catálogo. */
+  guardarCurso(datos: DatosCurso, id?: number): Observable<unknown> {
+    const cuerpo = {
+      id_escuela: datos.idEscuela,
+      titulo: datos.titulo.trim(),
+      descripcion: datos.descripcion.trim(),
+      categoria: datos.categoria,
+      nivel: codigoDe(NIVELES, datos.nivel),
+      formato: codigoDe(FORMATOS, datos.formato),
+      duracion: datos.duracion.trim(),
+    };
+
+    const peticion = id
+      ? this.http.put(`${API_URL}/admin/cursos/${id}`, cuerpo)
+      : this.http.post(`${API_URL}/admin/cursos`, cuerpo);
+
+    return peticion.pipe(tap(() => this.cargarCatalogo()));
+  }
+
+  /** Quita el curso del catálogo. El MID no lo borra: lo deja inactivo. */
+  retirarCurso(id: number): Observable<unknown> {
+    return this.http.delete(`${API_URL}/admin/cursos/${id}`).pipe(tap(() => this.cargarCatalogo()));
   }
 }
