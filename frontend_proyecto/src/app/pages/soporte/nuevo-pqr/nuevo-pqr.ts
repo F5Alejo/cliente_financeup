@@ -5,12 +5,14 @@ import { PqrService, PrioridadPqr, TipoPqr } from '../../../services/pqr';
 import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
 import { AuthService } from '../../../services/auth';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
 
 const RUTA_LOGIN = '/login';
 
 @Component({
   selector: 'app-nuevo-pqr',
-  imports: [FormsModule],
+  imports: [FormsModule, BandaSeccionComponent, IconComponent],
   templateUrl: './nuevo-pqr.html',
   styleUrl: './nuevo-pqr.css',
 })
@@ -23,9 +25,8 @@ export class NuevoPqrComponent {
   ) {}
 
   // Textos de la interfaz
-  titulo: string = 'Nuevo PQR';
   subtitulo: string =
-    'Cuéntanos qué pasó. Entre más detalles nos des, más rápido resolvemos tu caso.';
+    'Entre más detalles nos des (fechas, producto, qué esperabas), más rápido resolvemos tu caso.';
   labelTipo: string = 'Tipo de solicitud:';
   labelCategoria: string = 'Categoría:';
   labelPrioridad: string = 'Prioridad:';
@@ -36,8 +37,6 @@ export class NuevoPqrComponent {
   textoAdjuntar: string = 'Adjuntar archivo';
   textoAdjuntarAyuda: string = 'PDF, JPG o PNG hasta 5 MB. Guardamos el nombre del archivo para el asesor.';
   textoBotonEnviar: string = 'Enviar PQR';
-
-  labelUsuario: string = 'Usuario:';
 
   // Mientras el MID guarda la PQR se bloquea el botón para no radicarla dos veces
   enviando = signal(false);
@@ -72,6 +71,21 @@ export class NuevoPqrComponent {
   archivoAdjunto: File | null = null;
   nombreArchivo: string = '';
 
+  /** Los errores se muestran solo después del primer intento de enviar. */
+  intentoEnviar = signal(false);
+
+  get errorAsunto(): string {
+    if (!this.intentoEnviar() || this.asunto.trim()) return '';
+    return 'Escribe el asunto en una frase, por ejemplo «Cobro repetido en mi cuenta».';
+  }
+
+  get errorDescripcion(): string {
+    if (!this.intentoEnviar()) return '';
+    if (!this.descripcion.trim()) return 'Cuéntanos qué pasó: cuándo, con qué producto y qué esperabas.';
+    if (this.descripcion.trim().length < 20) return 'Agrega un poco más de detalle (mínimo 20 caracteres).';
+    return '';
+  }
+
   get caracteresRestantes(): number {
     return 600 - this.descripcion.length;
   }
@@ -101,8 +115,10 @@ export class NuevoPqrComponent {
       return;
     }
 
-    if (!this.asunto.trim() || !this.descripcion.trim()) {
-      this.toastService.info('El asunto y la descripción son obligatorios.');
+    this.intentoEnviar.set(true);
+    if (this.errorAsunto || this.errorDescripcion) {
+      // El foco va al primer campo con error para que se lea el mensaje.
+      document.getElementById(this.errorAsunto ? 'asunto' : 'descripcion')?.focus();
       return;
     }
 

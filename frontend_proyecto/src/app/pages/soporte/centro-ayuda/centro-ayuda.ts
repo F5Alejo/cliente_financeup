@@ -262,7 +262,7 @@ export class CentroAyudaConponent implements OnDestroy {
         this.router.navigate(['/pqr']);
         break;
       case 'whatsapp':
-        this.router.navigate(['/habla-con-nosostros']);
+        this.router.navigate(['/habla-con-nosotros']);
         break;
     }
   }

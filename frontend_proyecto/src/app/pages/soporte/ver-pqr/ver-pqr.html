@@ -1,103 +1,91 @@
 @if (pqr(); as caso) {
-  <div class="detalle-pqr-container">
-    <!-- ===== Card izquierda: detalle del PQR ===== -->
-    <div class="pqr-card">
-      <button class="btn-volver" type="button" (click)="volver()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>{{ textoVolver }}</span>
-      </button>
+  <app-banda-seccion
+    [titulo]="caso.titulo"
+    [texto]="caso.tipo + (caso.categoria ? ' · ' + caso.categoria : '') + ' · Prioridad ' + caso.prioridad"
+    idTitulo="ver-pqr-titulo">
+    <button type="button" class="banda-volver" banda-antes (click)="volver()">
+      <app-icon nombre="chevron-left" />
+      {{ textoVolver }}
+    </button>
 
-      <span class="pqr-badge">{{ badgeTexto }}</span>
+    <dl class="banda-cifras">
+      <div><dt>Radicado</dt><dd class="cifra">{{ caso.radicado }}</dd></div>
+      <div><dt>Creada</dt><dd class="cifra">{{ caso.fechaCreacion }}</dd></div>
+      <div><dt>Actualización</dt><dd class="cifra">{{ caso.ultimaActualizacion }}</dd></div>
+    </dl>
 
-      <header class="pqr-header">
-        <h1 class="pqr-title">{{ caso.titulo }}</h1>
-        <p class="pqr-subtitulo">{{ caso.tipo }}@if (caso.categoria) { · {{ caso.categoria }}} · Prioridad {{ caso.prioridad }}</p>
-      </header>
-
-      <div class="pqr-info-pills">
-        <span class="pqr-pill">
-          {{ labelNumeroPeticion }} <strong>{{ caso.radicado }}</strong>
-        </span>
-        <span class="pqr-pill">
-          {{ labelFecha }} <strong>{{ caso.fechaCreacion }}</strong>
-        </span>
-        <span class="pqr-pill">
-          Avance: <strong>{{ caso.progreso }}%</strong>
-        </span>
+    <div banda-lado class="tarjeta-banda estado-tarjeta">
+      <div class="estado-tarjeta__fila">
+        <p class="tarjeta-banda__etiqueta">Avance del caso</p>
+        <span class="estado-badge" [ngClass]="obtenerClaseEstado()">{{ caso.estado }}</span>
       </div>
+      <p class="tarjeta-banda__cifra cifra">{{ caso.progreso }} %</p>
+      <app-medidor [valor]="caso.progreso" [maximo]="100" sobre="oscuro" [etiqueta]="'Avance del caso ' + caso.radicado" />
+      <p class="estado-tarjeta__nota">
+        Responsable: <strong>{{ caso.asesor }}</strong>
+      </p>
+      <p class="estado-tarjeta__nota">{{ caso.mensajeRespuesta || 'Tu solicitud fue radicada. Un asesor la revisará pronto.' }}</p>
+    </div>
+  </app-banda-seccion>
 
-      <div class="pqr-form-grid">
-        <div class="pqr-form-fields">
-          <span class="pqr-label">{{ labelDescripcion }}</span>
-          <div class="pqr-textarea">{{ caso.descripcion }}</div>
-        </div>
+  <div class="detalle-pqr">
+    <section class="detalle-card" aria-labelledby="descripcion-titulo">
+      <h2 id="descripcion-titulo" class="detalle-card__titulo">{{ labelDescripcion }}</h2>
+      <p class="pqr-descripcion">{{ caso.descripcion }}</p>
 
-        @if (caso.adjuntos.length) {
-          <ul class="pqr-adjuntos" aria-label="Archivos adjuntos">
-            @for (archivo of caso.adjuntos; track archivo.nombre) {
-              <li class="pqr-adjunto-item">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                  <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                </svg>
-                <span class="pqr-adjunto-nombre">{{ archivo.nombre }} · {{ tamano(archivo.tamano) }}</span>
-              </li>
-            }
-          </ul>
-        }
-      </div>
+      @if (caso.adjuntos.length) {
+        <h3 class="detalle-card__subtitulo">Archivos adjuntos</h3>
+        <ul class="pqr-adjuntos">
+          @for (archivo of caso.adjuntos; track archivo.nombre) {
+            <li class="pqr-adjunto-item">
+              <app-icon nombre="file-text" [tamano]="18" />
+              <span class="pqr-adjunto-nombre">{{ archivo.nombre }} · {{ tamano(archivo.tamano) }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
 
-      <!-- Conversación con el asesor -->
-      <section class="pqr-form-fields" aria-label="Conversación">
-        <span class="pqr-label">Conversación</span>
+    <section class="detalle-card" aria-labelledby="conversacion-titulo">
+      <h2 id="conversacion-titulo" class="detalle-card__titulo">Conversación</h2>
+
+      <ol class="conversacion">
         @for (r of caso.respuestas; track $index) {
-          <div class="mensaje-card">
-            <p class="estado-label">{{ r.autor }} · {{ r.fecha }}</p>
-            <p class="mensaje-texto">{{ r.mensaje }}</p>
-          </div>
+          <li class="mensaje">
+            <p class="mensaje__autor">{{ r.autor }} <span class="cifra">· {{ r.fecha }}</span></p>
+            <p class="mensaje__texto">{{ r.mensaje }}</p>
+          </li>
         } @empty {
-          <p class="mensaje-texto">Aún no hay mensajes. Un asesor revisará tu caso pronto.</p>
+          <li class="mensaje mensaje--vacio">Aún no hay mensajes. Un asesor revisará tu caso pronto.</li>
         }
+      </ol>
 
-        @if (puedeResponder()) {
+      @if (puedeResponder()) {
+        <form class="responder" (ngSubmit)="responder()">
           <label class="pqr-label" for="mensaje-pqr">Escribe al asesor</label>
           <textarea
             id="mensaje-pqr"
+            name="mensaje"
             class="pqr-textarea"
             rows="3"
             maxlength="1000"
             [(ngModel)]="mensaje"
             placeholder="Agrega información o pregunta por tu caso"
           ></textarea>
-        }
-      </section>
-
-      <div class="pqr-actions">
-        @if (puedeResponder()) {
-          <button type="button" class="btn-enviar" [disabled]="enviando() || !mensaje.trim()" (click)="responder()">
-            {{ enviando() ? 'Enviando…' : 'Enviar mensaje' }}
-          </button>
-        }
-        <button type="button" class="btn-volver" (click)="enviarNuevoPqr()">
-          {{ textoBotonEnviar }}
-        </button>
-      </div>
-    </div>
-
-    <!-- ===== Columna derecha: estado y respuesta ===== -->
-    <div class="estado-columna">
-      <div class="estado-card">
-        <span class="estado-label">{{ labelEstado }}</span>
-        <span class="estado-badge" [ngClass]="obtenerClaseEstado()">{{ caso.estado }}</span>
-      </div>
-
-      <div class="mensaje-card">
-        <p class="estado-label">Responsable: {{ caso.asesor }}</p>
-        <p class="mensaje-texto">{{ caso.mensajeRespuesta || 'Tu solicitud fue radicada. Un asesor la revisará pronto.' }}</p>
-      </div>
-    </div>
+          <div class="pqr-actions">
+            <button type="button" class="btn-secundario" (click)="enviarNuevoPqr()">{{ textoBotonEnviar }}</button>
+            <button type="submit" class="btn-enviar" [disabled]="enviando() || !mensaje.trim()">
+              {{ enviando() ? 'Enviando…' : 'Enviar mensaje' }}
+            </button>
+          </div>
+        </form>
+      } @else {
+        <p class="pqr-cerrada">
+          Este caso está {{ caso.estado.toLowerCase() }} y ya no recibe mensajes.
+          <button type="button" class="btn-secundario" (click)="enviarNuevoPqr()">{{ textoBotonEnviar }}</button>
+        </p>
+      }
+    </section>
   </div>
 } @else {
   <div class="pqr-vacio">
@@ -105,7 +93,7 @@
       <p aria-live="polite">Cargando tu PQR…</p>
     } @else {
       <p role="alert">{{ error() || 'No se encontró información de este PQR.' }}</p>
-      <button class="btn-volver" type="button" (click)="volver()">{{ textoVolver }}</button>
+      <button class="btn-secundario" type="button" (click)="volver()">{{ textoVolver }}</button>
     }
   </div>
 }

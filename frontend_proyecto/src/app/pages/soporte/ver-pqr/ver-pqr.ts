@@ -5,10 +5,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DetallePqr, PqrService } from '../../../services/pqr';
 import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { MedidorComponent } from '../../../shared/graficas/medidor';
 
 @Component({
   selector: 'app-ver-pqr',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BandaSeccionComponent, IconComponent, MedidorComponent],
   templateUrl: './ver-pqr.html',
   styleUrl: './ver-pqr.css',
 })
@@ -29,14 +32,7 @@ export class VerPqrComponent {
 
   // ===== Textos fijos de la interfaz =====
   textoVolver: string = 'Volver a mis PQR';
-  badgeTexto: string = 'DETALLE DE SOLICITUD';
-  subtitulo: string = 'Aquí puedes ver el estado y los detalles de tu solicitud.';
-
-  labelNumeroPeticion: string = 'Radicado:';
-  labelFecha: string = 'Creada:';
-  labelAsunto: string = 'Asunto:';
-  labelDescripcion: string = 'Descripción:';
-  labelEstado: string = 'Estado:';
+  labelDescripcion: string = 'Lo que nos contaste';
 
   textoBotonEnviar: string = 'Radicar otra PQR';
 

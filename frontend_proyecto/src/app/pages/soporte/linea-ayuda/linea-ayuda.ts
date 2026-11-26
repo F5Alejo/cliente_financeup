@@ -1,19 +1,21 @@
 import { Component, computed, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToastService } from '../../../shared/services/toast';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { CONTACTO, enlaceWhatsapp } from '../contacto';
 
 interface FaqItem {
   question: string;
   answer: string;
   categoria: string;
   lecturaMin: number;
-  utilidad: number;
   expanded: boolean;
 }
 
 @Component({
   selector: 'app-linea-ayuda',
-  imports: [],
+  imports: [BandaSeccionComponent, IconComponent, RouterLink],
   templateUrl: './linea-ayuda.html',
   styleUrl: './linea-ayuda.css',
 })
@@ -31,21 +33,20 @@ export class LineaAyudaComponent {
     });
   }
 
-  // Banner
-  bannerTitle: string = 'Línea de Ayuda';
-  bannerDescription: string =
-    'Resuelve tus dudas, consulta sobre operaciones o productos y recibe la atención especializada que necesitas a través de nuestros canales de atención al cliente.';
-  phoneNumber: string = '+57 300 735 7662';
-  chatButtonLabel: string = 'Iniciar chat';
+  // Banda
+  readonly bannerDescription =
+    'Resuelve dudas sobre tu cuenta, tus movimientos o un producto aliado con una persona del equipo.';
+  readonly contacto = CONTACTO;
+  readonly enlaceWhatsapp = enlaceWhatsapp();
 
-  readonly bannerDatos = [
-    { valor: 'Lun a Sáb', etiqueta: 'Días de atención' },
-    { valor: '7am - 9pm', etiqueta: 'Horario' },
-    { valor: '~3 min', etiqueta: 'Espera promedio' },
+  readonly horarios = [
+    { etiqueta: `Línea, ${CONTACTO.diasLinea.toLowerCase()}`, valor: CONTACTO.horarioLinea },
+    { etiqueta: `WhatsApp, ${CONTACTO.diasWhatsapp.toLowerCase()}`, valor: CONTACTO.horarioWhatsapp },
+    { etiqueta: 'Respuesta a una PQR', valor: CONTACTO.respuestaPqr },
   ];
 
   // Sección de preguntas
-  sectionTitle: string = 'Selecciona el tipo de ayuda que necesitas';
+  readonly sectionTitle = 'Preguntas frecuentes';
 
   readonly categorias = ['Todas', 'Cuenta', 'Seguridad', 'Educación', 'Alianzas', 'PQR'];
   readonly categoriaSeleccionada = signal('Todas');
@@ -58,7 +59,6 @@ export class LineaAyudaComponent {
         'Ingresa a la pantalla de inicio de sesión y selecciona "¿Olvidaste tu contraseña?". Te enviaremos un enlace a tu correo registrado para que puedas restablecerla.',
       categoria: 'Cuenta',
       lecturaMin: 1,
-      utilidad: 96,
       expanded: false,
     },
     {
@@ -67,7 +67,6 @@ export class LineaAyudaComponent {
         'Sí. Toda la información se transmite de forma cifrada y cumplimos con los estándares de seguridad exigidos para el manejo de datos financieros.',
       categoria: 'Seguridad',
       lecturaMin: 2,
-      utilidad: 93,
       expanded: false,
     },
     {
@@ -76,7 +75,6 @@ export class LineaAyudaComponent {
         'Ofrecemos cursos de educación financiera, inversión, ahorro y planeación presupuestal, tanto para principiantes como para usuarios avanzados.',
       categoria: 'Educación',
       lecturaMin: 2,
-      utilidad: 89,
       expanded: false,
     },
     {
@@ -85,7 +83,6 @@ export class LineaAyudaComponent {
         'Son acuerdos con entidades del sector financiero que nos permiten ofrecerte beneficios, tasas preferenciales y productos exclusivos.',
       categoria: 'Alianzas',
       lecturaMin: 1,
-      utilidad: 91,
       expanded: false,
     },
     {
@@ -94,7 +91,6 @@ export class LineaAyudaComponent {
         'Una PQR es una Petición, Queja o Reclamo que puedes radicar cuando necesitas reportar un problema o solicitar información sobre nuestros servicios.',
       categoria: 'PQR',
       lecturaMin: 1,
-      utilidad: 94,
       expanded: false,
     },
     {
@@ -103,7 +99,6 @@ export class LineaAyudaComponent {
         'El tiempo máximo de respuesta es de 48 horas hábiles. Puedes hacer seguimiento del avance desde la sección "Mis PQR".',
       categoria: 'PQR',
       lecturaMin: 1,
-      utilidad: 88,
       expanded: false,
     },
   ];
@@ -147,11 +142,12 @@ export class LineaAyudaComponent {
   }
 
   marcarUtil(item: FaqItem): void {
-    this.toastService.success('Gracias por tu respuesta, nos ayuda a mejorar.');
+    this.toastService.success('Gracias por contarnos, nos ayuda a mejorar.');
     item.expanded = false;
   }
 
-  onChatClick(): void {
-    this.toastService.info('El chat en vivo estará disponible próximamente.');
+  /** id estable de la respuesta, para enlazarla con su botón (aria-controls). */
+  idRespuesta(i: number): string {
+    return `faq-respuesta-${i}`;
   }
 }

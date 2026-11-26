@@ -234,28 +234,30 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/soporte/linea-ayuda/linea-ayuda')
             .then((m) => m.LineaAyudaComponent),
-        title: 'Linea de ayuda - FinanceUp',
+        title: 'Línea de ayuda - FinanceUp',
       },
       {
-        path: 'habla-con-nosostros',
+        path: 'habla-con-nosotros',
         loadComponent: () =>
           import('./pages/soporte/habla-con-nosotros/habla-con-nosotros')
             .then((m) => m.HablaConNosotrosComponent),
-        title: 'Linea de ayuda - FinanceUp',
+        title: 'Habla con nosotros - FinanceUp',
       },
+      // Ruta vieja con error de escritura: se conserva para no romper enlaces guardados.
+      { path: 'habla-con-nosostros', redirectTo: 'habla-con-nosotros' },
 
       {
         path: 'pqr',
         loadComponent: () =>
           import('./pages/soporte/pqr/pqr').then((m) => m.PqrComponent),
-        title: 'Linea de ayuda - FinanceUp',
+        title: 'Mis PQR - FinanceUp',
       },
       {
         path: 'nuevo-pqr',
         canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/soporte/nuevo-pqr/nuevo-pqr').then((m) => m.NuevoPqrComponent),
-        title: 'Linea de ayuda - FinanceUp',
+        title: 'Nueva PQR - FinanceUp',
       },
       {
         path: 'ver-pqr/:numero',
@@ -268,7 +270,7 @@ export const routes: Routes = [
         path: 'cookis',
         loadComponent: () =>
           import('./pages/soporte/banner-cookies/banner-cookies').then((m) => m.BannerCookiesComponent),
-        title: 'Linea de ayuda - FinanceUp',
+        title: 'Cookies - FinanceUp',
       },
       {
         path: 'finanzas',
