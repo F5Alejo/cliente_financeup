@@ -653,7 +653,6 @@ app-root {
     .service-row,
     .cta-panel,
     .card-resumen,
-    .panel,
     .pqr-card,
     .new-pqr-card {
       animation: fu-reveal linear backwards;

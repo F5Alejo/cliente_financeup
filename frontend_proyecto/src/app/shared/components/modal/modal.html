@@ -4,6 +4,7 @@
     class="modal"
     [class.modal-sm]="ancho() === 'sm'"
     [class.modal-lg]="ancho() === 'lg'"
+    [class.modal-xl]="ancho() === 'xl'"
     [attr.role]="alertdialog() ? 'alertdialog' : 'dialog'"
     aria-modal="true"
     [attr.aria-labelledby]="idTitulo"

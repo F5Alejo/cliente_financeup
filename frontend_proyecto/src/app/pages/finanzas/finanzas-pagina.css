@@ -180,6 +180,9 @@ app-banda-seccion {
 
 /* ---------- Tabla ---------- */
 .tabla-envoltura {
+  /* relative: los textos .visualmente-oculto (position: absolute) de las celdas quedan
+     dentro del scroll; sin esto escapaban y ensanchaban la página en móvil. */
+  position: relative;
   overflow-x: auto;
 }
 

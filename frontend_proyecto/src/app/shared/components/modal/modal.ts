@@ -15,7 +15,7 @@ const ENFOCABLES =
 export class ModalComponent implements AfterViewInit, OnDestroy {
   titulo = input.required<string>();
   subtitulo = input('');
-  ancho = input<'sm' | 'md' | 'lg'>('md');
+  ancho = input<'sm' | 'md' | 'lg' | 'xl'>('md');
   /** Evita cerrar al pulsar fuera; útil en formularios para no perder lo escrito. */
   fondoFijo = input(false);
   alertdialog = input(false);

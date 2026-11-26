@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, Injector, afterNextRender, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx'; // Librería para leer/escribir archivos Excel (.xlsx) en el navegador
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
@@ -13,6 +13,7 @@ import { BotonComponent } from '../../../shared/components/ui/boton/boton';
 import { GraficaLineaComponent, PuntoLinea } from '../../../shared/graficas/grafica-linea';
 import { BarraPartesComponent, Parte } from '../../../shared/graficas/barra-partes';
 import { MedidorComponent } from '../../../shared/graficas/medidor';
+import { ModalComponent } from '../../../shared/components/modal/modal';
 
 /**
  * COMPONENTE: Libro Mayor
@@ -57,6 +58,7 @@ type ColumnaOrden = 'fecha' | 'concepto' | 'categoria' | 'tipo' | 'valor';
     GraficaLineaComponent,
     BarraPartesComponent,
     MedidorComponent,
+    ModalComponent,
   ],
   templateUrl: './libro-mayor.html',
   styleUrls: ['../finanzas-pagina.css', './libro-mayor.css'],
@@ -64,6 +66,16 @@ type ColumnaOrden = 'fecha' | 'concepto' | 'categoria' | 'tipo' | 'valor';
 export class LibroMayorComponent {
   private finanzasService = inject(FinanzasService);
   private toastService = inject(ToastService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private injector = inject(Injector);
+
+  /** Mueve el foco a un elemento de esta pantalla después de que Angular la vuelva a pintar.
+   *  Se usa cuando el botón que tenía el foco desaparece (confirmar o cancelar un borrado). */
+  private enfocarDespues(selector: string): void {
+    afterNextRender(() => this.host.nativeElement.querySelector<HTMLElement>(selector)?.focus(), {
+      injector: this.injector,
+    });
+  }
 
   /** Categorías que el usuario puede elegir tanto en el formulario como en los filtros. */
   categoriasDisponibles: string[] = [
@@ -333,20 +345,28 @@ export class LibroMayorComponent {
    *  y mostramos un aviso; solo se borra de verdad si el usuario confirma. */
   idAEliminar = signal<number | null>(null);
 
+  /** El botón de borrar se reemplaza por "¿Eliminar? Sí / No": el foco pasa a "No",
+   *  la opción segura, para que el teclado no quede perdido en la página. */
   pedirConfirmacionEliminar(id: number): void {
     this.idAEliminar.set(id);
+    this.enfocarDespues(`#confirmar-no-${id}`);
   }
 
+  /** Al cancelar, el foco vuelve al botón de borrar de esa misma fila. */
   cancelarEliminar(): void {
+    const id = this.idAEliminar();
     this.idAEliminar.set(null);
+    if (id !== null) this.enfocarDespues(`#eliminar-${id}`);
   }
 
+  /** Al borrar, la fila desaparece: el foco va al título de la tabla de movimientos. */
   confirmarEliminar(): void {
     const id = this.idAEliminar();
     if (id === null) return;
     this.finanzasService.eliminarMovimiento(id);
     this.idAEliminar.set(null);
     this.emitirMensaje('exito', 'Movimiento eliminado.');
+    this.enfocarDespues('#mov-titulo');
   }
 
   /** ----- Mensajes de éxito / error (toast) -----
