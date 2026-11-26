@@ -5,7 +5,7 @@
   </div>
   <div class="page-actions">
     <button type="button" class="btn btn-primary" (click)="abrirFormulario()">
-      <app-icon nombre="plus" [tamano]="16" /> Nueva alianza
+      <app-icon nombre="plus" [tamano]="16" /> Nueva oferta
     </button>
   </div>
 </div>
@@ -97,11 +97,11 @@
       </table>
 
       @if (!cargando() && filtradas().length === 0) {
-        <app-estado-vacio titulo="No hay ofertas que coincidan con estos filtros." texto="Ajusta la búsqueda o crea una nueva alianza.">
+        <app-estado-vacio titulo="No hay ofertas que coincidan con estos filtros." texto="Ajusta la búsqueda o crea una nueva oferta.">
           @if (hayFiltros()) {
             <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
           }
-          <button type="button" class="btn btn-primary" (click)="abrirFormulario()">Nueva alianza</button>
+          <button type="button" class="btn btn-primary" (click)="abrirFormulario()">Nueva oferta</button>
         </app-estado-vacio>
       }
     </div>
@@ -163,28 +163,21 @@
 @if (modal(); as m) {
   @if (m.tipo === 'formulario') {
     <app-modal
-      [titulo]="m.oferta ? 'Editar oferta' : 'Nueva alianza'"
+      [titulo]="m.oferta ? 'Editar oferta' : 'Nueva oferta'"
       subtitulo="Los cambios se reflejan en la sección de Alianzas de los usuarios."
       ancho="lg"
       [fondoFijo]="true"
       (cerrar)="cerrarModal()">
       <form id="form-oferta" class="form-grid" [formGroup]="formulario" novalidate (ngSubmit)="guardar()">
         <div class="field">
-          <label for="of-aliado">Nombre del aliado</label>
-          <input id="of-aliado" class="input" type="text" formControlName="aliado" autocomplete="off" />
-          @if (errorDe('aliado')) { <span class="field-error">{{ errorDe('aliado') }}</span> }
-        </div>
-        <div class="field">
-          <label for="of-logo">Sigla del logo</label>
-          <input id="of-logo" class="input" type="text" maxlength="3" formControlName="logoText" placeholder="Ej. BA" autocomplete="off" />
-        </div>
-        <div class="field full">
-          <label for="of-desc">Descripción</label>
-          <textarea id="of-desc" class="input" rows="2" formControlName="descripcion"></textarea>
-        </div>
-        <div class="field full">
-          <label for="of-meta">Vigencia / meta</label>
-          <input id="of-meta" class="input" type="text" formControlName="meta" placeholder="Ej. Vence en 7 días" autocomplete="off" />
+          <label for="of-aliado">Aliado</label>
+          <select id="of-aliado" class="input" formControlName="idAliado">
+            <option [ngValue]="0" disabled>Elige un aliado</option>
+            @for (aliado of aliados(); track aliado.id) {
+              <option [ngValue]="aliado.id">{{ aliado.nombre }} · {{ aliado.tipo }}</option>
+            }
+          </select>
+          @if (errorDe('idAliado')) { <span class="field-error">{{ errorDe('idAliado') }}</span> }
         </div>
         <div class="field">
           <label for="of-familia">Familia de producto</label>
@@ -194,13 +187,45 @@
             }
           </select>
         </div>
+        <div class="field full">
+          <label for="of-categoria">Nombre del producto</label>
+          <input id="of-categoria" class="input" type="text" formControlName="categoria" placeholder="Ej. Crédito de libre inversión" autocomplete="off" />
+          @if (errorDe('categoria')) { <span class="field-error">{{ errorDe('categoria') }}</span> }
+        </div>
+        <div class="field full">
+          <label for="of-desc">Descripción <span class="opcional">(opcional)</span></label>
+          <textarea id="of-desc" class="input" rows="2" formControlName="descripcion"></textarea>
+        </div>
         <div class="field">
-          <label for="of-tipo">Tipo de aliado</label>
-          <select id="of-tipo" class="input" formControlName="tipo">
-            @for (tipo of tipos; track tipo) {
-              <option [value]="tipo">{{ tipo }}</option>
-            }
-          </select>
+          <label for="of-tasa">Tasa desde (% mensual)</label>
+          <input id="of-tasa" class="input" type="number" min="0" max="100" step="0.01" formControlName="tasaDesde" />
+          @if (errorDe('tasaDesde')) { <span class="field-error">{{ errorDe('tasaDesde') }}</span> }
+        </div>
+        <div class="field">
+          <label for="of-aprobacion">Tiempo de aprobación <span class="opcional">(opcional)</span></label>
+          <input id="of-aprobacion" class="input" type="text" formControlName="aprobacion" placeholder="Ej. 24 horas" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="of-monto-min">Monto mínimo</label>
+          <input id="of-monto-min" class="input" type="number" min="0" step="1000" formControlName="montoMinimo" />
+        </div>
+        <div class="field">
+          <label for="of-monto-max">Monto máximo</label>
+          <input id="of-monto-max" class="input" type="number" min="0" step="1000" formControlName="montoMaximo" />
+          @if (errorDe('montoMaximo')) { <span class="field-error">{{ errorDe('montoMaximo') }}</span> }
+        </div>
+        <div class="field">
+          <label for="of-plazo-min">Plazo mínimo (meses)</label>
+          <input id="of-plazo-min" class="input" type="number" min="0" formControlName="plazoMinimo" />
+        </div>
+        <div class="field">
+          <label for="of-plazo-max">Plazo máximo (meses)</label>
+          <input id="of-plazo-max" class="input" type="number" min="0" formControlName="plazoMaximo" />
+          <span class="field-hint">Deja 0 y 0 si el producto no tiene plazo (ahorro).</span>
+        </div>
+        <div class="field full">
+          <label for="of-meta">Vigencia / meta <span class="opcional">(opcional)</span></label>
+          <input id="of-meta" class="input" type="text" formControlName="meta" placeholder="Ej. Vence en 7 días" autocomplete="off" />
         </div>
         <div class="field">
           <label for="of-cta1">Botón principal</label>
@@ -220,17 +245,20 @@
         <p class="form-error" role="alert">{{ errorModal() }}</p>
       }
       <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-      <button pie type="submit" form="form-oferta" class="btn btn-primary">{{ m.oferta ? 'Guardar cambios' : 'Crear alianza' }}</button>
+      <button pie type="submit" form="form-oferta" class="btn btn-primary" [disabled]="enviando()">{{ enviando() ? 'Guardando…' : m.oferta ? 'Guardar cambios' : 'Crear oferta' }}</button>
     </app-modal>
   } @else if (m.oferta; as o) {
     <app-modal
-      titulo="Eliminar oferta"
-      [subtitulo]="'Se eliminará la oferta de ' + o.aliado + '. Esta acción no se puede deshacer y dejará de estar disponible para los usuarios.'"
+      titulo="Retirar oferta"
+      [subtitulo]="'La oferta ' + o.categoria + ' de ' + o.aliado + ' dejará de verse en Alianzas. Las solicitudes que ya recibió se conservan.'"
       ancho="sm"
       [alertdialog]="true"
       (cerrar)="cerrarModal()">
       <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-      <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar oferta</button>
+      @if (errorModal()) {
+        <p class="form-error" role="alert">{{ errorModal() }}</p>
+      }
+      <button pie type="button" class="btn btn-danger" [disabled]="enviando()" (click)="confirmarEliminacion()">{{ enviando() ? 'Retirando…' : 'Retirar oferta' }}</button>
     </app-modal>
   }
 }

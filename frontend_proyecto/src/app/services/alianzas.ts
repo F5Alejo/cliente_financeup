@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 
 import { API_URL, mensajeDeError } from './api';
 import { AuthService } from './auth';
@@ -25,6 +25,7 @@ export interface Pregunta {
 export interface Oferta {
   id: number;
   slug: string;
+  idAliado: number;
   aliado: string;
   descripcion: string;
   meta: string;
@@ -44,7 +45,9 @@ export interface Oferta {
   categoria: string;
   promesa: string;
   tasaDesde: number;
+  montoMinimo: number;
   montoMaximo: number;
+  plazoMinimo: number;
   plazoMaximo: number;
   aprobacion: string;
   calificacion: number;
@@ -59,11 +62,34 @@ export interface Oferta {
 
 /** Ficha completa de un producto (GET /ofertas/:id). */
 export interface FichaOferta extends Oferta {
-  montoMinimo: number;
-  plazoMinimo: number;
   documentos: string[];
   preguntas: Pregunta[];
   relacionadas: { id: number; categoria: string; tasaDesde: number }[];
+}
+
+/** Banco o comercio que el admin elige al crear una oferta. */
+export interface Aliado {
+  id: number;
+  nombre: string;
+  tipo: TipoAliado;
+}
+
+/** Lo que el admin llena en el formulario de una oferta. */
+export interface DatosOferta {
+  idAliado: number;
+  categoria: string;
+  descripcion: string;
+  familia: FamiliaProducto;
+  tasaDesde: number;
+  montoMinimo: number;
+  montoMaximo: number;
+  plazoMinimo: number;
+  plazoMaximo: number;
+  aprobacion: string;
+  meta: string;
+  ctaPrimaria: string;
+  ctaSecundaria: string;
+  destacada: boolean;
 }
 
 /** Lo que el usuario llena en el formulario de solicitud. */
@@ -121,6 +147,7 @@ export interface MiSolicitud {
 interface OfertaMid {
   id: number;
   slug: string;
+  id_aliado?: number;
   aliado: string;
   tipo: string;
   logo_texto: string;
@@ -132,7 +159,9 @@ interface OfertaMid {
   familia: string;
   beneficio: string;
   tasa_desde: number;
+  monto_minimo?: number;
   monto_maximo: number;
+  plazo_minimo?: number;
   plazo_maximo: number;
   aprobacion: string;
   calificacion: number;
@@ -149,8 +178,6 @@ interface OfertaMid {
 }
 
 interface FichaMid extends OfertaMid {
-  monto_minimo: number;
-  plazo_minimo: number;
   documentos: string[] | null;
   preguntas: Pregunta[] | null;
   relacionadas: { id: number; categoria: string; tasa_desde: number }[] | null;
@@ -187,6 +214,10 @@ const FAMILIAS: Record<string, FamiliaProducto> = {
   ahorro: 'Ahorro',
   comercios: 'Comercios',
 };
+/** Al revés: 'Créditos' → 'creditos', para mandarle al MID el código de la base. */
+const CODIGO_FAMILIA = Object.fromEntries(
+  Object.entries(FAMILIAS).map(([codigo, texto]) => [texto, codigo])
+) as Record<FamiliaProducto, string>;
 const BENEFICIOS: Record<string, Beneficio> = {
   cero_interes: '0% Interés',
   cashback: 'Cashback',
@@ -249,6 +280,7 @@ function aOferta(o: OfertaMid): Oferta {
   return {
     id: o.id,
     slug: o.slug,
+    idAliado: o.id_aliado ?? 0,
     aliado: o.aliado,
     descripcion: o.descripcion,
     meta: o.meta,
@@ -264,7 +296,9 @@ function aOferta(o: OfertaMid): Oferta {
     categoria: o.categoria,
     promesa: o.promesa || o.categoria,
     tasaDesde: o.tasa_desde,
+    montoMinimo: o.monto_minimo ?? 0,
     montoMaximo: o.monto_maximo,
+    plazoMinimo: o.plazo_minimo ?? 0,
     plazoMaximo: o.plazo_maximo,
     aprobacion: o.aprobacion,
     calificacion: o.calificacion,
@@ -290,6 +324,9 @@ export class AlianzasService {
   readonly ofertas = signal<Oferta[]>([]);
   readonly cargando = signal(false);
   readonly error = signal('');
+
+  /** Bancos y comercios para el formulario del admin (GET /admin/aliados). */
+  readonly aliados = signal<Aliado[]>([]);
 
   /** Solicitudes que ve el admin (GET /admin/solicitudes-credito). */
   readonly solicitudes = signal<Solicitud[]>([]);
@@ -320,8 +357,6 @@ export class AlianzasService {
     return this.http.get<FichaMid>(`${API_URL}/ofertas/${id}`).pipe(
       map((f) => ({
         ...aOferta(f),
-        montoMinimo: f.monto_minimo,
-        plazoMinimo: f.plazo_minimo,
         documentos: f.documentos ?? [],
         preguntas: f.preguntas ?? [],
         relacionadas: (f.relacionadas ?? []).map((r) => ({
@@ -417,5 +452,46 @@ export class AlianzasService {
         ),
       error: (error) => this.error.set(mensajeDeError(error)),
     });
+  }
+
+  // ---- Administración de ofertas (solo admin) ----
+
+  cargarAliados(): void {
+    this.http.get<{ id: number; nombre: string; tipo: string }[]>(`${API_URL}/admin/aliados`).subscribe({
+      next: (lista) =>
+        this.aliados.set(lista.map((a) => ({ id: a.id, nombre: a.nombre, tipo: TIPOS[a.tipo] ?? 'Bancos' }))),
+      error: (error) => this.error.set(mensajeDeError(error)),
+    });
+  }
+
+  /** Crea la oferta, o la edita si llega el id. Si el MID la guarda, se recarga la vitrina. */
+  guardarOferta(datos: DatosOferta, id?: number): Observable<unknown> {
+    const cuerpo = {
+      id_aliado: datos.idAliado,
+      categoria: datos.categoria.trim(),
+      descripcion: datos.descripcion.trim(),
+      familia: CODIGO_FAMILIA[datos.familia],
+      tasa_desde: datos.tasaDesde,
+      monto_minimo: datos.montoMinimo,
+      monto_maximo: datos.montoMaximo,
+      plazo_minimo: datos.plazoMinimo,
+      plazo_maximo: datos.plazoMaximo,
+      aprobacion: datos.aprobacion.trim(),
+      meta: datos.meta.trim(),
+      cta_primaria: datos.ctaPrimaria.trim(),
+      cta_secundaria: datos.ctaSecundaria.trim(),
+      destacada: datos.destacada,
+    };
+
+    const peticion = id
+      ? this.http.put(`${API_URL}/admin/ofertas/${id}`, cuerpo)
+      : this.http.post(`${API_URL}/admin/ofertas`, cuerpo);
+
+    return peticion.pipe(tap(() => this.cargarOfertas()));
+  }
+
+  /** Quita la oferta de la vitrina. El MID no la borra: la deja inactiva. */
+  retirarOferta(id: number): Observable<unknown> {
+    return this.http.delete(`${API_URL}/admin/ofertas/${id}`).pipe(tap(() => this.cargarOfertas()));
   }
 }

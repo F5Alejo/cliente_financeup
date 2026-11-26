@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { AlianzasService } from './alianzas';
+import { AlianzasService, DatosOferta } from './alianzas';
 import { API_URL } from './api';
 
 // Así responde el MID GET /v1/ofertas
@@ -249,5 +249,108 @@ describe('AlianzasService', () => {
 
     http.expectNone(() => true);
     expect(service.misSolicitudes()).toEqual([]);
+  });
+
+  // ---- Administración de ofertas ----
+
+  const DATOS_OFERTA: DatosOferta = {
+    idAliado: 3,
+    categoria: '  Crédito libre inversión ',
+    descripcion: 'Para lo que necesites',
+    familia: 'Créditos',
+    tasaDesde: 1.2,
+    montoMinimo: 1000000,
+    montoMaximo: 50000000,
+    plazoMinimo: 6,
+    plazoMaximo: 60,
+    aprobacion: '24 horas',
+    meta: 'Vence en 7 días',
+    ctaPrimaria: 'Solicitar',
+    ctaSecundaria: '',
+    destacada: false,
+  };
+
+  const CUERPO_OFERTA = {
+    id_aliado: 3,
+    categoria: 'Crédito libre inversión',
+    descripcion: 'Para lo que necesites',
+    familia: 'creditos',
+    tasa_desde: 1.2,
+    monto_minimo: 1000000,
+    monto_maximo: 50000000,
+    plazo_minimo: 6,
+    plazo_maximo: 60,
+    aprobacion: '24 horas',
+    meta: 'Vence en 7 días',
+    cta_primaria: 'Solicitar',
+    cta_secundaria: '',
+    destacada: false,
+  };
+
+  it('la lista trae el aliado y los mínimos para poder editar', () => {
+    crear(false);
+    service.cargarOfertas();
+    http.expectOne(`${API_URL}/ofertas`).flush([{ ...OFERTA_MID, id_aliado: 3, monto_minimo: 500000, plazo_minimo: 6 }]);
+
+    const oferta = service.ofertas()[0];
+    expect(oferta.idAliado).toBe(3);
+    expect(oferta.montoMinimo).toBe(500000);
+    expect(oferta.plazoMinimo).toBe(6);
+  });
+
+  it('carga los aliados para el formulario del admin', () => {
+    crear(true);
+    service.cargarAliados();
+    http.expectOne(`${API_URL}/admin/aliados`).flush([{ id: 3, nombre: 'Banco Andino', tipo: 'banco' }]);
+
+    expect(service.aliados()).toEqual([{ id: 3, nombre: 'Banco Andino', tipo: 'Bancos' }]);
+  });
+
+  it('crear una oferta manda la familia con el código de la base y recarga la lista', () => {
+    crear(true);
+    service.guardarOferta(DATOS_OFERTA).subscribe();
+
+    const peticion = http.expectOne(`${API_URL}/admin/ofertas`);
+    expect(peticion.request.method).toBe('POST');
+    expect(peticion.request.body).toEqual(CUERPO_OFERTA);
+    peticion.flush({ mensaje: 'Oferta creada', id: 20 });
+
+    http.expectOne(`${API_URL}/ofertas`).flush([]);
+  });
+
+  it('editar una oferta usa PUT con su id', () => {
+    crear(true);
+    service.guardarOferta({ ...DATOS_OFERTA, destacada: true }, 6).subscribe();
+
+    const peticion = http.expectOne(`${API_URL}/admin/ofertas/6`);
+    expect(peticion.request.method).toBe('PUT');
+    expect(peticion.request.body).toEqual({ ...CUERPO_OFERTA, destacada: true });
+    peticion.flush({ mensaje: 'Oferta actualizada', id: 6 });
+
+    http.expectOne(`${API_URL}/ofertas`).flush([]);
+  });
+
+  it('retirar una oferta usa DELETE y recarga la lista', () => {
+    crear(true);
+    service.retirarOferta(6).subscribe();
+
+    const peticion = http.expectOne(`${API_URL}/admin/ofertas/6`);
+    expect(peticion.request.method).toBe('DELETE');
+    peticion.flush({ mensaje: 'Oferta retirada', id: 6 });
+
+    http.expectOne(`${API_URL}/ofertas`).flush([]);
+  });
+
+  it('si el MID rechaza la oferta no recarga la lista', () => {
+    crear(true);
+    let error = '';
+    service.guardarOferta(DATOS_OFERTA).subscribe({ error: (e) => (error = e.error.error) });
+
+    http
+      .expectOne(`${API_URL}/admin/ofertas`)
+      .flush({ error: 'El aliado no existe' }, { status: 404, statusText: 'Not Found' });
+
+    expect(error).toBe('El aliado no existe');
+    http.expectNone(`${API_URL}/ofertas`);
   });
 });
