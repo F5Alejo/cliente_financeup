@@ -29,14 +29,6 @@
   min-width: 170px;
 }
 
-.contenido-reporte {
-  transition: opacity 0.15s;
-}
-
-.contenido-reporte.actualizando {
-  opacity: 0.55;
-}
-
 .secciones {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));

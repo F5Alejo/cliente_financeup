@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AlianzasService } from '../../../services/alianzas';
 import { EducacionService } from '../../../services/educacion';
-import { FinanzasService } from '../../../services/finanzas';
+import { FinanzasAdminService } from '../../../services/finanzas-admin';
 import { PqrService } from '../../../services/pqr';
 import { ETIQUETA_ACCION, ETIQUETA_ESTADO, ETIQUETA_ROL, UsuariosService } from '../../../services/usuarios';
 import { DistribucionComponent } from '../../../shared/components/distribucion/distribucion';
@@ -13,7 +13,6 @@ import { ActividadAdminService } from '../../../shared/services/actividad-admin'
 import { ToastService } from '../../../shared/services/toast';
 import { exportarExcel, FilaExportable } from '../../../shared/utils/exportar';
 import { formatearFechaHora, parsearFecha } from '../../../shared/utils/fechas';
-import { simularCarga } from '../../../shared/utils/lista';
 
 type Tema = 'usuarios' | 'pqr' | 'cursos' | 'alianzas' | 'finanzas' | 'actividad';
 type Formato = 'numero' | 'moneda';
@@ -88,18 +87,13 @@ export class AdminReportesComponent {
   private usuariosService = inject(UsuariosService);
   private pqrService = inject(PqrService);
   private educacionService = inject(EducacionService);
-  // Los cursos salen del catálogo del MID; se pide una vez y lo comparten todas las pantallas
-  private readonly catalogo = this.educacionService.escuelas().length === 0 && this.educacionService.cargarCatalogo();
   private alianzasService = inject(AlianzasService);
-  private finanzasService = inject(FinanzasService);
+  private finanzasAdmin = inject(FinanzasAdminService);
   private actividadService = inject(ActividadAdminService);
   private toastService = inject(ToastService);
 
   constructor() {
-    // Ofertas, solicitudes de crédito y PQR salen del MID
-    this.alianzasService.cargarOfertas();
-    this.alianzasService.cargarSolicitudesAdmin();
-    this.pqrService.cargarPqrAdmin();
+    this.cargarDatos();
   }
 
   readonly temas: { valor: Tema; etiqueta: string; icono: NombreIcono }[] = [
@@ -121,15 +115,25 @@ export class AdminReportesComponent {
   tema = signal<Tema>('usuarios');
   periodo = signal(6);
   generado = signal(new Date());
-  version = signal(0);
-  cargando = simularCarga();
-  actualizando = signal(false);
+
+  /** Cada tema sale de un servicio distinto; se mira solo el del tema abierto. */
+  private readonly estadoTema = computed(() => {
+    switch (this.tema()) {
+      case 'usuarios': return { cargando: this.usuariosService.cargando(), error: this.usuariosService.error() };
+      case 'pqr': return { cargando: this.pqrService.cargando(), error: this.pqrService.error() };
+      case 'cursos': return { cargando: this.educacionService.cargando(), error: this.educacionService.error() };
+      case 'alianzas': return { cargando: this.alianzasService.cargando(), error: this.alianzasService.error() };
+      case 'finanzas': return { cargando: this.finanzasAdmin.cargando(), error: this.finanzasAdmin.error() };
+      default: return { cargando: false, error: '' };
+    }
+  });
+  cargando = computed(() => this.estadoTema().cargando);
+  errorTema = computed(() => this.estadoTema().error);
 
   temaActual = computed(() => this.temas.find((t) => t.valor === this.tema()) ?? this.temas[0]);
   generadoTexto = computed(() => formatearFechaHora(this.generado().toISOString()));
 
   reporte = computed<Reporte>(() => {
-    this.version();
     this.usuariosService.cambios();
     switch (this.tema()) {
       case 'usuarios': return this.reporteUsuarios();
@@ -147,15 +151,20 @@ export class AdminReportesComponent {
     return seccion.datos.map((d, i) => ({ ...d, tono: seccion.tonos?.[i] ?? ('' as const) }));
   }
 
+  /** Vuelve a pedir al MID los datos de todos los temas. */
   generar(): void {
-    this.actualizando.set(true);
-    setTimeout(() => {
-      this.version.update((v) => v + 1);
-      this.generado.set(new Date());
-      this.actualizando.set(false);
-      this.actividadService.registrar('Reportes', 'Generó un reporte', this.temaActual().etiqueta);
-      this.toastService.success('Reporte generado con los datos más recientes.');
-    }, 500);
+    this.cargarDatos();
+    this.actividadService.registrar('Reportes', 'Generó un reporte', this.temaActual().etiqueta);
+  }
+
+  private cargarDatos(): void {
+    this.usuariosService.cargar();
+    this.pqrService.cargarPqrAdmin();
+    this.educacionService.cargarCatalogo();
+    this.alianzasService.cargarOfertas();
+    this.alianzasService.cargarSolicitudesAdmin();
+    this.finanzasAdmin.cargar();
+    this.generado.set(new Date());
   }
 
   exportarExcel(): void {
@@ -296,24 +305,25 @@ export class AdminReportesComponent {
   }
 
   private reporteFinanzas(): Reporte {
-    const movimientos = this.finanzasService.movimientos;
+    const movimientos = this.finanzasAdmin.movimientos();
+    const usuarios = new Set(movimientos.map((m) => m.usuario)).size;
     const ingresos = movimientos.filter((m) => m.tipo === 'ingreso').reduce((s, m) => s + m.valor, 0);
     const gastos = movimientos.filter((m) => m.tipo === 'gasto').reduce((s, m) => s + m.valor, 0);
     const porCategoria = new Map<string, number>();
     for (const m of movimientos.filter((mov) => mov.tipo === 'gasto')) {
-      porCategoria.set(m.categoria, (porCategoria.get(m.categoria) ?? 0) + m.valor);
+      porCategoria.set(m.categoria || 'Sin categoría', (porCategoria.get(m.categoria || 'Sin categoría') ?? 0) + m.valor);
     }
     return {
       kpis: [
         { etiqueta: 'Total ingresos', valor: formatoMoneda(ingresos), icono: 'arrow-up-right', pie: `${movimientos.filter((m) => m.tipo === 'ingreso').length} movimientos` },
         { etiqueta: 'Total gastos', valor: formatoMoneda(gastos), icono: 'arrow-down-right', pie: `${movimientos.filter((m) => m.tipo === 'gasto').length} movimientos`, tono: 'neutral' },
         { etiqueta: 'Balance neto', valor: formatoMoneda(ingresos - gastos), icono: 'wallet', pie: ingresos >= gastos ? 'ingresos superan a gastos' : 'gastos superan a ingresos', tono: ingresos >= gastos ? '' : 'warning' },
-        { etiqueta: 'Movimientos', valor: formatoNumero(movimientos.length), icono: 'list', pie: 'registrados', tono: 'neutral' },
+        { etiqueta: 'Movimientos', valor: formatoNumero(movimientos.length), icono: 'list', pie: `de ${usuarios} usuarios`, tono: 'neutral' },
       ],
       secciones: [
         {
           titulo: 'Ingresos frente a gastos',
-          descripcion: 'Comparación sobre todos los movimientos.',
+          descripcion: 'Suma de los movimientos de todos los usuarios.',
           tipo: 'distribucion',
           datos: [{ etiqueta: 'Ingresos', valor: ingresos }, { etiqueta: 'Gastos', valor: gastos }],
           formato: 'moneda',
