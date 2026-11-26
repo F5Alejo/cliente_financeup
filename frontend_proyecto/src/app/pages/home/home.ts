@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { AuthService } from '../../services/auth';
 import { IconComponent } from '../../shared/components/icon/icon';
+import { LogoComponent } from '../../shared/components/logo/logo';
 import { MonedaPipe } from '../../pipes/moneda.pipe';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -48,7 +49,7 @@ interface PasoInicio {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, RouterLink, IconComponent, MonedaPipe],
+  imports: [CommonModule, RouterLink, IconComponent, LogoComponent, MonedaPipe],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

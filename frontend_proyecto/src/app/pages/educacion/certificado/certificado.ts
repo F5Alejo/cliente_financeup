@@ -5,11 +5,12 @@ import { Certificado, Curso } from '../educacion/educacion.model';
 import { EducacionService } from '../../../services/educacion';
 import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
+import { LogoComponent } from '../../../shared/components/logo/logo';
 
 @Component({
   selector: 'app-certificado',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LogoComponent],
   templateUrl: './certificado.html',
   styleUrl: './certificado.css',
 })

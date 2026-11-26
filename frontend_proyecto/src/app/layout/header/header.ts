@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ToastService } from '../../shared/services/toast';
 import { IconComponent } from '../../shared/components/icon/icon';
+import { LogoComponent } from '../../shared/components/logo/logo';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@angular/aria/menu';
 
 interface NavItem {
@@ -16,7 +17,7 @@ interface NavItem {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, IconComponent, Menu, MenuItem, MenuTrigger, MenuContent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, IconComponent, LogoComponent, Menu, MenuItem, MenuTrigger, MenuContent],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })

@@ -39,9 +39,7 @@
 }
 
 .brand-logo {
-  height: 44px;
-  width: auto;
-  display: block;
+  height: 40px;
 }
 
 .main-nav {
@@ -290,8 +288,14 @@
     grid-area: cuenta;
   }
 
+  /* Oculto a la vista pero no al lector de pantalla: es el nombre accesible del botón. */
   .perfil-nombre {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
   .perfil-boton {
@@ -299,7 +303,7 @@
   }
 
   .brand-logo {
-    height: 34px;
+    height: 32px;
   }
 
   .main-nav {
