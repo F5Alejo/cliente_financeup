@@ -1,69 +1,112 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Pqr, PqrService } from '../../../services/pqr';
+import { DetallePqr, PqrService } from '../../../services/pqr';
+import { mensajeDeError } from '../../../services/api';
+import { ToastService } from '../../../shared/services/toast';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { MedidorComponent } from '../../../shared/graficas/medidor';
 
 @Component({
   selector: 'app-ver-pqr',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, BandaSeccionComponent, IconComponent, MedidorComponent],
   templateUrl: './ver-pqr.html',
   styleUrl: './ver-pqr.css',
 })
-export class VerPqrComponent implements OnInit {
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private pqrService: PqrService
-  ) {}
+export class VerPqrComponent {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private pqrService = inject(PqrService);
+  private toastService = inject(ToastService);
 
-  // ===== Dato del PQR actual (se carga según el número en la ruta) =====
-  pqr: Pqr | null = null;
+  // ===== PQR actual (se pide al MID con el radicado de la ruta) =====
+  readonly pqr = signal<DetallePqr | null>(null);
+  readonly cargando = signal(true);
+  readonly error = signal('');
+
+  // Caja para que el usuario escriba en su caso
+  mensaje = '';
+  readonly enviando = signal(false);
 
   // ===== Textos fijos de la interfaz =====
   textoVolver: string = 'Volver a mis PQR';
-  badgeTexto: string = 'DETALLE DE SOLICITUD';
-  subtitulo: string = 'Aquí puedes ver el estado y los detalles de tu solicitud.';
+  labelDescripcion: string = 'Lo que nos contaste';
 
-  labelNumeroPeticion: string = 'Número de petición:';
-  labelUsuario: string = 'Usuario:';
-  labelAsunto: string = 'Asunto:';
-  labelDescripcion: string = 'Descripción:';
-  labelEstado: string = 'Estado:';
+  textoBotonEnviar: string = 'Radicar otra PQR';
 
-  textoBotonEnviar: string = 'Enviar un nuevo pqr';
+  constructor() {
+    this.cargar();
+  }
 
-  ngOnInit(): void {
-    // La ruta se navega como: this.router.navigate(['/ver-pqr', pqr.numero])
-    // (ver pqr.ts -> verPqr()), así que aquí leemos ese mismo parámetro.
-    this.route.paramMap.subscribe((params) => {
-      const numero = params.get('numero');
-      this.pqr = this.pqrService.pqrs.find((p) => p.numero === numero) ?? null;
+  cargar(): void {
+    const radicado = this.route.snapshot.paramMap.get('numero') ?? '';
+    this.cargando.set(true);
+    this.error.set('');
+
+    this.pqrService.verPqr(radicado).subscribe({
+      next: (pqr) => {
+        this.pqr.set(pqr);
+        this.cargando.set(false);
+      },
+      error: (error) => {
+        this.error.set(mensajeDeError(error));
+        this.cargando.set(false);
+      },
     });
   }
 
-  /**
-   * Devuelve una clase CSS distinta según el estado del PQR,
-   * así el color del badge cambia automáticamente.
-   */
+  /** El color del distintivo cambia según el estado del caso. */
   obtenerClaseEstado(): string {
-    switch (this.pqr?.estado) {
+    switch (this.pqr()?.estado) {
+      case 'Abierta':
       case 'En revisión':
         return 'estado-amarillo';
-      case 'Resuelto':
+      case 'Resuelta':
+      case 'Cerrada':
         return 'estado-verde';
-      case 'Rechazado':
+      case 'Rechazada':
         return 'estado-rojo';
       default:
         return 'estado-gris';
     }
   }
 
-  volver(): void {
-    this.router.navigate(['/pqr']);
+  /** 2048 → "2 KB" */
+  tamano(bytes: number): string {
+    if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   }
 
-  verArchivo(nombreArchivo: string): void {
-    console.log('Ver archivo adjunto:', nombreArchivo);
+  /** Una PQR cerrada o rechazada ya no recibe mensajes. */
+  puedeResponder(): boolean {
+    const estado = this.pqr()?.estado;
+    return estado !== 'Cerrada' && estado !== 'Rechazada';
+  }
+
+  responder(): void {
+    const pqr = this.pqr();
+    const texto = this.mensaje.trim();
+    if (!pqr || !texto) return;
+
+    this.enviando.set(true);
+    this.pqrService.responder(pqr.id, texto).subscribe({
+      next: () => {
+        this.enviando.set(false);
+        this.mensaje = '';
+        this.toastService.success('Mensaje enviado al asesor.');
+        this.cargar();
+      },
+      error: (error) => {
+        this.enviando.set(false);
+        this.toastService.error(mensajeDeError(error));
+      },
+    });
+  }
+
+  volver(): void {
+    this.router.navigate(['/pqr']);
   }
 
   enviarNuevoPqr(): void {

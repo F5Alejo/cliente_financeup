@@ -4,7 +4,9 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter, map, startWith } from 'rxjs';
 import { AuthService } from '../../../services/auth';
 import { NotificacionAdmin, NotificacionesService } from '../../../services/notificaciones';
+import { UsuariosService } from '../../../services/usuarios';
 import { IconComponent, NombreIcono } from '../../../shared/components/icon/icon';
+import { LogoComponent } from '../../../shared/components/logo/logo';
 import { ToastContainerComponent } from '../../../shared/components/toast-container/toast-container';
 import { AdminBusquedaService } from '../../../shared/services/admin-busqueda';
 import { tiempoRelativo } from '../../../shared/utils/fechas';
@@ -31,7 +33,7 @@ const LLAVE_SIDEBAR = 'financeup_admin_sidebar';
 
 @Component({
   selector: 'app-admin-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, IconComponent, ToastContainerComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, IconComponent, LogoComponent, ToastContainerComponent],
   templateUrl: './admin-shell.html',
   styleUrl: './admin-shell.css',
 })
@@ -99,6 +101,9 @@ export class AdminShellComponent {
   sinLeer = this.notificacionesService.sinLeer;
 
   constructor() {
+    // Usuarios lo leen la tabla, el dashboard, roles, reportes y auditoría: se pide una vez al entrar.
+    inject(UsuariosService).cargar();
+
     effect(() => {
       this.info();
       this.menuMovil.set(false);

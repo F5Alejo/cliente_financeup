@@ -34,137 +34,8 @@
 }
 
 /* ---------- Bloque de color: la busqueda es el centro ---------- */
-.help-hero {
-  padding: clamp(34px, 5vw, 60px) clamp(24px, 4vw, 56px);
-  margin-bottom: 56px;
-  background: var(--verde-noche);
-  border-radius: var(--r-xl);
-  color: #ffffff;
-}
-
-.help-hero__badge {
-  display: inline-block;
-  margin-bottom: 18px;
-  padding: 7px 15px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--lime);
-}
-
-.help-hero__title {
-  margin: 0 0 14px;
-  max-width: 17ch;
-  font-size: clamp(30px, 4.2vw, 48px);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-.help-hero__subtitle {
-  margin: 0 0 32px;
-  max-width: 54ch;
-  font-size: 16px;
-  line-height: 1.75;
-  color: rgba(255, 255, 255, 0.76);
-}
-
-/* Buscador */
-.help-search {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  max-width: 680px;
-  padding: 6px 8px 6px 22px;
-  background: var(--panel);
-  border: none;
-  border-radius: 999px;
-  box-shadow: 0 10px 30px rgba(6, 30, 18, 0.24);
-  transition: box-shadow 0.25s ease;
-}
-
-.help-search:focus-within {
-  box-shadow: 0 0 0 4px rgba(155, 225, 93, 0.35), 0 10px 30px rgba(6, 30, 18, 0.24);
-}
-
-.help-search__icon {
-  position: relative;
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--verde-hondo);
-  border-radius: 50%;
-}
-
-.help-search__icon::after {
-  content: "";
-  position: absolute;
-  right: -6px;
-  bottom: -2px;
-  width: 8px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--verde-hondo);
-  transform: rotate(-45deg);
-}
-
-.help-search__input {
-  flex: 1;
-  min-width: 0;
-  padding: 13px 0;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  font-size: 15.5px;
-  color: var(--tinta);
-}
-
-.help-search__input::placeholder {
-  color: var(--ink-faint);
-}
-
-.help-search__count {
-  flex-shrink: 0;
-  padding: 9px 18px;
-  border-radius: 999px;
-  background: var(--verde-humo);
-  font-size: 12.5px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--verde-hondo);
-}
-
-/* Cifras dentro del bloque */
-.help-hero__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 48px;
-  margin-top: 38px;
-  padding-top: 30px;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-.help-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.help-stat__value {
-  font-size: 27px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  color: #ffffff;
-}
-
-.help-stat__label {
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.62);
+app-banda-seccion {
+  --banda-max: 1160px;
 }
 
 /* ---------- Titulos de seccion con barra de acento ---------- */
@@ -224,12 +95,20 @@
   margin-bottom: 16px;
 }
 
-/* Rombo, flecha, triangulo y estrella no dicen nada del tema: fuera el adorno */
+/* Ícono del tema, del mismo set de la app */
 .category-card__icon {
-  display: none;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--brand-wash);
+  color: var(--brand-strong);
 }
 
 .category-card__count {
+  margin-left: auto;
   padding: 6px 14px;
   border-radius: 999px;
   background: var(--verde-humo);
@@ -330,13 +209,20 @@
   margin-bottom: 18px;
 }
 
-/* El emoji del dato no encaja con la paleta: manda el titulo, no un icono decorativo */
 .channel-card__icon {
-  display: none;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--brand-wash);
+  color: var(--brand-strong);
 }
 
 .channel-card__status {
   display: inline-flex;
+  margin-left: auto;
   align-items: center;
   gap: 7px;
   padding: 7px 14px;
@@ -531,28 +417,5 @@
 @media (max-width: 640px) {
   .help-center {
     padding: 24px 16px 60px;
-  }
-
-  .help-hero {
-    border-radius: var(--r-xl);
-  }
-
-  .help-search {
-    flex-wrap: wrap;
-    padding: 14px 18px;
-    border-radius: var(--r-lg);
-  }
-
-  .help-search__input {
-    padding: 0;
-  }
-
-  .help-search__count {
-    width: 100%;
-    text-align: center;
-  }
-
-  .help-hero__stats {
-    gap: 28px;
   }
 }

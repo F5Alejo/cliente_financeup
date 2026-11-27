@@ -1,4 +1,9 @@
-import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
+
+import { API_URL, mensajeDeError } from './api';
+import { AuthService } from './auth';
 import type { EstadoUsuario, Rol, Usuario } from './auth';
 
 export type UsuarioLista = Omit<Usuario, 'password'>;
@@ -26,8 +31,7 @@ export type AccionBitacora =
   | 'cambio-rol'
   | 'bloqueo'
   | 'desbloqueo'
-  | 'restablecimiento'
-  | 'eliminacion';
+  | 'restablecimiento';
 
 export interface BitacoraUsuario {
   email: string;
@@ -37,18 +41,9 @@ export interface BitacoraUsuario {
   admin: string;
 }
 
-export interface ResultadoAccion {
-  exito: boolean;
-  mensaje?: string;
-}
-
-type Validacion = { ok: true; objetivo: Usuario } | { ok: false; resultado: ResultadoAccion };
-
 export const MOTIVO_MIN_CARACTERES = 5;
 export const NOMBRE_MIN_CARACTERES = 3;
 export const PASSWORD_PATRON = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-const EMAIL_PATRON = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SIN_PERMISO: ResultadoAccion = { exito: false, mensaje: 'No tienes permiso para realizar esta acción.' };
 
 export const ETIQUETA_ROL: Record<Rol, string> = { admin: 'Administrador', user: 'Usuario' };
 export const ETIQUETA_ESTADO: Record<EstadoUsuario, string> = {
@@ -63,62 +58,84 @@ export const ETIQUETA_ACCION: Record<AccionBitacora, string> = {
   'cambio-rol': 'Rol modificado',
   bloqueo: 'Cuenta bloqueada',
   desbloqueo: 'Cuenta desbloqueada',
-  restablecimiento: 'Restablecimiento de contraseña',
-  eliminacion: 'Cuenta eliminada'
+  restablecimiento: 'Código de recuperación enviado'
 };
 
-const HORA_MS = 3_600_000;
-const DIA_MS = 24 * HORA_MS;
-const hace = (dias: number, horas = 0): string => new Date(Date.now() - dias * DIA_MS - horas * HORA_MS).toISOString();
+// Estado en la base (auth.usuario) → estado de pantalla, y al revés al bloquear o reactivar
+const ESTADOS: Record<string, EstadoUsuario> = { activo: 'activo', inactivo: 'bloqueado', suspendido: 'suspendido' };
 
-// TODO: BLOQUE TEMPORAL CON DATOS QUEMADOS (MOCK)
-// Reemplazar por el MID real: GET /usuarios (une tabla usuario + rol), PUT /usuarios/:id/bloquear (con bitácora),
-// PUT /usuarios/:id/rol. Las validaciones de permiso (403) deben vivir en el backend.
-const USUARIOS_MOCK: Usuario[] = [
-  { email: 'admin@gmail.com', password: '123456', nombre: 'Administrador', rol: 'admin', estado: 'activo', documento: '1020304050', fechaRegistro: hace(420), ultimoAcceso: hace(0, 1) },
-  { email: 'camila@gmail.com', password: '123456', nombre: 'Camila', apellido: 'Rojas', rol: 'admin', estado: 'activo', documento: '1032456789', telefono: '3105550142', fechaRegistro: hace(380), ultimoAcceso: hace(2) },
-  { email: 'usuario@gmail.com', password: '123456', nombre: 'Usuario Demo', rol: 'user', estado: 'activo', documento: '1098765432', telefono: '3001234567', fechaRegistro: hace(210), ultimoAcceso: hace(1) },
-  { email: 'test@gmail.com', password: '123456', nombre: 'Test User', rol: 'user', estado: 'activo', fechaRegistro: hace(150), ultimoAcceso: hace(6) },
-  { email: 'mateo@gmail.com', password: '123456', nombre: 'Mateo', apellido: 'Herrera', rol: 'user', estado: 'suspendido', documento: '1045678123', motivoBloqueo: 'Suspensión temporal por verificación de identidad.', fechaRegistro: hace(130), ultimoAcceso: hace(20) },
-  { email: 'laura@gmail.com', password: '123456', nombre: 'Laura', apellido: 'Gómez', rol: 'user', estado: 'activo', documento: '1012345678', telefono: '3157778899', fechaRegistro: hace(95), ultimoAcceso: hace(2) },
-  {
-    email: 'carlos@gmail.com',
-    password: '123456',
-    nombre: 'Carlos',
-    apellido: 'Ruiz',
-    rol: 'user',
-    estado: 'bloqueado',
-    documento: '1076543210',
-    motivoBloqueo: 'Actividad sospechosa en la cuenta.',
-    fechaRegistro: hace(60),
-    ultimoAcceso: hace(40)
-  },
-  { email: 'valentina@gmail.com', password: '123456', nombre: 'Valentina', apellido: 'Ortiz', rol: 'user', estado: 'activo', documento: '1023987654', fechaRegistro: hace(45), ultimoAcceso: hace(0, 3) },
-  { email: 'andres@gmail.com', password: '123456', nombre: 'Andrés', apellido: 'Peña', rol: 'user', estado: 'activo', telefono: '3208889900', fechaRegistro: hace(28), ultimoAcceso: hace(12) },
-  { email: 'daniela@gmail.com', password: '123456', nombre: 'Daniela', apellido: 'Vargas', rol: 'user', estado: 'activo', documento: '1089012345', fechaRegistro: hace(75), ultimoAcceso: hace(45) },
-  { email: 'felipe@gmail.com', password: '123456', nombre: 'Felipe', apellido: 'Torres', rol: 'user', estado: 'activo', fechaRegistro: hace(8), ultimoAcceso: hace(6) },
-  { email: 'julian@gmail.com', password: '123456', nombre: 'Julián', apellido: 'Castro', rol: 'user', estado: 'pendiente', fechaRegistro: hace(5), ultimoAcceso: null },
-  { email: 'sofia@gmail.com', password: '123456', nombre: 'Sofía', apellido: 'Martínez', rol: 'user', estado: 'pendiente', telefono: '3126667788', fechaRegistro: hace(2), ultimoAcceso: null }
-];
+// Así responde el MID GET /v1/admin/usuarios
+interface UsuarioMid {
+  id_usuario: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  cedula: string;
+  estado: string;
+  rol: Rol;
+  fecha_registro: string;
+  ultima_sesion: string | null;
+}
 
+function aUsuario(u: UsuarioMid): UsuarioLista {
+  return {
+    id: u.id_usuario,
+    nombre: u.nombre,
+    apellido: u.apellido,
+    email: u.email,
+    telefono: u.telefono || undefined,
+    documento: u.cedula || undefined,
+    rol: u.rol,
+    estado: ESTADOS[u.estado] ?? 'activo',
+    fechaRegistro: u.fecha_registro,
+    ultimoAcceso: u.ultima_sesion,
+  };
+}
+
+/**
+ * Usuarios del panel de administración (rutas /v1/admin/usuarios del MID).
+ * La bitácora guarda lo que hizo el admin en esta sesión; el MID además
+ * deja cada cambio en soporte.registro_actividad.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class UsuariosService {
-  private usuarios: Usuario[] = USUARIOS_MOCK.map((u) => ({ ...u }));
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+
+  private readonly usuarios = signal<UsuarioLista[]>([]);
   private registros: BitacoraUsuario[] = [];
 
-  /** Se incrementa con cada cambio para que otras vistas (por ejemplo, las notificaciones) se actualicen. */
+  readonly cargando = signal(false);
+  readonly error = signal('');
+  /** Se incrementa con cada cambio para que otras vistas (dashboard, auditoría) se actualicen. */
   readonly cambios = signal(0);
 
-  /** Lista para la tabla de administración: nunca incluye la contraseña. */
-  listar(): UsuarioLista[] {
-    return this.usuarios.map((u) => this.sinPassword(u));
+  cargar(): void {
+    this.cargando.set(true);
+    this.error.set('');
+
+    this.http.get<UsuarioMid[]>(`${API_URL}/admin/usuarios`).subscribe({
+      next: (lista) => {
+        this.usuarios.set(lista.map(aUsuario));
+        this.cargando.set(false);
+        this.notificar();
+      },
+      error: (error) => {
+        this.error.set(mensajeDeError(error));
+        this.cargando.set(false);
+      },
+    });
   }
 
-  obtener(email: string): UsuarioLista | undefined {
-    const usuario = this.buscar(email);
-    return usuario ? this.sinPassword(usuario) : undefined;
+  listar(): UsuarioLista[] {
+    return this.usuarios();
+  }
+
+  buscar(email: string): UsuarioLista | undefined {
+    return this.usuarios().find((u) => u.email.toLowerCase() === email.toLowerCase());
   }
 
   bitacora(): BitacoraUsuario[] {
@@ -130,216 +147,71 @@ export class UsuariosService {
     return this.registros.filter((r) => r.email.toLowerCase() === email.toLowerCase());
   }
 
-  crear(datos: DatosNuevoUsuario, adminEmail: string): ResultadoAccion {
-    if (!this.permiso(adminEmail)) {
-      return SIN_PERMISO;
-    }
-
-    const email = datos.email.trim();
-    if (!EMAIL_PATRON.test(email)) {
-      return { exito: false, mensaje: 'El correo no tiene un formato válido.' };
-    }
-    if (datos.rol !== 'admin' && datos.rol !== 'user') {
-      return { exito: false, mensaje: 'El rol seleccionado no es válido.' };
-    }
-    const errorNombre = this.validarNombre(datos.nombre, datos.apellido);
-    if (errorNombre) {
-      return errorNombre;
-    }
-    if (!PASSWORD_PATRON.test(datos.password)) {
-      return {
-        exito: false,
-        mensaje: 'La contraseña debe tener mínimo 8 caracteres, con mayúscula, minúscula y número.'
-      };
-    }
-    if (this.buscar(email)) {
-      return { exito: false, mensaje: 'Ya existe una cuenta registrada con ese correo.' };
-    }
-
-    this.agregar({
-      email,
-      password: datos.password,
+  crear(datos: DatosNuevoUsuario): Observable<unknown> {
+    const cuerpo = {
       nombre: datos.nombre.trim(),
       apellido: datos.apellido.trim(),
+      email: datos.email.trim(),
+      contrasena: datos.password,
       rol: datos.rol,
-      ultimoAcceso: null,
-      ...this.contacto(datos)
-    });
-    this.registrar(email, 'creacion', 'Cuenta creada desde el panel de administración.', adminEmail);
-    return { exito: true };
+      telefono: datos.telefono?.trim() ?? '',
+      cedula: datos.documento?.trim() ?? '',
+    };
+    return this.http
+      .post(`${API_URL}/admin/usuarios`, cuerpo)
+      .pipe(tap(() => this.despues(cuerpo.email, 'creacion', 'Cuenta creada desde el panel de administración.')));
   }
 
-  editar(email: string, datos: DatosEdicionUsuario, adminEmail: string): ResultadoAccion {
-    const validacion = this.validar(adminEmail, email);
-    if (!validacion.ok) {
-      return validacion.resultado;
-    }
-
-    const errorNombre = this.validarNombre(datos.nombre, datos.apellido);
-    if (errorNombre) {
-      return errorNombre;
-    }
-
-    const { objetivo } = validacion;
-    objetivo.nombre = datos.nombre.trim();
-    objetivo.apellido = datos.apellido.trim();
-    Object.assign(objetivo, this.contacto(datos));
-    this.registrar(objetivo.email, 'edicion', 'Se actualizaron los datos personales.', adminEmail);
-    return { exito: true };
+  editar(usuario: UsuarioLista, datos: DatosEdicionUsuario): Observable<unknown> {
+    const cuerpo = {
+      nombre: datos.nombre.trim(),
+      apellido: datos.apellido.trim(),
+      telefono: datos.telefono?.trim() ?? '',
+      cedula: datos.documento?.trim() ?? '',
+    };
+    return this.http
+      .put(`${API_URL}/admin/usuarios/${usuario.id}`, cuerpo)
+      .pipe(tap(() => this.despues(usuario.email, 'edicion', 'Se actualizaron los datos personales.')));
   }
 
-  eliminar(email: string, adminEmail: string): ResultadoAccion {
-    const validacion = this.validar(adminEmail, email);
-    if (!validacion.ok) {
-      return validacion.resultado;
-    }
-
-    const { objetivo } = validacion;
-    this.usuarios = this.usuarios.filter((u) => u !== objetivo);
-    this.registrar(objetivo.email, 'eliminacion', 'Eliminación de la cuenta.', adminEmail);
-    return { exito: true };
+  /** El MID cierra las sesiones del usuario: con el rol nuevo debe entrar otra vez. */
+  cambiarRol(usuario: UsuarioLista, nuevoRol: Rol): Observable<unknown> {
+    const motivo = `Rol cambiado de ${ETIQUETA_ROL[usuario.rol]} a ${ETIQUETA_ROL[nuevoRol]}.`;
+    return this.http
+      .put(`${API_URL}/admin/usuarios/${usuario.id}/rol`, { rol: nuevoRol })
+      .pipe(tap(() => this.despues(usuario.email, 'cambio-rol', motivo)));
   }
 
-  cambiarRol(email: string, nuevoRol: Rol, adminEmail: string): ResultadoAccion {
-    const validacion = this.validar(adminEmail, email);
-    if (!validacion.ok) {
-      return validacion.resultado;
-    }
-
-    const { objetivo } = validacion;
-    if (objetivo.rol !== nuevoRol) {
-      const anterior = objetivo.rol;
-      objetivo.rol = nuevoRol;
-      this.registrar(
-        objetivo.email,
-        'cambio-rol',
-        `Rol cambiado de ${ETIQUETA_ROL[anterior]} a ${ETIQUETA_ROL[nuevoRol]}.`,
-        adminEmail
-      );
-    }
-    return { exito: true };
-  }
-
-  bloquear(email: string, motivo: string, adminEmail: string): ResultadoAccion {
-    const validacion = this.validar(adminEmail, email);
-    if (!validacion.ok) {
-      return validacion.resultado;
-    }
-
-    const texto = motivo.trim();
-    if (texto.length < MOTIVO_MIN_CARACTERES) {
-      return {
-        exito: false,
-        mensaje: `Escribe el motivo del bloqueo (mínimo ${MOTIVO_MIN_CARACTERES} caracteres).`
-      };
-    }
-
-    const { objetivo } = validacion;
-    if (objetivo.estado === 'bloqueado') {
-      return { exito: false, mensaje: 'La cuenta ya está bloqueada.' };
-    }
-
-    objetivo.estado = 'bloqueado';
-    objetivo.motivoBloqueo = texto;
-    this.registrar(objetivo.email, 'bloqueo', texto, adminEmail);
-    return { exito: true };
+  bloquear(usuario: UsuarioLista, motivo: string): Observable<unknown> {
+    return this.cambiarEstado(usuario, 'inactivo', motivo.trim(), 'bloqueo');
   }
 
   /** Reactiva una cuenta bloqueada o suspendida. */
-  desbloquear(email: string, adminEmail: string): ResultadoAccion {
-    const validacion = this.validar(adminEmail, email);
-    if (!validacion.ok) {
-      return validacion.resultado;
-    }
-
-    const { objetivo } = validacion;
-    if (objetivo.estado !== 'bloqueado' && objetivo.estado !== 'suspendido') {
-      return { exito: false, mensaje: 'La cuenta no está bloqueada ni suspendida.' };
-    }
-
-    objetivo.estado = 'activo';
-    delete objetivo.motivoBloqueo;
-    this.registrar(objetivo.email, 'desbloqueo', 'Desbloqueo por administrador.', adminEmail);
-    return { exito: true };
+  desbloquear(usuario: UsuarioLista): Observable<unknown> {
+    return this.cambiarEstado(usuario, 'activo', '', 'desbloqueo');
   }
 
-  // TODO: el envío real del enlace de restablecimiento lo hace el backend (correo al usuario).
-  restablecerPassword(email: string, adminEmail: string): ResultadoAccion {
-    const validacion = this.validar(adminEmail, email);
-    if (!validacion.ok) {
-      return validacion.resultado;
-    }
-
-    this.registrar(validacion.objetivo.email, 'restablecimiento', 'Se envió un enlace para restablecer la contraseña.', adminEmail);
-    return { exito: true };
+  /** Le llega al usuario el mismo código de "¿Olvidaste tu contraseña?". */
+  restablecerPassword(usuario: UsuarioLista): Observable<unknown> {
+    return this.http
+      .post(`${API_URL}/recuperar-contrasena`, { email: usuario.email })
+      .pipe(tap(() => this.anotar(usuario.email, 'restablecimiento', 'Se envió el código para cambiar la contraseña.')));
   }
 
-  // Métodos de uso interno de AuthService (login, registro y perfil).
-  buscar(email: string): Usuario | undefined {
-    return this.usuarios.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  private cambiarEstado(usuario: UsuarioLista, estado: string, motivo: string, accion: AccionBitacora): Observable<unknown> {
+    return this.http
+      .put(`${API_URL}/admin/usuarios/${usuario.id}/estado`, { estado, motivo })
+      .pipe(tap(() => this.despues(usuario.email, accion, motivo || 'Reactivada por el administrador.')));
   }
 
-  agregar(usuario: Usuario): void {
-    this.usuarios.push({ estado: 'activo', fechaRegistro: new Date().toISOString(), ...usuario });
-    this.notificar();
+  /** Tras un cambio que sí guardó el MID: se anota y se vuelve a pedir la lista. */
+  private despues(email: string, accion: AccionBitacora, motivo: string): void {
+    this.anotar(email, accion, motivo);
+    this.cargar();
   }
 
-  reemplazar(usuario: Usuario): void {
-    const indice = this.usuarios.findIndex((u) => u.email.toLowerCase() === usuario.email.toLowerCase());
-    if (indice !== -1) {
-      this.usuarios[indice] = usuario;
-    }
-  }
-
-  private sinPassword(usuario: Usuario): UsuarioLista {
-    const { password: _password, ...resto } = usuario;
-    return { ...resto, estado: resto.estado ?? 'activo' };
-  }
-
-  private permiso(adminEmail: string): Usuario | null {
-    const admin = this.buscar(adminEmail);
-    return admin && admin.rol === 'admin' && (admin.estado ?? 'activo') === 'activo' ? admin : null;
-  }
-
-  private validarNombre(nombre: string, apellido: string): ResultadoAccion | null {
-    if (nombre.trim().length < NOMBRE_MIN_CARACTERES || apellido.trim().length < NOMBRE_MIN_CARACTERES) {
-      return {
-        exito: false,
-        mensaje: `El nombre y el apellido deben tener mínimo ${NOMBRE_MIN_CARACTERES} caracteres.`
-      };
-    }
-    return null;
-  }
-
-  private contacto(datos: { telefono?: string; documento?: string }): Pick<Usuario, 'telefono' | 'documento'> {
-    return {
-      telefono: datos.telefono?.trim() || undefined,
-      documento: datos.documento?.trim() || undefined
-    };
-  }
-
-  private validar(adminEmail: string, objetivoEmail: string): Validacion {
-    const admin = this.permiso(adminEmail);
-    if (!admin) {
-      return { ok: false, resultado: SIN_PERMISO };
-    }
-
-    const objetivo = this.buscar(objetivoEmail);
-    if (!objetivo) {
-      return { ok: false, resultado: { exito: false, mensaje: 'El usuario no existe.' } };
-    }
-
-    if (objetivo.email.toLowerCase() === admin.email.toLowerCase()) {
-      return {
-        ok: false,
-        resultado: { exito: false, mensaje: 'No puedes modificar tu propia cuenta desde este panel.' }
-      };
-    }
-
-    return { ok: true, objetivo };
-  }
-
-  private registrar(email: string, accion: AccionBitacora, motivo: string, admin: string): void {
+  private anotar(email: string, accion: AccionBitacora, motivo: string): void {
+    const admin = this.authService.obtenerUsuario()?.email ?? '';
     this.registros.push({ email, accion, motivo, fecha: new Date().toISOString(), admin });
     this.notificar();
   }

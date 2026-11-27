@@ -178,7 +178,7 @@ export class AdminMetasComponent {
       this.actividad.registrar('Metas', 'Meta actualizada', nombre);
       this.toastService.success('Meta actualizada correctamente.');
     } else {
-      this.metasService.agregarMeta({ nombre, icono: '🎯', actual, objetivo });
+      this.metasService.agregarMeta({ nombre, icono: 'target', actual, objetivo });
       console.log('[Admin Metas] Meta creada:', { nombre, actual, objetivo });
       this.actividad.registrar('Metas', 'Meta creada', nombre);
       this.toastService.success('Meta agregada correctamente.');

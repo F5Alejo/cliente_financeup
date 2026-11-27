@@ -81,9 +81,7 @@
 }
 
 .diploma__marca {
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  height: 34px;
 }
 
 .diploma__escuela {

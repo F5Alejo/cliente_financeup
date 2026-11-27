@@ -44,15 +44,17 @@ To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use th
 ng test
 ```
 
-## Running end-to-end tests
+## Pruebas de navegador (Playwright)
 
-For end-to-end (e2e) testing, run:
+Recorridos reales en escritorio y móvil, con revisión de accesibilidad (`@axe-core/playwright`).
+Usan el Chrome instalado (`channel: 'chrome'`) y levantan `ng serve` en el puerto 4300.
 
 ```bash
-ng e2e
+npm run e2e            # todas las pruebas, escritorio y móvil
+npm run e2e -- --ui    # modo visual para depurar
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Las pruebas están en `e2e/`. El reporte HTML queda en `playwright-report/` (no se versiona).
 
 ## Additional Resources
 

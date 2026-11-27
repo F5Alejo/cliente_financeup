@@ -1,0 +1,247 @@
+:host {
+  display: block;
+}
+
+.col {
+  margin: 0;
+}
+
+.col__cabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  margin-bottom: 12px;
+}
+
+.col__leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--ink-body);
+}
+
+.col__leyenda li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.col__leyenda i,
+.col__tip i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.col__vista {
+  margin-left: auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-body);
+  cursor: pointer;
+}
+
+.col__vista:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.col__vista:focus-visible,
+.col__grupo:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+}
+
+/* ---------- Lienzo ---------- */
+.col__lienzo {
+  position: relative;
+  padding-left: 58px;
+}
+
+.col__rejilla {
+  position: absolute;
+  inset: 0 0 28px 58px;
+}
+
+.col__linea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px solid var(--line);
+}
+
+.col__linea--base {
+  border-top-color: var(--line-strong);
+}
+
+.col__linea span {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: -0.6em;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--ink-soft);
+}
+
+.col__grupos {
+  position: relative;
+  display: flex;
+  height: 100%;
+}
+
+.col__grupo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: var(--r-sm);
+  cursor: default;
+}
+
+.col__barras {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+
+.col__barras i {
+  width: min(24px, 28%);
+  min-height: 0;
+  border-radius: 4px 4px 0 0;
+  transition: opacity var(--dur-fast) ease;
+}
+
+/* Los meses anteriores se atenúan; el actual queda en color pleno, como la barra alta del logo */
+.col__grupo--pasado .col__barras i {
+  opacity: 0.42;
+}
+
+.col__grupo--activo .col__barras i {
+  opacity: 1;
+}
+
+.col__grupo--activo {
+  background: var(--brand-wash);
+}
+
+.col__x {
+  height: 28px;
+  padding-top: 8px;
+  font-size: 0.8rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink-soft);
+}
+
+.col__x--actual {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* ---------- Tooltip ---------- */
+.col__tip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 4px;
+  min-width: 168px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  transform: translateX(-50%);
+  pointer-events: none;
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.5);
+}
+
+.col__tip--inicio {
+  left: 0;
+  transform: none;
+}
+
+.col__tip--fin {
+  right: 0;
+  transform: none;
+}
+
+.col__tip strong {
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.col__tip span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.col__tip b {
+  margin-left: auto;
+  padding-left: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ---------- Tabla ---------- */
+.col__tabla {
+  overflow-x: auto;
+}
+
+.col__tabla table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.col__tabla th,
+.col__tabla td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.col__tabla thead th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.col__tabla tbody th {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.col__tabla .num {
+  text-align: right;
+}
+
+@media (max-width: 480px) {
+  .col__lienzo {
+    padding-left: 48px;
+  }
+
+  .col__rejilla {
+    left: 48px;
+  }
+}

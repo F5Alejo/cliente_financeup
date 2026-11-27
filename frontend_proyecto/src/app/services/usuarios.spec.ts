@@ -1,229 +1,145 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { AuthService } from './auth';
-import { UsuariosService } from './usuarios';
+import { API_URL } from './api';
+import { UsuarioLista, UsuariosService } from './usuarios';
 
-const ADMIN = 'admin@gmail.com';
-const OBJETIVO = 'usuario@gmail.com';
-const MOTIVO = 'Actividad sospechosa';
+// Así responde el MID GET /v1/admin/usuarios
+const USUARIO_MID = {
+  id_usuario: 6,
+  nombre: 'Ana',
+  apellido: 'Gómez',
+  email: 'ana@financeup.test',
+  telefono: '3001234567',
+  cedula: '1010101010',
+  estado: 'activo',
+  activo: true,
+  rol: 'user',
+  roles: ['Usuario'],
+  fecha_registro: '2026-11-20T14:21:23Z',
+  ultima_sesion: null,
+};
 
 describe('UsuariosService', () => {
   let service: UsuariosService;
+  let http: HttpTestingController;
+  let ana: UsuarioLista;
 
   beforeEach(() => {
     sessionStorage.clear();
-    TestBed.configureTestingModule({});
+    sessionStorage.setItem(
+      'financeup_user',
+      JSON.stringify({ id: 8, email: 'admin@financeup.test', nombre: 'Admin', rol: 'admin', token: 'abc' })
+    );
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     service = TestBed.inject(UsuariosService);
-  });
+    http = TestBed.inject(HttpTestingController);
 
-  const estadoDe = (email: string) => service.listar().find((u) => u.email === email)?.estado;
-
-  it('lista nombre, correo, rol y estado sin exponer la contraseña', () => {
-    const lista = service.listar();
-
-    expect(lista.length).toBeGreaterThan(0);
-    expect(lista.every((u) => !('password' in u))).toBe(true);
-    expect(new Set(lista.map((u) => u.estado))).toEqual(new Set(['activo', 'bloqueado', 'pendiente', 'suspendido']));
-    expect(lista.every((u) => 'fechaRegistro' in u && 'ultimoAcceso' in u)).toBe(true);
-  });
-
-  it('bloquea una cuenta y deja registro en la bitácora', () => {
-    const resultado = service.bloquear(OBJETIVO, MOTIVO, ADMIN);
-
-    expect(resultado.exito).toBe(true);
-    expect(estadoDe(OBJETIVO)).toBe('bloqueado');
-    expect(service.bitacora()).toEqual([
-      expect.objectContaining({ email: OBJETIVO, accion: 'bloqueo', motivo: MOTIVO, admin: ADMIN }),
+    service.cargar();
+    http.expectOne(`${API_URL}/admin/usuarios`).flush([
+      USUARIO_MID,
+      { ...USUARIO_MID, id_usuario: 7, email: 'luis@financeup.test', cedula: '', estado: 'inactivo', rol: 'admin' },
+      { ...USUARIO_MID, id_usuario: 9, email: 'eva@financeup.test', estado: 'suspendido', ultima_sesion: '2026-11-24T10:00:00Z' },
     ]);
+    ana = service.listar()[0];
   });
 
-  it('rechaza el bloqueo sin motivo', () => {
-    const resultado = service.bloquear(OBJETIVO, '   ', ADMIN);
+  afterEach(() => http.verify());
 
-    expect(resultado.exito).toBe(false);
-    expect(estadoDe(OBJETIVO)).toBe('activo');
-    expect(service.bitacora()).toHaveLength(0);
+  it('carga los usuarios del MID con documento, fechas y estado de pantalla', () => {
+    expect(service.listar()).toHaveLength(3);
+    expect(ana).toMatchObject({ id: 6, documento: '1010101010', fechaRegistro: '2026-11-20T14:21:23Z', ultimoAcceso: null });
+    expect(service.listar()[1].estado).toBe('bloqueado');
+    expect(service.listar()[1].documento).toBeUndefined();
+    expect(service.listar()[2].estado).toBe('suspendido');
+    expect(service.cargando()).toBe(false);
   });
 
-  it('rechaza a quien no es administrador (equivale al 403)', () => {
-    const resultado = service.bloquear('test@gmail.com', MOTIVO, OBJETIVO);
+  it('si el MID falla deja el mensaje de error', () => {
+    service.cargar();
+    http.expectOne(`${API_URL}/admin/usuarios`).flush({ error: 'Solo un administrador' }, { status: 403, statusText: 'Forbidden' });
 
-    expect(resultado.exito).toBe(false);
-    expect(estadoDe('test@gmail.com')).toBe('activo');
+    expect(service.error()).toBe('Solo un administrador');
+    expect(service.cargando()).toBe(false);
   });
 
-  it('no permite que un administrador se bloquee ni se cambie el rol a sí mismo', () => {
-    expect(service.bloquear(ADMIN, MOTIVO, ADMIN).exito).toBe(false);
-    expect(service.cambiarRol(ADMIN, 'user', ADMIN).exito).toBe(false);
-    expect(estadoDe(ADMIN)).toBe('activo');
+  it('crear manda los nombres del MID, recarga la lista y lo anota en la bitácora', () => {
+    service
+      .crear({ nombre: 'Carla', apellido: 'Ríos', email: 'carla@financeup.test', password: 'Prueba2026x', rol: 'admin', telefono: '300', documento: '' })
+      .subscribe();
+
+    const peticion = http.expectOne(`${API_URL}/admin/usuarios`);
+    expect(peticion.request.method).toBe('POST');
+    expect(peticion.request.body).toEqual({
+      nombre: 'Carla',
+      apellido: 'Ríos',
+      email: 'carla@financeup.test',
+      contrasena: 'Prueba2026x',
+      rol: 'admin',
+      telefono: '300',
+      cedula: '',
+    });
+    peticion.flush({ id_usuario: 10, mensaje: 'Usuario creado', rol: 'admin' });
+
+    http.expectOne({ method: 'GET', url: `${API_URL}/admin/usuarios` }).flush([]);
+    expect(service.bitacora()[0]).toMatchObject({ email: 'carla@financeup.test', accion: 'creacion', admin: 'admin@financeup.test' });
   });
 
-  it('desbloquea una cuenta bloqueada y lo registra', () => {
-    service.bloquear(OBJETIVO, MOTIVO, ADMIN);
+  it('editar solo manda los datos personales', () => {
+    service.editar(ana, { nombre: 'Ana', apellido: 'Gómez', telefono: '311', documento: '999' }).subscribe();
 
-    const resultado = service.desbloquear(OBJETIVO, ADMIN);
-
-    expect(resultado.exito).toBe(true);
-    expect(estadoDe(OBJETIVO)).toBe('activo');
-    expect(service.bitacora().map((r) => r.accion)).toEqual(['bloqueo', 'desbloqueo']);
+    const peticion = http.expectOne(`${API_URL}/admin/usuarios/6`);
+    expect(peticion.request.method).toBe('PUT');
+    expect(peticion.request.body).toEqual({ nombre: 'Ana', apellido: 'Gómez', telefono: '311', cedula: '999' });
+    peticion.flush({ mensaje: 'Usuario actualizado' });
+    http.expectOne(`${API_URL}/admin/usuarios`).flush([]);
   });
 
-  it('cambia el rol de otro usuario', () => {
-    const resultado = service.cambiarRol(OBJETIVO, 'admin', ADMIN);
+  it('cambiar rol usa la ruta del rol', () => {
+    service.cambiarRol(ana, 'admin').subscribe();
 
-    expect(resultado.exito).toBe(true);
-    expect(service.listar().find((u) => u.email === OBJETIVO)?.rol).toBe('admin');
+    const peticion = http.expectOne(`${API_URL}/admin/usuarios/6/rol`);
+    expect(peticion.request.body).toEqual({ rol: 'admin' });
+    peticion.flush({ rol: 'admin' });
+    http.expectOne(`${API_URL}/admin/usuarios`).flush([]);
+    expect(service.actividadDe('ana@financeup.test')[0].accion).toBe('cambio-rol');
   });
 
-  describe('crear', () => {
-    const nuevo = {
-      nombre: 'Marta',
-      apellido: 'Pérez',
-      email: 'marta@gmail.com',
-      password: 'Segura123',
-      rol: 'user' as const,
-      telefono: ' 3001234567 ',
-    };
+  it('bloquear deja la cuenta inactiva con motivo y desbloquear la activa', () => {
+    service.bloquear(ana, 'Actividad sospechosa').subscribe();
+    const bloqueo = http.expectOne(`${API_URL}/admin/usuarios/6/estado`);
+    expect(bloqueo.request.body).toEqual({ estado: 'inactivo', motivo: 'Actividad sospechosa' });
+    bloqueo.flush({ estado: 'inactivo' });
+    http.expectOne(`${API_URL}/admin/usuarios`).flush([]);
 
-    it('crea un usuario activo que puede iniciar sesión', () => {
-      const resultado = service.crear(nuevo, ADMIN);
+    service.desbloquear(ana).subscribe();
+    const desbloqueo = http.expectOne(`${API_URL}/admin/usuarios/6/estado`);
+    expect(desbloqueo.request.body).toEqual({ estado: 'activo', motivo: '' });
+    desbloqueo.flush({ estado: 'activo' });
+    http.expectOne(`${API_URL}/admin/usuarios`).flush([]);
 
-      expect(resultado.exito).toBe(true);
-      const creado = service.listar().find((u) => u.email === nuevo.email);
-      expect(creado).toMatchObject({ nombre: 'Marta', rol: 'user', estado: 'activo', telefono: '3001234567' });
-      expect(creado && 'password' in creado).toBe(false);
-      expect(TestBed.inject(AuthService).validarCredenciales(nuevo.email, nuevo.password)).not.toBeNull();
-    });
-
-    it('rechaza un correo repetido (equivale al 409)', () => {
-      const resultado = service.crear({ ...nuevo, email: 'USUARIO@gmail.com' }, ADMIN);
-
-      expect(resultado.exito).toBe(false);
-      expect(service.listar().filter((u) => u.email.toLowerCase() === OBJETIVO)).toHaveLength(1);
-    });
-
-    it('rechaza datos inválidos', () => {
-      expect(service.crear({ ...nuevo, email: 'no-es-correo' }, ADMIN).exito).toBe(false);
-      expect(service.crear({ ...nuevo, password: 'debil' }, ADMIN).exito).toBe(false);
-      expect(service.crear({ ...nuevo, nombre: 'Ma' }, ADMIN).exito).toBe(false);
-      expect(service.crear({ ...nuevo, rol: 'root' as never }, ADMIN).exito).toBe(false);
-      expect(service.listar().some((u) => u.email === nuevo.email)).toBe(false);
-    });
-
-    it('rechaza a quien no es administrador', () => {
-      expect(service.crear(nuevo, OBJETIVO).exito).toBe(false);
-    });
+    expect(service.actividadDe('ana@financeup.test').map((r) => r.accion)).toEqual(['bloqueo', 'desbloqueo']);
   });
 
-  describe('editar', () => {
-    it('actualiza nombre y datos de contacto sin tocar el correo ni el rol', () => {
-      const resultado = service.editar(OBJETIVO, { nombre: 'Nuevo', apellido: 'Nombre', telefono: '3110000000', documento: '' }, ADMIN);
+  it('restablecer contraseña le manda el código de recuperación al usuario', () => {
+    service.restablecerPassword(ana).subscribe();
 
-      expect(resultado.exito).toBe(true);
-      expect(service.listar().find((u) => u.email === OBJETIVO)).toMatchObject({
-        nombre: 'Nuevo',
-        apellido: 'Nombre',
-        telefono: '3110000000',
-        rol: 'user',
-      });
-    });
-
-    it('no permite editar la propia cuenta ni dejar el nombre vacío', () => {
-      expect(service.editar(ADMIN, { nombre: 'Otro', apellido: 'Nombre' }, ADMIN).exito).toBe(false);
-      expect(service.editar(OBJETIVO, { nombre: '', apellido: 'Nombre' }, ADMIN).exito).toBe(false);
-    });
+    const peticion = http.expectOne(`${API_URL}/recuperar-contrasena`);
+    expect(peticion.request.method).toBe('POST');
+    expect(peticion.request.body).toEqual({ email: 'ana@financeup.test' });
+    peticion.flush({ mensaje: 'Codigo enviado' });
+    expect(service.actividadDe('ana@financeup.test')[0].accion).toBe('restablecimiento');
   });
 
-  describe('eliminar', () => {
-    it('elimina la cuenta y deja registro en la bitácora', () => {
-      const resultado = service.eliminar(OBJETIVO, ADMIN);
+  it('si el MID rechaza la acción no anota nada en la bitácora', () => {
+    let error = '';
+    service.cambiarRol(ana, 'admin').subscribe({ error: (e) => (error = e.error.error) });
+    http
+      .expectOne(`${API_URL}/admin/usuarios/6/rol`)
+      .flush({ error: 'No puedes cambiar tu propio rol' }, { status: 400, statusText: 'Bad Request' });
 
-      expect(resultado.exito).toBe(true);
-      expect(service.listar().some((u) => u.email === OBJETIVO)).toBe(false);
-      expect(service.bitacora().map((r) => r.accion)).toEqual(['eliminacion']);
-    });
-
-    it('no permite eliminarse a sí mismo ni actuar sin ser administrador', () => {
-      expect(service.eliminar(ADMIN, ADMIN).exito).toBe(false);
-      expect(service.eliminar('test@gmail.com', OBJETIVO).exito).toBe(false);
-      expect(service.listar().some((u) => u.email === ADMIN)).toBe(true);
-    });
-  });
-
-  describe('nuevas acciones del panel', () => {
-    it('reactiva una cuenta suspendida', () => {
-      expect(service.desbloquear('mateo@gmail.com', ADMIN).exito).toBe(true);
-      expect(estadoDe('mateo@gmail.com')).toBe('activo');
-    });
-
-    it('no reactiva una cuenta que ya está activa ni una pendiente', () => {
-      expect(service.desbloquear(OBJETIVO, ADMIN).exito).toBe(false);
-      expect(service.desbloquear('sofia@gmail.com', ADMIN).exito).toBe(false);
-    });
-
-    it('permite bloquear una cuenta pendiente o suspendida', () => {
-      expect(service.bloquear('sofia@gmail.com', MOTIVO, ADMIN).exito).toBe(true);
-      expect(service.bloquear('mateo@gmail.com', MOTIVO, ADMIN).exito).toBe(true);
-      expect(estadoDe('sofia@gmail.com')).toBe('bloqueado');
-      expect(estadoDe('mateo@gmail.com')).toBe('bloqueado');
-    });
-
-    it('registra el cambio de rol y no registra nada si el rol no cambia', () => {
-      service.cambiarRol(OBJETIVO, 'user', ADMIN);
-      expect(service.bitacora()).toHaveLength(0);
-
-      service.cambiarRol(OBJETIVO, 'admin', ADMIN);
-      expect(service.actividadDe(OBJETIVO).map((r) => r.accion)).toEqual(['cambio-rol']);
-    });
-
-    it('restablece la contraseña solo si quien lo pide es administrador y no es su propia cuenta', () => {
-      expect(service.restablecerPassword(OBJETIVO, ADMIN).exito).toBe(true);
-      expect(service.restablecerPassword(ADMIN, ADMIN).exito).toBe(false);
-      expect(service.restablecerPassword('test@gmail.com', OBJETIVO).exito).toBe(false);
-      expect(service.actividadDe(OBJETIVO).map((r) => r.accion)).toEqual(['restablecimiento']);
-    });
-
-    it('la actividad de una cuenta solo incluye acciones sobre esa cuenta', () => {
-      service.bloquear(OBJETIVO, MOTIVO, ADMIN);
-      service.bloquear('test@gmail.com', MOTIVO, ADMIN);
-
-      expect(service.actividadDe(OBJETIVO)).toHaveLength(1);
-      expect(service.actividadDe(OBJETIVO)[0].email).toBe(OBJETIVO);
-    });
-
-    it('incrementa el contador de cambios con cada modificación', () => {
-      const antes = service.cambios();
-      service.bloquear(OBJETIVO, MOTIVO, ADMIN);
-      expect(service.cambios()).toBeGreaterThan(antes);
-    });
-
-    it('las cuentas pendientes y suspendidas tampoco pueden iniciar sesión', () => {
-      const auth = TestBed.inject(AuthService);
-
-      expect(auth.iniciarSesion('sofia@gmail.com', '123456')).toBe(false);
-      expect(auth.iniciarSesion('mateo@gmail.com', '123456')).toBe(false);
-      expect(auth.estaAutenticado()).toBe(false);
-    });
-
-    it('registra el último acceso al iniciar sesión', () => {
-      const auth = TestBed.inject(AuthService);
-      const antes = service.obtener('julian@gmail.com')?.ultimoAcceso;
-      expect(antes).toBeNull();
-
-      const usuario = service.buscar('usuario@gmail.com')!;
-      auth.completarSesion(usuario);
-
-      expect(service.obtener('usuario@gmail.com')?.ultimoAcceso).toBe(usuario.ultimoAcceso);
-      expect(Date.now() - new Date(usuario.ultimoAcceso!).getTime()).toBeLessThan(5000);
-    });
-  });
-
-  it('un usuario bloqueado no puede iniciar sesión', () => {
-    const auth = TestBed.inject(AuthService);
-    service.bloquear(OBJETIVO, MOTIVO, ADMIN);
-
-    expect(auth.validarCredenciales(OBJETIVO, '123456')?.estado).toBe('bloqueado');
-    expect(auth.iniciarSesion(OBJETIVO, '123456')).toBe(false);
-    expect(auth.estaAutenticado()).toBe(false);
+    expect(error).toBe('No puedes cambiar tu propio rol');
+    expect(service.bitacora()).toEqual([]);
   });
 });

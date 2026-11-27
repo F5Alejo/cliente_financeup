@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ToastService } from '../../shared/services/toast';
+import { IconComponent } from '../../shared/components/icon/icon';
+import { LogoComponent } from '../../shared/components/logo/logo';
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '@angular/aria/menu';
 
 interface NavItem {
   label: string;
@@ -14,7 +17,7 @@ interface NavItem {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, IconComponent, LogoComponent, Menu, MenuItem, MenuTrigger, MenuContent],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -25,11 +28,10 @@ export class HeaderComponent {
     private toastService: ToastService
   ) {}
 
-  menuAbierto = false;
 
   navItems: NavItem[] = [
     { label: 'Inicio', path: '/home', exact: true },
-    { label: 'Educacion', path: '/educacion', exact: false },
+    { label: 'Educación', path: '/educacion', exact: false },
     { label: 'Alianzas', path: '/alianzas', exact: false },
     { label: 'Finanzas', path: '/finanzas', exact: false, requiereSesion: true },
     { label: 'Soporte', path: '/centro-ayuda', exact: false },
@@ -51,16 +53,14 @@ export class HeaderComponent {
     return this.authService.obtenerUsuario()?.rol === 'admin';
   }
 
-  toggleMenu(): void {
-    this.menuAbierto = !this.menuAbierto;
-  }
-
-  cerrarMenu(): void {
-    this.menuAbierto = false;
+  /** Acción elegida en el menú de la cuenta (Angular Aria maneja teclado, foco y cierre). */
+  elegir(opcion: string | undefined): void {
+    if (opcion === 'perfil') this.router.navigateByUrl('/perfil');
+    if (opcion === 'admin') this.router.navigateByUrl('/admin');
+    if (opcion === 'salir') this.cerrarSesion();
   }
 
   cerrarSesion(): void {
-    this.cerrarMenu();
     this.authService.cerrarSesion();
     this.toastService.info('Sesión cerrada correctamente.');
     this.router.navigateByUrl('/login');

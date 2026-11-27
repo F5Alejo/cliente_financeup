@@ -1,177 +1,211 @@
-<app-finanzas-menu></app-finanzas-menu>
-<div class="inversiones">
-    <header class="inversiones-header">
-        <h1><span class="icono-titulo" aria-hidden="true">📈</span> Inversiones</h1>
-        <div class="header-acciones">
-            <button type="button" class="btn-secundario" (click)="toggleFormularioInversion()">+ Nueva inversión</button>
-            <button type="button" class="btn-primario" (click)="exportar()">⭳ Exportar</button>
-        </div>
-    </header>
+<app-banda-seccion
+  titulo="Tu portafolio."
+  acento="Así crece."
+  [serie]="horizonteBanda"
+  idTitulo="inversiones-titulo">
+  <app-finanzas-menu banda-antes />
 
-    @if (mostrarFormularioInversion()) {
-        <form class="panel form-nueva-inversion" (ngSubmit)="guardarNuevaInversion()">
-            <div class="campo">
-                <label for="nombre-inv">Nombre</label>
-                <input id="nombre-inv" type="text" placeholder="Ej: CDT a 90 días" [(ngModel)]="nombreNuevaInversion" name="nombreInv" required />
-            </div>
-            <div class="campo">
-                <label for="monto-inv">Monto</label>
-                <input id="monto-inv" type="number" min="1" placeholder="Ej: 1000000" [(ngModel)]="montoNuevaInversion" name="montoInv" required />
-            </div>
-            <div class="campo">
-                <label for="riesgo-inv">Riesgo</label>
-                <select id="riesgo-inv" [(ngModel)]="riesgoNuevaInversion" name="riesgoInv">
-                    <option value="Bajo">Bajo</option>
-                    <option value="Medio">Medio</option>
-                    <option value="Alto">Alto</option>
-                </select>
-            </div>
-            <div class="campo">
-                <label for="duracion-inv">Duración</label>
-                <input id="duracion-inv" type="text" placeholder="Ej: 1 año" [(ngModel)]="duracionNuevaInversion" name="duracionInv" />
-            </div>
-            <button type="submit" class="btn-agregar">Guardar inversión</button>
-        </form>
+  <dl class="banda-cifras">
+    <div><dt>Pusiste</dt><dd class="cifra">{{ totalInvertido | moneda }}</dd></div>
+    <div>
+      <dt>{{ rendimientoTotal >= 0 ? 'Has ganado' : 'Has perdido' }}</dt>
+      <dd class="cifra">{{ rendimientoTotal >= 0 ? '+' : '−' }}{{ abs(rendimientoTotal) | moneda }}</dd>
+    </div>
+    <div><dt>Esta semana</dt><dd class="cifra">+{{ balanceSemana | moneda }}</dd></div>
+  </dl>
+
+  <div banda-lado class="tarjeta-banda">
+    <p class="tarjeta-banda__etiqueta">Tu portafolio vale hoy</p>
+    <p class="tarjeta-banda__cifra cifra">{{ valorActual | moneda }}</p>
+    <p class="valor__cambio">
+      <app-icon [nombre]="rendimientoPct >= 0 ? 'arrow-up-right' : 'arrow-down-right'" [tamano]="16" />
+      {{ rendimientoPct >= 0 ? rendimientoPct : -rendimientoPct }} % {{ rendimientoPct >= 0 ? 'por encima' : 'por debajo' }} de lo que pusiste
+    </p>
+    <div class="valor__retiro">
+      <div class="valor__retiro-fila">
+        <span>Próximo retiro: <strong>{{ proximoRetiro }}</strong></span>
+        <span class="cifra">{{ progresoRetiro }} %</span>
+      </div>
+      <app-medidor [valor]="progresoRetiro" [maximo]="100" sobre="oscuro" etiqueta="Tiempo cumplido hasta el próximo retiro" />
+    </div>
+    <div class="tarjeta-banda__acciones">
+      <button type="button" class="boton-lima" (click)="toggleFormularioInversion()" [attr.aria-expanded]="mostrarFormularioInversion()">
+        <app-icon [nombre]="mostrarFormularioInversion() ? 'x' : 'plus'" [tamano]="18" />
+        {{ mostrarFormularioInversion() ? 'Cerrar' : 'Nueva inversión' }}
+      </button>
+      <button type="button" class="boton-fantasma" (click)="exportar()">
+        <app-icon nombre="download" [tamano]="18" /> Excel
+      </button>
+    </div>
+  </div>
+</app-banda-seccion>
+
+<main class="panel">
+  @if (mostrarFormularioInversion()) {
+    <form class="bloque nueva" (ngSubmit)="guardarNuevaInversion()" aria-labelledby="nueva-inv-titulo">
+      <h2 id="nueva-inv-titulo">Nueva inversión</h2>
+      <div class="nueva__campos">
+        <label class="campo">
+          <span>Nombre</span>
+          <input type="text" placeholder="CDT a 90 días" [(ngModel)]="nombreNuevaInversion" name="nombreInv" required />
+        </label>
+        <label class="campo">
+          <span>Monto</span>
+          <input type="number" min="1" step="1000" inputmode="numeric" placeholder="1000000" [(ngModel)]="montoNuevaInversion" name="montoInv" required />
+        </label>
+        <fieldset class="campo campo--riesgo">
+          <legend>Riesgo</legend>
+          <div class="riesgos">
+            @for (r of riesgos; track r) {
+              <label class="riesgo-opcion" [class.riesgo-opcion--activa]="riesgoNuevaInversion === r">
+                <input type="radio" name="riesgoInv" [value]="r" [(ngModel)]="riesgoNuevaInversion" />
+                <span class="nivel" aria-hidden="true">
+                  @for (t of [1, 2, 3]; track t) { <i [class.lleno]="t <= nivel(r)"></i> }
+                </span>
+                {{ r }}
+              </label>
+            }
+          </div>
+        </fieldset>
+        <label class="campo">
+          <span>Duración <small>(opcional)</small></span>
+          <input type="text" placeholder="1 año" [(ngModel)]="duracionNuevaInversion" name="duracionInv" />
+        </label>
+      </div>
+      <div class="nueva__pie">
+        <app-boton tipo="submit">Guardar inversión</app-boton>
+      </div>
+    </form>
+  }
+
+  @if (pctRiesgoAlto >= 50) {
+    <p class="aviso" role="status">
+      <app-icon nombre="alert-triangle" [tamano]="20" />
+      <span><strong>El {{ pctRiesgoAlto }} % de lo que invertiste está en riesgo alto.</strong> Repartir parte en opciones de riesgo bajo te protege si el mercado cae.</span>
+    </p>
+  }
+
+  <!-- Crecimiento -->
+  <section class="bloque bloque--crecimiento" aria-labelledby="crec-titulo">
+    <div class="bloque__cabeza">
+      <h2 id="crec-titulo">Cómo ha crecido</h2>
+      <div class="segmentos" role="tablist" aria-label="Periodo de la gráfica">
+        @for (p of periodos; track p.meses) {
+          <button
+            type="button"
+            role="tab"
+            class="segmento"
+            [class.segmento--activo]="periodo() === p.meses"
+            [attr.aria-selected]="periodo() === p.meses"
+            (click)="periodo.set(p.meses)">
+            {{ p.etiqueta }}
+          </button>
+        }
+      </div>
+    </div>
+    <p class="bloque__lectura">
+      En {{ periodo() === 12 ? 'el último año' : 'los últimos ' + etiquetaPeriodo }} tu portafolio
+      {{ crecimientoPct >= 0 ? 'subió' : 'bajó' }} <strong class="cifra">{{ crecimientoPct >= 0 ? crecimientoPct : -crecimientoPct }} %</strong>.
+    </p>
+    <app-grafica-linea [puntos]="crecimiento" [titulo]="'Valor del portafolio en ' + etiquetaPeriodo" [alto]="240" />
+  </section>
+
+  <!-- Reparto -->
+  <section class="bloque bloque--reparto" aria-labelledby="reparto-titulo">
+    <div class="bloque__cabeza">
+      <h2 id="reparto-titulo">Cómo está repartido</h2>
+      <div class="segmentos" role="tablist" aria-label="Ver reparto por">
+        <button type="button" role="tab" class="segmento" [class.segmento--activo]="reparto() === 'inversion'" [attr.aria-selected]="reparto() === 'inversion'" (click)="reparto.set('inversion')">Inversión</button>
+        <button type="button" role="tab" class="segmento" [class.segmento--activo]="reparto() === 'riesgo'" [attr.aria-selected]="reparto() === 'riesgo'" (click)="reparto.set('riesgo')">Riesgo</button>
+      </div>
+    </div>
+    @if (mayorParte) {
+      <p class="bloque__lectura"><strong>{{ mayorParte.etiqueta }}</strong> tiene el {{ mayorParte.pct }} % de lo que pusiste.</p>
     }
+    <app-barra-partes [datos]="partes" [titulo]="reparto() === 'inversion' ? 'Dinero por inversión' : 'Dinero por nivel de riesgo'" />
+  </section>
 
-    @if (alertaConcentracion.mostrar) {
-        <section class="alerta-riesgo">
-            ⚠️ {{ alertaConcentracion.mensaje }}
-        </section>
-    }
-
-    <section class="cards-resumen" aria-label="Resumen de inversiones">
-        <div class="card-resumen">
-            <span class="card-titulo">Saldo en Inversiones</span>
-            <span class="card-valor">{{ balanceInversiones | moneda }}</span>
-            <span class="card-nota positivo">+{{ balanceSemana | moneda }} esta semana</span>
+  <!-- Tabla -->
+  <section class="bloque bloque--tabla" aria-labelledby="tabla-titulo">
+    <div class="bloque__cabeza">
+      <h2 id="tabla-titulo">Tus inversiones</h2>
+      <div class="tabla-controles">
+        <div class="segmentos" role="tablist" aria-label="Filtrar inversiones">
+          @for (f of filtros; track f.id) {
+            <button
+              type="button"
+              role="tab"
+              class="segmento"
+              [class.segmento--activo]="filtro() === f.id"
+              [attr.aria-selected]="filtro() === f.id"
+              (click)="filtro.set(f.id)">
+              {{ f.etiqueta }}
+            </button>
+          }
         </div>
-        <div class="card-resumen">
-            <span class="card-titulo">Rendimiento Total</span>
-            <span class="card-valor positivo">+{{ rendimientoTotal | moneda }}</span>
-            <span class="card-nota">+{{ rendimientoPorcentaje }}% en total</span>
-        </div>
-        <div class="card-resumen card-retiro">
-            <span class="card-titulo">Próximo retiro</span>
-            <span class="card-valor">{{ proximoRetiro }}</span>
-            <svg class="anillo-retiro" width="46" height="46" viewBox="0 0 76 76" role="img" [attr.aria-label]="'Progreso del próximo retiro: ' + progresoRetiro + ' por ciento'">
-                <circle cx="38" cy="38" r="30" fill="none" stroke="var(--cloud)" stroke-width="7" />
-                <circle
-                    cx="38" cy="38" r="30" fill="none" stroke="var(--sage)" stroke-width="7"
-                    stroke-linecap="round"
-                    [attr.stroke-dasharray]="circunferencia"
-                    [attr.stroke-dashoffset]="offsetRetiro"
-                    transform="rotate(-90 38 38)" />
-            </svg>
-        </div>
-    </section>
+        <app-boton variante="texto" (accion)="porRendimiento.set(!porRendimiento())">
+          <app-icon nombre="bar-chart" [tamano]="16" />
+          {{ porRendimiento() ? 'Orden de registro' : 'Mejor rendimiento primero' }}
+        </app-boton>
+      </div>
+    </div>
 
-    <section class="graficas">
-        <div class="panel">
-            <div class="panel-header">
-                <h2>Crecimiento de Rendimiento</h2>
-                <div class="periodos" role="tablist" aria-label="Periodo del gráfico">
-                    @for (p of periodos; track p) {
-                        <button
-                            type="button"
-                            role="tab"
-                            [attr.aria-selected]="periodoActivo() === p"
-                            [class.activo]="periodoActivo() === p"
-                            (click)="seleccionarPeriodo(p)">
-                            {{ p }}
-                        </button>
-                    }
-                </div>
-            </div>
-            <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Tendencia de rendimiento de la inversión">
-                <polyline [attr.points]="puntosLinea" fill="none" stroke="var(--sage)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <div class="linea-rango">
-                <span>{{ crecimientoInicio.valor }}M COP</span>
-                <span class="badge-crecimiento">+{{ rendimientoPorcentaje }}% últimos 6 meses</span>
-                <span>{{ crecimientoFin.valor }}M COP</span>
-            </div>
-        </div>
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Inversión</th>
+            <th scope="col" class="num">Pusiste</th>
+            <th scope="col" class="num">Rendimiento</th>
+            <th scope="col">Riesgo</th>
+            <th scope="col">Plazo</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (inv of inversiones; track inv.id) {
+            <tr>
+              <th scope="row">{{ inv.nombre }}</th>
+              <td class="num cifra">{{ inv.monto | moneda }}</td>
+              <td class="num">
+                <span class="rend cifra" [class.rend--gana]="inv.rendimiento > 0" [class.rend--pierde]="inv.rendimiento < 0">
+                  {{ inv.rendimiento >= 0 ? '+' : '−' }}{{ abs(inv.rendimiento) | moneda }}
+                </span>
+                <span class="rend__pct cifra">{{ pctDe(inv) >= 0 ? '+' : '−' }}{{ abs(pctDe(inv)) }} %</span>
+              </td>
+              <td>
+                <span class="riesgo">
+                  <span class="nivel" aria-hidden="true">
+                    @for (t of [1, 2, 3]; track t) { <i [class.lleno]="t <= nivel(inv.riesgo)"></i> }
+                  </span>
+                  {{ inv.riesgo }}
+                </span>
+              </td>
+              <td>{{ inv.duracion }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="tabla__vacio">No hay inversiones con este plazo.</td></tr>
+          }
+        </tbody>
+        @if (inversiones.length) {
+          <tfoot>
+            <tr>
+              <th scope="row">Total</th>
+              <td class="num cifra">{{ montoTabla | moneda }}</td>
+              <td class="num">
+                <span class="rend cifra" [class.rend--gana]="rendimientoTabla > 0" [class.rend--pierde]="rendimientoTabla < 0">
+                  {{ rendimientoTabla >= 0 ? '+' : '−' }}{{ abs(rendimientoTabla) | moneda }}
+                </span>
+              </td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        }
+      </table>
+    </div>
+  </section>
 
-        <div class="panel">
-            <h2>Distribución de carteras</h2>
-            <div class="donut-wrap">
-                <div class="donut" [style.background]="gradienteCarteras" role="img" aria-label="Distribución de carteras de inversión">
-                    <div class="donut-hueco"></div>
-                </div>
-                <ul class="leyenda">
-                    @for (seg of carteras; track seg.etiqueta) {
-                        <li>
-                            <span class="punto" [style.background]="seg.color" aria-hidden="true"></span>
-                            {{ seg.etiqueta }} <strong>{{ seg.porcentaje }}%</strong>
-                        </li>
-                    }
-                </ul>
-            </div>
-            <div class="panel-acciones">
-                <button type="button" class="link-boton">Compartir</button>
-                <button type="button" class="link-boton">Retirar</button>
-            </div>
-        </div>
-    </section>
-
-    <section class="panel tabla-panel">
-        <div class="panel-header">
-            <h2>Mis Inversiones</h2>
-            <div class="filtros" role="tablist" aria-label="Filtrar inversiones">
-                @for (f of filtros; track f) {
-                    <button
-                        type="button"
-                        role="tab"
-                        [attr.aria-selected]="filtroActivo() === f"
-                        [class.activo]="filtroActivo() === f"
-                        (click)="seleccionarFiltro(f)">
-                        {{ f }}
-                    </button>
-                }
-            </div>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Inversión</th>
-                    <th>Monto</th>
-                    <th>Rendimiento</th>
-                    <th>Riesgo</th>
-                    <th>Duración</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (inv of inversiones; track inv.id) {
-                    <tr>
-                        <td>{{ inv.nombre }}</td>
-                        <td>{{ inv.monto | moneda }}</td>
-                        <td [class.positivo]="inv.rendimiento >= 0" [class.negativo]="inv.rendimiento < 0">
-                            {{ inv.rendimiento >= 0 ? '+' : '-' }}{{ (inv.rendimiento < 0 ? -inv.rendimiento : inv.rendimiento) | moneda }}
-                        </td>
-                        <td>
-                            <span class="riesgo" [class]="'riesgo-' + inv.riesgo.toLowerCase()">
-                                <span class="punto-riesgo" aria-hidden="true"></span>{{ inv.riesgo }}
-                            </span>
-                        </td>
-                        <td>{{ inv.duracion }}</td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td>Total</td>
-                    <td>{{ montoTotal | moneda }}</td>
-                    <td class="positivo">+{{ (rendimientoTotalTabla < 0 ? -rendimientoTotalTabla : rendimientoTotalTabla) | moneda }}</td>
-                    <td colspan="2"></td>
-                </tr>
-            </tfoot>
-        </table>
-    </section>
-
-    <app-curso-banner
-        texto="¿Cómo se reparte y se rebalancea un portafolio sin perder plata en el intento?"
-        cursoId="gestion-portafolio">
-    </app-curso-banner>
-</div>
+  <app-curso-banner
+    class="panel__curso"
+    texto="¿Cómo se reparte y se rebalancea un portafolio sin perder plata en el intento?"
+    cursoId="gestion-portafolio" />
+</main>

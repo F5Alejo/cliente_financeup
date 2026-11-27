@@ -1,50 +1,52 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: var(--font-body);
+/* Pestañas del módulo de finanzas. Viven arriba del título, sobre el verde de la banda. */
+
+:host {
+  display: block;
+  margin-bottom: 1.5rem;
 }
 
 .finanzas-menu {
-    display: flex;
-    gap: 2px;
-    background: var(--surface-sunk);
-    padding: 3px;
-    border-radius: var(--r-pill);
-    width: fit-content;
-    max-width: calc(100% - 32px);
-    margin: 24px auto;
-    overflow-x: auto;
-    scrollbar-width: none;
+  display: flex;
+  gap: 2px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid rgba(182, 223, 192, 0.18);
+  border-radius: var(--r-pill);
+  background: rgba(10, 42, 23, 0.55);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
 .finanzas-menu::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 .finanzas-menu a {
-    flex-shrink: 0;
-    text-decoration: none;
-    color: var(--ink-soft);
-    font-size: 0.875rem;
-    font-weight: 500;
-    padding: 7px 16px;
-    border-radius: var(--r-pill);
-    transition: background-color .25s var(--ease-out), color .25s var(--ease-out), box-shadow .25s var(--ease-out);
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #b6dfc0;
+  text-decoration: none;
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
 .finanzas-menu a:hover {
-    color: var(--ink);
+  color: #f2faf4;
+  background: rgba(242, 250, 244, 0.08);
 }
 
 .finanzas-menu a.activo {
-    background: var(--surface);
-    color: var(--ink);
-    font-weight: 600;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.04);
+  background: var(--lime);
+  color: var(--verde-900);
 }
 
 .finanzas-menu a:focus-visible {
-    outline: 2px solid var(--brand-strong);
-    outline-offset: 2px;
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
 }

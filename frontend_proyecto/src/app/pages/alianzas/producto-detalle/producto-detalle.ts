@@ -1,14 +1,20 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlianzasService, Oferta } from '../../../services/alianzas';
+import { AlianzasService, FichaOferta, plazosPosibles } from '../../../services/alianzas';
+import { mensajeDeError } from '../../../services/api';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { BarraPartesComponent, Parte } from '../../../shared/graficas/barra-partes';
+import { GraficaLineaComponent, PuntoLinea } from '../../../shared/graficas/grafica-linea';
 
 type Pestana = 'Características' | 'Requisitos' | 'Tarifas' | 'Preguntas';
 
 @Component({
   selector: 'app-producto-detalle',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BandaSeccionComponent, IconComponent, BarraPartesComponent, GraficaLineaComponent],
   templateUrl: './producto-detalle.html',
   styleUrl: './producto-detalle.css',
 })
@@ -17,13 +23,12 @@ export class ProductoDetalleComponent {
   private readonly router = inject(Router);
   private readonly alianzasService = inject(AlianzasService);
 
-  private readonly productoId = signal(
-    this.ruta.snapshot.paramMap.get('productoId') ?? ''
-  );
+  private productoId = 0;
 
-  readonly producto = computed<Oferta | undefined>(() =>
-    this.alianzasService.buscarOferta(this.productoId())
-  );
+  // Ficha que llega del MID (GET /ofertas/:id)
+  readonly producto = signal<FichaOferta | undefined>(undefined);
+  readonly cargando = signal(true);
+  readonly error = signal('');
 
   readonly pestanas: Pestana[] = ['Características', 'Requisitos', 'Tarifas', 'Preguntas'];
   readonly pestanaActiva = signal<Pestana>('Características');
@@ -48,16 +53,46 @@ export class ProductoDetalleComponent {
   readonly plazoMeses = signal(24);
 
   constructor() {
-    const producto = this.producto();
-    if (producto && producto.montoMaximo > 0) {
-      this.monto.set(Math.round(producto.montoMaximo * 0.25));
-      this.plazoMeses.set(Math.min(24, producto.plazoMaximo));
-    }
+    // Se escucha la ruta porque desde "productos parecidos" se cambia de id sin salir de la página
+    this.ruta.paramMap.pipe(takeUntilDestroyed()).subscribe((parametros) => {
+      this.productoId = Number(parametros.get('productoId'));
+      this.cargar();
+    });
   }
 
+  private cargar(): void {
+    this.cargando.set(true);
+    this.error.set('');
+    this.producto.set(undefined);
+    this.pestanaActiva.set('Características');
+
+    this.alianzasService.obtenerFicha(this.productoId).subscribe({
+      next: (ficha) => {
+        this.producto.set(ficha);
+        // El simulador arranca en el 25% del monto máximo, sin bajar del mínimo
+        if (ficha.montoMaximo > 0) {
+          this.monto.set(Math.max(ficha.montoMinimo, Math.round(ficha.montoMaximo * 0.25)));
+          this.plazoMeses.set(this.plazosDisponibles().find((p) => p >= 24) ?? ficha.plazoMaximo);
+        }
+        this.cargando.set(false);
+      },
+      error: (error) => {
+        this.error.set(mensajeDeError(error));
+        this.cargando.set(false);
+      },
+    });
+  }
+
+  /** Monto mínimo del deslizador: el del producto o, si no tiene, un 5% del máximo. */
+  readonly montoMinimo = computed(() => {
+    const producto = this.producto();
+    if (!producto) return 0;
+    return producto.montoMinimo || producto.montoMaximo / 20;
+  });
+
   readonly plazosDisponibles = computed(() => {
-    const maximo = this.producto()?.plazoMaximo ?? 0;
-    return [12, 24, 36, 48, 60, 120, 240].filter((p) => p <= maximo);
+    const producto = this.producto();
+    return producto ? plazosPosibles(producto.plazoMinimo, producto.plazoMaximo) : [];
   });
 
   readonly cuotaMensual = computed(() => {
@@ -72,6 +107,34 @@ export class ProductoDetalleComponent {
     if (tasaMensual === 0) return Math.round(capital / n);
 
     return Math.round((capital * tasaMensual) / (1 - Math.pow(1 + tasaMensual, -n)));
+  });
+
+  /** Cuánto de lo que pagas es capital y cuánto intereses. */
+  readonly partesPago = computed<Parte[]>(() => [
+    { etiqueta: 'Capital', valor: this.monto() },
+    { etiqueta: 'Intereses', valor: Math.max(0, this.interesesTotales()) },
+  ]);
+
+  /** Lo que aún debes al cierre de cada mes (amortización con cuota fija). */
+  readonly saldoDeuda = computed<PuntoLinea[]>(() => {
+    const producto = this.producto();
+    const n = this.plazoMeses();
+    if (!producto || n <= 0) return [];
+    const tasa = producto.tasaDesde / 100 / 12;
+    const cuota = this.cuotaMensual();
+    let saldo = this.monto();
+    const puntos: PuntoLinea[] = [{ etiqueta: 'Hoy', valor: saldo }];
+    for (let mes = 1; mes <= n; mes++) {
+      saldo = Math.max(0, saldo * (1 + tasa) - cuota);
+      puntos.push({ etiqueta: `Mes ${mes}`, valor: Math.round(saldo) });
+    }
+    return puntos;
+  });
+
+  /** % del total pagado que se va en intereses, para la frase de lectura. */
+  readonly pctIntereses = computed(() => {
+    const total = this.cuotaMensual() * this.plazoMeses();
+    return total > 0 ? Math.round((Math.max(0, this.interesesTotales()) / total) * 100) : 0;
   });
 
   readonly interesesTotales = computed(
@@ -107,7 +170,11 @@ export class ProductoDetalleComponent {
 
   // ---------- Navegación ----------
   solicitar(): void {
-    this.router.navigate(['/alianzas/producto', this.productoId(), 'solicitud']);
+    this.router.navigate(['/alianzas/producto', this.productoId, 'solicitud']);
+  }
+
+  verRelacionado(id: number): void {
+    this.router.navigate(['/alianzas/producto', id]);
   }
 
   volver(): void {

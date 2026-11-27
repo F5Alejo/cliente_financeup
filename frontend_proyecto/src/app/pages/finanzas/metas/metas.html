@@ -1,72 +1,174 @@
-<app-finanzas-menu></app-finanzas-menu>
-<div class="metas">
-    <header class="metas-header">
-        <h1>Metas</h1>
-        <div class="header-acciones">
-            <button type="button" class="btn-primario" (click)="toggleFormularioMeta()">+ Crear Nueva Meta</button>
-            <button type="button" class="btn-icono" (click)="masOpciones()" aria-label="Ordenar por progreso" title="Ordenar por progreso">
-                {{ ordenAscendente() ? '🔼' : '🔽' }}
-            </button>
-        </div>
-    </header>
+<app-banda-seccion
+  titulo="Tus metas."
+  acento="Una a la vez."
+  [serie]="horizonteMetas"
+  idTitulo="metas-titulo">
+  <app-finanzas-menu banda-antes />
 
-    @if (mostrarFormularioMeta()) {
-        <form class="resumen-panel form-nueva-meta" (ngSubmit)="guardarNuevaMeta()">
-            <div class="campo">
-                <label for="nombre-meta">Nombre de la meta</label>
-                <input id="nombre-meta" type="text" placeholder="Ej: Fondo universitario" [(ngModel)]="nombreNuevaMeta" name="nombreMeta" required />
-            </div>
-            <div class="campo">
-                <label for="objetivo-meta">Monto objetivo</label>
-                <input id="objetivo-meta" type="number" min="1" placeholder="Ej: 5000000" [(ngModel)]="objetivoNuevaMeta" name="objetivoMeta" required />
-            </div>
-            <button type="submit" class="btn-primario">Guardar meta</button>
-        </form>
+  <dl class="banda-cifras">
+    <div><dt>Llevas ahorrado</dt><dd class="cifra">{{ totalAhorrado | moneda }}</dd></div>
+    <div><dt>Metas cumplidas</dt><dd class="cifra">{{ metasAlcanzadas }} de {{ totalMetas }}</dd></div>
+    @if (aporteMensualTotal > 0) {
+      <div><dt>Para llegar a tiempo, aparta al mes</dt><dd class="cifra">{{ aporteMensualTotal | moneda }}</dd></div>
     }
+  </dl>
 
-    <section class="resumen-panel" aria-label="Resumen general de metas">
-        <div class="resumen-header">
-            <span class="resumen-total">{{ formatearCOP(totalAhorrado) }} ahorrados</span>
-            <span class="resumen-contador">{{ metasAlcanzadas }} / {{ totalMetas }} metas alcanzadas</span>
-        </div>
-        <div class="barra-progreso" role="progressbar" [attr.aria-valuenow]="progresoGeneral" aria-valuemin="0" aria-valuemax="100">
-            <div class="barra-relleno" [style.width.%]="progresoGeneral"></div>
-        </div>
-    </section>
+  <div banda-lado class="tarjeta-banda resumen">
+    <p class="tarjeta-banda__etiqueta">Entre todas tus metas</p>
+    <p class="tarjeta-banda__cifra cifra">{{ pctGeneral }} %</p>
+    <app-medidor
+      [valor]="totalAhorrado"
+      [maximo]="totalObjetivo"
+      sobre="oscuro"
+      etiqueta="Avance de todas las metas juntas" />
+    <p class="resumen__nota">
+      <span class="cifra">{{ totalAhorrado | moneda }}</span> de <span class="cifra">{{ totalObjetivo | moneda }}</span>
+    </p>
+    <button type="button" class="boton-lima resumen__crear" (click)="toggleFormularioMeta()" [attr.aria-expanded]="mostrarFormularioMeta()">
+      <app-icon [nombre]="mostrarFormularioMeta() ? 'x' : 'plus'" [tamano]="18" />
+      {{ mostrarFormularioMeta() ? 'Cerrar' : 'Nueva meta' }}
+    </button>
+  </div>
+</app-banda-seccion>
 
-    <section class="metas-grid" aria-label="Listado de metas">
-        @for (meta of metas; track meta.id) {
-            <article class="meta-card" [class.cumplida]="meta.cumplida">
-                <h2>{{ meta.nombre }}</h2>
-                <p class="meta-monto">
-                    {{ formatearCOP(meta.actual) }}
-                    @if (!meta.cumplida) {
-                        <span class="meta-objetivo"> / {{ formatearCOP(meta.objetivo) }}</span>
-                    }
-                </p>
-                <div class="barra-progreso pequena" role="progressbar" [attr.aria-valuenow]="progresoMeta(meta)" aria-valuemin="0" aria-valuemax="100">
-                    <div class="barra-relleno" [style.width.%]="progresoMeta(meta)"></div>
+<main class="panel">
+  @if (mostrarFormularioMeta()) {
+    <form class="bloque nueva" (ngSubmit)="guardarNuevaMeta()" aria-labelledby="nueva-titulo">
+      <h2 id="nueva-titulo">Nueva meta</h2>
+      <div class="nueva__campos">
+        <label class="campo">
+          <span>¿Para qué ahorras?</span>
+          <input type="text" placeholder="Fondo universitario" [(ngModel)]="nombreNuevaMeta" name="nombreMeta" required />
+        </label>
+        <label class="campo">
+          <span>¿Cuánto necesitas?</span>
+          <input type="number" min="1" step="1000" inputmode="numeric" placeholder="5000000" [(ngModel)]="objetivoNuevaMeta" name="objetivoMeta" required />
+        </label>
+        <label class="campo">
+          <span>¿Ya tienes algo? <small>(opcional)</small></span>
+          <input type="number" min="0" step="1000" inputmode="numeric" placeholder="0" [(ngModel)]="inicialNuevaMeta" name="inicialMeta" />
+        </label>
+        <label class="campo">
+          <span>¿Para cuándo? <small>(opcional)</small></span>
+          <input type="date" [min]="fechaMinima" [(ngModel)]="fechaNuevaMeta" name="fechaMeta" />
+        </label>
+      </div>
+      <div class="nueva__pie">
+        <p class="nueva__calculo" aria-live="polite">
+          @if (aporteNuevaMeta !== null) {
+            Tendrías que apartar <strong class="cifra">{{ aporteNuevaMeta | moneda }}</strong> al mes.
+          } @else {
+            Ponle fecha y te decimos cuánto apartar cada mes.
+          }
+        </p>
+        <app-boton tipo="submit">Guardar meta</app-boton>
+      </div>
+    </form>
+  }
+
+  <div class="barra">
+    <div class="filtros" role="tablist" aria-label="Qué metas ver">
+      @for (f of filtros; track f.id) {
+        <button
+          type="button"
+          role="tab"
+          class="filtro"
+          [class.filtro--activo]="filtro() === f.id"
+          [attr.aria-selected]="filtro() === f.id"
+          (click)="filtro.set(f.id)">
+          {{ f.etiqueta }} <span class="filtro__conteo cifra">{{ conteo(f.id) }}</span>
+        </button>
+      }
+    </div>
+    <app-boton variante="texto" (accion)="alternarOrden()">
+      <app-icon [nombre]="ordenAscendente() ? 'arrow-up-right' : 'arrow-down-right'" [tamano]="16" />
+      {{ ordenAscendente() ? 'Menos avance primero' : 'Más avance primero' }}
+    </app-boton>
+  </div>
+
+  @if (metas.length) {
+    <ul class="metas" role="list">
+      @for (meta of metas; track meta.id) {
+        <li class="meta" [class.meta--cumplida]="meta.cumplida">
+          <div class="meta__cabeza">
+            <span class="meta__icono"><app-icon [nombre]="meta.icono" [tamano]="20" /></span>
+            <h3 class="meta__nombre">{{ meta.nombre }}</h3>
+            <span class="meta__pct cifra">{{ meta.porcentaje }} %</span>
+          </div>
+
+          <app-medidor [valor]="meta.actual" [maximo]="meta.objetivo" [etiqueta]="'Avance de ' + meta.nombre" />
+
+          <p class="meta__montos">
+            <strong class="cifra">{{ meta.actual | moneda }}</strong>
+            <span>de <span class="cifra">{{ meta.objetivo | moneda }}</span></span>
+          </p>
+
+          @if (meta.cumplida) {
+            <p class="meta__estado meta__estado--logro">
+              <app-icon nombre="check-circle" [tamano]="16" /> Meta cumplida
+            </p>
+          } @else {
+            <dl class="meta__datos">
+              <div><dt>Te falta</dt><dd class="cifra">{{ faltante(meta) | moneda }}</dd></div>
+              @if (meta.fechaLimite) {
+                <div><dt>Para {{ fechaLegible(meta.fechaLimite) }}</dt><dd><span class="cifra">{{ aporteMensual(meta) | moneda }}</span> al mes</dd></div>
+              } @else {
+                <div><dt>Sin fecha</dt><dd>A tu ritmo</dd></div>
+              }
+            </dl>
+
+            @if (metaAbonando() === meta.id) {
+              <div class="abono" role="group" [attr.aria-label]="'Abonar a ' + meta.nombre">
+                <div class="abono__rapidos">
+                  @for (monto of abonosRapidos; track monto) {
+                    <button type="button" class="chip cifra" (click)="abonar(meta, monto)" [attr.aria-label]="'Abonar ' + (monto | moneda)">+{{ corto(monto) }}</button>
+                  }
                 </div>
-                <p class="meta-nota-principal">{{ notaPrincipal(meta) }}</p>
-                <p class="meta-nota-secundaria">{{ notaSecundaria(meta) }}</p>
-
-                @if (!meta.cumplida) {
-                    @if (metaAbonando() === meta.id) {
-                        <div class="abono-form">
-                            <input type="number" min="1" placeholder="Monto a abonar" [(ngModel)]="montoAbono" name="abono-{{ meta.id }}" />
-                            <button type="button" class="btn-guardar-abono" (click)="confirmarAbono(meta)">Guardar</button>
-                            <button type="button" class="btn-cancelar-abono" (click)="cancelarAbono()">Cancelar</button>
-                        </div>
-                    } @else {
-                        <button type="button" class="btn-abonar" (click)="abrirAbono(meta.id)">+ Abonar dinero</button>
-                    }
-                }
-            </article>
+                <div class="abono__libre">
+                  <label class="visualmente-oculto" [for]="'abono-' + meta.id">Otro monto</label>
+                  <input
+                    [id]="'abono-' + meta.id"
+                    type="number"
+                    min="1"
+                    step="1000"
+                    inputmode="numeric"
+                    placeholder="Otro monto"
+                    [(ngModel)]="montoAbono"
+                    [name]="'abono-' + meta.id"
+                    (keydown.enter)="abonar(meta, montoAbono)"
+                    (keydown.escape)="cancelarAbono()" />
+                  <app-boton (accion)="abonar(meta, montoAbono)">Abonar</app-boton>
+                  <button type="button" class="boton-icono" (click)="cancelarAbono()" aria-label="Cancelar abono">
+                    <app-icon nombre="x" [tamano]="18" />
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <app-boton class="meta__abonar" variante="suave" (accion)="abrirAbono(meta.id)">
+                <app-icon nombre="plus" [tamano]="16" /> Abonar
+              </app-boton>
+            }
+          }
+        </li>
+      }
+    </ul>
+  } @else {
+    <div class="vacio">
+      <app-icon nombre="target" [tamano]="28" />
+      <p>
+        @switch (filtro()) {
+          @case ('cumplidas') { Todavía no cumples ninguna meta. La primera está cerca. }
+          @case ('curso') { No tienes metas en curso. }
+          @default { Aún no tienes metas. }
         }
-    </section>
+      </p>
+      @if (filtro() !== 'cumplidas') {
+        <app-boton (accion)="mostrarFormularioMeta.set(true)">Crear una meta</app-boton>
+      }
+    </div>
+  }
 
-    <app-curso-banner
-        texto="Separar un % de tu ingreso cada mes para tus metas es más fácil con una regla simple"
-        cursoId="presupuesto-50-30-20">
-    </app-curso-banner>
-</div>
+  <app-curso-banner
+    texto="Separar un % de tu ingreso cada mes para tus metas es más fácil con una regla simple"
+    cursoId="presupuesto-50-30-20" />
+</main>

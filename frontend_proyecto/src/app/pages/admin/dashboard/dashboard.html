@@ -24,28 +24,28 @@
     [valor]="bloqueados()"
     icono="ban"
     tono="neutral"
-    [pie]="suspendidos() + ' suspendidos · ' + pendientes() + ' pendientes'"
+    [pie]="suspendidos() + ' suspendidos'"
     [cargando]="cargando()" />
   <app-kpi
     etiqueta="PQR pendientes"
-    [valor]="pqrPendientes.length"
+    [valor]="pqrPendientes().length"
     icono="life-buoy"
     tono="warning"
-    [pie]="pqrAlta + ' con prioridad alta'"
+    [pie]="pqrAlta() + ' con prioridad alta'"
     [cargando]="cargando()" />
   <app-kpi
     etiqueta="Alianzas activas"
-    [valor]="alianzasActivas"
+    [valor]="alianzasActivas()"
     icono="briefcase"
     tono="neutral"
-    [pie]="solicitudesEnEstudio + ' solicitudes en estudio'"
+    [pie]="solicitudesEnEstudio() + ' solicitudes en estudio'"
     [cargando]="cargando()" />
   <app-kpi
     etiqueta="Cursos publicados"
-    [valor]="cursosPublicados"
+    [valor]="cursosPublicados()"
     icono="graduation-cap"
     tono="neutral"
-    [pie]="'en ' + escuelas + ' escuelas'"
+    [pie]="'en ' + escuelas() + ' escuelas'"
     [cargando]="cargando()" />
 </section>
 

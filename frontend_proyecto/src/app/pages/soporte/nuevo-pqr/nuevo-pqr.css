@@ -1,4 +1,4 @@
-/* Radicar PQR: formulario con aire, los pasos numerados son el tramite real. */
+/* Radicar PQR: banda con los pasos del trámite y el formulario en una tarjeta debajo. */
 
 :host {
   --lienzo: var(--paper);
@@ -15,7 +15,6 @@
 
   display: block;
   width: 100%;
-  min-height: 100vh;
   background: var(--lienzo);
   color: var(--tinta);
   font-family: var(--font-family-base);
@@ -32,7 +31,7 @@
   padding: 36px clamp(18px, 4vw, 44px) 96px;
 }
 
-.pqr-card {
+.formulario-card {
   padding: clamp(28px, 4vw, 48px);
   background: var(--panel);
   border: 1px solid var(--borde);
@@ -40,135 +39,58 @@
   box-shadow: var(--sombra);
 }
 
-/* ---------- Volver ---------- */
-.btn-volver {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 28px;
-  padding: 9px 18px 9px 14px;
-  background: var(--verde-humo);
-  border: none;
-  border-radius: 999px;
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--verde-hondo);
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+/* ---------- Pasos en la tarjeta de la banda ---------- */
+.pasos-tarjeta {
+  min-width: min(100%, 300px);
 }
 
-.btn-volver:hover {
-  background: var(--verde-hondo);
-  color: #ffffff;
-}
-
-/* ---------- Encabezado ---------- */
-.pqr-header {
-  margin-bottom: 34px;
-}
-
-.pqr-badge {
-  display: inline-block;
-  margin-bottom: 16px;
-  padding: 7px 15px;
-  border-radius: 999px;
-  background: var(--verde-humo);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--verde-hondo);
-}
-
-.pqr-title {
-  margin: 0 0 12px;
-  font-size: clamp(26px, 3.6vw, 38px);
-  font-weight: 800;
-  line-height: 1.14;
-  letter-spacing: -0.02em;
-}
-
-.pqr-subtitle {
-  margin: 0 0 26px;
-  max-width: 58ch;
-  font-size: 15.5px;
-  line-height: 1.75;
-  color: var(--tinta-2);
-}
-
-/* Datos del radicado */
-.pqr-datos {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.pqr-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin: 0;
-  padding: 14px 20px;
-  background: var(--verde-humo);
-  border-radius: var(--r-lg);
-}
-
-.pqr-meta span {
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--tinta-2);
-}
-
-.pqr-meta strong {
-  font-size: 15.5px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  color: var(--verde-hondo);
-}
-
-/* ---------- Pasos del tramite ---------- */
-.pqr-pasos {
+.pasos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
   gap: 14px;
-  margin: 0 0 38px;
+  margin: 6px 0 0;
   padding: 0;
   list-style: none;
 }
 
-.pqr-paso {
-  display: grid;
-  gap: 7px;
-  padding: 20px;
-  background: var(--lienzo);
-  border-radius: var(--r-lg);
+.paso {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
 }
 
-.pqr-paso__num {
+.paso__num {
   display: grid;
   place-items: center;
+  flex-shrink: 0;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: var(--verde-hondo);
-  font-size: 13px;
+  background: var(--lime);
+  color: var(--verde-900);
   font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  color: #ffffff;
 }
 
-.pqr-paso__titulo {
-  font-size: 14.5px;
-  font-weight: 800;
-  letter-spacing: -0.015em;
+.paso__texto {
+  display: grid;
+  gap: 2px;
+  color: #b6dfc0;
 }
 
-.pqr-paso__detalle {
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: var(--tinta-2);
+.pasos-tarjeta__usuario {
+  margin-top: 8px !important;
+  padding-top: 14px;
+  border-top: 1px solid rgba(182, 223, 192, 0.2);
+  color: #b6dfc0;
 }
 
-/* ---------- Formulario ---------- */
+.formulario-card__titulo {
+  margin: 0 0 24px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
 .pqr-form {
   display: grid;
   gap: 28px;
@@ -232,8 +154,29 @@
   gap: 8px;
 }
 
-.pqr-form-fields .pqr-input + .pqr-label {
+.pqr-label--separada {
   margin-top: 16px;
+}
+
+.pqr-campo-pie {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pqr-campo-pie .pqr-contador {
+  margin-left: auto;
+}
+
+.pqr-error {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--negative);
+}
+
+.pqr-input[aria-invalid='true'],
+.pqr-textarea[aria-invalid='true'] {
+  border-color: var(--negative);
 }
 
 .pqr-textarea {
@@ -294,10 +237,6 @@
   color: var(--tinta-2);
 }
 
-.pqr-dropzone-input {
-  display: none;
-}
-
 /* ---------- Acciones ---------- */
 .pqr-actions {
   display: flex;
@@ -354,8 +293,12 @@
     padding: 24px 16px 60px;
   }
 
-  .pqr-card {
+  .formulario-card {
     border-radius: var(--r-lg);
+  }
+
+  .pqr-campo-pie {
+    flex-direction: column;
   }
 
   .pqr-actions {

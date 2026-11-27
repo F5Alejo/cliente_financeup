@@ -39,9 +39,7 @@
 }
 
 .brand-logo {
-  height: 38px;
-  width: auto;
-  display: block;
+  height: 40px;
 }
 
 .main-nav {
@@ -177,7 +175,7 @@
   right: 0;
   min-width: 220px;
   padding: 0.35rem;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.97);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -185,22 +183,39 @@
   box-shadow: var(--shadow-lg);
   z-index: 1100;
   transform-origin: top right;
-  animation: perfil-abrir 0.3s var(--ease-out);
+  /* Angular Aria deja el menú en el DOM: se oculta hasta que visible() es true */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.97);
+  transition:
+    opacity 0.22s var(--ease-out),
+    transform 0.28s var(--ease-out),
+    visibility 0s linear 0.28s;
 }
 
-@keyframes perfil-abrir {
-  from {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+.perfil-dropdown.abierto {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.22s var(--ease-out),
+    transform 0.28s var(--ease-out),
+    visibility 0s;
+}
+
+.perfil-chevron {
+  color: var(--ink-soft);
+  transition: transform 0.25s var(--ease-out);
+}
+
+.perfil-boton[aria-expanded='true'] .perfil-chevron {
+  transform: rotate(180deg);
 }
 
 .perfil-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
   padding: 0.65rem 0.85rem;
   border: none;
@@ -214,15 +229,22 @@
   cursor: pointer;
 }
 
-.perfil-item:hover {
+.perfil-item:hover,
+.perfil-item[data-active='true'] {
   background-color: var(--surface-sunk);
+}
+
+.perfil-item:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: -2px;
 }
 
 .perfil-item-boton {
   color: var(--negative);
 }
 
-.perfil-item-boton:hover {
+.perfil-item-boton:hover,
+.perfil-item-boton[data-active='true'] {
   background-color: var(--negative-wash);
 }
 
@@ -266,8 +288,14 @@
     grid-area: cuenta;
   }
 
+  /* Oculto a la vista pero no al lector de pantalla: es el nombre accesible del botón. */
   .perfil-nombre {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
   .perfil-boton {
@@ -275,7 +303,7 @@
   }
 
   .brand-logo {
-    height: 34px;
+    height: 32px;
   }
 
   .main-nav {

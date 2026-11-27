@@ -3,8 +3,8 @@
         <img [src]="curso.imagen" [alt]="curso.titulo" class="curso-banner-img" />
         <div class="curso-banner-texto">
             <span class="curso-banner-pregunta">{{ texto }}</span>
-            <span class="curso-banner-curso">🎓 {{ curso.titulo }} · {{ curso.duracion }}</span>
+            <span class="curso-banner-curso"><app-icon nombre="graduation-cap" [tamano]="14" /> {{ curso.titulo }} · {{ curso.duracion }}</span>
         </div>
-        <span class="curso-banner-cta">Míralo aquí →</span>
+        <span class="curso-banner-cta">Míralo aquí <app-icon nombre="chevron-right" [tamano]="14" /></span>
     </a>
 }

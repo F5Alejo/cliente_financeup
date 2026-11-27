@@ -35,8 +35,7 @@ const BITACORA: Record<AccionBitacora, { titulo: string; icono: NombreIcono; ton
   'cambio-rol': { titulo: 'Cambio de permisos', icono: 'shield-check', tono: 'warning' },
   bloqueo: { titulo: 'Usuario bloqueado', icono: 'ban', tono: 'danger' },
   desbloqueo: { titulo: 'Usuario desbloqueado', icono: 'unlock', tono: 'primary' },
-  restablecimiento: { titulo: 'Restablecimiento de contraseña', icono: 'key', tono: 'neutral' },
-  eliminacion: { titulo: 'Usuario eliminado', icono: 'trash', tono: 'danger' },
+  restablecimiento: { titulo: 'Código de recuperación enviado', icono: 'key', tono: 'neutral' },
 };
 
 const ICONO_MODULO: Record<ModuloAdmin, NombreIcono> = {
@@ -73,9 +72,18 @@ export class AdminDashboardComponent {
   private pqrService = inject(PqrService);
   private alianzasService = inject(AlianzasService);
   private educacionService = inject(EducacionService);
+  // Los cursos salen del catálogo del MID; se pide una vez y lo comparten todas las pantallas
+  private readonly catalogo = this.educacionService.escuelas().length === 0 && this.educacionService.cargarCatalogo();
   private actividadAdmin = inject(ActividadAdminService);
   private shell = inject(AdminBusquedaService);
   private router = inject(Router);
+
+  constructor() {
+    // Ofertas, solicitudes de crédito y PQR salen del MID
+    this.alianzasService.cargarOfertas();
+    this.alianzasService.cargarSolicitudesAdmin();
+    this.pqrService.cargarPqrAdmin();
+  }
 
   readonly esqueletos = [1, 2, 3, 4, 5];
   cargando = simularCarga();
@@ -88,7 +96,6 @@ export class AdminDashboardComponent {
   totalUsuarios = computed(() => this.usuarios().length);
   activos = computed(() => this.usuarios().filter((u) => u.estado === 'activo').length);
   bloqueados = computed(() => this.usuarios().filter((u) => u.estado === 'bloqueado').length);
-  pendientes = computed(() => this.usuarios().filter((u) => u.estado === 'pendiente').length);
   suspendidos = computed(() => this.usuarios().filter((u) => u.estado === 'suspendido').length);
   porcentajeActivos = computed(() => (this.totalUsuarios() ? Math.round((this.activos() / this.totalUsuarios()) * 100) : 0));
 
@@ -103,12 +110,12 @@ export class AdminDashboardComponent {
     };
   });
 
-  pqrPendientes = this.pqrService.pqrs.filter((p) => p.estado === 'Radicado' || p.estado === 'En revisión');
-  pqrAlta = this.pqrPendientes.filter((p) => p.prioridad === 'Alta').length;
-  alianzasActivas = this.alianzasService.ofertas.length;
-  solicitudesEnEstudio = this.alianzasService.solicitudes.filter((s) => s.estado === 'En estudio').length;
-  cursosPublicados = this.educacionService.todosLosCursos().length;
-  escuelas = this.educacionService.escuelas.length;
+  pqrPendientes = computed(() => this.pqrService.pqrsAdmin().filter((p) => p.estado === 'Abierta' || p.estado === 'En revisión'));
+  pqrAlta = computed(() => this.pqrPendientes().filter((p) => p.prioridad === 'Alta').length);
+  alianzasActivas = computed(() => this.alianzasService.ofertas().length);
+  solicitudesEnEstudio = computed(() => this.alianzasService.solicitudes().filter((s) => s.estado === 'En estudio').length);
+  cursosPublicados = computed(() => this.educacionService.todosLosCursos().length);
+  escuelas = computed(() => this.educacionService.escuelas().length);
 
   eventos = computed<EventoLinea[]>(() => {
     const lista: EventoLinea[] = [];
@@ -125,9 +132,9 @@ export class AdminDashboardComponent {
       const info = BITACORA[r.accion];
       agregar(r.fecha, parsearFecha(r.fecha).getTime(), info.titulo, `${r.email} · ${r.motivo}`, info.icono, info.tono);
     }
-    for (const p of this.pqrService.pqrs) {
+    for (const p of this.pqrService.pqrsAdmin()) {
       const ms = fechaTextoAMs(p.fechaCreacion);
-      if (ms !== null) agregar(new Date(ms).toISOString(), ms, 'PQR recibido', `${p.titulo} · N.º ${p.numero}`, 'life-buoy', 'warning');
+      if (ms !== null) agregar(new Date(ms).toISOString(), ms, 'PQR recibido', `${p.titulo} · ${p.radicado}`, 'life-buoy', 'warning');
     }
     for (const e of this.actividadAdmin.eventos()) {
       agregar(e.fecha, parsearFecha(e.fecha).getTime(), e.titulo, e.detalle ?? e.modulo, ICONO_MODULO[e.modulo], 'primary');
@@ -139,27 +146,20 @@ export class AdminDashboardComponent {
     const lista: Alerta[] = [];
     const plural = (n: number, singular: string, plural: string) => `${n} ${n === 1 ? singular : plural}`;
 
-    if (this.pqrPendientes.length) {
+    const pendientes = this.pqrPendientes().length;
+    if (pendientes) {
       lista.push({
-        titulo: `${plural(this.pqrPendientes.length, 'PQR pendiente', 'PQR pendientes')} de respuesta`,
-        detalle: this.pqrAlta ? `${this.pqrAlta} con prioridad alta.` : 'Ninguna con prioridad alta.',
+        titulo: `${plural(pendientes, 'PQR pendiente', 'PQR pendientes')} de respuesta`,
+        detalle: this.pqrAlta() ? `${this.pqrAlta()} con prioridad alta.` : 'Ninguna con prioridad alta.',
         ruta: '/admin/pqr',
         nivel: 'warning',
       });
     }
-    if (this.solicitudesEnEstudio) {
+    if (this.solicitudesEnEstudio()) {
       lista.push({
-        titulo: `${plural(this.solicitudesEnEstudio, 'solicitud de alianza', 'solicitudes de alianza')} en estudio`,
+        titulo: `${plural(this.solicitudesEnEstudio(), 'solicitud de alianza', 'solicitudes de alianza')} en estudio`,
         detalle: 'Esperan una decisión del equipo.',
         ruta: '/admin/alianzas',
-        nivel: 'warning',
-      });
-    }
-    if (this.pendientes()) {
-      lista.push({
-        titulo: `${plural(this.pendientes(), 'cuenta pendiente', 'cuentas pendientes')} de activación`,
-        detalle: 'Usuarios que aún no confirman su registro.',
-        ruta: '/admin/usuarios',
         nivel: 'warning',
       });
     }

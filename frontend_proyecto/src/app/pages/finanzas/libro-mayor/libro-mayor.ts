@@ -1,9 +1,19 @@
-import { Component, signal } from '@angular/core';
+import { Component, ElementRef, Injector, afterNextRender, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx'; // Librería para leer/escribir archivos Excel (.xlsx) en el navegador
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
 import { FinanzasService, Movimiento } from '../../../services/finanzas';
+import { DatosMovimiento, FormularioMovimientoComponent } from './formulario-movimiento/formulario-movimiento';
+import { ToastService } from '../../../shared/services/toast';
+import { MonedaPipe } from '../../../pipes/moneda.pipe';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent, NombreIcono } from '../../../shared/components/icon/icon';
+import { BotonComponent } from '../../../shared/components/ui/boton/boton';
+import { GraficaLineaComponent, PuntoLinea } from '../../../shared/graficas/grafica-linea';
+import { BarraPartesComponent, Parte } from '../../../shared/graficas/barra-partes';
+import { MedidorComponent } from '../../../shared/graficas/medidor';
+import { ModalComponent } from '../../../shared/components/modal/modal';
 
 /**
  * COMPONENTE: Libro Mayor
@@ -36,12 +46,36 @@ type ColumnaOrden = 'fecha' | 'concepto' | 'categoria' | 'tipo' | 'valor';
 
 @Component({
   selector: 'app-libro-mayor',
-  imports: [FinanzasMenuComponent, FormsModule, CursoBannerComponent],
+  imports: [
+    FinanzasMenuComponent,
+    FormsModule,
+    CursoBannerComponent,
+    FormularioMovimientoComponent,
+    MonedaPipe,
+    BandaSeccionComponent,
+    IconComponent,
+    BotonComponent,
+    GraficaLineaComponent,
+    BarraPartesComponent,
+    MedidorComponent,
+    ModalComponent,
+  ],
   templateUrl: './libro-mayor.html',
-  styleUrl: './libro-mayor.css',
+  styleUrls: ['../finanzas-pagina.css', './libro-mayor.css'],
 })
 export class LibroMayorComponent {
-  constructor(private finanzasService: FinanzasService) {}
+  private finanzasService = inject(FinanzasService);
+  private toastService = inject(ToastService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private injector = inject(Injector);
+
+  /** Mueve el foco a un elemento de esta pantalla después de que Angular la vuelva a pintar.
+   *  Se usa cuando el botón que tenía el foco desaparece (confirmar o cancelar un borrado). */
+  private enfocarDespues(selector: string): void {
+    afterNextRender(() => this.host.nativeElement.querySelector<HTMLElement>(selector)?.focus(), {
+      injector: this.injector,
+    });
+  }
 
   /** Categorías que el usuario puede elegir tanto en el formulario como en los filtros. */
   categoriasDisponibles: string[] = [
@@ -49,9 +83,6 @@ export class LibroMayorComponent {
     'Servicios', 'Educación', 'Gastos hormiga', 'Salario', 'Otros ingresos',
     'Ahorro', 'Otros',
   ];
-
-  /** Opciones para el campo "Método de pago" del formulario. */
-  metodosPago: string[] = ['Efectivo', 'Tarjeta débito', 'Tarjeta crédito', 'Transferencia', 'Otro'];
 
   /** Los movimientos reales viven en el service compartido con Finanzas;
    *  este getter es solo una "ventana" de lectura hacia ellos. */
@@ -172,52 +203,123 @@ export class LibroMayorComponent {
     return this.ahorro * 12;
   }
 
+  /** ----- Gráficas (también sobre lo filtrado) ----- */
+
+  /** Saldo acumulado al cierre de cada mes que tiene movimientos, del más antiguo al más reciente. */
+  get saldoMensual(): PuntoLinea[] {
+    const porMes = new Map<string, number>();
+    for (const m of this.movimientosFiltrados) {
+      const clave = m.fecha.slice(0, 7);
+      porMes.set(clave, (porMes.get(clave) ?? 0) + (m.tipo === 'ingreso' ? m.valor : -m.valor));
+    }
+    let saldo = 0;
+    return [...porMes.keys()].sort().map((clave) => {
+      saldo += porMes.get(clave)!;
+      const [anio, mes] = clave.split('-').map(Number);
+      const etiqueta = new Date(anio, mes - 1, 1).toLocaleDateString('es-CO', { month: 'short' }).replace('.', '');
+      return { etiqueta, valor: saldo };
+    });
+  }
+
+  /** El horizonte del fondo de la banda: el mismo saldo, siempre de todo el historial. */
+  get horizonteBanda(): number[] {
+    let saldo = 0;
+    return this.finanzasService.resumenMensual(12).map((m) => (saldo += m.ingresos - m.gastos));
+  }
+
+  /** Gasto por categoría de lo filtrado, de mayor a menor. */
+  get gastosPorCategoria(): Parte[] {
+    const mapa = new Map<string, number>();
+    for (const m of this.movimientosFiltrados) {
+      if (m.tipo === 'gasto') mapa.set(m.categoria, (mapa.get(m.categoria) ?? 0) + m.valor);
+    }
+    return [...mapa.entries()].map(([etiqueta, valor]) => ({ etiqueta, valor })).sort((a, b) => b.valor - a.valor);
+  }
+
+  get pctMayorGasto(): number {
+    const mayor = this.gastosPorCategoria[0];
+    return mayor && this.totalGastos > 0 ? Math.round((mayor.valor / this.totalGastos) * 100) : 0;
+  }
+
+  /** Qué parte de los gastos se fue en gastos hormiga. */
+  get pctHormiga(): number {
+    return this.totalGastos > 0 ? Math.round((this.gastosHormiga / this.totalGastos) * 100) : 0;
+  }
+
+  /** Opciones del control segmentado de tipo. */
+  readonly tipos: { id: 'todos' | 'ingreso' | 'gasto'; etiqueta: string }[] = [
+    { id: 'todos', etiqueta: 'Todo' },
+    { id: 'ingreso', etiqueta: 'Ingresos' },
+    { id: 'gasto', etiqueta: 'Gastos' },
+  ];
+
+  get hayFiltros(): boolean {
+    return !!(this.textoBusqueda() || this.categoriaFiltro() !== 'Todas' || this.tipoFiltro() !== 'todos' || this.fechaDesde() || this.fechaHasta());
+  }
+
+  /** Solo se muestra la columna Método si algún movimiento la tiene. */
+  get hayMetodos(): boolean {
+    return this.movimientos.some((m) => !!m.metodoPago);
+  }
+
+  /** ----- Paginación simple: 20 filas y "Ver más" ----- */
+  limite = signal(20);
+
+  get movimientosVisibles(): Movimiento[] {
+    return this.movimientosFiltrados.slice(0, this.limite());
+  }
+
+  get restantes(): number {
+    return this.movimientosFiltrados.length - this.limite();
+  }
+
+  verMas(): void {
+    this.limite.update((n) => n + 20);
+  }
+
+  iconoDe(categoria: string): NombreIcono {
+    return this.finanzasService.iconoPorCategoria(categoria);
+  }
+
+  /** '2026-11-12' → '12 nov' (y el año si no es el actual). */
+  fechaCorta(iso: string): string {
+    const [anio, mes, dia] = iso.split('-').map(Number);
+    const fecha = new Date(anio, mes - 1, dia);
+    const opciones: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+    if (anio !== new Date().getFullYear()) opciones.year = 'numeric';
+    return fecha.toLocaleDateString('es-CO', opciones).replace('.', '');
+  }
+
+  /** Valor de aria-sort del encabezado de una columna. */
+  ordenAria(columna: ColumnaOrden): 'ascending' | 'descending' | 'none' {
+    if (this.columnaOrden() !== columna) return 'none';
+    return this.direccionOrden() === 'asc' ? 'ascending' : 'descending';
+  }
+
+  abs(n: number): number {
+    return Math.abs(n);
+  }
+
   /** Da formato de pesos colombianos a un número, ej: 1200000 -> "$1.200.000". */
   formatearCOP(valor: number): string {
     return `$${Math.abs(valor).toLocaleString('es-CO')}`;
   }
 
   /** ----- Formulario de agregar / editar -----
-   *  Un mismo formulario (y un mismo modal) sirve tanto para crear un
-   *  movimiento nuevo como para editar uno existente; `modoEdicion` indica
-   *  en cuál de los dos casos estamos. */
+   *  El formulario vive en `FormularioMovimientoComponent` (Signal Forms).
+   *  Aquí solo se decide si está abierto y con qué movimiento. */
   mostrarFormulario = signal(false);
-  modoEdicion = signal(false);
-  private idEnEdicion: number | null = null;
+  movimientoEnEdicion = signal<Movimiento | undefined>(undefined);
 
-  formFecha = '';
-  formConcepto = '';
-  formCategoria = 'Otros';
-  formTipo: 'ingreso' | 'gasto' = 'gasto';
-  formValor: number | null = null;
-  formMetodoPago = 'Efectivo';
-  formObservaciones = '';
-
-  /** Abre el modal limpio, listo para crear un movimiento nuevo. */
+  /** Abre el formulario limpio, listo para crear un movimiento nuevo. */
   abrirFormularioNuevo(): void {
-    this.modoEdicion.set(false);
-    this.idEnEdicion = null;
-    this.formFecha = '';
-    this.formConcepto = '';
-    this.formCategoria = 'Otros';
-    this.formTipo = 'gasto';
-    this.formValor = null;
-    this.formMetodoPago = 'Efectivo';
-    this.formObservaciones = '';
+    this.movimientoEnEdicion.set(undefined);
     this.mostrarFormulario.set(true);
   }
 
-  /** Abre el modal con los datos del movimiento ya cargados, para editarlo. */
+  /** Abre el formulario con los datos del movimiento ya cargados, para editarlo. */
   abrirFormularioEditar(movimiento: Movimiento): void {
-    this.modoEdicion.set(true);
-    this.idEnEdicion = movimiento.id;
-    this.formFecha = movimiento.fecha;
-    this.formConcepto = movimiento.concepto;
-    this.formCategoria = movimiento.categoria;
-    this.formTipo = movimiento.tipo;
-    this.formValor = movimiento.valor;
-    this.formMetodoPago = movimiento.metodoPago ?? 'Efectivo';
-    this.formObservaciones = movimiento.observaciones ?? '';
+    this.movimientoEnEdicion.set(movimiento);
     this.mostrarFormulario.set(true);
   }
 
@@ -225,38 +327,16 @@ export class LibroMayorComponent {
     this.mostrarFormulario.set(false);
   }
 
-  /** Valida el formulario y, según `modoEdicion`, actualiza el movimiento
-   *  existente o agrega uno nuevo, siempre a través del service compartido. */
-  guardarMovimiento(): void {
-    const concepto = this.formConcepto.trim();
-    const fecha = this.formFecha;
-    const valor = this.formValor;
-
-    if (!concepto || !fecha || valor === null || valor <= 0) {
-      this.emitirMensaje('error', 'Completa fecha, concepto y un valor mayor a 0.');
-      return;
-    }
-
-    const datos = {
-      fecha,
-      concepto,
-      categoria: this.formCategoria,
-      tipo: this.formTipo,
-      valor,
-      metodoPago: this.formMetodoPago,
-      observaciones: this.formObservaciones.trim(),
-    };
-
-    if (this.modoEdicion() && this.idEnEdicion !== null) {
-      this.finanzasService.editarMovimiento(this.idEnEdicion, datos);
-      console.log('[Libro mayor] Movimiento actualizado:', { id: this.idEnEdicion, ...datos });
-      this.emitirMensaje('exito', 'Movimiento actualizado correctamente.');
+  /** Recibe los datos ya validados y los guarda en el service compartido. */
+  guardarMovimiento(datos: DatosMovimiento): void {
+    const enEdicion = this.movimientoEnEdicion();
+    if (enEdicion) {
+      this.finanzasService.editarMovimiento(enEdicion.id, datos);
+      this.emitirMensaje('exito', 'Movimiento actualizado.');
     } else {
       this.finanzasService.agregarMovimiento(datos);
-      console.log('[Libro mayor] Movimiento agregado:', datos);
-      this.emitirMensaje('exito', 'Movimiento agregado correctamente.');
+      this.emitirMensaje('exito', datos.tipo === 'gasto' ? 'Gasto registrado.' : 'Ingreso registrado.');
     }
-
     this.mostrarFormulario.set(false);
   }
 
@@ -265,31 +345,35 @@ export class LibroMayorComponent {
    *  y mostramos un aviso; solo se borra de verdad si el usuario confirma. */
   idAEliminar = signal<number | null>(null);
 
+  /** El botón de borrar se reemplaza por "¿Eliminar? Sí / No": el foco pasa a "No",
+   *  la opción segura, para que el teclado no quede perdido en la página. */
   pedirConfirmacionEliminar(id: number): void {
     this.idAEliminar.set(id);
+    this.enfocarDespues(`#confirmar-no-${id}`);
   }
 
+  /** Al cancelar, el foco vuelve al botón de borrar de esa misma fila. */
   cancelarEliminar(): void {
+    const id = this.idAEliminar();
     this.idAEliminar.set(null);
+    if (id !== null) this.enfocarDespues(`#eliminar-${id}`);
   }
 
+  /** Al borrar, la fila desaparece: el foco va al título de la tabla de movimientos. */
   confirmarEliminar(): void {
     const id = this.idAEliminar();
     if (id === null) return;
     this.finanzasService.eliminarMovimiento(id);
     this.idAEliminar.set(null);
     this.emitirMensaje('exito', 'Movimiento eliminado.');
+    this.enfocarDespues('#mov-titulo');
   }
 
   /** ----- Mensajes de éxito / error (toast) -----
-   *  Se muestra un mensaje arriba de la página y se oculta solo a los 3 segundos. */
-  mensaje = signal<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
-  private temporizadorMensaje: ReturnType<typeof setTimeout> | undefined;
-
+   *  Usan el aviso flotante compartido de la app (ToastService). */
   private emitirMensaje(tipo: 'exito' | 'error', texto: string): void {
-    this.mensaje.set({ tipo, texto });
-    clearTimeout(this.temporizadorMensaje); // evita que un mensaje anterior lo cierre antes de tiempo
-    this.temporizadorMensaje = setTimeout(() => this.mensaje.set(null), 3000);
+    if (tipo === 'exito') this.toastService.success(texto);
+    else this.toastService.error(texto);
   }
 
   /** ============================================================

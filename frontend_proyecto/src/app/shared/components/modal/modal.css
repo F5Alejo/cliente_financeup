@@ -29,6 +29,10 @@
   max-width: 620px;
 }
 
+.modal-xl {
+  max-width: 860px;
+}
+
 .modal-cabecera {
   display: flex;
   align-items: flex-start;
@@ -83,6 +87,11 @@
   display: none;
 }
 
+/* Sin botones en el pie, el cuerpo recupera el aire inferior. */
+.modal-cuerpo:has(+ .modal-pie:empty) {
+  padding-bottom: 24px;
+}
+
 .modal-cerrar:focus-visible {
   outline: 2px solid #0f8c3b;
   outline-offset: 2px;
@@ -96,7 +105,8 @@
 
   .modal,
   .modal-sm,
-  .modal-lg {
+  .modal-lg,
+  .modal-xl {
     max-width: none;
     max-height: 92vh;
     border-radius: 16px 16px 0 0;

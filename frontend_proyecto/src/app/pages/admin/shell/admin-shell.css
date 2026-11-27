@@ -55,18 +55,12 @@
 }
 
 .marca-completa {
-  flex-shrink: 0;
-  height: 44px;
-  width: auto;
-  max-width: none;
+  height: 36px;
 }
 
 .marca-mini {
   display: none;
-  flex-shrink: 0;
-  height: 34px;
-  width: auto;
-  max-width: none;
+  height: 36px;
 }
 
 .sidebar-nav {

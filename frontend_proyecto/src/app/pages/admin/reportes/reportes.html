@@ -10,8 +10,8 @@
     <button type="button" class="btn btn-secondary" (click)="exportarExcel()">
       <app-icon nombre="download" [tamano]="16" /> Exportar Excel
     </button>
-    <button type="button" class="btn btn-primary" [disabled]="actualizando()" (click)="generar()">
-      <app-icon nombre="bar-chart" [tamano]="16" /> {{ actualizando() ? 'Generando…' : 'Generar reporte' }}
+    <button type="button" class="btn btn-primary" [disabled]="cargando()" (click)="generar()">
+      <app-icon nombre="bar-chart" [tamano]="16" /> {{ cargando() ? 'Generando…' : 'Generar reporte' }}
     </button>
   </div>
 </div>
@@ -41,7 +41,11 @@
   </div>
 </div>
 
-<div class="contenido-reporte" [class.actualizando]="actualizando()" [attr.aria-busy]="actualizando()">
+@if (errorTema()) {
+  <p class="form-error no-print" role="alert">No se pudieron traer los datos de {{ temaActual().etiqueta }}: {{ errorTema() }}</p>
+}
+
+<div class="contenido-reporte" [attr.aria-busy]="cargando()">
   <section class="kpi-grid" [attr.aria-label]="'Indicadores de ' + temaActual().etiqueta">
     @for (k of reporte().kpis; track k.etiqueta) {
       <app-kpi

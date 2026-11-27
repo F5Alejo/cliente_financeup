@@ -1,0 +1,346 @@
+/* Acceso (login, registro y recuperar contraseña): todo vive en la banda verde.
+   A la izquierda el título y los pasos reales del trámite; a la derecha, la tarjeta blanca con el formulario. */
+
+:host {
+  display: block;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+app-banda-seccion {
+  --banda-lado: 1fr;
+  --banda-alinear: center;
+}
+
+/* ---------- Pasos y lista de la banda ---------- */
+.acceso-pasos,
+.acceso-lista {
+  display: grid;
+  gap: 14px;
+  margin: 2rem 0 0;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(182, 223, 192, 0.22);
+  list-style: none;
+  max-width: 30rem;
+}
+
+.acceso-pasos li,
+.acceso-lista li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #b6dfc0;
+  line-height: 1.45;
+}
+
+.acceso-pasos strong,
+.acceso-lista strong {
+  display: block;
+  color: #f2faf4;
+}
+
+.acceso-pasos__num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(182, 223, 192, 0.35);
+  border-radius: 50%;
+  font-weight: 800;
+  color: #f2faf4;
+}
+
+/* El paso en curso se enciende en lima */
+.acceso-pasos li[aria-current='step'] .acceso-pasos__num {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: var(--verde-900);
+}
+
+.acceso-lista app-icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--lime);
+}
+
+/* ---------- Tarjeta del formulario ---------- */
+.acceso-tarjeta {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+  max-width: 480px;
+  margin-left: auto;
+  padding: clamp(24px, 4vw, 36px);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.55);
+}
+
+.acceso-tarjeta h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.acceso-tarjeta h2:focus {
+  outline: none;
+}
+
+.acceso-tarjeta__texto {
+  margin: -12px 0 0;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.acceso-form {
+  display: grid;
+  gap: 18px;
+}
+
+/* Dos campos cortos en fila (nombre y apellido); se apilan si no caben */
+.acceso-dupla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: 18px;
+}
+
+/* ---------- Campos ---------- */
+.campo {
+  display: grid;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.campo input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  font: inherit;
+  color: var(--ink);
+  transition: border-color var(--dur-fast) ease;
+}
+
+.campo input::placeholder {
+  color: var(--ink-faint);
+}
+
+.campo input:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 1px;
+  border-color: var(--brand-strong);
+}
+
+.campo input[aria-invalid='true'] {
+  border-color: var(--negative);
+}
+
+.campo__error {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--negative);
+}
+
+.campo__codigo {
+  font-family: var(--fuente-cifra);
+  font-size: 1.35rem !important;
+  letter-spacing: 0.35em;
+  text-align: center;
+}
+
+/* Contraseña con botón de mostrar dentro del campo */
+.clave {
+  position: relative;
+}
+
+.clave input {
+  padding-right: 52px;
+}
+
+.clave button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.clave button[aria-pressed='true'] {
+  color: var(--brand-strong);
+}
+
+.clave button:focus-visible {
+  outline: 2px solid var(--brand-strong);
+}
+
+/* Reglas de la contraseña que se van cumpliendo */
+.reglas {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.reglas li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reglas li::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.reglas li.ok {
+  color: var(--positive);
+}
+
+.reglas li.ok::before {
+  background: currentColor;
+}
+
+/* ---------- Casilla ---------- */
+.casilla {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ink-body);
+  cursor: pointer;
+}
+
+.casilla input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  accent-color: var(--brand-strong);
+}
+
+/* ---------- Avisos, botones y enlaces ---------- */
+.acceso-alerta {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--negative-wash);
+  color: var(--negative);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.acceso-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--brand-strong);
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) ease;
+}
+
+.acceso-boton:hover:not(:disabled) {
+  background: var(--brand-deep);
+}
+
+.acceso-boton:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 3px;
+}
+
+.acceso-boton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.acceso-enlace {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--brand-strong);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: text-decoration-color var(--dur-fast) ease;
+}
+
+.acceso-enlace:hover {
+  text-decoration-color: currentColor;
+}
+
+.acceso-enlace:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.acceso-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.acceso-pie {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 760px) {
+  .acceso-tarjeta {
+    max-width: none;
+  }
+
+  /* En el teléfono el formulario va primero: la lista se queda corta */
+  .acceso-lista,
+  .acceso-pasos {
+    display: none;
+  }
+}
+
+.acceso-listo {
+  color: var(--positive);
+}

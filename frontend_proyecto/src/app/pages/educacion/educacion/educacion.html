@@ -1,74 +1,69 @@
-<div class="aula">
+<app-banda-seccion
+  titulo="Aprende a manejar tu dinero,"
+  acento="clase por clase."
+  texto="Cursos cortos agrupados por escuela, que avanzas a tu ritmo y terminas con certificado."
+  [serie]="horizonteAvance()"
+>
+  <label class="banda-buscador">
+    <app-icon nombre="search" [tamano]="20" />
+    <span class="visualmente-oculto">Buscar cursos</span>
+    <input
+      type="search"
+      placeholder="Busca un tema: puntaje, deudas, bolsa"
+      [ngModel]="terminoBusqueda()"
+      (ngModelChange)="terminoBusqueda.set($event)"
+    />
+  </label>
 
-  <!-- ============ CONTINÚA DONDE QUEDASTE ============ -->
+  @if (totalCursos()) {
+    <dl class="banda-cifras">
+      <div><dt>Cursos</dt><dd class="cifra">{{ totalCursos() }}</dd></div>
+      <div><dt>En curso</dt><dd class="cifra">{{ cursosEmpezados() }}</dd></div>
+      <div><dt>Terminados</dt><dd class="cifra">{{ cursosTerminados() }} de {{ totalCursos() }}</dd></div>
+    </dl>
+  }
+
+  <!-- Continúa donde quedaste -->
   @if (cursoEnProgreso(); as curso) {
-    <section class="reanudar">
-      <div class="reanudar__cover" [style.backgroundImage]="'url(' + curso.imagen + ')'">
-        <span class="reanudar__scrim"></span>
-      </div>
-
-      <div class="reanudar__body">
-        <p class="eyebrow">Continúa donde quedaste</p>
-        <h1 class="reanudar__titulo">{{ curso.titulo }}</h1>
-        <p class="reanudar__siguiente">
-          Clase {{ siguienteLeccionNumero(curso) }} · {{ siguienteLeccionTitulo(curso) }}
+    <section class="seguir" banda-lado aria-label="Continúa donde quedaste">
+      <div class="seguir__cover" [style.backgroundImage]="'url(' + curso.imagen + ')'"></div>
+      <div class="seguir__cuerpo">
+        <h2 class="seguir__titulo">{{ curso.titulo }}</h2>
+        <p class="seguir__siguiente">
+          Sigue la clase {{ siguienteLeccionNumero(curso) }}: {{ siguienteLeccionTitulo(curso) }}
         </p>
-
-        <div class="reanudar__acciones">
-          <button type="button" class="btn btn--play" (click)="reanudar(curso)">
-            <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
-              <path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor" />
-            </svg>
+        <app-medidor class="seguir__medidor" [valor]="curso.progreso" [maximo]="100" sobre="oscuro" etiqueta="Avance del curso" />
+        <p class="seguir__dato">
+          <span class="cifra">{{ curso.progreso }}%</span> ·
+          {{ leccionesHechas(curso) }} de {{ curso.lecciones.length }} clases ·
+          {{ minutosRestantes(curso) }} min por ver
+        </p>
+        <div class="seguir__acciones">
+          <button type="button" class="btn btn--lima" (click)="reanudar(curso)">
+            <app-icon nombre="play" [tamano]="16" />
             Reanudar clase
           </button>
-          <button type="button" class="btn btn--ghost" (click)="abrirCurso(curso)">
+          <button type="button" class="btn btn--linea-clara" (click)="abrirCurso(curso)">
             Ver el temario
           </button>
         </div>
       </div>
-
-      <div class="reanudar__anillo">
-        <svg viewBox="0 0 60 60" aria-hidden="true">
-          <circle class="anillo__pista" cx="30" cy="30" r="26" />
-          <circle
-            class="anillo__avance"
-            cx="30"
-            cy="30"
-            r="26"
-            [attr.stroke-dasharray]="trazoAnillo(curso.progreso)"
-          />
-        </svg>
-        <span class="anillo__valor">{{ curso.progreso }}<i>%</i></span>
-        <p class="anillo__pie">
-          {{ leccionesHechas(curso) }} de {{ curso.lecciones.length }} clases ·
-          {{ minutosRestantes(curso) }} min por ver
-        </p>
-      </div>
     </section>
   }
+</app-banda-seccion>
+
+<div class="aula">
 
   <!-- ============ FILTROS ============ -->
-  <section class="rail">
-    <label class="buscador">
-      <svg viewBox="0 0 24 24" aria-hidden="true" class="icon">
-        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
-        <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-      </svg>
-      <input
-        type="text"
-        placeholder="Busca un tema: puntaje, deudas, bolsa"
-        [ngModel]="terminoBusqueda()"
-        (ngModelChange)="terminoBusqueda.set($event)"
-      />
-    </label>
-
+  <section class="rail" aria-label="Filtrar cursos">
     <div class="chips">
-      @for (escuela of escuelas; track escuela.id) {
+      @for (escuela of escuelas(); track escuela.id) {
         <button
           type="button"
           class="chip"
-          [class.chip--on]="escuelaActiva() === escuela.id"
-          (click)="alternarEscuela(escuela.id)"
+          [class.chip--on]="escuelaActiva() === escuela.slug"
+          [attr.aria-pressed]="escuelaActiva() === escuela.slug"
+          (click)="alternarEscuela(escuela.slug)"
         >
           {{ escuela.nombre }}
         </button>
@@ -81,6 +76,7 @@
           type="button"
           class="chip"
           [class.chip--on]="nivelActivo() === nivel.id"
+          [attr.aria-pressed]="nivelActivo() === nivel.id"
           (click)="alternarNivel(nivel.id)"
         >
           {{ nivel.etiqueta }}
@@ -94,6 +90,7 @@
           type="button"
           class="chip"
           [class.chip--on]="formatoActivo() === formato.id"
+          [attr.aria-pressed]="formatoActivo() === formato.id"
           (click)="alternarFormato(formato.id)"
         >
           {{ formato.etiqueta }}
@@ -109,6 +106,17 @@
   </section>
 
   <!-- ============ ESCUELAS ============ -->
+  @if (error()) {
+    <section class="vacio" role="alert">
+      <h2>No pudimos cargar los cursos</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="btn btn--play" (click)="cargar()">Intentar de nuevo</button>
+    </section>
+  } @else if (cargando()) {
+    <section class="vacio" aria-live="polite">
+      <p>Cargando cursos…</p>
+    </section>
+  } @else {
   @for (escuela of escuelasFiltradas(); track escuela.id) {
     <section class="escuela">
       <header class="escuela__head">
@@ -120,11 +128,12 @@
       </header>
 
       <div class="pista">
-        @for (curso of escuela.cursos; track curso.id; let i = $index) {
+        @for (curso of escuela.cursos; track curso.id) {
           <article
             class="curso"
-            [style.animation-delay]="i * 70 + 'ms'"
             tabindex="0"
+            role="link"
+            [attr.aria-label]="curso.titulo"
             (click)="abrirCurso(curso)"
             (keydown.enter)="abrirCurso(curso)"
           >
@@ -135,16 +144,20 @@
                 </svg>
               </span>
               <span class="curso__dur">{{ curso.duracion }}</span>
-              @if (curso.progreso > 0) {
-                <span class="curso__barra">
-                  <i [style.width.%]="curso.progreso"></i>
-                </span>
+              @if (curso.progreso >= 100) {
+                <span class="curso__estado"><app-icon nombre="check-circle" [tamano]="14" /> Terminado</span>
               }
             </div>
 
             <div class="curso__body">
               <p class="curso__meta">{{ curso.nivel }} · {{ curso.formato }}</p>
               <h3 class="curso__titulo">{{ curso.titulo }}</h3>
+              @if (curso.progreso > 0 && curso.progreso < 100) {
+                <div class="curso__avance">
+                  <app-medidor [valor]="curso.progreso" [maximo]="100" [plano]="true" [etiqueta]="'Avance de ' + curso.titulo" />
+                  <span class="cifra">{{ curso.progreso }} %</span>
+                </div>
+              }
               <p class="curso__desc">{{ curso.descripcion }}</p>
 
               <footer class="curso__pie">
@@ -162,12 +175,13 @@
       <h2>No hay cursos con esos filtros</h2>
       <p>
         Buscaste “{{ terminoBusqueda() }}”. Prueba con otro tema o quita los filtros
-        para ver los {{ escuelas.length }} programas completos.
+        para ver los {{ escuelas().length }} programas completos.
       </p>
       <button type="button" class="btn btn--play" (click)="limpiarFiltros()">
         Ver todos los cursos
       </button>
     </section>
+  }
   }
 
 </div>

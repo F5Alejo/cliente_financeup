@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { NotificacionesService } from './notificaciones';
-import { UsuariosService } from './usuarios';
+import { HttpClient } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
+import { API_URL } from './api';
 
 export type Rol = 'admin' | 'user';
 export type EstadoUsuario = 'activo' | 'bloqueado' | 'pendiente' | 'suspendido';
@@ -18,8 +19,12 @@ export function motivoSinAcceso(usuario: { estado?: EstadoUsuario }): string | n
 }
 
 export interface Usuario {
+  /** Id del usuario en la base (lo manda el MID). */
+  id?: number;
+  /** Token JWT que entrega el MID al iniciar sesión. */
+  token?: string;
   email: string;
-  password: string;
+  password?: string;
   nombre: string;
   apellido?: string;
   rol: Rol;
@@ -33,18 +38,70 @@ export interface Usuario {
   fechaNacimiento?: string;
 }
 
+/** Respuesta del paso 1 del login: el MID envía el código al correo. */
+export interface PasoLogin {
+  mensaje: string;
+  token_verificacion: string;
+}
+
+/** Datos del formulario de registro. */
+export interface DatosRegistro {
+  nombre: string;
+  apellido: string;
+  email: string;
+  contrasena: string;
+}
+
+/** Lo que responde el MID cuando la sesión queda iniciada. */
+interface SesionMid {
+  token: string;
+  id_usuario: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  rol: Rol;
+  estado: EstadoUsuario;
+}
+
+/** Perfil como lo devuelve el MID (GET /perfil/:id). */
+export interface Perfil {
+  id_usuario: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  tipo_documento: string;
+  cedula: string;
+  telefono: string;
+  ciudad: string;
+  direccion: string;
+  fecha_nacimiento: string;
+  estado: EstadoUsuario;
+  rol: Rol;
+}
+
+/** Datos personales que se pueden editar en "Mi perfil" (el correo y la cédula no). */
+export interface DatosPerfil {
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  ciudad: string;
+  direccion: string;
+  fecha_nacimiento: string;
+}
+
+/** Respuesta simple del MID: solo un mensaje. */
+export interface Mensaje {
+  mensaje: string;
+}
+
 const STORAGE_KEY = 'financeup_user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private http = inject(HttpClient);
   private usuarioActual: Usuario | null = null;
-
-  // La lista de usuarios (mock en memoria) vive en UsuariosService.
-  // TODO: al conectar el backend real, registrarUsuario() pasa a ser un POST /api/auth/register.
-  private usuariosService = inject(UsuariosService);
-  private notificaciones = inject(NotificacionesService);
 
   constructor() {
     // Recupera la sesión si ya había un usuario logueado (persistencia entre recargas)
@@ -54,135 +111,81 @@ export class AuthService {
     }
   }
 
-  /**
-   * Valida credenciales contra los usuarios quemados (mock), sin crear sesión.
-   * Se usa como primer paso del login, antes de pedir el código de verificación (2FA).
-   */
-  validarCredenciales(email: string, password: string): Usuario | null {
-    const usuario = this.usuariosService.buscar(email);
-    return usuario && usuario.password === password ? usuario : null;
+  /** Login, paso 1: el MID revisa correo y contraseña y envía un código al correo. */
+  iniciarSesion(email: string, contrasena: string): Observable<PasoLogin> {
+    return this.http.post<PasoLogin>(`${API_URL}/login`, { email, contrasena });
   }
 
-  /**
-   * Persiste la sesión de un usuario ya validado (segundo paso del login, tras el 2FA).
-   */
-  completarSesion(usuario: Usuario): void {
-    usuario.ultimoAcceso = new Date().toISOString();
+  /** Login, paso 2: con el código correcto el MID entrega el token y se guarda la sesión. */
+  verificarCodigo(tokenVerificacion: string, codigo: string): Observable<Usuario> {
+    return this.http
+      .post<SesionMid>(`${API_URL}/login/verificar`, { token_verificacion: tokenVerificacion, codigo })
+      .pipe(map((sesion) => this.guardarSesion(sesion)));
+  }
+
+  /** Botón "Reenviar código" del paso 2. */
+  reenviarCodigo(tokenVerificacion: string): Observable<Mensaje> {
+    return this.http.post<Mensaje>(`${API_URL}/login/reenviar`, { token_verificacion: tokenVerificacion });
+  }
+
+  /** Crea la cuenta en el MID; el MID responde con la sesión ya iniciada. */
+  registrar(datos: DatosRegistro): Observable<Usuario> {
+    return this.http
+      .post<SesionMid>(`${API_URL}/registro`, { ...datos, acepta_terminos: true })
+      .pipe(map((sesion) => this.guardarSesion(sesion)));
+  }
+
+  /** Pasa la respuesta del MID al formato del cliente y la guarda en sessionStorage. */
+  private guardarSesion(sesion: SesionMid): Usuario {
+    const usuario: Usuario = {
+      id: sesion.id_usuario,
+      token: sesion.token,
+      email: sesion.email,
+      nombre: sesion.nombre,
+      apellido: sesion.apellido,
+      rol: sesion.rol,
+      estado: sesion.estado,
+      ultimoAcceso: new Date().toISOString(),
+    };
     this.usuarioActual = usuario;
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
+    return usuario;
   }
 
-  /**
-   * Valida credenciales y crea la sesión en un solo paso (sin 2FA).
-   * Devuelve true si el login fue exitoso, false si las credenciales son incorrectas.
-   */
-  iniciarSesion(email: string, password: string): boolean {
-    const usuario = this.validarCredenciales(email, password);
-    if (!usuario || motivoSinAcceso(usuario)) {
-      return false;
-    }
-    this.completarSesion(usuario);
-    return true;
+  /** Trae el perfil del usuario que tiene la sesión. */
+  obtenerPerfil(): Observable<Perfil> {
+    return this.http.get<Perfil>(`${API_URL}/perfil/${this.usuarioActual?.id}`);
   }
 
-  /**
-   * Login con proveedor social (Google/Apple/Facebook).
-   * MOCK: simula la respuesta del proveedor mientras no haya SDK/backend real conectado.
-   * TODO: reemplazar por el flujo real de cada proveedor (ver notas de integración).
-   */
-  iniciarSesionConProveedor(proveedor: 'google' | 'apple' | 'facebook'): Promise<Usuario> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const emailSimulado = `usuario@${proveedor}.com`;
-
-        let usuario = this.usuariosService.buscar(emailSimulado);
-
-        const sinAcceso = usuario ? motivoSinAcceso(usuario) : null;
-        if (sinAcceso) {
-          reject(new Error(sinAcceso));
-          return;
+  /** Guarda los datos personales y deja el nombre nuevo en la sesión (lo usa el menú). */
+  actualizarPerfil(datos: DatosPerfil): Observable<Perfil> {
+    return this.http.put<Perfil>(`${API_URL}/perfil/${this.usuarioActual?.id}`, datos).pipe(
+      map((perfil) => {
+        if (this.usuarioActual) {
+          this.usuarioActual = { ...this.usuarioActual, nombre: perfil.nombre, apellido: perfil.apellido };
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(this.usuarioActual));
         }
+        return perfil;
+      })
+    );
+  }
 
-        // Si es la primera vez que "entra" con ese proveedor, se crea el usuario
-        if (!usuario) {
-          usuario = {
-            email: emailSimulado,
-            password: '', // no aplica en login social
-            nombre: `Usuario ${proveedor.charAt(0).toUpperCase() + proveedor.slice(1)}`,
-            rol: 'user'
-          };
-          this.usuariosService.agregar(usuario);
-        }
-
-        this.usuarioActual = usuario;
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
-        resolve(usuario);
-      }, 1200);
+  /** Cambia la contraseña desde el perfil (el MID revisa que la actual sea correcta). */
+  cambiarContrasena(actual: string, nueva: string): Observable<Mensaje> {
+    return this.http.put<Mensaje>(`${API_URL}/perfil/${this.usuarioActual?.id}/contrasena`, {
+      contrasena_actual: actual,
+      contrasena_nueva: nueva,
     });
   }
 
-  /**
-   * Registra un nuevo usuario (mock, en memoria) y lo deja autenticado.
-   * Devuelve { exito: true } si se creó, o { exito: false, mensaje } si el correo ya existe.
-   */
-  registrarUsuario(nombre: string, apellido: string, email: string, password: string): { exito: boolean; mensaje?: string } {
-    if (this.usuariosService.buscar(email)) {
-      return { exito: false, mensaje: 'Ya existe una cuenta registrada con ese correo.' };
-    }
-
-    const nuevoUsuario: Usuario = {
-      email,
-      password,
-      nombre,
-      apellido,
-      rol: 'user'
-    };
-
-    this.usuariosService.agregar(nuevoUsuario);
-    this.notificaciones.agregar({
-      categoria: 'usuarios',
-      titulo: 'Nuevo usuario registrado',
-      detalle: `${nombre} ${apellido} (${email}).`,
-      ruta: '/admin/usuarios',
-      nivel: 'info',
-    });
-    this.completarSesion(nuevoUsuario);
-
-    return { exito: true };
+  /** "Olvidé mi contraseña", paso 1: el MID envía un código al correo. */
+  pedirCodigoRecuperacion(email: string): Observable<Mensaje> {
+    return this.http.post<Mensaje>(`${API_URL}/recuperar-contrasena`, { email });
   }
 
-  /**
-   * Actualiza los datos personales del usuario autenticado (mock, en memoria).
-   */
-  actualizarPerfil(datos: Partial<Usuario>): { exito: boolean } {
-    if (!this.usuarioActual) {
-      return { exito: false };
-    }
-
-    const actualizado: Usuario = { ...this.usuarioActual, ...datos, email: this.usuarioActual.email };
-    this.usuarioActual = actualizado;
-
-    this.usuariosService.reemplazar(actualizado);
-
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(actualizado));
-    return { exito: true };
-  }
-
-  /**
-   * Cambia la contraseña del usuario autenticado, validando la contraseña actual.
-   */
-  cambiarPassword(actual: string, nueva: string): { exito: boolean; mensaje?: string } {
-    if (!this.usuarioActual) {
-      return { exito: false, mensaje: 'No hay una sesión activa.' };
-    }
-
-    if (this.usuarioActual.password !== actual) {
-      return { exito: false, mensaje: 'La contraseña actual no es correcta.' };
-    }
-
-    return this.actualizarPerfil({ password: nueva }).exito
-      ? { exito: true }
-      : { exito: false, mensaje: 'No se pudo actualizar la contraseña.' };
+  /** "Olvidé mi contraseña", paso 2: con el código se guarda la contraseña nueva. */
+  restablecerContrasena(email: string, codigo: string, nueva: string): Observable<Mensaje> {
+    return this.http.put<Mensaje>(`${API_URL}/recuperar-contrasena`, { email, codigo, contrasena_nueva: nueva });
   }
 
   /**
@@ -207,9 +210,18 @@ export class AuthService {
   }
 
   /**
-   * Cierra la sesión actual.
+   * Cierra la sesión: le avisa al MID (queda en la auditoría) y borra la sesión local.
+   * Si el MID no responde, la sesión local se borra igual.
    */
   cerrarSesion(): void {
+    if (this.usuarioActual?.token) {
+      this.http.post(`${API_URL}/logout`, {}).subscribe({ error: () => {} });
+    }
+    this.borrarSesion();
+  }
+
+  /** Borra la sesión guardada en el navegador (sin llamar al MID). */
+  borrarSesion(): void {
     this.usuarioActual = null;
     sessionStorage.removeItem(STORAGE_KEY);
   }

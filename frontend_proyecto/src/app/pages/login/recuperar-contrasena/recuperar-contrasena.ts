@@ -1,98 +1,109 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../services/auth';
+import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { Regla, reglasContrasena } from '../reglas-contrasena';
 
-type StageId = 's1' | 's2' | 's3';
-type RecoveryMethod = 'email' | 'sms';
-
-interface PasswordRules {
-  minLength: boolean;
-  hasNumber: boolean;
-  hasUppercase: boolean;
-}
+// Pasos: 1) escribir el correo, 2) código + clave nueva, 3) listo
+type Paso = 'correo' | 'codigo' | 'listo';
 
 @Component({
   selector: 'app-recuperar-contrasena',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink, BandaSeccionComponent, IconComponent],
   templateUrl: './recuperar-contrasena.html',
-  styleUrl: './recuperar-contrasena.css',
+  styleUrl: '../acceso.css',
 })
 export class RecuperarContrasena {
-  private router = inject(Router);
+  private authService = inject(AuthService);
   private toastService = inject(ToastService);
 
-  // ---------- Estado del flujo ----------
+  // Signals: la pantalla cambia cuando responde el MID (la app no usa zone.js)
+  paso = signal<Paso>('correo');
+  errorMessage = signal('');
+  cargando = signal(false);
 
-  currentStage: StageId = 's1';
-  selectedMethod: RecoveryMethod = 'email';
+  email = '';
+  codigo = '';
+  nuevaPassword = '';
+  confirmarPassword = '';
+  mostrarClave = false;
 
-  newPassword = '';
-  confirmPassword = '';
+  /** Al cambiar de paso el foco va a lo nuevo: el código en el paso 2, el título en el 3. */
+  private campoCodigo = viewChild<ElementRef<HTMLInputElement>>('campoCodigo');
+  private tituloListo = viewChild<ElementRef<HTMLElement>>('tituloListo');
 
-  rules: PasswordRules = {
-    minLength: false,
-    hasNumber: false,
-    hasUppercase: false,
-  };
-
-  // ---------- Navegación entre etapas ----------
-
-  goTo(stage: StageId): void {
-    this.currentStage = stage;
+  constructor() {
+    effect(() => this.campoCodigo()?.nativeElement.focus());
+    effect(() => this.tituloListo()?.nativeElement.focus());
   }
 
-  // ---------- Selección de método de recuperación ----------
-
-  selectMethod(method: RecoveryMethod): void {
-    this.selectedMethod = method;
+  /** Reglas de la contraseña con lo que ya cumple lo escrito (las mismas del MID). */
+  get reglas(): Regla[] {
+    return reglasContrasena(this.nuevaPassword);
   }
 
-  sendCode(): void {
-    // Aquí iría la llamada real al servicio de autenticación para
-    // enviar el código según this.selectedMethod ('email' | 'sms').
-    console.log('[Recuperar contraseña] Código de verificación enviado por:', this.selectedMethod);
-    this.goTo('s2');
-  }
+  // ---------- Paso 1: pedir el código ----------
 
-  // ---------- Validación de nueva contraseña ----------
-
-  onPasswordInput(): void {
-    this.rules = this.evaluatePassword(this.newPassword);
-  }
-
-  private evaluatePassword(value: string): PasswordRules {
-    return {
-      minLength: value.length >= 8,
-      hasNumber: /\d/.test(value),
-      hasUppercase: /[A-Z]/.test(value),
-    };
-  }
-
-  get allRulesPassed(): boolean {
-    return this.rules.minLength && this.rules.hasNumber && this.rules.hasUppercase;
-  }
-
-  savePassword(): void {
-    if (!this.allRulesPassed) {
-      this.toastService.error('La contraseña no cumple con todos los requisitos.');
+  enviarCodigo(): void {
+    this.errorMessage.set('');
+    if (!this.email.trim()) {
+      this.errorMessage.set('Escribe el correo con el que te registraste.');
       return;
     }
 
-    if (this.newPassword !== this.confirmPassword) {
-      this.toastService.error('Las contraseñas no coinciden.');
+    this.cargando.set(true);
+    this.authService.pedirCodigoRecuperacion(this.email.trim()).subscribe({
+      next: () => {
+        this.cargando.set(false);
+        this.paso.set('codigo');
+        // El MID responde igual exista o no el correo, para no revelar qué cuentas hay
+        this.toastService.success('Si el correo está registrado, te llegará un código.');
+      },
+      error: (error) => {
+        this.cargando.set(false);
+        this.errorMessage.set(mensajeDeError(error));
+      },
+    });
+  }
+
+  // ---------- Paso 2: código y contraseña nueva ----------
+
+  guardarPassword(): void {
+    this.errorMessage.set('');
+
+    if (!/^\d{6}$/.test(this.codigo.trim())) {
+      this.errorMessage.set('El código tiene 6 dígitos. Cópialo del correo que te enviamos.');
+      return;
+    }
+    if (!this.reglas.every((regla) => regla.cumple)) {
+      this.errorMessage.set('A la contraseña le falta cumplir alguna de las reglas de abajo.');
+      return;
+    }
+    if (this.nuevaPassword !== this.confirmarPassword) {
+      this.errorMessage.set('La confirmación no coincide con la contraseña nueva.');
       return;
     }
 
-    // Aquí iría la llamada real al servicio para guardar la nueva contraseña.
-    console.log('[Recuperar contraseña] Contraseña actualizada');
-    this.toastService.success('Contraseña actualizada correctamente.');
-    this.goTo('s3');
+    this.cargando.set(true);
+    this.authService.restablecerContrasena(this.email.trim(), this.codigo.trim(), this.nuevaPassword).subscribe({
+      next: () => {
+        this.cargando.set(false);
+        this.paso.set('listo');
+      },
+      error: (error) => {
+        this.cargando.set(false);
+        this.errorMessage.set(mensajeDeError(error));
+      },
+    });
   }
 
-  // ---------- Navegación de salida ----------
-
-  goToLogin(): void {
-    this.router.navigate(['/login']);
+  volverAlCorreo(): void {
+    this.errorMessage.set('');
+    this.codigo = '';
+    this.paso.set('correo');
   }
 }

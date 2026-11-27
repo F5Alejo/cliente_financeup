@@ -1,20 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Pqr, PqrService, PrioridadPqr } from '../../../services/pqr';
+import { PqrService, PrioridadPqr, TipoPqr } from '../../../services/pqr';
+import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
 import { AuthService } from '../../../services/auth';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
 
-// TODO: ajustar esta ruta si tu página de login no está en '/login'.
 const RUTA_LOGIN = '/login';
 
 @Component({
   selector: 'app-nuevo-pqr',
-  imports: [FormsModule],
+  imports: [FormsModule, BandaSeccionComponent, IconComponent],
   templateUrl: './nuevo-pqr.html',
   styleUrl: './nuevo-pqr.css',
 })
-export class NuevoPqrComponent implements OnInit {
+export class NuevoPqrComponent {
   constructor(
     private pqrService: PqrService,
     private toastService: ToastService,
@@ -22,18 +24,9 @@ export class NuevoPqrComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
-    // Si alguien entra directo por URL sin sesión, lo mandamos al login.
-    if (!this.authService.estaAutenticado()) {
-      this.toastService.info('Inicia sesión para radicar una nueva PQR.');
-      this.router.navigate([RUTA_LOGIN]);
-    }
-  }
-
   // Textos de la interfaz
-  titulo: string = 'Nuevo PQR';
   subtitulo: string =
-    'Cuéntanos qué pasó. Entre más detalles nos des, más rápido resolvemos tu caso.';
+    'Entre más detalles nos des (fechas, producto, qué esperabas), más rápido resolvemos tu caso.';
   labelTipo: string = 'Tipo de solicitud:';
   labelCategoria: string = 'Categoría:';
   labelPrioridad: string = 'Prioridad:';
@@ -42,22 +35,18 @@ export class NuevoPqrComponent implements OnInit {
   placeholderAsunto: string = 'Resume tu solicitud en una frase';
   placeholderDescripcion: string = 'Describe con detalle lo que ocurrió...';
   textoAdjuntar: string = 'Adjuntar archivo';
-  textoAdjuntarAyuda: string = 'PDF, JPG o PNG hasta 5 MB';
+  textoAdjuntarAyuda: string = 'PDF, JPG o PNG hasta 5 MB. Guardamos el nombre del archivo para el asesor.';
   textoBotonEnviar: string = 'Enviar PQR';
 
-  labelNumeroPeticion: string = 'Número de petición:';
-  labelUsuario: string = 'Usuario:';
-
-  // Número de petición mock (se genera real al enviar); el usuario ya no
-  // está quemado, se toma de la sesión activa.
-  numeroPeticion: string = '132132385';
+  // Mientras el MID guarda la PQR se bloquea el botón para no radicarla dos veces
+  enviando = signal(false);
 
   get usuario(): string {
     return this.authService.obtenerNombre();
   }
 
   // Opciones del formulario
-  readonly tipos = ['Petición', 'Queja', 'Reclamo'];
+  readonly tipos: TipoPqr[] = ['Petición', 'Queja', 'Reclamo', 'Sugerencia'];
   readonly categorias = [
     'Atención al cliente',
     'Movimientos y pagos',
@@ -74,13 +63,28 @@ export class NuevoPqrComponent implements OnInit {
   ];
 
   // Modelo del formulario
-  tipo: string = 'Petición';
+  tipo: TipoPqr = 'Petición';
   categoria: string = 'Atención al cliente';
   prioridad: PrioridadPqr = 'Media';
   asunto: string = '';
   descripcion: string = '';
   archivoAdjunto: File | null = null;
   nombreArchivo: string = '';
+
+  /** Los errores se muestran solo después del primer intento de enviar. */
+  intentoEnviar = signal(false);
+
+  get errorAsunto(): string {
+    if (!this.intentoEnviar() || this.asunto.trim()) return '';
+    return 'Escribe el asunto en una frase, por ejemplo «Cobro repetido en mi cuenta».';
+  }
+
+  get errorDescripcion(): string {
+    if (!this.intentoEnviar()) return '';
+    if (!this.descripcion.trim()) return 'Cuéntanos qué pasó: cuándo, con qué producto y qué esperabas.';
+    if (this.descripcion.trim().length < 20) return 'Agrega un poco más de detalle (mínimo 20 caracteres).';
+    return '';
+  }
 
   get caracteresRestantes(): number {
     return 600 - this.descripcion.length;
@@ -92,10 +96,16 @@ export class NuevoPqrComponent implements OnInit {
 
   onArchivoSeleccionado(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.archivoAdjunto = input.files[0];
-      this.nombreArchivo = this.archivoAdjunto.name;
+    const archivo = input.files?.[0];
+    if (!archivo) return;
+
+    if (archivo.size > 5 * 1024 * 1024) {
+      this.toastService.error('El archivo pesa más de 5 MB.');
+      input.value = '';
+      return;
     }
+    this.archivoAdjunto = archivo;
+    this.nombreArchivo = archivo.name;
   }
 
   enviar(): void {
@@ -105,38 +115,33 @@ export class NuevoPqrComponent implements OnInit {
       return;
     }
 
-    if (!this.asunto.trim() || !this.descripcion.trim()) {
-      this.toastService.info('El asunto y la descripción son obligatorios.');
+    this.intentoEnviar.set(true);
+    if (this.errorAsunto || this.errorDescripcion) {
+      // El foco va al primer campo con error para que se lea el mensaje.
+      document.getElementById(this.errorAsunto ? 'asunto' : 'descripcion')?.focus();
       return;
     }
 
-    const nuevaPqr: Pqr = {
-      titulo: this.asunto.trim(),
-      numero: Math.floor(1000000 + Math.random() * 9000000).toString(),
-      estado: 'Radicado',
-      tipo: this.tipo,
-      categoria: this.categoria,
-      descripcion: this.descripcion.trim(),
-      prioridad: this.prioridad,
-      fechaCreacion: new Date().toLocaleDateString('es-CO', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }),
-      ultimaActualizacion: 'Hace un momento',
-      asesor: 'Por asignar',
-      respuestas: 0,
-      adjuntos: this.nombreArchivo ? 1 : 0,
-      progreso: 10,
-      usuario: this.usuario,
-      archivosAdjuntos: this.nombreArchivo ? [this.nombreArchivo] : [],
-      mensajeRespuesta: 'Tu solicitud fue radicada. Un asesor la revisará pronto.',
-    };
-
-    this.pqrService.agregarPqr(nuevaPqr);
-    console.log('[Nuevo PQR] PQR radicada:', nuevaPqr);
-
-    this.toastService.success('PQR radicada correctamente.');
-    this.router.navigate(['/pqr']);
+    this.enviando.set(true);
+    this.pqrService
+      .radicarPqr({
+        titulo: this.asunto.trim(),
+        tipo: this.tipo,
+        categoria: this.categoria,
+        prioridad: this.prioridad,
+        descripcion: this.descripcion.trim(),
+        adjunto: this.archivoAdjunto,
+      })
+      .subscribe({
+        next: (pqr) => {
+          this.enviando.set(false);
+          this.toastService.success(`PQR radicada con el número ${pqr.radicado}.`);
+          this.router.navigate(['/ver-pqr', pqr.radicado]);
+        },
+        error: (error) => {
+          this.enviando.set(false);
+          this.toastService.error(mensajeDeError(error));
+        },
+      });
   }
 }

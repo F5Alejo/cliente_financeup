@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { FinanzasMenuComponent } from './finanzas-menu';
 
@@ -9,6 +10,8 @@ describe('FinanzasMenu', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FinanzasMenuComponent],
+      // Rutas vacías: RouterLink necesita el router y '**' absorbe navegaciones como /login.
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FinanzasMenuComponent);

@@ -1,51 +1,37 @@
+<app-banda-seccion
+  titulo="Compara antes de pedir,"
+  acento="solicita en un solo lugar."
+  texto="Reunimos los créditos, tarjetas y cuentas de los aliados de FinanceUp con sus condiciones completas: tasa, plazo, tarifas y requisitos. Sin letra menuda."
+  [serie]="horizonteTasas()"
+>
+  <label class="banda-buscador">
+    <app-icon nombre="search" [tamano]="20" />
+    <span class="visualmente-oculto">Buscar productos</span>
+    <input
+      type="search"
+      placeholder="Busca un aliado o un producto"
+      [value]="busqueda()"
+      (input)="busqueda.set($any($event.target).value)"
+    />
+  </label>
+
+  <dl class="banda-cifras" banda-lado>
+    <div>
+      <dt>Aliados vigentes</dt>
+      <dd>{{ totalAliados() }}</dd>
+    </div>
+    <div>
+      <dt>Tasa más baja</dt>
+      <dd>{{ formatTasa(tasaMinima()) }}</dd>
+    </div>
+    <div>
+      <dt>Aprobación más rápida</dt>
+      <dd>{{ aprobacionRapida() }}</dd>
+    </div>
+  </dl>
+</app-banda-seccion>
+
 <div class="vitrina">
-
-  <nav class="miga" aria-label="Ruta de navegación">
-    <span>Inicio</span>
-    <span aria-hidden="true">/</span>
-    <span class="miga__actual">Alianzas</span>
-  </nav>
-
-  <!-- Encabezado -->
-  <header class="portada">
-    <div class="portada__copy">
-      <p class="eyebrow">Productos de nuestros aliados</p>
-      <h1 class="portada__titulo">
-        Compara antes de pedir,<br />
-        <span class="portada__accent">solicita en un solo lugar</span>
-      </h1>
-      <p class="portada__texto">
-        Reunimos los créditos, tarjetas y cuentas de los aliados de FinanceUp con sus
-        condiciones completas: tasa, plazo, tarifas y requisitos. Sin letra menuda.
-      </p>
-
-   
-
-      <dl class="cifras">
-        <div>
-          <dt>Aliados vigentes</dt>
-          <dd>{{ totalAliados() }}</dd>
-        </div>
-        <div>
-          <dt>Tasa más baja</dt>
-          <dd>{{ formatTasa(tasaMinima()) }}</dd>
-        </div>
-        <div>
-          <dt>Aprobación más rápida</dt>
-          <dd>{{ aprobacionRapida() }}</dd>
-        </div>
-      </dl>
-    </div>
-
-    <div class="portada__visual" aria-hidden="true">
-      <img class="portada__foto" src="assets/img/alianzas/portada.webp" alt="" width="960" height="640" />
-      <div class="tarjeta-visual">
-        <span class="tarjeta-visual__chip"></span>
-        <span class="tarjeta-visual__numero">•••• •••• •••• 8842</span>
-        <span class="tarjeta-visual__marca">Platinum</span>
-      </div>
-    </div>
-  </header>
 
   <!-- Familias de producto -->
   <nav class="familias" id="catalogo" aria-label="Tipo de producto">
@@ -64,18 +50,6 @@
 
   <!-- Filtros secundarios -->
   <section class="filtros">
-    <label class="buscador">
-      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
-        <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-      </svg>
-      <input
-        type="text"
-        placeholder="Busca un aliado o un producto"
-        [value]="busqueda()"
-        (input)="busqueda.set($any($event.target).value)"
-      />
-    </label>
 
     <div class="filtros__grupo">
       <span class="filtros__label">Beneficio</span>
@@ -110,12 +84,59 @@
     }
   </section>
 
+  <!-- Solicitudes que ya radicó el usuario -->
+  @if (conSesion && (misSolicitudes().length > 0 || errorSolicitudes())) {
+    <section class="mis-solicitudes" aria-labelledby="mis-solicitudes-titulo">
+      <h2 id="mis-solicitudes-titulo" class="comparativo__titulo">Mis solicitudes</h2>
+
+      @if (errorSolicitudes()) {
+        <p class="conteo" role="alert">No pudimos cargar tus solicitudes: {{ errorSolicitudes() }}</p>
+      } @else {
+        <div class="comparativo__scroll">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th scope="col">Radicado</th>
+                <th scope="col">Producto</th>
+                <th scope="col">Monto</th>
+                <th scope="col">Plazo</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (solicitud of misSolicitudes(); track solicitud.idSolicitud) {
+                <tr>
+                  <td class="mis-solicitudes__radicado">{{ solicitud.radicado }}</td>
+                  <td>{{ solicitud.producto }}</td>
+                  <td>{{ formatPesos(solicitud.monto) }}</td>
+                  <td>{{ solicitud.plazoMeses }} meses</td>
+                  <td>{{ solicitud.fecha }}</td>
+                  <td><span class="mis-solicitudes__estado">{{ solicitud.estado }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+
   <!-- Listado de productos -->
+  @if (error()) {
+    <div class="sin-datos" role="alert">
+      <h2>No pudimos cargar los productos</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="btn btn--solido" (click)="cargar()">Intentar de nuevo</button>
+    </div>
+  } @else if (cargando()) {
+    <p class="conteo" aria-live="polite">Cargando productos…</p>
+  } @else {
   <p class="conteo">{{ productos().length }} productos disponibles</p>
 
   <div class="lista">
-    @for (producto of productos(); track producto.id; let i = $index) {
-      <article class="producto" [style.animation-delay]="i * 60 + 'ms'">
+    @for (producto of productos(); track producto.id) {
+      <article class="producto">
         <div class="producto__id">
           @if (producto.imagen) {
             <img class="producto__foto" [src]="producto.imagen" alt="" loading="lazy" width="208" height="124" />
@@ -215,7 +236,12 @@
             <tr>
               <th scope="row">Tasa de interés</th>
               @for (producto of comparables(); track producto.id) {
-                <td>{{ formatTasa(producto.tasaDesde) }}</td>
+                <td>
+                  {{ formatTasa(producto.tasaDesde) }}
+                  @if (producto.tasaDesde === tasaMasBajaComparable()) {
+                    <span class="mejor"><app-icon nombre="check-circle" [tamano]="14" /> Más baja</span>
+                  }
+                </td>
               }
             </tr>
             <tr>
@@ -256,6 +282,7 @@
         </table>
       </div>
     </section>
+  }
   }
 
 </div>

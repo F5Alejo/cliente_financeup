@@ -1,128 +1,99 @@
-<div class="switcher">
-  <button [class.active]="currentStage === 's1'" (click)="goTo('s1')">1. Elegir método</button>
-  <button [class.active]="currentStage === 's2'" (click)="goTo('s2')">2. Nueva contraseña</button>
-  <button [class.active]="currentStage === 's3'" (click)="goTo('s3')">Confirmación</button>
-</div>
+<app-banda-seccion
+  titulo="Recupera tu acceso"
+  acento="en dos pasos."
+  texto="Verificamos que la cuenta es tuya con un código al correo y luego eliges una contraseña nueva."
+  idTitulo="recuperar-titulo">
+  <a class="banda-volver" banda-antes routerLink="/login">
+    <app-icon nombre="chevron-left" />
+    Volver a iniciar sesión
+  </a>
 
-<!-- STAGE 1: elegir método de recuperación -->
-<div class="stage" [class.active]="currentStage === 's1'">
-  <div class="card-wrap">
-    <div class="panel-left">
-      <a class="back" (click)="goToLogin()">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
-        Volver a iniciar sesión
-      </a>
-      <span class="step-tag">Paso 1 de 3</span>
-      <h1>¿Olvidaste tu contraseña?</h1>
-      <p class="sub">Elige cómo quieres recibir el código para verificar tu identidad y crear una nueva contraseña.</p>
+  <ol class="acceso-pasos" aria-label="Pasos para recuperar la contraseña">
+    <li [attr.aria-current]="paso() === 'correo' ? 'step' : null">
+      <span class="acceso-pasos__num cifra" aria-hidden="true">1</span>
+      <span><strong>Tu correo</strong> Te enviamos un código que vence en 15 minutos y sirve una sola vez.</span>
+    </li>
+    <li [attr.aria-current]="paso() === 'codigo' ? 'step' : null">
+      <span class="acceso-pasos__num cifra" aria-hidden="true">2</span>
+      <span><strong>Código y contraseña nueva</strong> Si la cuenta estaba bloqueada por intentos fallidos, se desbloquea.</span>
+    </li>
+  </ol>
 
-      <div class="method" [class.selected]="selectedMethod === 'email'" (click)="selectMethod('email')">
-        <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+  <div banda-lado class="acceso-tarjeta">
+    @if (paso() === 'correo') {
+      <h2>¿Olvidaste tu contraseña?</h2>
+      <p class="acceso-tarjeta__texto">Escribe el correo con el que te registraste.</p>
+
+      <form class="acceso-form" (ngSubmit)="enviarCodigo()" novalidate>
+        <div class="campo">
+          <label for="rec-email">Correo electrónico</label>
+          <input id="rec-email" type="email" name="email" autocomplete="email" placeholder="tucorreo@ejemplo.com"
+            [(ngModel)]="email" [attr.aria-invalid]="!!errorMessage()"
+            [attr.aria-describedby]="errorMessage() ? 'rec-error' : null">
+          @if (errorMessage()) {
+            <p class="campo__error" id="rec-error" role="alert">{{ errorMessage() }}</p>
+          }
         </div>
-        <div class="method-text">
-          <strong>Correo electrónico</strong>
-          <span>Enviar código a ju***&#64;correo.com</span>
-        </div>
-        <div class="radio"></div>
-      </div>
 
-      <div class="method" [class.selected]="selectedMethod === 'sms'" (click)="selectMethod('sms')">
-        <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
-        </div>
-        <div class="method-text">
-          <strong>Mensaje de texto (SMS)</strong>
-          <span>Enviar código a +57 *** *** 1234</span>
-        </div>
-        <div class="radio"></div>
-      </div>
+        <button class="acceso-boton" type="submit" [disabled]="cargando()">
+          {{ cargando() ? 'Enviando…' : 'Enviar código' }}
+        </button>
+      </form>
+    }
 
-      <button class="btn" (click)="sendCode()">Enviar código</button>
-    </div>
+    @if (paso() === 'codigo') {
+      <h2>Crea una contraseña nueva</h2>
+      <p class="acceso-tarjeta__texto">
+        Si <strong>{{ email }}</strong> tiene cuenta, ya te llegó un código de 6 dígitos.
+      </p>
 
-    <div class="panel-right">
-      <h2>Acceso seguro</h2>
-      <p>Verificamos tu identidad antes de permitirte cambiar la contraseña, así protegemos tu cuenta.</p>
-      <div class="check-row">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-        <p>El código llega en menos de 30 segundos.</p>
-      </div>
-      <div class="check-row">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-        <p>Solo tú puedes acceder a este código.</p>
-      </div>
-    </div>
+      <form class="acceso-form" (ngSubmit)="guardarPassword()" novalidate>
+        @if (errorMessage()) {
+          <p class="acceso-alerta" role="alert">{{ errorMessage() }}</p>
+        }
+
+        <div class="campo">
+          <label for="rec-codigo">Código de verificación</label>
+          <input #campoCodigo id="rec-codigo" class="campo__codigo cifra" type="text" name="codigo" inputmode="numeric"
+            maxlength="6" autocomplete="one-time-code" placeholder="000000" [(ngModel)]="codigo">
+        </div>
+
+        <div class="campo">
+          <label for="new-password">Contraseña nueva</label>
+          <div class="clave">
+            <input id="new-password" name="nuevaPassword" autocomplete="new-password" aria-describedby="rec-reglas"
+              [type]="mostrarClave ? 'text' : 'password'" [(ngModel)]="nuevaPassword">
+            <button type="button" aria-label="Mostrar contraseña" [attr.aria-pressed]="mostrarClave"
+              (click)="mostrarClave = !mostrarClave">
+              <app-icon nombre="eye" [tamano]="20" />
+            </button>
+          </div>
+          <ul class="reglas" id="rec-reglas">
+            @for (regla of reglas; track regla.texto) {
+              <li [class.ok]="regla.cumple">{{ regla.texto }}<span class="visualmente-oculto">{{ regla.cumple ? ': cumple' : ': falta' }}</span></li>
+            }
+          </ul>
+        </div>
+
+        <div class="campo">
+          <label for="confirm-password">Confirma la contraseña nueva</label>
+          <input id="confirm-password" name="confirmarPassword" autocomplete="new-password"
+            [type]="mostrarClave ? 'text' : 'password'" [(ngModel)]="confirmarPassword">
+        </div>
+
+        <button class="acceso-boton" type="submit" [disabled]="cargando()">
+          {{ cargando() ? 'Guardando…' : 'Guardar contraseña' }}
+        </button>
+      </form>
+
+      <button type="button" class="acceso-enlace" (click)="volverAlCorreo()">Cambiar de correo</button>
+    }
+
+    @if (paso() === 'listo') {
+      <app-icon class="acceso-listo" nombre="check-circle" [tamano]="40" />
+      <h2 #tituloListo tabindex="-1">Contraseña actualizada</h2>
+      <p class="acceso-tarjeta__texto">Ya puedes iniciar sesión con tu contraseña nueva.</p>
+      <a class="acceso-boton" routerLink="/login">Ir a iniciar sesión</a>
+    }
   </div>
-</div>
-
-<!-- STAGE 2: crear nueva contraseña (después de verificado el código) -->
-<div class="stage" [class.active]="currentStage === 's2'">
-  <div class="card-wrap">
-    <div class="panel-left">
-      <span class="step-tag">Paso 3 de 3 · Identidad verificada</span>
-      <h1>Crea una nueva contraseña</h1>
-      <p class="sub">Tu identidad ya fue verificada. Ingresa una nueva contraseña para tu cuenta.</p>
-
-      <label for="new-password">Nueva contraseña</label>
-      <input
-        class="field"
-        id="new-password"
-        type="password"
-        placeholder="••••••••"
-        name="newPassword"
-        [(ngModel)]="newPassword"
-        (ngModelChange)="onPasswordInput()"
-      />
-
-      <label for="confirm-password">Confirmar nueva contraseña</label>
-      <input
-        class="field"
-        id="confirm-password"
-        type="password"
-        placeholder="••••••••"
-        name="confirmPassword"
-        [(ngModel)]="confirmPassword"
-      />
-
-      <ul class="rules">
-        <li [class.ok]="rules.minLength">Mínimo 8 caracteres</li>
-        <li [class.ok]="rules.hasNumber">Al menos un número</li>
-        <li [class.ok]="rules.hasUppercase">Al menos una mayúscula</li>
-      </ul>
-
-      <button class="btn" (click)="savePassword()">Guardar nueva contraseña</button>
-    </div>
-
-    <div class="panel-right">
-      <h2>Ya casi terminas</h2>
-      <p>Elige una contraseña que no hayas usado antes en Finance Up para mantener tu cuenta protegida.</p>
-      <div class="check-row">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-        <p>Se cerrará la sesión en tus demás dispositivos.</p>
-      </div>
-      <div class="check-row">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-        <p>Te avisaremos por correo sobre este cambio.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- STAGE 3: confirmación -->
-<div class="stage" [class.active]="currentStage === 's3'">
-  <div class="card-wrap">
-    <div class="panel-left center-text stage3-left">
-      <div class="success-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-      </div>
-      <h1>Contraseña actualizada</h1>
-      <p class="sub narrow">Tu contraseña se cambió con éxito. Ya puedes iniciar sesión con tus nuevos datos.</p>
-      <button class="btn" (click)="goToLogin()">Ir a iniciar sesión</button>
-    </div>
-    <div class="panel-right">
-      <h2>Bienvenido de nuevo</h2>
-      <p>Tu centro de control financiero en un solo lugar sigue protegido y listo para usarse.</p>
-    </div>
-  </div>
-</div>
+</app-banda-seccion>

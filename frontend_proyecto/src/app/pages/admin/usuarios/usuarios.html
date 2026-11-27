@@ -115,7 +115,7 @@
         </tr>
       </thead>
       <tbody>
-        @if (cargando()) {
+        @if (mostrarEsqueleto()) {
           @for (n of esqueletos; track n) {
             <tr aria-hidden="true">
               <td>
@@ -175,7 +175,14 @@
       </tbody>
     </table>
 
-    @if (!cargando() && filtrados().length === 0) {
+    @if (!mostrarEsqueleto() && errorCarga()) {
+      <div class="empty" role="alert">
+        <span class="empty-icon"><app-icon nombre="inbox" [tamano]="26" /></span>
+        <p class="empty-title">No pudimos cargar los usuarios.</p>
+        <p class="empty-text">{{ errorCarga() }}</p>
+        <button type="button" class="btn btn-secondary" (click)="recargar()">Intentar de nuevo</button>
+      </div>
+    } @else if (!mostrarEsqueleto() && filtrados().length === 0) {
       <div class="empty">
         <span class="empty-icon"><app-icon nombre="inbox" [tamano]="26" /></span>
         <p class="empty-title">No hay usuarios que coincidan con estos filtros.</p>
@@ -187,7 +194,7 @@
     }
   </div>
 
-  @if (!cargando() && filtrados().length > 0) {
+  @if (!mostrarEsqueleto() && filtrados().length > 0) {
     <div class="table-foot">
       <span>Mostrando {{ rango().desde }}–{{ rango().hasta }} de {{ filtrados().length }} usuarios</span>
       <div class="pager">
@@ -268,7 +275,7 @@
             <p class="form-error" role="alert">{{ errorModal() }}</p>
           }
           <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-          <button pie type="button" class="btn btn-primary" [disabled]="rolSeleccionado() === u.rol" (click)="guardarRol()">Guardar cambios</button>
+          <button pie type="button" class="btn btn-primary" [disabled]="rolSeleccionado() === u.rol || enviando()" (click)="guardarRol()">Guardar cambios</button>
         </app-modal>
       }
     }
@@ -295,7 +302,7 @@
             <p class="form-error" role="alert">{{ errorModal() }}</p>
           }
           <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-          <button pie type="button" class="btn btn-danger" (click)="confirmarBloqueo()">Bloquear cuenta</button>
+          <button pie type="button" class="btn btn-danger" [disabled]="enviando()" (click)="confirmarBloqueo()">Bloquear cuenta</button>
         </app-modal>
       }
     }
@@ -304,31 +311,14 @@
       @if (m.usuario; as u) {
         <app-modal
           titulo="Restablecer contraseña"
-          [subtitulo]="'Se enviará un enlace de restablecimiento a ' + u.email + '. El usuario podrá crear una contraseña nueva.'"
+          [subtitulo]="'Le enviaremos a ' + u.email + ' un código de 6 dígitos. Con él cambia su contraseña en «¿Olvidaste tu contraseña?».'"
           ancho="sm"
           (cerrar)="cerrarModal()">
           @if (errorModal()) {
             <p class="form-error" role="alert">{{ errorModal() }}</p>
           }
           <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-          <button pie type="button" class="btn btn-primary" (click)="confirmarReset()">Enviar enlace</button>
-        </app-modal>
-      }
-    }
-
-    @case ('eliminar') {
-      @if (m.usuario; as u) {
-        <app-modal
-          titulo="Eliminar cuenta"
-          [subtitulo]="'Se eliminará la cuenta de ' + nombreCompleto(u) + ' (' + u.email + '). Esta acción no se puede deshacer.'"
-          ancho="sm"
-          [alertdialog]="true"
-          (cerrar)="cerrarModal()">
-          @if (errorModal()) {
-            <p class="form-error" role="alert">{{ errorModal() }}</p>
-          }
-          <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-          <button pie type="button" class="btn btn-danger" (click)="confirmarEliminacion()">Eliminar cuenta</button>
+          <button pie type="button" class="btn btn-primary" [disabled]="enviando()" (click)="confirmarReset()">Enviar código</button>
         </app-modal>
       }
     }
@@ -384,7 +374,7 @@
           <p class="form-error" role="alert">{{ errorModal() }}</p>
         }
         <button pie type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-        <button pie type="submit" form="form-usuario" class="btn btn-primary">{{ esEdicion() ? 'Guardar cambios' : 'Crear usuario' }}</button>
+        <button pie type="submit" form="form-usuario" class="btn btn-primary" [disabled]="enviando()">{{ esEdicion() ? 'Guardar cambios' : 'Crear usuario' }}</button>
       </app-modal>
     }
   }

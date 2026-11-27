@@ -1,42 +1,55 @@
-<section class="habla-banner">
+<app-banda-seccion
+  titulo="Escríbenos por WhatsApp,"
+  acento="sin filas ni formularios."
+  texto="Si aún tienes dudas sobre nuestros servicios, una persona del equipo te responde por chat."
+  idTitulo="habla-titulo">
+  <dl class="banda-cifras">
+    <div><dt>WhatsApp, {{ contacto.diasWhatsapp.toLowerCase() }}</dt><dd class="cifra">{{ contacto.horarioWhatsapp }}</dd></div>
+    <div><dt>Línea, {{ contacto.diasLinea.toLowerCase() }}</dt><dd class="cifra">{{ contacto.horarioLinea }}</dd></div>
+  </dl>
 
-  <div class="habla-card">
-
-    <div class="habla-card__content">
-      <span class="habla-card__badge">
-        <span class="habla-card__dot" aria-hidden="true"></span>
-        Asesores en línea
-      </span>
-
-      <h2 class="habla-card__title">{{ title }}</h2>
-      <p class="habla-card__description">{{ description }}</p>
-
-      <ul class="habla-card__temas">
-        @for (tema of temas; track tema) {
-          <li>{{ tema }}</li>
-        }
-      </ul>
-
-      <button class="btn-whatsapp" (click)="onWhatsappClick()">
-        {{ buttonLabel }}
-      </button>
-
-      <div class="habla-card__stats">
-        @for (dato of datosAtencion; track dato.etiqueta) {
-          <div class="habla-stat">
-            <span class="habla-stat__value">{{ dato.valor }}</span>
-            <span class="habla-stat__label">{{ dato.etiqueta }}</span>
-          </div>
-        }
-      </div>
-    </div>
-
-    <div
-      class="habla-card__image"
-      role="img"
-      aria-label="Persona sosteniendo un círculo con íconos financieros"
-    ></div>
-
+  <div banda-lado class="tarjeta-banda habla-tarjeta">
+    <p class="tarjeta-banda__etiqueta">Chat con un asesor</p>
+    <p class="habla-tarjeta__nota">Abre WhatsApp con un primer mensaje listo. Solo cuéntanos tu caso.</p>
+    <a class="boton-lima" [href]="enlaceWhatsapp" target="_blank" rel="noopener">
+      <app-icon nombre="message-circle" [tamano]="18" /> Escribir por WhatsApp
+    </a>
   </div>
+</app-banda-seccion>
 
+<section class="habla" aria-labelledby="temas-titulo">
+  <h2 id="temas-titulo" class="habla__titulo">En qué te ayudamos por chat</h2>
+
+  <ul class="habla-temas">
+    @for (tema of temas; track tema.titulo) {
+      <li class="habla-tema">
+        <span class="habla-tema__icono" aria-hidden="true"><app-icon [nombre]="tema.icono" [tamano]="22" /></span>
+        <h3 class="habla-tema__titulo">{{ tema.titulo }}</h3>
+        <p class="habla-tema__texto">{{ tema.texto }}</p>
+      </li>
+    }
+  </ul>
+
+  <h2 class="habla__titulo">¿Prefieres otro canal?</h2>
+
+  <ul class="habla-canales">
+    <li>
+      <a class="habla-canal" [href]="'tel:' + contacto.telefonoEnlace">
+        <app-icon nombre="phone" [tamano]="20" />
+        <span><strong>Llamar a la línea</strong> {{ contacto.telefono }}</span>
+      </a>
+    </li>
+    <li>
+      <a class="habla-canal" routerLink="/nuevo-pqr">
+        <app-icon nombre="file-text" [tamano]="20" />
+        <span><strong>Radicar una PQR</strong> Respuesta en {{ contacto.respuestaPqr }}</span>
+      </a>
+    </li>
+    <li>
+      <a class="habla-canal" routerLink="/linea-ayuda">
+        <app-icon nombre="help-circle" [tamano]="20" />
+        <span><strong>Preguntas frecuentes</strong> Respuestas al instante</span>
+      </a>
+    </li>
+  </ul>
 </section>

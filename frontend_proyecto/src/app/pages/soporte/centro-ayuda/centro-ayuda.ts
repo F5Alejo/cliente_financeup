@@ -3,8 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../shared/services/toast';
 
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent, NombreIcono } from '../../../shared/components/icon/icon';
+
 interface CategoriaAyuda {
-  icono: string;
+  icono: NombreIcono;
   titulo: string;
   descripcion: string;
   articulos: number;
@@ -14,7 +17,7 @@ interface CategoriaAyuda {
 }
 
 interface CanalAtencion {
-  icono: string;
+  icono: NombreIcono;
   titulo: string;
   descripcion: string;
   disponibilidad: string;
@@ -42,7 +45,7 @@ interface SupportBlock {
 
 @Component({
   selector: 'app-centro-ayuda',
-  imports: [FormsModule],
+  imports: [FormsModule, BandaSeccionComponent, IconComponent],
   templateUrl: './centro-ayuda.html',
   styleUrl: './centro-ayuda.css',
 })
@@ -65,17 +68,17 @@ export class CentroAyudaConponent implements OnDestroy {
     60_000,
   );
 
-  // Indicadores del encabezado
+  // Datos del encabezado: los mismos horarios y plazos que publican los canales de abajo
   readonly indicadores = [
-    { valor: '< 2 h', etiqueta: 'Tiempo de respuesta' },
-    { valor: '98%', etiqueta: 'Casos resueltos' },
-    { valor: '24/7', etiqueta: 'Canales disponibles' },
+    { valor: '48 h hábiles', etiqueta: 'Respuesta a una PQR' },
+    { valor: '7 a.m. – 9 p.m.', etiqueta: 'Línea de ayuda, lunes a sábado' },
+    { valor: '6 a.m. – 6 p.m.', etiqueta: 'WhatsApp, todos los días' },
   ];
 
   // Categorías de ayuda
   categorias: CategoriaAyuda[] = [
     {
-      icono: '◆',
+      icono: 'shield-check',
       titulo: 'Cuenta y acceso',
       descripcion: 'Registro, contraseñas, verificación de identidad y seguridad.',
       articulos: 12,
@@ -88,7 +91,7 @@ export class CentroAyudaConponent implements OnDestroy {
       categoriaFaq: 'Cuenta',
     },
     {
-      icono: '↗',
+      icono: 'wallet',
       titulo: 'Movimientos y pagos',
       descripcion: 'Transferencias, recargas, comprobantes y cobros duplicados.',
       articulos: 18,
@@ -101,7 +104,7 @@ export class CentroAyudaConponent implements OnDestroy {
       categoriaFaq: 'PQR',
     },
     {
-      icono: '▲',
+      icono: 'trending-up',
       titulo: 'Inversiones y metas',
       descripcion: 'Fondos, rendimientos, retiros y seguimiento de tus metas.',
       articulos: 15,
@@ -114,7 +117,7 @@ export class CentroAyudaConponent implements OnDestroy {
       categoriaFaq: 'Educación',
     },
     {
-      icono: '★',
+      icono: 'briefcase',
       titulo: 'Alianzas y beneficios',
       descripcion: 'Ofertas de aliados, requisitos, cashback y tasas preferenciales.',
       articulos: 9,
@@ -148,7 +151,7 @@ export class CentroAyudaConponent implements OnDestroy {
   canalesTitle: string = 'Habla con nosotros';
   canales: CanalAtencion[] = [
     {
-      icono: '💬',
+      icono: 'message-circle',
       titulo: 'Chat con un asesor',
       descripcion: '¿Necesitas ayuda personalizada? Chatea con uno de nuestros asesores.',
       disponibilidad: 'Lunes a sábado, 7:00 a.m. – 9:00 p.m.',
@@ -159,7 +162,7 @@ export class CentroAyudaConponent implements OnDestroy {
       variant: 'green',
     },
     {
-      icono: '🎫',
+      icono: 'clipboard-list',
       titulo: 'Radicar una PQR',
       descripcion: '¿Tienes un problema? Envía un ticket y haz seguimiento a tu caso.',
       disponibilidad: 'Disponible 24/7',
@@ -170,7 +173,7 @@ export class CentroAyudaConponent implements OnDestroy {
       variant: 'dark',
     },
     {
-      icono: '📱',
+      icono: 'phone',
       titulo: 'WhatsApp FinanceUp',
       descripcion: 'Escríbenos desde tu celular y retoma la conversación cuando quieras.',
       disponibilidad: 'Todos los días, 6:00 a.m. – 6:00 p.m.',
@@ -259,7 +262,7 @@ export class CentroAyudaConponent implements OnDestroy {
         this.router.navigate(['/pqr']);
         break;
       case 'whatsapp':
-        this.router.navigate(['/habla-con-nosostros']);
+        this.router.navigate(['/habla-con-nosotros']);
         break;
     }
   }

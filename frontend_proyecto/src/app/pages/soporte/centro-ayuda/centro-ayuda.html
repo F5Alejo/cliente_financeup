@@ -1,33 +1,31 @@
+<app-banda-seccion
+  titulo="¿En qué podemos"
+  acento="ayudarte hoy?"
+  [texto]="subtitle"
+  idTitulo="ayuda-titulo">
+  <label class="banda-buscador">
+    <app-icon nombre="search" [tamano]="20" />
+    <span class="visualmente-oculto">Buscar en preguntas frecuentes</span>
+    <input
+      type="search"
+      [placeholder]="searchPlaceholder"
+      [value]="busqueda()"
+      (input)="busqueda.set($any($event.target).value)"
+      (keyup.enter)="buscarPreguntasFrecuentes()"
+    />
+  </label>
+
+  <dl class="banda-cifras">
+    <div><dt>Artículos de ayuda</dt><dd class="cifra">{{ totalArticulos() }}</dd></div>
+    @for (indicador of indicadores; track indicador.etiqueta) {
+      <div><dt>{{ indicador.etiqueta }}</dt><dd class="cifra">{{ indicador.valor }}</dd></div>
+    }
+  </dl>
+</app-banda-seccion>
+
 <section class="help-center">
 
-  <!-- Encabezado -->
-  <header class="help-hero">
-    <span class="help-hero__badge">CENTRO DE AYUDA</span>
-    <h1 class="help-hero__title">{{ title }}</h1>
-    <p class="help-hero__subtitle">{{ subtitle }}</p>
 
-    <div class="help-search">
-      <span class="help-search__icon" aria-hidden="true"></span>
-      <input
-        type="text"
-        class="help-search__input"
-        [placeholder]="searchPlaceholder"
-        [value]="busqueda()"
-        (input)="busqueda.set($any($event.target).value)"
-        (keyup.enter)="buscarPreguntasFrecuentes()"
-      />
-      <span class="help-search__count">{{ totalArticulos() }} artículos</span>
-    </div>
-
-    <div class="help-hero__stats">
-      @for (indicador of indicadores; track indicador.etiqueta) {
-        <div class="help-stat">
-          <span class="help-stat__value">{{ indicador.valor }}</span>
-          <span class="help-stat__label">{{ indicador.etiqueta }}</span>
-        </div>
-      }
-    </div>
-  </header>
 
   <!-- Categorías -->
   <h2 class="help-section-title">Explora por tema</h2>
@@ -46,7 +44,7 @@
           (click)="abrirCategoria(categoria)"
         >
           <div class="category-card__head">
-            <span class="category-card__icon" aria-hidden="true">{{ categoria.icono }}</span>
+            <span class="category-card__icon" aria-hidden="true"><app-icon [nombre]="categoria.icono" [tamano]="22" /></span>
             <span class="category-card__count">{{ categoria.articulos }} artículos</span>
           </div>
 
@@ -72,7 +70,7 @@
     @for (canal of canales; track canal.titulo; let i = $index) {
       <article class="channel-card" [style.animation-delay]="i * 70 + 'ms'">
         <div class="channel-card__head">
-          <span class="channel-card__icon" aria-hidden="true">{{ canal.icono }}</span>
+          <span class="channel-card__icon" aria-hidden="true"><app-icon [nombre]="canal.icono" [tamano]="22" /></span>
           <span class="channel-card__status" [class.offline]="estadoCanal(canal) !== 'En línea'">
             <span class="channel-card__dot" aria-hidden="true"></span>
             {{ estadoCanal(canal) }}

@@ -1,286 +1,278 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth';
-import { FinanzasService, Movimiento } from '../../../services/finanzas';
+import { FinanzasService, Movimiento, ResumenMes } from '../../../services/finanzas';
 import { MetasService } from '../../../services/metas';
 import { InversionesService } from '../../../services/inversiones';
 import { FinanzasMenuComponent } from '../finanzas-menu/finanzas-menu';
 import { MonedaPipe } from '../../../pipes/moneda.pipe';
 import { CursoBannerComponent } from '../../../shared/components/curso-banner/curso-banner';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent, NombreIcono } from '../../../shared/components/icon/icon';
+import { ColumnasComponent, SerieColumnas } from '../../../shared/graficas/columnas';
+import { BarraPartesComponent } from '../../../shared/graficas/barra-partes';
+import { MedidorComponent } from '../../../shared/graficas/medidor';
+import { GraficaLineaComponent, PuntoLinea } from '../../../shared/graficas/grafica-linea';
+import { HorizonteComponent } from '../../../shared/graficas/horizonte';
 
 /**
- * COMPONENTE: Finanzas (panel principal)
- * ------------------------------------------------------------------
- * Esta pantalla es única y exclusivamente un RESUMEN que redirige a cada
- * módulo real: no tiene su propio CRUD de movimientos ni de activos/pasivos
- * (eso vive en Libro Mayor). Cada tarjeta, gráfica y panel
- * de aquí lee datos reales de los services compartidos y tiene un botón
- * que lleva al módulo donde esos datos se administran de verdad.
- * ------------------------------------------------------------------
+ * Panel de Finanzas: un RESUMEN que redirige a cada módulo real (Libro Mayor,
+ * Metas, Inversiones). No administra datos propios; lee los services compartidos.
+ * Orden de lectura: saldo y «¿cómo voy?» arriba, luego el flujo de 6 meses,
+ * en qué se va la plata, metas, movimientos e inversiones.
  */
 
-/** Un resultado de la barra de búsqueda: puede ser una sección, una meta, una inversión o un movimiento */
+/** Un resultado del buscador: una sección, una meta, una inversión o un movimiento. */
 interface ResultadoBusqueda {
-  icono: string;
+  icono: NombreIcono;
   nombre: string;
   ruta: string;
   tipo: string;
 }
 
-interface TarjetaResumen {
-  icono: string;
-  titulo: string;
-  valor: string;
-  tendencia: string;
-  /** A qué módulo redirige el botón de esta tarjeta (dónde vive el dato real). */
-  ruta: string;
-}
+type EstadoSalud = 'orden' | 'atencion' | 'riesgo';
 
-interface SegmentoGasto {
+/** Comparación de un dato del mes con el mes anterior. */
+interface Comparacion {
   etiqueta: string;
-  porcentaje: number;
-  color: string;
-}
-
-interface PuntoInversion {
-  mes: string;
   valor: number;
-}
-
-interface Meta {
-  nombre: string;
-  icono: string;
-  porcentaje: number;
-  actual: number;
-  objetivo: number;
+  /** Variación porcentual frente al mes anterior; null si no hay con qué comparar. */
+  variacion: number | null;
+  /** true si subir es bueno (ingresos), false si subir es malo (gastos). */
+  subirEsBueno: boolean;
 }
 
 @Component({
   selector: 'app-finanzas',
-  imports: [FinanzasMenuComponent, FormsModule, MonedaPipe, CursoBannerComponent, RouterLink],
+  imports: [
+    FinanzasMenuComponent,
+    MonedaPipe,
+    CursoBannerComponent,
+    RouterLink,
+    BandaSeccionComponent,
+    IconComponent,
+    ColumnasComponent,
+    BarraPartesComponent,
+    MedidorComponent,
+    GraficaLineaComponent,
+    HorizonteComponent,
+  ],
   templateUrl: './finanzas.html',
   styleUrls: ['./finanzas.css'],
 })
 export class FinanzasComponent implements OnInit {
-  constructor(
-    public authService: AuthService,
-    private finanzasService: FinanzasService,
-    private metasService: MetasService,
-    private inversionesService: InversionesService
-  ) {}
+  private authService = inject(AuthService);
+  private finanzasService = inject(FinanzasService);
+  private metasService = inject(MetasService);
+  private inversionesService = inject(InversionesService);
 
-  usuario: string = '';
+  usuario = '';
 
-  mesActual: string = new Date().toLocaleDateString('es-CO', {
-  month: 'long',
-  year: 'numeric'
-});
-
-  /** Radio y circunferencia usados por los anillos de metas (SVG) */
-  radioAnillo = 30;
-  circunferencia = 2 * Math.PI * this.radioAnillo;
+  readonly mesActual = new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
 
   ngOnInit(): void {
     this.usuario = this.authService.obtenerNombre();
   }
 
-  /** ----- Todos los movimientos reales (vienen del mismo service que usa Libro Mayor) ----- */
-  private get todosLosMovimientos(): Movimiento[] {
-    return this.finanzasService.movimientos;
+  /** Primer nombre, para el saludo. */
+  get primerNombre(): string {
+    return this.usuario.trim().split(/\s+/)[0] ?? '';
   }
 
-  /** Vista previa: solo los 5 más recientes. Para ver el resto, el botón de
-   *  la tabla redirige a Libro Mayor (ahí es donde se administran de verdad). */
-  get movimientos(): Movimiento[] {
-    return this.todosLosMovimientos.slice(0, 5);
+  // ---------------------------------------------------------------
+  // Flujo mensual
+  // ---------------------------------------------------------------
+
+  get meses(): ResumenMes[] {
+    return this.finanzasService.resumenMensual(6);
   }
 
-  /** Ícono de un movimiento, según su categoría (delegado al service). */
-  iconoDe(mov: Movimiento): string {
-    return this.finanzasService.iconoPorCategoria(mov.categoria);
+  get mes(): ResumenMes {
+    return this.meses[this.meses.length - 1];
   }
 
-  /** Convierte "2026-03-01" en algo legible, ej: "1 mar 2026". */
-  formatearFecha(fecha: string): string {
-    const fechaValida = new Date(`${fecha}T00:00:00`);
-    if (isNaN(fechaValida.getTime())) return fecha;
-    return fechaValida.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
+  private get mesAnterior(): ResumenMes | undefined {
+    return this.meses[this.meses.length - 2];
   }
 
-  private get totalIngresos(): number {
-    return this.todosLosMovimientos.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + m.valor, 0);
+  get disponible(): number {
+    return this.mes.ingresos - this.mes.gastos;
   }
 
-  private get totalGastos(): number {
-    return this.todosLosMovimientos.filter(m => m.tipo === 'gasto').reduce((s, m) => s + m.valor, 0);
+  /** Lo que queda de cada mes (ingresos menos gastos), para el horizonte de la banda. */
+  get disponiblePorMes(): number[] {
+    return this.meses.map((m) => m.ingresos - m.gastos);
   }
 
-  /** ----- Tarjetas superiores, calculadas desde los movimientos reales -----
-   *  Cada una redirige al módulo donde ese dato se administra: Ingreso,
-   *  Gastos y Disponible vienen de los movimientos -> Libro Mayor; Ahorro
-   *  se relaciona con las metas de ahorro -> Metas. */
-  get tarjetas(): TarjetaResumen[] {
-    const disponible = this.totalIngresos - this.totalGastos;
-    const ahorroPct = this.totalIngresos > 0 ? Math.round((disponible / this.totalIngresos) * 100) : 0;
+  /** Saldo acumulado mes a mes: el horizonte del fondo de la banda. */
+  get saldoAcumulado(): number[] {
+    let saldo = 0;
+    return this.meses.map((m) => (saldo += m.ingresos - m.gastos));
+  }
+
+  get ahorroPct(): number {
+    return this.mes.ingresos > 0 ? Math.round((this.disponible / this.mes.ingresos) * 100) : 0;
+  }
+
+  get etiquetasMeses(): string[] {
+    return this.meses.map((m) => m.etiqueta);
+  }
+
+  get seriesFlujo(): SerieColumnas[] {
     return [
-      { icono: '💰', titulo: 'Ingreso', valor: this.formatearCOP(this.totalIngresos), tendencia: 'Total registrado', ruta: '/libro-mayor' },
-      { icono: '💼', titulo: 'Gastos', valor: this.formatearCOP(this.totalGastos), tendencia: 'Total registrado', ruta: '/libro-mayor' },
-      { icono: '🏦', titulo: 'Disponible', valor: this.formatearCOP(disponible), tendencia: disponible >= 0 ? 'Te queda dinero' : 'Gastas más de lo que entra', ruta: '/libro-mayor' },
-      { icono: '🐷', titulo: 'Ahorro', valor: `${ahorroPct}%`, tendencia: 'De tus ingresos', ruta: '/metas' },
+      { nombre: 'Ingresos', valores: this.meses.map((m) => m.ingresos), color: 'var(--brand-strong)' },
+      { nombre: 'Gastos', valores: this.meses.map((m) => m.gastos), color: 'var(--ink)' },
     ];
   }
 
-  /** ----- Indicador de salud financiera: En orden / Atención / Alto riesgo ----- */
-  get salud(): { estado: string; mensaje: string } {
-    const disponible = this.totalIngresos - this.totalGastos;
-    const ahorroPct = this.totalIngresos > 0 ? (disponible / this.totalIngresos) * 100 : 0;
-
-    if (disponible < 0) {
-      return { estado: 'Alto riesgo', mensaje: 'Estás gastando más de lo que ganas.' };
-    }
-    if (ahorroPct < 10) {
-      return { estado: 'Atención', mensaje: 'Tu margen de ahorro es bajo, revisa tus gastos.' };
-    }
-    return { estado: 'En orden', mensaje: 'Tus finanzas van bien, sigue así.' };
+  get comparaciones(): Comparacion[] {
+    const antes = this.mesAnterior;
+    const variacion = (ahora: number, previo?: number) =>
+      previo && previo > 0 ? Math.round(((ahora - previo) / previo) * 100) : null;
+    return [
+      { etiqueta: 'Entró', valor: this.mes.ingresos, variacion: variacion(this.mes.ingresos, antes?.ingresos), subirEsBueno: true },
+      { etiqueta: 'Salió', valor: this.mes.gastos, variacion: variacion(this.mes.gastos, antes?.gastos), subirEsBueno: false },
+    ];
   }
 
-  /** ============================================================
-   *  Lupa como barra de navegación de toda la información
-   *  del usuario (secciones + metas + inversiones + movimientos)
-   * ============================================================ */
-  mostrarBusqueda = signal(false);
+  /** Promedio de lo que queda por mes en el periodo. */
+  get promedioDisponible(): number {
+    const lista = this.disponiblePorMes;
+    return lista.length ? Math.round(lista.reduce((s, v) => s + v, 0) / lista.length) : 0;
+  }
+
+  // ---------------------------------------------------------------
+  // Salud financiera
+  // ---------------------------------------------------------------
+
+  get salud(): { estado: EstadoSalud; titulo: string; mensaje: string; icono: NombreIcono } {
+    if (this.disponible < 0) {
+      return { estado: 'riesgo', titulo: 'Alto riesgo', mensaje: 'Este mes gastas más de lo que entra.', icono: 'alert-triangle' };
+    }
+    if (this.ahorroPct < 10) {
+      return { estado: 'atencion', titulo: 'Atención', mensaje: 'Te queda menos del 10 % de lo que entra.', icono: 'info' };
+    }
+    return { estado: 'orden', titulo: 'En orden', mensaje: `Guardas el ${this.ahorroPct} % de lo que entra.`, icono: 'check-circle' };
+  }
+
+  // ---------------------------------------------------------------
+  // En qué se va la plata
+  // ---------------------------------------------------------------
+
+  get gastosDelMes() {
+    return this.finanzasService.gastosPorCategoria(this.mes.clave);
+  }
+
+  /** La categoría más grande del mes, para la frase de lectura de la gráfica. */
+  get mayorGasto() {
+    return this.gastosDelMes[0] ?? null;
+  }
+
+  get pctMayorGasto(): number {
+    const total = this.mes.gastos;
+    return this.mayorGasto && total > 0 ? Math.round((this.mayorGasto.valor / total) * 100) : 0;
+  }
+
+  // ---------------------------------------------------------------
+  // Metas, movimientos, inversiones
+  // ---------------------------------------------------------------
+
+  /** Las metas en curso más cercanas a cumplirse. */
+  get metas() {
+    return [...this.metasService.metas]
+      .filter((m) => !m.cumplida)
+      .sort((a, b) => b.porcentaje - a.porcentaje)
+      .slice(0, 4);
+  }
+
+  get metasCumplidas(): number {
+    return this.metasService.metas.filter((m) => m.cumplida).length;
+  }
+
+  get movimientos(): Movimiento[] {
+    return [...this.finanzasService.movimientos].sort((a, b) => b.fecha.localeCompare(a.fecha)).slice(0, 5);
+  }
+
+  iconoDe(mov: Movimiento): NombreIcono {
+    return this.finanzasService.iconoPorCategoria(mov.categoria);
+  }
+
+  formatearFecha(fecha: string): string {
+    const valida = new Date(`${fecha}T00:00:00`);
+    if (isNaN(valida.getTime())) return fecha;
+    return valida.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' });
+  }
+
+  get totalInvertido(): number {
+    return this.inversionesService.inversiones.reduce((s, i) => s + i.monto, 0);
+  }
+
+  get rendimientoTotal(): number {
+    return this.inversionesService.inversiones.reduce((s, i) => s + i.rendimiento, 0);
+  }
+
+  /** Valor del portafolio en los últimos seis meses (datos de ejemplo del módulo de inversiones). */
+  get crecimiento(): PuntoLinea[] {
+    return this.inversionesService.historial(6);
+  }
+
+  get crecimientoPct(): number {
+    const p = this.crecimiento;
+    return p.length > 1 ? Math.round(((p[p.length - 1].valor - p[0].valor) / p[0].valor) * 1000) / 10 : 0;
+  }
+
+  // ---------------------------------------------------------------
+  // Buscador sobre la banda
+  // ---------------------------------------------------------------
+
   terminoBusqueda = signal('');
 
-  /** Todas las secciones a las que el usuario puede navegar desde Finanzas */
   private secciones: ResultadoBusqueda[] = [
-    { icono: '📊', nombre: 'Finanzas', ruta: '/finanzas', tipo: 'Sección' },
-    { icono: '📒', nombre: 'Libro Mayor', ruta: '/libro-mayor', tipo: 'Sección' },
-    { icono: '📈', nombre: 'Inversiones', ruta: '/inversiones', tipo: 'Sección' },
-    { icono: '🎯', nombre: 'Metas', ruta: '/metas', tipo: 'Sección' },
+    { icono: 'bar-chart', nombre: 'Finanzas', ruta: '/finanzas', tipo: 'Sección' },
+    { icono: 'list', nombre: 'Libro Mayor', ruta: '/libro-mayor', tipo: 'Sección' },
+    { icono: 'trending-up', nombre: 'Inversiones', ruta: '/inversiones', tipo: 'Sección' },
+    { icono: 'target', nombre: 'Metas', ruta: '/metas', tipo: 'Sección' },
   ];
 
-  alternarBusqueda(): void {
-    this.mostrarBusqueda.update((v) => !v);
-    if (!this.mostrarBusqueda()) this.terminoBusqueda.set('');
-  }
-
-  /** Junta secciones + metas + inversiones + movimientos que coincidan con lo escrito.
-   *  Los movimientos redirigen a Libro Mayor: es ahí donde realmente viven. */
   get resultadosBusqueda(): ResultadoBusqueda[] {
     const termino = this.terminoBusqueda().trim().toLowerCase();
     if (!termino) return [];
 
     const secciones = this.secciones.filter((s) => s.nombre.toLowerCase().includes(termino));
-
     const metas: ResultadoBusqueda[] = this.metasService.metas
       .filter((m) => m.nombre.toLowerCase().includes(termino))
-      .map((m) => ({ icono: m.icono, nombre: m.nombre, ruta: '/metas', tipo: 'Meta' }));
-
+      .map((m) => ({ icono: 'target', nombre: m.nombre, ruta: '/metas', tipo: 'Meta' }));
     const inversiones: ResultadoBusqueda[] = this.inversionesService.inversiones
       .filter((i) => i.nombre.toLowerCase().includes(termino))
-      .map((i) => ({ icono: '📈', nombre: i.nombre, ruta: '/inversiones', tipo: 'Inversión' }));
-
-    const movimientos: ResultadoBusqueda[] = this.todosLosMovimientos
-      .filter((m) => m.concepto.toLowerCase().includes(termino) || m.categoria.toLowerCase().includes(termino))
-      .slice(0, 5)
+      .map((i) => ({ icono: 'trending-up', nombre: i.nombre, ruta: '/inversiones', tipo: 'Inversión' }));
+    const movimientos: ResultadoBusqueda[] = this.movimientosQueCoinciden(termino)
       .map((m) => ({ icono: this.iconoDe(m), nombre: m.concepto, ruta: '/libro-mayor', tipo: 'Movimiento' }));
 
-    return [...secciones, ...metas, ...inversiones, ...movimientos];
+    return [...secciones, ...metas, ...inversiones, ...movimientos].slice(0, 8);
   }
 
-  /** ============================================================
-   *  La campana recomienda cursos según lo que más usa el
-   *  usuario — si tiene más inversiones que movimientos/metas
-   *  juntos, le sugerimos la escuela de Inversión; si no, Finanzas
-   *  Personales (presupuesto, tarjetas, deuda).
-   * ============================================================ */
+  /** Conceptos únicos que coinciden (el mismo concepto se repite cada mes). */
+  private movimientosQueCoinciden(termino: string): Movimiento[] {
+    const vistos = new Set<string>();
+    return this.finanzasService.movimientos.filter((m) => {
+      const coincide = m.concepto.toLowerCase().includes(termino) || m.categoria.toLowerCase().includes(termino);
+      if (!coincide || vistos.has(m.concepto)) return false;
+      vistos.add(m.concepto);
+      return true;
+    }).slice(0, 4);
+  }
+
+  limpiarBusqueda(): void {
+    this.terminoBusqueda.set('');
+  }
+
+  /**
+   * Curso recomendado según lo que más usa: si tiene más inversiones que
+   * movimientos y metas juntos, la escuela de Inversión; si no, Finanzas Personales.
+   */
   get escuelaRecomendada(): string {
     const actividadInversion = this.inversionesService.inversiones.length;
-    const actividadPersonal = this.todosLosMovimientos.length + this.metasService.metas.length;
+    const actividadPersonal = this.finanzasService.movimientos.length + this.metasService.metas.length;
     return actividadInversion > actividadPersonal ? 'inversion' : 'finanzas-personales';
-  }
-
-  /** ----- Distribución de gastos por categoría (dona), calculada desde los movimientos ----- */
-  private paletaDona = ['var(--sage)', 'var(--black)', 'var(--sand)', 'var(--cloud)', 'var(--sage-dark)', 'var(--sage-tint)'];
-
-  get distribucion(): SegmentoGasto[] {
-    const gastos = this.todosLosMovimientos.filter(m => m.tipo === 'gasto');
-    const total = this.totalGastos;
-    if (total === 0) return [];
-
-    const porCategoria = new Map<string, number>();
-    gastos.forEach(m => porCategoria.set(m.categoria, (porCategoria.get(m.categoria) ?? 0) + m.valor));
-
-    return Array.from(porCategoria.entries()).map(([etiqueta, monto], i) => ({
-      etiqueta,
-      porcentaje: Math.round((monto / total) * 100),
-      color: this.paletaDona[i % this.paletaDona.length],
-    }));
-  }
-
-  get gradienteDistribucion(): string {
-    if (this.distribucion.length === 0) return 'var(--cloud)';
-    let acumulado = 0;
-    const partes = this.distribucion.map(seg => {
-      const inicio = acumulado;
-      acumulado += seg.porcentaje;
-      return `${seg.color} ${inicio}% ${acumulado}%`;
-    });
-    return `conic-gradient(${partes.join(', ')})`;
-  }
-
-  /** ----- Crecimiento de inversión (línea) ----- */
-  crecimiento: PuntoInversion[] = [
-    { mes: 'Ene', valor: 14.5 }, { mes: 'Feb', valor: 14.8 }, { mes: 'Mar', valor: 14.9 },
-    { mes: 'Abr', valor: 15.1 }, { mes: 'May', valor: 15.4 }, { mes: 'Jun', valor: 15.8 },
-  ];
-
-  get crecimientoInicio(): PuntoInversion {
-    return this.crecimiento[0];
-  }
-
-  get crecimientoFin(): PuntoInversion {
-    return this.crecimiento[this.crecimiento.length - 1];
-  }
-
-  get crecimientoPorcentaje(): number {
-    const primero = this.crecimientoInicio.valor;
-    const ultimo = this.crecimientoFin.valor;
-    return Math.round(((ultimo - primero) / primero) * 1000) / 10;
-  }
-
-  get puntosLinea(): string {
-    const datos = this.crecimiento;
-    const max = Math.max(...datos.map(d => d.valor));
-    const min = Math.min(...datos.map(d => d.valor));
-    const ancho = 320;
-    const alto = 90;
-    return datos
-      .map((d, i) => {
-        const x = (i / (datos.length - 1)) * ancho;
-        const y = alto - ((d.valor - min) / (max - min || 1)) * alto;
-        return `${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(' ');
-  }
-
-  /** Muestra el signo (+ / -) y el monto de un movimiento, según su tipo. */
-  formatearMonto(mov: Movimiento): string {
-    const signo = mov.tipo === 'gasto' ? '-' : '+';
-    return `${signo}$${mov.valor.toLocaleString('es-CO')}`;
-  }
-
-  /** ----- Tus metas (anillos, vista previa de las primeras 4) ----- */
-  get metas() {
-    return this.metasService.metas.slice(0, 4);
-  }
-
-  obtenerOffset(porcentaje: number): number {
-    return this.circunferencia * (1 - porcentaje / 100);
-  }
-
-  formatearCOP(valor: number): string {
-    return `$${valor.toLocaleString('es-CO')}`;
   }
 }

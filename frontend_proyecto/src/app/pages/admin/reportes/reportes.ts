@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AlianzasService } from '../../../services/alianzas';
 import { EducacionService } from '../../../services/educacion';
-import { FinanzasService } from '../../../services/finanzas';
+import { FinanzasAdminService } from '../../../services/finanzas-admin';
 import { PqrService } from '../../../services/pqr';
 import { ETIQUETA_ACCION, ETIQUETA_ESTADO, ETIQUETA_ROL, UsuariosService } from '../../../services/usuarios';
 import { DistribucionComponent } from '../../../shared/components/distribucion/distribucion';
@@ -13,7 +13,6 @@ import { ActividadAdminService } from '../../../shared/services/actividad-admin'
 import { ToastService } from '../../../shared/services/toast';
 import { exportarExcel, FilaExportable } from '../../../shared/utils/exportar';
 import { formatearFechaHora, parsearFecha } from '../../../shared/utils/fechas';
-import { simularCarga } from '../../../shared/utils/lista';
 
 type Tema = 'usuarios' | 'pqr' | 'cursos' | 'alianzas' | 'finanzas' | 'actividad';
 type Formato = 'numero' | 'moneda';
@@ -89,9 +88,13 @@ export class AdminReportesComponent {
   private pqrService = inject(PqrService);
   private educacionService = inject(EducacionService);
   private alianzasService = inject(AlianzasService);
-  private finanzasService = inject(FinanzasService);
+  private finanzasAdmin = inject(FinanzasAdminService);
   private actividadService = inject(ActividadAdminService);
   private toastService = inject(ToastService);
+
+  constructor() {
+    this.cargarDatos();
+  }
 
   readonly temas: { valor: Tema; etiqueta: string; icono: NombreIcono }[] = [
     { valor: 'usuarios', etiqueta: 'Usuarios', icono: 'users' },
@@ -112,15 +115,25 @@ export class AdminReportesComponent {
   tema = signal<Tema>('usuarios');
   periodo = signal(6);
   generado = signal(new Date());
-  version = signal(0);
-  cargando = simularCarga();
-  actualizando = signal(false);
+
+  /** Cada tema sale de un servicio distinto; se mira solo el del tema abierto. */
+  private readonly estadoTema = computed(() => {
+    switch (this.tema()) {
+      case 'usuarios': return { cargando: this.usuariosService.cargando(), error: this.usuariosService.error() };
+      case 'pqr': return { cargando: this.pqrService.cargando(), error: this.pqrService.error() };
+      case 'cursos': return { cargando: this.educacionService.cargando(), error: this.educacionService.error() };
+      case 'alianzas': return { cargando: this.alianzasService.cargando(), error: this.alianzasService.error() };
+      case 'finanzas': return { cargando: this.finanzasAdmin.cargando(), error: this.finanzasAdmin.error() };
+      default: return { cargando: false, error: '' };
+    }
+  });
+  cargando = computed(() => this.estadoTema().cargando);
+  errorTema = computed(() => this.estadoTema().error);
 
   temaActual = computed(() => this.temas.find((t) => t.valor === this.tema()) ?? this.temas[0]);
   generadoTexto = computed(() => formatearFechaHora(this.generado().toISOString()));
 
   reporte = computed<Reporte>(() => {
-    this.version();
     this.usuariosService.cambios();
     switch (this.tema()) {
       case 'usuarios': return this.reporteUsuarios();
@@ -138,15 +151,20 @@ export class AdminReportesComponent {
     return seccion.datos.map((d, i) => ({ ...d, tono: seccion.tonos?.[i] ?? ('' as const) }));
   }
 
+  /** Vuelve a pedir al MID los datos de todos los temas. */
   generar(): void {
-    this.actualizando.set(true);
-    setTimeout(() => {
-      this.version.update((v) => v + 1);
-      this.generado.set(new Date());
-      this.actualizando.set(false);
-      this.actividadService.registrar('Reportes', 'Generó un reporte', this.temaActual().etiqueta);
-      this.toastService.success('Reporte generado con los datos más recientes.');
-    }, 500);
+    this.cargarDatos();
+    this.actividadService.registrar('Reportes', 'Generó un reporte', this.temaActual().etiqueta);
+  }
+
+  private cargarDatos(): void {
+    this.usuariosService.cargar();
+    this.pqrService.cargarPqrAdmin();
+    this.educacionService.cargarCatalogo();
+    this.alianzasService.cargarOfertas();
+    this.alianzasService.cargarSolicitudesAdmin();
+    this.finanzasAdmin.cargar();
+    this.generado.set(new Date());
   }
 
   exportarExcel(): void {
@@ -223,25 +241,25 @@ export class AdminReportesComponent {
   }
 
   private reportePqr(): Reporte {
-    const pqrs = this.pqrService.pqrs;
-    const pendientes = pqrs.filter((p) => p.estado === 'Radicado' || p.estado === 'En revisión').length;
+    const pqrs = this.pqrService.pqrsAdmin();
+    const pendientes = pqrs.filter((p) => p.estado === 'Abierta' || p.estado === 'En revisión').length;
     return {
       kpis: [
         { etiqueta: 'PQR recibidas', valor: formatoNumero(pqrs.length), icono: 'life-buoy', pie: 'en total', tono: 'neutral' },
         { etiqueta: 'Pendientes', valor: formatoNumero(pendientes), icono: 'clock', pie: 'sin resolver', tono: 'warning' },
-        { etiqueta: 'Resueltas', valor: formatoNumero(pqrs.filter((p) => p.estado === 'Resuelto').length), icono: 'check-circle', pie: 'cerradas con respuesta' },
+        { etiqueta: 'Resueltas', valor: formatoNumero(pqrs.filter((p) => p.estado === 'Resuelta' || p.estado === 'Cerrada').length), icono: 'check-circle', pie: 'cerradas con respuesta' },
         { etiqueta: 'Prioridad alta', valor: formatoNumero(pqrs.filter((p) => p.prioridad === 'Alta').length), icono: 'alert-triangle', pie: 'del total', tono: 'neutral' },
       ],
       secciones: [
         { titulo: 'PQR por estado', descripcion: 'Situación actual de las solicitudes.', tipo: 'distribucion', datos: agrupar(pqrs, (p) => p.estado), formato: 'numero', columna: 'PQR' },
         { titulo: 'PQR por prioridad', descripcion: 'Urgencia asignada a cada solicitud.', tipo: 'distribucion', datos: agrupar(pqrs, (p) => p.prioridad), formato: 'numero', columna: 'PQR' },
-        { titulo: 'PQR por tipo', descripcion: 'Petición, queja o reclamo.', tipo: 'distribucion', datos: agrupar(pqrs, (p) => p.tipo), formato: 'numero', columna: 'PQR' },
+        { titulo: 'PQR por tipo', descripcion: 'Petición, queja, reclamo o sugerencia.', tipo: 'distribucion', datos: agrupar(pqrs, (p) => p.tipo), formato: 'numero', columna: 'PQR' },
       ],
     };
   }
 
   private reporteCursos(): Reporte {
-    const escuelas = this.educacionService.escuelas;
+    const escuelas = this.educacionService.escuelas();
     const cursos = this.educacionService.todosLosCursos();
     const estudiantes = cursos.reduce((s, c) => s + c.estudiantes, 0);
     const conNota = cursos.filter((c) => c.calificacion > 0);
@@ -261,13 +279,13 @@ export class AdminReportesComponent {
   }
 
   private reporteAlianzas(): Reporte {
-    const ofertas = this.alianzasService.ofertas;
-    const solicitudes = this.alianzasService.solicitudes;
+    const ofertas = this.alianzasService.ofertas();
+    const solicitudes = this.alianzasService.solicitudes();
     return {
       kpis: [
         { etiqueta: 'Alianzas activas', valor: formatoNumero(ofertas.length), icono: 'briefcase', pie: 'ofertas publicadas' },
         { etiqueta: 'Destacadas', valor: formatoNumero(ofertas.filter((o) => o.destacada).length), icono: 'shield-check', pie: 'visibles en primer lugar', tono: 'neutral' },
-        { etiqueta: 'Solicitudes', valor: formatoNumero(solicitudes.length), icono: 'file-text', pie: 'recibidas en esta sesión', tono: 'neutral' },
+        { etiqueta: 'Solicitudes', valor: formatoNumero(solicitudes.length), icono: 'file-text', pie: 'radicadas por los usuarios', tono: 'neutral' },
         { etiqueta: 'Usuarios vinculados', valor: formatoNumero(ofertas.reduce((s, o) => s + o.usuarios, 0)), icono: 'users', pie: 'entre todas las ofertas', tono: 'neutral' },
       ],
       secciones: [
@@ -287,24 +305,25 @@ export class AdminReportesComponent {
   }
 
   private reporteFinanzas(): Reporte {
-    const movimientos = this.finanzasService.movimientos;
+    const movimientos = this.finanzasAdmin.movimientos();
+    const usuarios = new Set(movimientos.map((m) => m.usuario)).size;
     const ingresos = movimientos.filter((m) => m.tipo === 'ingreso').reduce((s, m) => s + m.valor, 0);
     const gastos = movimientos.filter((m) => m.tipo === 'gasto').reduce((s, m) => s + m.valor, 0);
     const porCategoria = new Map<string, number>();
     for (const m of movimientos.filter((mov) => mov.tipo === 'gasto')) {
-      porCategoria.set(m.categoria, (porCategoria.get(m.categoria) ?? 0) + m.valor);
+      porCategoria.set(m.categoria || 'Sin categoría', (porCategoria.get(m.categoria || 'Sin categoría') ?? 0) + m.valor);
     }
     return {
       kpis: [
         { etiqueta: 'Total ingresos', valor: formatoMoneda(ingresos), icono: 'arrow-up-right', pie: `${movimientos.filter((m) => m.tipo === 'ingreso').length} movimientos` },
         { etiqueta: 'Total gastos', valor: formatoMoneda(gastos), icono: 'arrow-down-right', pie: `${movimientos.filter((m) => m.tipo === 'gasto').length} movimientos`, tono: 'neutral' },
         { etiqueta: 'Balance neto', valor: formatoMoneda(ingresos - gastos), icono: 'wallet', pie: ingresos >= gastos ? 'ingresos superan a gastos' : 'gastos superan a ingresos', tono: ingresos >= gastos ? '' : 'warning' },
-        { etiqueta: 'Movimientos', valor: formatoNumero(movimientos.length), icono: 'list', pie: 'registrados', tono: 'neutral' },
+        { etiqueta: 'Movimientos', valor: formatoNumero(movimientos.length), icono: 'list', pie: `de ${usuarios} usuarios`, tono: 'neutral' },
       ],
       secciones: [
         {
           titulo: 'Ingresos frente a gastos',
-          descripcion: 'Comparación sobre todos los movimientos.',
+          descripcion: 'Suma de los movimientos de todos los usuarios.',
           tipo: 'distribucion',
           datos: [{ etiqueta: 'Ingresos', valor: ingresos }, { etiqueta: 'Gastos', valor: gastos }],
           formato: 'moneda',

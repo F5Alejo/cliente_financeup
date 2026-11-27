@@ -1,4 +1,4 @@
-/* Linea de ayuda: bloque de atencion con el numero al frente y preguntas en tarjetas. */
+/* Línea de ayuda: banda con el número al frente y preguntas frecuentes en acordeón. */
 
 :host {
   --lienzo: var(--paper);
@@ -17,7 +17,6 @@
 
   display: block;
   width: 100%;
-  min-height: 100vh;
   background: var(--lienzo);
   color: var(--tinta);
   font-family: var(--font-family-base);
@@ -34,116 +33,39 @@
   padding: 36px clamp(18px, 4vw, 44px) 96px;
 }
 
-/* ---------- Bloque de atencion ---------- */
-.banner {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 56px;
-  align-items: center;
-  padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 56px);
-  margin-bottom: 56px;
-  background: var(--verde-noche);
-  border-radius: var(--r-xl);
-  color: #ffffff;
+/* ---------- Tarjeta de la banda: el número es la acción principal ---------- */
+.linea-tarjeta {
+  min-width: min(100%, 320px);
 }
 
-.banner__copy {
-  min-width: 0;
-}
-
-.banner__badge {
-  display: inline-block;
-  margin-bottom: 18px;
-  padding: 7px 15px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--menta);
-}
-
-.banner__title {
-  margin: 0 0 14px;
-  max-width: 18ch;
-  font-size: clamp(28px, 4vw, 44px);
+.linea-tarjeta__numero {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 1.3rem + 1vw, 2rem);
   font-weight: 800;
-  line-height: 1.1;
   letter-spacing: -0.02em;
-}
-
-.banner__description {
-  margin: 0 0 32px;
-  max-width: 52ch;
-  font-size: 16px;
-  line-height: 1.75;
-  color: rgba(255, 255, 255, 0.76);
-}
-
-.banner__footer {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-/* El numero: pildora blanca, es la accion principal de la pagina */
-.banner__phone {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 28px;
-  border-radius: 999px;
-  background: #ffffff;
-  font-size: clamp(19px, 2.4vw, 24px);
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
-  color: var(--verde-noche);
+  color: #f2faf4;
   text-decoration: none;
-  box-shadow: 0 10px 26px rgba(6, 30, 18, 0.26);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.banner__phone:hover,
-.banner__phone:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(6, 30, 18, 0.32);
-  outline: none;
+.linea-tarjeta__numero:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
-.banner__phone-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--verde);
+.linea-tarjeta__numero:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-.banner__stats {
-  display: grid;
-  gap: 22px;
-  flex-shrink: 0;
-  padding-left: 44px;
-  border-left: 1px solid rgba(255, 255, 255, 0.14);
+.linea-tarjeta__nota {
+  font-size: 0.95rem;
+  color: #b6dfc0;
 }
 
-.banner__stat {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.banner__stat-value {
-  font-size: 26px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  color: #ffffff;
-}
-
-.banner__stat-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.62);
+.linea-tarjeta .boton-lima,
+.linea-tarjeta .boton-fantasma {
+  text-decoration: none;
 }
 
 /* ---------- Botones ---------- */
@@ -156,17 +78,6 @@
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-
-.btn--green {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.34);
-  color: #ffffff;
-}
-
-.btn--green:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .btn--soft {
@@ -221,7 +132,7 @@
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 600;
-  color: var(--tinta-2);
+  color: var(--tinta);
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -245,8 +156,37 @@
 
 .faq-empty {
   margin: 24px 0;
+  padding: 32px 24px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-lg);
   color: var(--ink-soft);
   text-align: center;
+}
+
+.faq-empty p {
+  margin: 0;
+}
+
+.faq-empty__titulo {
+  margin-bottom: 6px !important;
+  font-weight: 700;
+  color: var(--tinta);
+}
+
+.faq-empty a,
+.linea-ayuda__mas a {
+  color: var(--verde-hondo);
+  font-weight: 700;
+}
+
+.faq-item__h {
+  margin: 0;
+  font: inherit;
+}
+
+.linea-ayuda__mas {
+  margin: 32px 0 0;
+  color: var(--tinta-2);
 }
 
 .faq-item {
@@ -322,8 +262,9 @@
 
 /* Chevron en circulo */
 .faq-item__icon {
-  position: relative;
-  display: block;
+  display: grid;
+  place-items: center;
+  color: var(--verde-hondo);
   width: 34px;
   height: 34px;
   flex-shrink: 0;
@@ -332,25 +273,19 @@
   transition: transform 0.28s ease, background 0.2s ease;
 }
 
-.faq-item__icon::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 9px;
-  height: 9px;
-  border-right: 2px solid var(--verde-hondo);
-  border-bottom: 2px solid var(--verde-hondo);
-  transform: translateY(-2px) rotate(45deg);
-}
-
 .faq-item--open .faq-item__icon {
   background: var(--verde-hondo);
   transform: rotate(180deg);
 }
 
-.faq-item--open .faq-item__icon::before {
-  border-color: #ffffff;
+.faq-item--open .faq-item__icon {
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-item__icon {
+    transition: none;
+  }
 }
 
 .faq-item__answer-wrap {
@@ -382,35 +317,9 @@
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 900px) {
-  .banner {
-    grid-template-columns: 1fr;
-    gap: 32px;
-    align-items: start;
-  }
-
-  .banner__stats {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 20px;
-    padding-left: 0;
-    padding-top: 28px;
-    border-left: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-  }
-}
-
 @media (max-width: 640px) {
   .linea-ayuda {
     padding: 24px 16px 60px;
-  }
-
-  .banner {
-    border-radius: var(--r-xl);
-  }
-
-  .banner__phone {
-    width: 100%;
-    justify-content: center;
   }
 
   .faq-item__header {

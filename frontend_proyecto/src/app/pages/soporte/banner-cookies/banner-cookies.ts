@@ -1,4 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToastService } from '../../../shared/services/toast';
+
+// Elección del usuario guardada en el navegador: 'todas' | 'fundamentales' | 'rechazadas'
+const CLAVE_COOKIES = 'financeup_cookies';
 
 @Component({
   selector: 'app-banner-cookies',
@@ -7,24 +12,32 @@ import { Component } from '@angular/core';
   styleUrl: './banner-cookies.css',
 })
 export class BannerCookiesComponent {
-  // Texto principal (quemado)
   mensajeCookies: string =
-    'Utilizamos las cookies para la optimización de la página web y le mejora de la experiencia en Finance Up, utilizamos cookies propias y de terceros para analizar el tráfico, personalizar la publicidad y mostrarte anuncios relevantes Además, compartimos información sobre el uso que haga del sitio web con nuestros partes de redes sociales, publicidad y análisis web, quienes pueden combinarla con otra información que les haya proporcionado o que hayan recopilado a partir del uso que haya hecho de sus servicios.';
+    'FinanceUp guarda datos en tu navegador para mantener tu sesión abierta y recordar tus preferencias. ' +
+    'No usamos cookies de publicidad. Puedes aceptar todas, dejar solo las fundamentales o rechazarlas.';
 
-  // Nombres de los botones (quemados)
   textoAceptar: string = 'Aceptar';
   textoFundamentales: string = 'Fundamentales';
   textoCancelar: string = 'Cancelar';
 
+  private router = inject(Router);
+  private toastService = inject(ToastService);
+
   aceptar(): void {
-    console.log('Cookies aceptadas');
+    this.guardar('todas');
   }
 
   fundamentales(): void {
-    console.log('Solo cookies fundamentales');
+    this.guardar('fundamentales');
   }
 
   cancelar(): void {
-    console.log('Cookies rechazadas');
+    this.guardar('rechazadas');
+  }
+
+  private guardar(eleccion: string): void {
+    localStorage.setItem(CLAVE_COOKIES, eleccion);
+    this.toastService.success('Guardamos tu preferencia de cookies.');
+    this.router.navigate(['/']);
   }
 }

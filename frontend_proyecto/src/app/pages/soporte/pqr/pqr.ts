@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,126 +8,97 @@ import { AuthService } from '../../../services/auth';
 
 type FiltroEstado = 'Todas' | EstadoPqr;
 
-// TODO: ajustar esta ruta si tu página de login no está en '/login'.
 const RUTA_LOGIN = '/login';
 
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { MedidorComponent } from '../../../shared/graficas/medidor';
+import { BarraPartesComponent, Parte } from '../../../shared/graficas/barra-partes';
 @Component({
   selector: 'app-pqr',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BandaSeccionComponent, IconComponent, MedidorComponent, BarraPartesComponent],
   templateUrl: './pqr.html',
   styleUrl: './pqr.css',
 })
 export class PqrComponent {
-  constructor(
-    private pqrService: PqrService,
-    private toastService: ToastService,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  private pqrService = inject(PqrService);
+  private toastService = inject(ToastService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   // =========================
   // TEXTOS DEL COMPONENTE
   // =========================
 
-  tituloPagina: string = 'Mis PQR';
-  subtituloPagina: string =
-    'Consulta el estado de tus peticiones, quejas y reclamos en un solo lugar.';
-  placeholderBuscador: string = 'Buscar por título, número o estado';
-  botonVerMas: string = 'Ver detalle';
-  tituloCrearNuevo: string = 'Crear nueva PQR';
-  textoCrearNuevo: string =
-    'Radica una petición, queja o reclamo y haz seguimiento en tiempo real.';
-  botonCrearNuevo: string = 'Radicar PQR';
-  mensajeSinSesion: string =
-    'Inicia sesión para consultar el estado de tus PQR. Aún puedes radicar una nueva solicitud.';
+  tituloPagina = 'Mis PQR';
+  subtituloPagina = 'Consulta el estado de tus peticiones, quejas y reclamos en un solo lugar.';
+  placeholderBuscador = 'Buscar por título, radicado o categoría';
+  botonVerMas = 'Ver detalle';
+  tituloCrearNuevo = 'Crear nueva PQR';
+  textoCrearNuevo = 'Radica una petición, queja, reclamo o sugerencia y haz seguimiento a su avance.';
+  botonCrearNuevo = 'Radicar PQR';
+  mensajeSinSesion = 'Inicia sesión para consultar el estado de tus PQR.';
+
+  // =========================
+  // DATOS (vienen del MID)
+  // =========================
+
+  readonly estaAutenticado = this.authService.estaAutenticado();
+  readonly pqrs = this.pqrService.misPqr;
+  readonly cargando = this.pqrService.cargando;
+  readonly error = this.pqrService.error;
+
+  constructor() {
+    this.cargar();
+  }
+
+  cargar(): void {
+    this.pqrService.cargarMisPqr();
+  }
 
   // =========================
   // BUSCADOR Y FILTROS
   // =========================
 
-  searchText: string = '';
-  filtroEstado: FiltroEstado = 'Todas';
-  readonly estados: FiltroEstado[] = [
-    'Todas',
-    'Radicado',
-    'En revisión',
-    'Resuelto',
-    'Rechazado',
-  ];
+  readonly busqueda = signal('');
+  readonly filtroEstado = signal<FiltroEstado>('Todas');
+  readonly estados: FiltroEstado[] = ['Todas', 'Abierta', 'En revisión', 'Resuelta', 'Cerrada', 'Rechazada'];
 
-  // =========================
-  // SESIÓN
-  // =========================
+  readonly filtradas = computed(() => {
+    const texto = this.busqueda().toLowerCase().trim();
+    const estado = this.filtroEstado();
 
-  get estaAutenticado(): boolean {
-    return this.authService.estaAutenticado();
-  }
-
-  /**
-   * Solo devuelve los PQR del usuario que tiene la sesión activa.
-   * Si no hay sesión, devuelve un arreglo vacío (el listado se muestra
-   * vacío, pero la tarjeta de "Crear nueva PQR" sigue visible).
-   */
-  get pqrs(): Pqr[] {
-    if (!this.estaAutenticado) {
-      return [];
-    }
-
-    const nombreUsuario = this.authService.obtenerNombre();
-    return this.pqrService.pqrs.filter((pqr) => pqr.usuario === nombreUsuario);
-  }
-
-  get filteredPqrs(): Pqr[] {
-    const search = this.searchText.toLowerCase().trim();
-
-    return this.pqrs.filter((pqr) => {
-      if (this.filtroEstado !== 'Todas' && pqr.estado !== this.filtroEstado) {
-        return false;
-      }
-
-      if (!search) return true;
-
-      return (
-        pqr.titulo.toLowerCase().includes(search) ||
-        pqr.numero.includes(search) ||
-        pqr.estado.toLowerCase().includes(search) ||
-        pqr.categoria.toLowerCase().includes(search)
-      );
+    return this.pqrs().filter((pqr) => {
+      if (estado !== 'Todas' && pqr.estado !== estado) return false;
+      if (!texto) return true;
+      return `${pqr.titulo} ${pqr.radicado} ${pqr.categoria}`.toLowerCase().includes(texto);
     });
-  }
+  });
 
   // =========================
   // RESUMEN
   // =========================
 
-  get totalPqrs(): number {
-    return this.pqrs.length;
-  }
+  readonly totalPqrs = computed(() => this.pqrs().length);
+  readonly enCurso = computed(() => this.pqrs().filter((p) => p.estado === 'Abierta' || p.estado === 'En revisión').length);
+  readonly resueltas = computed(() => this.pqrs().filter((p) => p.estado === 'Resuelta' || p.estado === 'Cerrada').length);
 
-  get enRevision(): number {
-    return this.pqrs.filter((pqr) => pqr.estado === 'En revisión').length;
-  }
+  // Clase CSS del distintivo según el estado del caso.
+  /** Casos por estado, para la barra segmentada (solo estados con casos). */
+  readonly porEstado = computed<Parte[]>(() =>
+    this.estados
+      .filter((e) => e !== 'Todas')
+      .map((e) => ({ etiqueta: e, valor: this.pqrs().filter((p) => p.estado === e).length }))
+      .filter((p) => p.valor > 0)
+  );
 
-  get resueltas(): number {
-    return this.pqrs.filter((pqr) => pqr.estado === 'Resuelto').length;
-  }
+  readonly pctResueltas = computed(() =>
+    this.totalPqrs() ? Math.round((this.resueltas() / this.totalPqrs()) * 100) : 0
+  );
 
-  buscar(): void {
-    // La lista ya se filtra de forma reactiva (ver filteredPqrs); esto solo da
-    // feedback explícito al usuario cuando pulsa el botón de búsqueda.
-    if (this.filteredPqrs.length === 0) {
-      this.toastService.info('No se encontraron PQR con ese criterio.');
-    }
-  }
-
-  seleccionarEstado(estado: FiltroEstado): void {
-    this.filtroEstado = estado;
-  }
-
-  // Clase CSS del distintivo según el estado del ticket.
   claseEstado(estado: EstadoPqr): string {
-    if (estado === 'Resuelto') return 'is-resuelto';
-    if (estado === 'Rechazado') return 'is-rechazado';
+    if (estado === 'Resuelta' || estado === 'Cerrada') return 'is-resuelto';
+    if (estado === 'Rechazada') return 'is-rechazado';
     return 'is-revision';
   }
 
@@ -142,11 +113,7 @@ export class PqrComponent {
   // =========================
 
   verPqr(pqr: Pqr): void {
-    if (!this.estaAutenticado) {
-      this.router.navigate([RUTA_LOGIN]);
-      return;
-    }
-    this.router.navigate(['/ver-pqr', pqr.numero]);
+    this.router.navigate(['/ver-pqr', pqr.radicado]);
   }
 
   crearNuevaPqr(): void {

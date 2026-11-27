@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { LogoComponent } from '../../shared/components/logo/logo';
 
 interface FooterColumn {
   title: string;
@@ -10,7 +11,7 @@ interface FooterColumn {
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LogoComponent],
   templateUrl: './footer.html',
   styleUrl: './footer.css'
 })
@@ -22,10 +23,10 @@ export class FooterComponent {
       title: 'Explorar',
       links: [
         { label: 'Inicio', path: '/home' },
-        { label: 'Educacion', path: '/educacion' },
+        { label: 'Educación', path: '/educacion' },
         { label: 'Alianzas', path: '/alianzas' },
         { label: 'Centro de ayuda', path: '/centro-ayuda' },
-        { label: 'Linea de ayuda', path: '/linea-ayuda' },
+        { label: 'Línea de ayuda', path: '/linea-ayuda' },
         { label: 'Finanzas', path: '/finanzas' },
       ]
     },

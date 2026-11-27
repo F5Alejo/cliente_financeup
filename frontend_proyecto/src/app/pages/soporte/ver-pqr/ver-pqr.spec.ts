@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { VerPqrComponent } from './ver-pqr';
 
 describe('VerPqrComponent', () => {
@@ -8,6 +9,8 @@ describe('VerPqrComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [VerPqrComponent],
+      // Rutas vacías: RouterLink necesita el router y '**' absorbe navegaciones como /login.
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VerPqrComponent);

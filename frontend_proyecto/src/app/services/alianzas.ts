@@ -1,4 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
+import { Observable, map, tap } from 'rxjs';
+
+import { API_URL, mensajeDeError } from './api';
+import { AuthService } from './auth';
 import { NotificacionesService } from './notificaciones';
 
 export type TipoAliado = 'Bancos' | 'Fintech' | 'Comercio';
@@ -16,26 +21,33 @@ export interface Pregunta {
   respuesta: string;
 }
 
+/** Producto de un aliado tal como lo usan las pantallas. */
 export interface Oferta {
-  id: string;
+  id: number;
+  slug: string;
+  idAliado: number;
   aliado: string;
   descripcion: string;
   meta: string;
   logoBg: string;
   logoText: string;
-  imagen?: string; // Foto de portada de la ficha del producto
+  imagen?: string;
   ctaPrimaria: string;
-  ctaSecundaria?: string;
+  ctaSecundaria: string;
 
   // Clasificación para los filtros
   tipo: TipoAliado;
-  beneficio: Beneficio;
+  familia: FamiliaProducto;
+  beneficio: Beneficio | null;
   perfiles: Perfil[];
 
-  // Datos visibles en la tarjeta
+  // Datos de la tarjeta
   categoria: string;
+  promesa: string;
   tasaDesde: number;
+  montoMinimo: number;
   montoMaximo: number;
+  plazoMinimo: number;
   plazoMaximo: number;
   aprobacion: string;
   calificacion: number;
@@ -44,21 +56,45 @@ export interface Oferta {
   destacada: boolean;
   etiquetas: string[];
   requisitos: string[];
-
-  // Ficha del producto
-  familia: FamiliaProducto;
-  promesa: string;
   caracteristicas: string[];
-  documentos: string[];
   tarifas: Tarifa[];
-  preguntas: Pregunta[];
 }
 
-export interface Solicitud {
-  radicado: string;
-  productoId: string;
-  producto: string;
-  aliado: string;
+/** Ficha completa de un producto (GET /ofertas/:id). */
+export interface FichaOferta extends Oferta {
+  documentos: string[];
+  preguntas: Pregunta[];
+  relacionadas: { id: number; categoria: string; tasaDesde: number }[];
+}
+
+/** Banco o comercio que el admin elige al crear una oferta. */
+export interface Aliado {
+  id: number;
+  nombre: string;
+  tipo: TipoAliado;
+}
+
+/** Lo que el admin llena en el formulario de una oferta. */
+export interface DatosOferta {
+  idAliado: number;
+  categoria: string;
+  descripcion: string;
+  familia: FamiliaProducto;
+  tasaDesde: number;
+  montoMinimo: number;
+  montoMaximo: number;
+  plazoMinimo: number;
+  plazoMaximo: number;
+  aprobacion: string;
+  meta: string;
+  ctaPrimaria: string;
+  ctaSecundaria: string;
+  destacada: boolean;
+}
+
+/** Lo que el usuario llena en el formulario de solicitud. */
+export interface DatosSolicitud {
+  idProducto: number;
   monto: number;
   plazoMeses: number;
   nombre: string;
@@ -66,386 +102,396 @@ export interface Solicitud {
   correo: string;
   celular: string;
   ingresos: number;
-  fecha: string;
-  estado: 'En estudio';
+  aceptaTerminos: boolean;
 }
 
-const DOCUMENTOS_BASE = [
-  'Cédula de ciudadanía al día',
-  'Certificado laboral no mayor a 30 días',
-  'Extractos bancarios de los últimos 3 meses',
-];
+/** Respuesta del MID al radicar. */
+export interface SolicitudRadicada {
+  idSolicitud: number;
+  radicado: string;
+  producto: string;
+  monto: number;
+  plazoMeses: number;
+  cuotaEstimada: number;
+  estado: string;
+  asesor: string;
+}
+
+/** Fila de la tabla de solicitudes del admin. */
+export interface Solicitud {
+  idSolicitud: number;
+  radicado: string;
+  nombre: string;
+  correo: string;
+  producto: string;
+  aliado: string;
+  monto: number;
+  plazoMeses: number;
+  fecha: string;
+  estado: string;
+}
+
+/** Solicitud que el usuario ve en "Mis solicitudes". */
+export interface MiSolicitud {
+  idSolicitud: number;
+  radicado: string;
+  producto: string;
+  monto: number;
+  plazoMeses: number;
+  estado: string;
+  fecha: string;
+}
+
+// ---- Formato en que responde el MID (snake_case) ----
+
+interface OfertaMid {
+  id: number;
+  slug: string;
+  id_aliado?: number;
+  aliado: string;
+  tipo: string;
+  logo_texto: string;
+  logo_fondo: string;
+  categoria: string;
+  descripcion: string;
+  promesa: string;
+  meta: string;
+  familia: string;
+  beneficio: string;
+  tasa_desde: number;
+  monto_minimo?: number;
+  monto_maximo: number;
+  plazo_minimo?: number;
+  plazo_maximo: number;
+  aprobacion: string;
+  calificacion: number;
+  usuarios: number;
+  compatibilidad: number;
+  destacada: boolean;
+  cta_primaria: string;
+  cta_secundaria: string;
+  etiquetas: string[] | null;
+  perfiles: string[] | null;
+  requisitos: string[] | null;
+  caracteristicas?: string[] | null;
+  tarifas?: Tarifa[] | null;
+}
+
+interface FichaMid extends OfertaMid {
+  documentos: string[] | null;
+  preguntas: Pregunta[] | null;
+  relacionadas: { id: number; categoria: string; tasa_desde: number }[] | null;
+}
+
+interface SolicitudAdminMid {
+  id_solicitud: number;
+  radicado: string;
+  nombre: string;
+  correo: string;
+  producto: string;
+  aliado: string;
+  monto: number;
+  plazo_meses: number;
+  fecha: string;
+  estado: string;
+}
+
+interface MiSolicitudMid {
+  id_solicitud: number;
+  radicado: string;
+  producto: string;
+  monto: number;
+  plazo_meses: number;
+  estado: string;
+  fecha_solicitud: string;
+}
+
+// Traducción de los códigos de la base a los textos de pantalla
+const TIPOS: Record<string, TipoAliado> = { banco: 'Bancos', fintech: 'Fintech', comercio: 'Comercio' };
+const FAMILIAS: Record<string, FamiliaProducto> = {
+  creditos: 'Créditos',
+  tarjetas: 'Tarjetas',
+  ahorro: 'Ahorro',
+  comercios: 'Comercios',
+};
+/** Al revés: 'Créditos' → 'creditos', para mandarle al MID el código de la base. */
+const CODIGO_FAMILIA = Object.fromEntries(
+  Object.entries(FAMILIAS).map(([codigo, texto]) => [texto, codigo])
+) as Record<FamiliaProducto, string>;
+const BENEFICIOS: Record<string, Beneficio> = {
+  cero_interes: '0% Interés',
+  cashback: 'Cashback',
+  sin_cuota: 'Sin Cuota',
+};
+const ESTADOS: Record<string, string> = {
+  nuevo: 'En estudio',
+  contactado: 'Contactado',
+  en_proceso: 'En proceso',
+  aprobado: 'Aprobado',
+  rechazado: 'Rechazado',
+  cancelado: 'Cancelado',
+};
+
+// La base no guarda fotos: cada producto conocido usa una de assets/
+const IMAGENES: Record<string, string> = {
+  'banco-andino': 'libre-inversion',
+  'fintech-luz': 'tarjeta-digital',
+  'microcredito-ya': 'microcredito',
+  'banco-verde': 'hipotecario',
+  'tienda-mas': 'compra-ahora',
+  'ahorro-plus': 'ahorro',
+};
+
+const LOGO_POR_DEFECTO = 'linear-gradient(135deg, #0f3d22 0%, #0a5c28 100%)';
+
+/** Iniciales del aliado para el logo cuando la base no trae uno. */
+function iniciales(nombre: string): string {
+  return nombre
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((palabra) => palabra[0].toUpperCase())
+    .join('');
+}
+
+/** "2026-11-25" o "2026-11-25T14:21:23Z" → "25 de noviembre de 2026" */
+function fechaLarga(texto: string): string {
+  const [anio, mes, dia] = texto.slice(0, 10).split('-').map(Number);
+  if (!anio || !mes || !dia) return texto;
+  return new Date(anio, mes - 1, dia).toLocaleDateString('es-CO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+/** Plazos en meses que se ofrecen como botones, dentro del rango del producto. */
+export function plazosPosibles(minimo: number, maximo: number): number[] {
+  if (maximo <= 0) return [];
+  const plazos = [3, 6, 12, 18, 24, 36, 48, 60, 84, 120, 240, 360].filter(
+    (p) => p >= minimo && p <= maximo
+  );
+  if (!plazos.includes(maximo)) plazos.push(maximo);
+  return plazos;
+}
+
+function aOferta(o: OfertaMid): Oferta {
+  const imagen = IMAGENES[o.slug];
+  return {
+    id: o.id,
+    slug: o.slug,
+    idAliado: o.id_aliado ?? 0,
+    aliado: o.aliado,
+    descripcion: o.descripcion,
+    meta: o.meta,
+    logoBg: o.logo_fondo || LOGO_POR_DEFECTO,
+    logoText: o.logo_texto || iniciales(o.aliado),
+    imagen: imagen ? `assets/img/alianzas/${imagen}.webp` : undefined,
+    ctaPrimaria: o.cta_primaria || 'Solicitar',
+    ctaSecundaria: o.cta_secundaria || 'Conocer el producto',
+    tipo: TIPOS[o.tipo] ?? 'Bancos',
+    familia: FAMILIAS[o.familia] ?? 'Créditos',
+    beneficio: BENEFICIOS[o.beneficio] ?? null,
+    perfiles: (o.perfiles ?? []) as Perfil[],
+    categoria: o.categoria,
+    promesa: o.promesa || o.categoria,
+    tasaDesde: o.tasa_desde,
+    montoMinimo: o.monto_minimo ?? 0,
+    montoMaximo: o.monto_maximo,
+    plazoMinimo: o.plazo_minimo ?? 0,
+    plazoMaximo: o.plazo_maximo,
+    aprobacion: o.aprobacion,
+    calificacion: o.calificacion,
+    usuarios: o.usuarios,
+    compatibilidad: o.compatibilidad,
+    destacada: o.destacada,
+    etiquetas: o.etiquetas ?? [],
+    requisitos: o.requisitos ?? [],
+    caracteristicas: o.caracteristicas ?? [],
+    tarifas: o.tarifas ?? [],
+  };
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AlianzasService {
-  // Cambia cuando se radica una solicitud, para refrescar las vistas.
-  readonly version = signal(0);
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
   private notificaciones = inject(NotificacionesService);
 
-  solicitudes: Solicitud[] = [];
+  /** Catálogo de productos de los aliados (GET /ofertas). */
+  readonly ofertas = signal<Oferta[]>([]);
+  readonly cargando = signal(false);
+  readonly error = signal('');
 
-  // TODO: reemplazar por llamadas HTTP al backend real cuando esté listo.
-  ofertas: Oferta[] = [
-    {
-      id: 'banco-andino',
-      aliado: 'Banco Andino',
-      descripcion:
-        'Crédito de libre inversión con hasta 2 puntos menos de tasa si completas los módulos básicos de educación financiera.',
-      promesa: 'Baja tu tasa estudiando',
-      meta: 'Vence en 7 días · 2.100 solicitudes · ID 8866',
-      logoBg: 'linear-gradient(135deg, #0f3d22 0%, #0a5c28 100%)',
-      logoText: 'BA',
-      imagen: 'assets/img/alianzas/libre-inversion.webp',
-      ctaPrimaria: 'Solicitar crédito',
-      ctaSecundaria: 'Conocer el producto',
-      tipo: 'Bancos',
-      familia: 'Créditos',
-      beneficio: '0% Interés',
-      perfiles: ['Score Alto'],
-      categoria: 'Crédito de libre inversión',
-      tasaDesde: 14.9,
-      montoMaximo: 80_000_000,
-      plazoMaximo: 60,
-      aprobacion: '24 horas',
-      calificacion: 4.8,
-      usuarios: 2100,
-      compatibilidad: 92,
-      destacada: true,
-      etiquetas: ['Tasa preferencial', 'Sin codeudor', 'Desembolso en 24 h'],
-      requisitos: [
-        'Ingresos desde 2 SMMLV',
-        'Puntaje crediticio sobre 700',
-        'Módulos básicos de FinanceUp completados',
-      ],
-      caracteristicas: [
-        'Desembolso a tu cuenta de ahorros en 24 horas hábiles',
-        'Puedes abonar a capital cuando quieras, sin penalidad',
-        'La tasa baja 0,5 puntos por cada módulo que termines, hasta 2 puntos',
-      ],
-      documentos: DOCUMENTOS_BASE,
-      tarifas: [
-        { concepto: 'Tasa de interés', valor: 'Desde 14,9% E.A.' },
-        { concepto: 'Estudio de crédito', valor: 'Sin costo' },
-        { concepto: 'Seguro de vida deudor', valor: '0,08% mensual sobre el saldo' },
-        { concepto: 'Abono extraordinario a capital', valor: 'Sin penalidad' },
-      ],
-      preguntas: [
-        {
-          pregunta: '¿Cuándo se aplica el descuento en la tasa?',
-          respuesta:
-            'Al cierre de cada mes revisamos tus módulos completados y ajustamos la tasa de la siguiente cuota. El descuento máximo acumulado es de 2 puntos.',
-        },
-        {
-          pregunta: '¿Puedo pedirlo si ya tengo otro crédito?',
-          respuesta:
-            'Sí, siempre que la suma de tus cuotas no supere el 40% de tu ingreso mensual comprobable.',
-        },
-      ],
-    },
-    {
-      id: 'fintech-luz',
-      aliado: 'Fintech Luz',
-      descripcion:
-        'Tarjeta de crédito digital con 5% de cashback en mercado y transporte, y cuota de manejo en cero durante los primeros 6 meses.',
-      promesa: 'Cashback en lo que compras cada semana',
-      meta: 'Recomendada · 8.450 solicitudes · ID 2288',
-      logoBg: 'linear-gradient(135deg, #1db954 0%, #0a5c28 100%)',
-      logoText: 'FL',
-      imagen: 'assets/img/alianzas/tarjeta-digital.webp',
-      ctaPrimaria: 'Solicitar tarjeta',
-      ctaSecundaria: 'Conocer el producto',
-      tipo: 'Fintech',
-      familia: 'Tarjetas',
-      beneficio: 'Cashback',
-      perfiles: ['Score Alto', 'Historial Nuevo'],
-      categoria: 'Tarjeta de crédito digital',
-      tasaDesde: 18.5,
-      montoMaximo: 12_000_000,
-      plazoMaximo: 36,
-      aprobacion: '10 minutos',
-      calificacion: 4.6,
-      usuarios: 8450,
-      compatibilidad: 87,
-      destacada: true,
-      etiquetas: ['100% digital', 'Cashback 5%', 'Sin cuota 6 meses'],
-      requisitos: [
-        'Ser mayor de 18 años',
-        'Cédula colombiana vigente',
-        'Selfie de verificación de identidad',
-      ],
-      caracteristicas: [
-        'Tarjeta virtual activa apenas te aprueban, la física llega en 5 días',
-        'Congela y descongela la tarjeta desde la app cuando quieras',
-        'El cashback se abona el primer día hábil del mes siguiente',
-      ],
-      documentos: ['Cédula de ciudadanía al día', 'Selfie de verificación'],
-      tarifas: [
-        { concepto: 'Tasa de interés', valor: '18,5% E.A.' },
-        { concepto: 'Cuota de manejo', valor: '$0 los primeros 6 meses, luego $19.900' },
-        { concepto: 'Avance en cajero', valor: '4,5% del monto, mínimo $9.500' },
-        { concepto: 'Reposición por pérdida', valor: '$28.000' },
-      ],
-      preguntas: [
-        {
-          pregunta: '¿Sobre qué compras aplica el 5%?',
-          respuesta:
-            'Supermercados, transporte y estaciones de servicio, con tope de $120.000 de cashback al mes.',
-        },
-        {
-          pregunta: '¿Qué pasa después de los 6 meses sin cuota de manejo?',
-          respuesta:
-            'La cuota queda en $19.900 mensuales y se exonera cualquier mes en que factures más de $800.000.',
-        },
-      ],
-    },
-    {
-      id: 'microcredito-ya',
-      aliado: 'MicroCrédito Ya',
-      descripcion:
-        'Préstamos pequeños para construir historial crediticio desde cero, con cuotas quincenales o mensuales.',
-      promesa: 'Tu primer crédito, sin historial previo',
-      meta: 'Cupo abierto · 1.300 solicitudes · ID 6795',
-      logoBg: 'linear-gradient(135deg, #3f4a44 0%, #1b2320 100%)',
-      logoText: 'MC',
-      imagen: 'assets/img/alianzas/microcredito.webp',
-      ctaPrimaria: 'Solicitar préstamo',
-      ctaSecundaria: 'Conocer el producto',
-      tipo: 'Fintech',
-      familia: 'Créditos',
-      beneficio: 'Sin Cuota',
-      perfiles: ['Historial Nuevo'],
-      categoria: 'Microcrédito',
-      tasaDesde: 22,
-      montoMaximo: 3_000_000,
-      plazoMaximo: 18,
-      aprobacion: '1 hora',
-      calificacion: 4.3,
-      usuarios: 1300,
-      compatibilidad: 74,
-      destacada: false,
-      etiquetas: ['Sin historial', 'Cuotas quincenales'],
-      requisitos: ['Documento de identidad vigente', 'Cuenta bancaria a tu nombre'],
-      caracteristicas: [
-        'Empiezas con $300.000 y el cupo sube cada vez que pagas a tiempo',
-        'Eliges cuotas quincenales o mensuales según cómo te paguen',
-        'Reportamos tu buen comportamiento a centrales de riesgo',
-      ],
-      documentos: ['Cédula de ciudadanía al día', 'Certificación de cuenta bancaria'],
-      tarifas: [
-        { concepto: 'Tasa de interés', valor: '22% E.A.' },
-        { concepto: 'Administración por desembolso', valor: '$12.000' },
-        { concepto: 'Pago tardío', valor: '$8.500 por cuota vencida' },
-      ],
-      preguntas: [
-        {
-          pregunta: '¿Cada cuánto sube mi cupo?',
-          respuesta:
-            'Después de tres cuotas pagadas a tiempo revisamos tu cupo y puede subir hasta un 40%.',
-        },
-      ],
-    },
-    {
-      id: 'banco-verde',
-      aliado: 'Banco Verde',
-      descripcion:
-        'Crédito hipotecario con tasa fija durante toda la vigencia y un asesor asignado hasta la escritura.',
-      promesa: 'Tasa fija de principio a fin',
-      meta: 'Vence en 21 días · 940 solicitudes · ID 4410',
-      logoBg: 'linear-gradient(135deg, #0a5c28 0%, #17a34a 100%)',
-      logoText: 'BV',
-      imagen: 'assets/img/alianzas/hipotecario.webp',
-      ctaPrimaria: 'Solicitar crédito',
-      ctaSecundaria: 'Conocer el producto',
-      tipo: 'Bancos',
-      familia: 'Créditos',
-      beneficio: '0% Interés',
-      perfiles: ['Score Alto'],
-      categoria: 'Crédito hipotecario',
-      tasaDesde: 11.4,
-      montoMaximo: 350_000_000,
-      plazoMaximo: 240,
-      aprobacion: '5 días hábiles',
-      calificacion: 4.7,
-      usuarios: 940,
-      compatibilidad: 81,
-      destacada: false,
-      etiquetas: ['Tasa fija', 'Asesor asignado', 'Compatible con subsidio'],
-      requisitos: [
-        'Ingresos desde 4 SMMLV',
-        'Cuota inicial del 20% del valor del inmueble',
-        'Antigüedad laboral de un año',
-      ],
-      caracteristicas: [
-        'Financiamos hasta el 80% del valor comercial del inmueble',
-        'La tasa no cambia aunque suba la del mercado',
-        'Un asesor te acompaña desde el avalúo hasta la firma de escritura',
-      ],
-      documentos: [
-        ...DOCUMENTOS_BASE,
-        'Promesa de compraventa firmada',
-        'Declaración de renta del último año',
-      ],
-      tarifas: [
-        { concepto: 'Tasa de interés', valor: 'Desde 11,4% E.A. fija' },
-        { concepto: 'Avalúo del inmueble', valor: 'Desde $380.000' },
-        { concepto: 'Estudio de títulos', valor: '$420.000' },
-        { concepto: 'Seguro de incendio y terremoto', valor: 'Según valor asegurado' },
-      ],
-      preguntas: [
-        {
-          pregunta: '¿Puedo usar el subsidio de vivienda?',
-          respuesta:
-            'Sí. El subsidio se aplica como parte de la cuota inicial y no reduce el monto máximo que podemos financiarte.',
-        },
-        {
-          pregunta: '¿Cuánto tarda el desembolso?',
-          respuesta:
-            'La aprobación toma 5 días hábiles y el desembolso ocurre el día de la firma de escritura.',
-        },
-      ],
-    },
-    {
-      id: 'tienda-mas',
-      aliado: 'Tienda Más',
-      descripcion:
-        'Compra ahora y paga después sin intereses en más de 300 comercios aliados en Colombia.',
-      promesa: 'Difiere sin intereses en comercios aliados',
-      meta: 'Vigente todo el año · 5.700 activaciones · ID 1902',
-      logoBg: 'linear-gradient(135deg, #17a34a 0%, #0f3d22 100%)',
-      logoText: 'TM',
-      imagen: 'assets/img/alianzas/compra-ahora.webp',
-      ctaPrimaria: 'Activar el cupo',
-      ctaSecundaria: 'Conocer el producto',
-      tipo: 'Comercio',
-      familia: 'Comercios',
-      beneficio: '0% Interés',
-      perfiles: ['Score Alto', 'Historial Nuevo'],
-      categoria: 'Compra ahora, paga después',
-      tasaDesde: 0,
-      montoMaximo: 5_000_000,
-      plazoMaximo: 12,
-      aprobacion: 'Inmediata',
-      calificacion: 4.5,
-      usuarios: 5700,
-      compatibilidad: 78,
-      destacada: false,
-      etiquetas: ['0% interés', '300 comercios', 'Aprobación inmediata'],
-      requisitos: ['Cuenta FinanceUp activa', 'Sin moras vigentes'],
-      caracteristicas: [
-        'Difiere a 3, 6 o 12 cuotas sin interés en comercios de la red',
-        'El cupo se libera de nuevo a medida que pagas',
-        'Pagas desde la app, sin ir al comercio',
-      ],
-      documentos: ['Cédula de ciudadanía al día'],
-      tarifas: [
-        { concepto: 'Interés corriente', valor: '0% en comercios aliados' },
-        { concepto: 'Cuota de manejo', valor: 'Sin costo' },
-        { concepto: 'Mora', valor: 'Tasa máxima legal vigente' },
-      ],
-      preguntas: [
-        {
-          pregunta: '¿Dónde puedo usar el cupo?',
-          respuesta:
-            'En los comercios marcados con el sello Tienda Más dentro de la app. La lista se actualiza cada mes.',
-        },
-      ],
-    },
-    {
-      id: 'ahorro-plus',
-      aliado: 'Ahorro Plus',
-      descripcion:
-        'Cuenta de ahorro con rendimiento diario y devolución del 3% sobre tus compras recurrentes.',
-      promesa: 'Tu saldo rinde todos los días',
-      meta: 'Nuevo aliado · 620 aperturas · ID 7731',
-      logoBg: 'linear-gradient(135deg, #6b7c72 0%, #1b2320 100%)',
-      logoText: 'AP',
-      imagen: 'assets/img/alianzas/ahorro.webp',
-      ctaPrimaria: 'Abrir la cuenta',
-      ctaSecundaria: 'Conocer el producto',
-      tipo: 'Comercio',
-      familia: 'Ahorro',
-      beneficio: 'Cashback',
-      perfiles: ['Historial Nuevo'],
-      categoria: 'Cuenta de ahorro',
-      tasaDesde: 0,
-      montoMaximo: 0,
-      plazoMaximo: 0,
-      aprobacion: '15 minutos',
-      calificacion: 4.4,
-      usuarios: 620,
-      compatibilidad: 69,
-      destacada: false,
-      etiquetas: ['Rendimiento diario', 'Sin cuota de manejo', 'Cashback 3%'],
-      requisitos: ['Documento de identidad vigente', 'Correo verificado'],
-      caracteristicas: [
-        'Los rendimientos se abonan cada día sobre el saldo disponible',
-        'Sin monto mínimo de apertura ni saldo mínimo',
-        'Retiras sin costo en la red de cajeros aliados',
-      ],
-      documentos: ['Cédula de ciudadanía al día'],
-      tarifas: [
-        { concepto: 'Rendimiento', valor: '9,2% E.A. sobre el saldo diario' },
-        { concepto: 'Cuota de manejo', valor: 'Sin costo' },
-        { concepto: 'Retiro en cajeros de otra red', valor: '$7.600' },
-        { concepto: 'Cuatro por mil', valor: 'Exenta hasta 350 UVT al mes' },
-      ],
-      preguntas: [
-        {
-          pregunta: '¿El rendimiento es fijo?',
-          respuesta:
-            'Es variable y sigue la tasa del mercado. Te avisamos por la app cada vez que cambia.',
-        },
-      ],
-    },
-  ];
+  /** Bancos y comercios para el formulario del admin (GET /admin/aliados). */
+  readonly aliados = signal<Aliado[]>([]);
 
-  buscarOferta(id: string): Oferta | undefined {
-    return this.ofertas.find((o) => o.id === id);
+  /** Solicitudes que ve el admin (GET /admin/solicitudes-credito). */
+  readonly solicitudes = signal<Solicitud[]>([]);
+
+  /** Solicitudes del usuario con sesión (GET /solicitud-credito/usuario/:id). */
+  readonly misSolicitudes = signal<MiSolicitud[]>([]);
+  /** Error propio de esa lista, para no tapar el catálogo si solo falla esto. */
+  readonly errorSolicitudes = signal('');
+
+  cargarOfertas(): void {
+    this.cargando.set(true);
+    this.error.set('');
+
+    this.http.get<OfertaMid[]>(`${API_URL}/ofertas`).subscribe({
+      next: (ofertas) => {
+        this.ofertas.set(ofertas.map(aOferta));
+        this.cargando.set(false);
+      },
+      error: (error) => {
+        this.error.set(mensajeDeError(error));
+        this.cargando.set(false);
+      },
+    });
   }
 
-  ofertasDeFamilia(familia: FamiliaProducto): Oferta[] {
-    return this.ofertas.filter((o) => o.familia === familia);
+  /** Ficha de un producto con todo lo que muestra la página de detalle. */
+  obtenerFicha(id: number): Observable<FichaOferta> {
+    return this.http.get<FichaMid>(`${API_URL}/ofertas/${id}`).pipe(
+      map((f) => ({
+        ...aOferta(f),
+        documentos: f.documentos ?? [],
+        preguntas: f.preguntas ?? [],
+        relacionadas: (f.relacionadas ?? []).map((r) => ({
+          id: r.id,
+          categoria: r.categoria,
+          tasaDesde: r.tasa_desde,
+        })),
+      }))
+    );
   }
 
-  /** Radica la solicitud y devuelve el número con el que el usuario hace seguimiento. */
-  radicarSolicitud(datos: Omit<Solicitud, 'radicado' | 'fecha' | 'estado'>): Solicitud {
-    const solicitud: Solicitud = {
-      ...datos,
-      radicado: `SOL-${Math.floor(100000 + Math.random() * 899999)}`,
-      fecha: new Date().toLocaleDateString('es-CO', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-      }),
-      estado: 'En estudio',
+  /** Envía la solicitud de crédito del usuario. El MID valida monto, plazo y datos. */
+  radicarSolicitud(datos: DatosSolicitud): Observable<SolicitudRadicada> {
+    const cuerpo = {
+      id_usuario: this.authService.obtenerUsuario()?.id,
+      id_producto: datos.idProducto,
+      monto: datos.monto,
+      plazo_meses: datos.plazoMeses,
+      nombre: datos.nombre,
+      documento: datos.documento,
+      correo: datos.correo,
+      celular: datos.celular,
+      ingresos: datos.ingresos,
+      acepta_terminos: datos.aceptaTerminos,
     };
 
-    this.solicitudes.push(solicitud);
-    this.version.update((v) => v + 1);
-    this.notificaciones.agregar({
-      categoria: 'alianzas',
-      titulo: 'Nueva solicitud de alianza',
-      detalle: `${solicitud.nombre} solicitó ${solicitud.producto} (${solicitud.aliado}).`,
-      ruta: '/admin/alianzas',
-      nivel: 'info',
-    });
-    return solicitud;
+    return this.http.post<any>(`${API_URL}/solicitud-credito`, cuerpo).pipe(
+      map((r) => {
+        this.notificaciones.agregar({
+          categoria: 'alianzas',
+          titulo: 'Nueva solicitud de alianza',
+          detalle: `${datos.nombre} solicitó ${r.producto}.`,
+          ruta: '/admin/alianzas',
+          nivel: 'info',
+        });
+        return {
+          idSolicitud: r.id_solicitud,
+          radicado: r.radicado,
+          producto: r.producto,
+          monto: r.monto,
+          plazoMeses: r.plazo_meses,
+          cuotaEstimada: r.cuota_estimada,
+          estado: r.estado,
+          asesor: r.asesor,
+        };
+      })
+    );
   }
 
-  agregarOferta(oferta: Oferta): void {
-    this.ofertas.push(oferta);
-  }
-
-  editarOferta(id: string, cambios: Partial<Oferta>): void {
-    const oferta = this.buscarOferta(id);
-    if (oferta) {
-      Object.assign(oferta, cambios);
+  /** Carga las solicitudes que radicó el usuario. Sin sesión no pide nada. */
+  cargarMisSolicitudes(): void {
+    const idUsuario = this.authService.obtenerUsuario()?.id;
+    if (!idUsuario) {
+      this.misSolicitudes.set([]);
+      return;
     }
+
+    this.errorSolicitudes.set('');
+    this.http.get<MiSolicitudMid[]>(`${API_URL}/solicitud-credito/usuario/${idUsuario}`).subscribe({
+      next: (lista) =>
+        this.misSolicitudes.set(
+          lista.map((s) => ({
+            idSolicitud: s.id_solicitud,
+            radicado: s.radicado,
+            producto: s.producto,
+            monto: s.monto,
+            plazoMeses: s.plazo_meses,
+            estado: ESTADOS[s.estado] ?? s.estado,
+            fecha: fechaLarga(s.fecha_solicitud),
+          }))
+        ),
+      error: (error) => this.errorSolicitudes.set(mensajeDeError(error)),
+    });
   }
 
-  eliminarOferta(id: string): void {
-    this.ofertas = this.ofertas.filter((o) => o.id !== id);
+  /** Carga las solicitudes de crédito para el panel de administración. */
+  cargarSolicitudesAdmin(): void {
+    this.http.get<SolicitudAdminMid[]>(`${API_URL}/admin/solicitudes-credito`).subscribe({
+      next: (lista) =>
+        this.solicitudes.set(
+          lista.map((s) => ({
+            idSolicitud: s.id_solicitud,
+            radicado: s.radicado,
+            nombre: s.nombre,
+            correo: s.correo,
+            producto: s.producto,
+            aliado: s.aliado,
+            monto: s.monto,
+            plazoMeses: s.plazo_meses,
+            fecha: fechaLarga(s.fecha),
+            estado: ESTADOS[s.estado] ?? s.estado,
+          }))
+        ),
+      error: (error) => this.error.set(mensajeDeError(error)),
+    });
+  }
+
+  // ---- Administración de ofertas (solo admin) ----
+
+  cargarAliados(): void {
+    this.http.get<{ id: number; nombre: string; tipo: string }[]>(`${API_URL}/admin/aliados`).subscribe({
+      next: (lista) =>
+        this.aliados.set(lista.map((a) => ({ id: a.id, nombre: a.nombre, tipo: TIPOS[a.tipo] ?? 'Bancos' }))),
+      error: (error) => this.error.set(mensajeDeError(error)),
+    });
+  }
+
+  /** Crea la oferta, o la edita si llega el id. Si el MID la guarda, se recarga la vitrina. */
+  guardarOferta(datos: DatosOferta, id?: number): Observable<unknown> {
+    const cuerpo = {
+      id_aliado: datos.idAliado,
+      categoria: datos.categoria.trim(),
+      descripcion: datos.descripcion.trim(),
+      familia: CODIGO_FAMILIA[datos.familia],
+      tasa_desde: datos.tasaDesde,
+      monto_minimo: datos.montoMinimo,
+      monto_maximo: datos.montoMaximo,
+      plazo_minimo: datos.plazoMinimo,
+      plazo_maximo: datos.plazoMaximo,
+      aprobacion: datos.aprobacion.trim(),
+      meta: datos.meta.trim(),
+      cta_primaria: datos.ctaPrimaria.trim(),
+      cta_secundaria: datos.ctaSecundaria.trim(),
+      destacada: datos.destacada,
+    };
+
+    const peticion = id
+      ? this.http.put(`${API_URL}/admin/ofertas/${id}`, cuerpo)
+      : this.http.post(`${API_URL}/admin/ofertas`, cuerpo);
+
+    return peticion.pipe(tap(() => this.cargarOfertas()));
+  }
+
+  /** Quita la oferta de la vitrina. El MID no la borra: la deja inactiva. */
+  retirarOferta(id: number): Observable<unknown> {
+    return this.http.delete(`${API_URL}/admin/ofertas/${id}`).pipe(tap(() => this.cargarOfertas()));
   }
 }

@@ -1,5 +1,7 @@
-import { Component, DestroyRef, WritableSignal, computed, inject, signal } from '@angular/core';
+import { Component, WritableSignal, computed, inject, signal } from '@angular/core';
+import { Observable } from 'rxjs';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { mensajeDeError } from '../../../services/api';
 import { AuthService, EstadoUsuario, Rol } from '../../../services/auth';
 import {
   ETIQUETA_ACCION,
@@ -19,7 +21,7 @@ import { diasDesde, formatearFecha, formatearFechaHora, parsearFecha, tiempoRela
 import { exportarCsv, exportarExcel } from '../../../shared/utils/exportar';
 import { enlazarConShell } from '../../../shared/utils/lista';
 
-type TipoModal = 'perfil' | 'actividad' | 'rol' | 'bloquear' | 'reset' | 'eliminar' | 'formulario';
+type TipoModal = 'perfil' | 'actividad' | 'rol' | 'bloquear' | 'reset' | 'formulario';
 type FiltroEstado = EstadoUsuario | '';
 type FiltroRegistro = '' | '7' | '30' | '90' | 'rango';
 type FiltroActividad = '' | 'reciente7' | 'reciente30' | 'inactivo30' | 'nunca';
@@ -66,7 +68,6 @@ export class AdminUsuariosComponent {
     { valor: '', etiqueta: 'Todos' },
     { valor: 'activo', etiqueta: 'Activos' },
     { valor: 'bloqueado', etiqueta: 'Bloqueados' },
-    { valor: 'pendiente', etiqueta: 'Pendientes' },
     { valor: 'suspendido', etiqueta: 'Suspendidos' },
   ];
   readonly accionesExportar: AccionMenu[] = [
@@ -79,8 +80,13 @@ export class AdminUsuariosComponent {
   readonly motivoMin = MOTIVO_MIN_CARACTERES;
   readonly adminEmail = this.authService.obtenerUsuario()?.email ?? '';
 
-  usuarios = signal<UsuarioLista[]>(this.usuariosService.listar());
-  cargando = signal(true);
+  usuarios = computed(() => this.usuariosService.listar());
+  cargando = this.usuariosService.cargando;
+  errorCarga = this.usuariosService.error;
+  /** Mientras el MID responde una acción, el botón del modal queda deshabilitado. */
+  enviando = signal(false);
+  /** El esqueleto solo sale en la primera carga; al recargar tras una acción la tabla se queda. */
+  mostrarEsqueleto = computed(() => this.cargando() && this.usuarios().length === 0);
 
   busqueda = signal('');
   filtroRol = signal<Rol | ''>('');
@@ -153,7 +159,6 @@ export class AdminUsuariosComponent {
       '': base.length,
       activo: base.filter((u) => u.estado === 'activo').length,
       bloqueado: base.filter((u) => u.estado === 'bloqueado').length,
-      pendiente: base.filter((u) => u.estado === 'pendiente').length,
       suspendido: base.filter((u) => u.estado === 'suspendido').length,
     };
   });
@@ -206,10 +211,11 @@ export class AdminUsuariosComponent {
       },
       () => this.abrirModal('formulario')
     );
+  }
 
-    // TODO: al conectar el backend, esta espera se reemplaza por el estado real de la petición HTTP.
-    const temporizador = setTimeout(() => this.cargando.set(false), 700);
-    inject(DestroyRef).onDestroy(() => clearTimeout(temporizador));
+  /** El shell del admin ya pidió la lista; esto es para "Intentar de nuevo". */
+  recargar(): void {
+    this.usuariosService.cargar();
   }
 
   nombreCompleto(usuario: UsuarioLista): string {
@@ -288,10 +294,7 @@ export class AdminUsuariosComponent {
       acciones.push({ id: 'bloquear', etiqueta: 'Bloquear', icono: 'ban', separador: !reactivable, deshabilitado: propia });
     }
 
-    acciones.push(
-      { id: 'reset', etiqueta: 'Restablecer contraseña', icono: 'key', deshabilitado: propia },
-      { id: 'eliminar', etiqueta: 'Eliminar', icono: 'trash', peligro: true, separador: true, deshabilitado: propia }
-    );
+    acciones.push({ id: 'reset', etiqueta: 'Restablecer contraseña', icono: 'key', deshabilitado: propia });
     return acciones;
   }
 
@@ -300,7 +303,6 @@ export class AdminUsuariosComponent {
       case 'perfil':
       case 'actividad':
       case 'reset':
-      case 'eliminar':
         this.abrirModal(id, usuario);
         break;
       case 'editar':
@@ -364,27 +366,10 @@ export class AdminUsuariosComponent {
 
     const valores = this.formulario.getRawValue();
     const edicion = this.modal()?.usuario;
-    const resultado = edicion
-      ? this.usuariosService.editar(edicion.email, valores, this.adminEmail)
-      : this.usuariosService.crear(valores, this.adminEmail);
-
-    if (!resultado.exito) {
-      console.log('[Admin Usuarios] No se pudo guardar el usuario:', resultado.mensaje);
-      this.errorModal.set(resultado.mensaje ?? 'No se pudo guardar el usuario.');
-      return;
-    }
-
-    // Se muestra el usuario sin la contraseña.
-    console.log(edicion ? '[Admin Usuarios] Usuario actualizado:' : '[Admin Usuarios] Usuario creado:', {
-      nombre: valores.nombre,
-      apellido: valores.apellido,
-      email: valores.email,
-      rol: valores.rol,
-      telefono: valores.telefono,
-      documento: valores.documento,
-    });
-    this.toastService.success(edicion ? 'Usuario actualizado correctamente.' : 'Usuario creado correctamente.');
-    this.finalizar();
+    this.ejecutar(
+      edicion ? this.usuariosService.editar(edicion, valores) : this.usuariosService.crear(valores),
+      edicion ? 'Usuario actualizado correctamente.' : 'Usuario creado correctamente.'
+    );
   }
 
   guardarRol(): void {
@@ -392,8 +377,8 @@ export class AdminUsuariosComponent {
     if (!usuario) return;
 
     this.ejecutar(
-      this.usuariosService.cambiarRol(usuario.email, this.rolSeleccionado(), this.adminEmail),
-      `Rol de ${this.nombreCompleto(usuario)} actualizado.`
+      this.usuariosService.cambiarRol(usuario, this.rolSeleccionado()),
+      `Rol de ${this.nombreCompleto(usuario)} actualizado. Debe iniciar sesión de nuevo.`
     );
   }
 
@@ -401,20 +386,21 @@ export class AdminUsuariosComponent {
     const usuario = this.modal()?.usuario;
     if (!usuario) return;
 
+    if (this.motivo().trim().length < MOTIVO_MIN_CARACTERES) {
+      this.errorModal.set(`Escribe el motivo del bloqueo (mínimo ${MOTIVO_MIN_CARACTERES} caracteres).`);
+      return;
+    }
     this.ejecutar(
-      this.usuariosService.bloquear(usuario.email, this.motivo(), this.adminEmail),
+      this.usuariosService.bloquear(usuario, this.motivo()),
       `Cuenta de ${this.nombreCompleto(usuario)} bloqueada.`
     );
   }
 
   desbloquear(usuario: UsuarioLista): void {
-    const resultado = this.usuariosService.desbloquear(usuario.email, this.adminEmail);
-    if (!resultado.exito) {
-      this.toastService.error(resultado.mensaje ?? 'No se pudo desbloquear la cuenta.');
-      return;
-    }
-    this.toastService.success(`Cuenta de ${this.nombreCompleto(usuario)} reactivada.`);
-    this.refrescar();
+    this.usuariosService.desbloquear(usuario).subscribe({
+      next: () => this.toastService.success(`Cuenta de ${this.nombreCompleto(usuario)} reactivada.`),
+      error: (error) => this.toastService.error(mensajeDeError(error)),
+    });
   }
 
   confirmarReset(): void {
@@ -422,18 +408,8 @@ export class AdminUsuariosComponent {
     if (!usuario) return;
 
     this.ejecutar(
-      this.usuariosService.restablecerPassword(usuario.email, this.adminEmail),
-      `Enlace de restablecimiento enviado a ${usuario.email}.`
-    );
-  }
-
-  confirmarEliminacion(): void {
-    const usuario = this.modal()?.usuario;
-    if (!usuario) return;
-
-    this.ejecutar(
-      this.usuariosService.eliminar(usuario.email, this.adminEmail),
-      `Cuenta de ${this.nombreCompleto(usuario)} eliminada.`
+      this.usuariosService.restablecerPassword(usuario),
+      `Le enviamos a ${usuario.email} un código para cambiar su contraseña.`
     );
   }
 
@@ -462,24 +438,22 @@ export class AdminUsuariosComponent {
     this.toastService.success(`Se exportaron ${filas.length} usuarios.`);
   }
 
-  // Lo usan cambiar rol, bloquear, restablecer contraseña y eliminar.
-  private ejecutar(resultado: { exito: boolean; mensaje?: string }, exito: string): void {
-    if (!resultado.exito) {
-      console.log('[Admin Usuarios] No se pudo completar la acción:', resultado.mensaje);
-      this.errorModal.set(resultado.mensaje ?? 'No se pudo completar la acción.');
-      return;
-    }
-    console.log('[Admin Usuarios]', exito);
-    this.toastService.success(exito);
-    this.finalizar();
-  }
+  // Lo usan el formulario, cambiar rol, bloquear y restablecer contraseña.
+  // El modal sigue abierto si el MID rechaza la acción, con su mensaje.
+  private ejecutar(peticion: Observable<unknown>, exito: string): void {
+    this.errorModal.set('');
+    this.enviando.set(true);
 
-  private finalizar(): void {
-    this.cerrarModal();
-    this.refrescar();
-  }
-
-  private refrescar(): void {
-    this.usuarios.set(this.usuariosService.listar());
+    peticion.subscribe({
+      next: () => {
+        this.enviando.set(false);
+        this.toastService.success(exito);
+        this.cerrarModal();
+      },
+      error: (error) => {
+        this.enviando.set(false);
+        this.errorModal.set(mensajeDeError(error));
+      },
+    });
   }
 }

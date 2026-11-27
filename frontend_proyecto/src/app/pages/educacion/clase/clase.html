@@ -1,5 +1,15 @@
-@if (curso(); as curso) {
-  @if (leccion(); as leccion) {
+@if (errorCarga()) {
+  <div class="sala sala--vacia" role="alert">
+    <h1>No pudimos abrir esta clase</h1>
+    <p>{{ errorCarga() }}</p>
+    <button type="button" class="btn btn--play" (click)="volverAlCurso()">
+      Ver el temario
+    </button>
+  </div>
+} @else if (curso() && clase() && leccion()) {
+  @let curso = this.curso()!;
+  @let clase = this.clase()!;
+  @let leccion = this.leccion()!;
     <div class="sala">
 
       <!-- Barra superior -->
@@ -53,9 +63,9 @@
             </div>
           } @else {
             <article class="lectura">
-              <p class="lectura__tipo">{{ leccion.tipo }} · {{ leccion.duracionMin }} min</p>
-              <h2 class="lectura__titulo">{{ leccion.titulo }}</h2>
-              <p class="lectura__cuerpo">{{ leccion.resumen }}</p>
+              <h2 class="lectura__titulo">{{ clase.titulo }}</h2>
+              <p class="lectura__tipo">{{ clase.tipo }} · {{ clase.duracionMin }} min</p>
+              <p class="lectura__cuerpo">{{ clase.contenido || clase.resumen }}</p>
               <p class="lectura__nota">
                 Cuando termines de leer, marca la clase para que quede en tu progreso.
               </p>
@@ -64,9 +74,8 @@
 
           <!-- Ficha de la clase -->
           <div class="detalle">
-            <p class="eyebrow">Clase {{ indice() + 1 }}</p>
-            <h1 class="detalle__titulo">{{ leccion.titulo }}</h1>
-            <p class="detalle__resumen">{{ leccion.resumen }}</p>
+            <h1 class="detalle__titulo">{{ clase.titulo }}</h1>
+            <p class="detalle__resumen">{{ clase.resumen }}</p>
 
             <div class="detalle__profe">
               <span class="avatar" aria-hidden="true">{{ curso.instructor.iniciales }}</span>
@@ -95,8 +104,10 @@
               </span>
             }
 
-            <button type="button" class="btn btn--play" (click)="completarYSeguir()">
-              @if (siguiente()) {
+            <button type="button" class="btn btn--play" (click)="completarYSeguir()" [disabled]="guardando()">
+              @if (guardando()) {
+                Guardando…
+              } @else if (siguiente()) {
                 {{ leccion.completada ? 'Siguiente clase' : 'Marcar vista y continuar' }}
               } @else {
                 {{ curso.certificado ? 'Terminar y ver certificado' : 'Terminar el curso' }}
@@ -145,21 +156,8 @@
         </aside>
       </div>
     </div>
-  } @else {
-    <div class="sala sala--vacia">
-      <h1>No encontramos esa clase</h1>
-      <p>Puede que haya cambiado el temario del curso.</p>
-      <button type="button" class="btn btn--play" (click)="volverAlCurso()">
-        Ver el temario
-      </button>
-    </div>
-  }
 } @else {
-  <div class="sala sala--vacia">
-    <h1>Ese curso ya no está disponible</h1>
-    <p>Revisa los cursos vigentes en el catálogo.</p>
-    <button type="button" class="btn btn--play" (click)="volverAlCatalogo()">
-      Ver el catálogo
-    </button>
+  <div class="sala sala--vacia" aria-live="polite">
+    <p>Cargando la clase…</p>
   </div>
 }

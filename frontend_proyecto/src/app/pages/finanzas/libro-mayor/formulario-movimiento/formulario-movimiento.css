@@ -1,0 +1,272 @@
+.mov {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-5);
+}
+
+/* ----- Tipo: control segmentado (dos radios) ----- */
+.mov-tipo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--esp-1);
+  margin: 0;
+  padding: var(--esp-1);
+  border: 0;
+  border-radius: var(--radio-sm);
+  background: var(--superficie-hundida);
+  box-shadow: inset 0 0 0 1px var(--borde);
+}
+
+.mov-tipo-opcion {
+  position: relative;
+  display: flex;
+}
+
+.mov-tipo-opcion input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.mov-tipo-opcion span {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: var(--radio-xs);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--texto-suave);
+  transition:
+    background-color var(--dur-rapida) var(--curva),
+    color var(--dur-rapida) var(--curva),
+    box-shadow var(--dur-rapida) var(--curva);
+}
+
+.mov-tipo-opcion:hover span {
+  color: var(--texto);
+}
+
+.mov-tipo-opcion input:checked + span {
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08), 0 1px 3px rgba(16, 24, 40, 0.06);
+}
+
+.mov-tipo-ingreso input:checked + span {
+  color: var(--exito);
+}
+
+.mov-tipo-opcion input:focus-visible + span {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+}
+
+/* ----- Campos ----- */
+.mov-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  min-width: 0;
+}
+
+.mov-campo label {
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}
+
+.mov-opcional {
+  font-weight: var(--peso-normal);
+  color: var(--texto-tenue);
+}
+
+.mov-fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--esp-4);
+}
+
+.mov-campo input,
+.mov-campo select,
+.mov-campo textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--esp-2) var(--esp-3);
+  font: inherit;
+  font-size: var(--texto-base);
+  color: var(--texto);
+  background: var(--superficie);
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-xs);
+  transition: border-color var(--dur-rapida) var(--curva);
+}
+
+.mov-campo textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.mov-campo input:hover,
+.mov-campo select:hover,
+.mov-campo textarea:hover {
+  border-color: var(--texto-tenue);
+}
+
+.mov-campo input:focus-visible,
+.mov-campo select:focus-visible,
+.mov-campo textarea:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 0;
+  border-color: transparent;
+}
+
+.mov-campo [aria-invalid='true'] {
+  border-color: var(--negative);
+}
+
+/* Con error, el anillo de foco sigue diciendo "error" en vez de volverse verde. */
+.mov-campo [aria-invalid='true']:focus-visible,
+.mov-importe-error:focus-within {
+  outline-color: var(--negative);
+}
+
+/* ----- Importe: la cifra es el centro del formulario ----- */
+.mov-importe {
+  display: flex;
+  align-items: baseline;
+  gap: var(--esp-2);
+  padding: var(--esp-2) var(--esp-4);
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-sm);
+  background: var(--superficie);
+  transition: border-color var(--dur-rapida) var(--curva);
+}
+
+.mov-importe:hover {
+  border-color: var(--texto-tenue);
+}
+
+.mov-importe:focus-within {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 0;
+  border-color: transparent;
+}
+
+.mov-importe-error {
+  border-color: var(--negative);
+}
+
+.mov-importe-simbolo {
+  font-size: var(--texto-xl);
+  font-weight: var(--peso-semi);
+  color: var(--texto-tenue);
+}
+
+.mov-campo .mov-importe input {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: var(--texto-xl);
+  font-weight: var(--peso-semi);
+}
+
+.mov-campo .mov-importe input:focus-visible {
+  outline: none;
+}
+
+.mov-importe-moneda {
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  color: var(--texto-tenue);
+}
+
+.mov-error {
+  margin: 0;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  color: var(--negative);
+}
+
+/* ----- Confirmación en vivo de lo que se va a registrar ----- */
+.mov-resumen {
+  margin: 0;
+  min-height: 1.5em;
+  font-size: var(--texto-sm);
+  color: var(--texto-suave);
+}
+
+.mov-resumen strong {
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}
+
+.mov-resumen strong.positivo {
+  color: var(--exito);
+}
+
+/* ----- Botones del pie ----- */
+.mov-boton {
+  min-height: 44px;
+  padding: 0 var(--esp-5);
+  border-radius: var(--radio-full);
+  font: inherit;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-rapida) var(--curva),
+    border-color var(--dur-rapida) var(--curva);
+}
+
+.mov-boton-principal {
+  border: 0;
+  background: var(--primario);
+  color: var(--texto-sobre-primario);
+}
+
+.mov-boton-principal:hover {
+  background: var(--primario-hover);
+}
+
+.mov-boton-principal:active {
+  background: var(--primario-activo);
+}
+
+.mov-boton-linea {
+  border: 1px solid var(--borde-fuerte);
+  background: transparent;
+  color: var(--texto);
+}
+
+.mov-boton-linea:hover {
+  border-color: var(--texto-tenue);
+  background: var(--superficie-hundida);
+}
+
+@media (max-width: 520px) {
+  .mov-fila {
+    grid-template-columns: 1fr;
+  }
+
+  .mov-boton {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mov-tipo-opcion span,
+  .mov-campo input,
+  .mov-campo select,
+  .mov-campo textarea,
+  .mov-importe,
+  .mov-boton {
+    transition: none;
+  }
+}

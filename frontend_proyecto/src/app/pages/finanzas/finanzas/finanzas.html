@@ -1,173 +1,193 @@
-<app-finanzas-menu></app-finanzas-menu>
-<div class="finanzas">
-    <header class="finanzas-header">
-        <div>
-            <h1>Hola, {{ usuario }}</h1>
-            <p class="mes-actual">{{ mesActual }}</p>
-        </div>
-        <div class="header-acciones">
-            <button type="button" class="icono-accion" aria-label="Buscar" title="Buscar" (click)="alternarBusqueda()">🔍</button>
-            <a
-                class="icono-accion"
-                [routerLink]="['/educacion']"
-                [queryParams]="{ escuela: escuelaRecomendada }"
-                aria-label="Cursos recomendados para ti"
-                title="Cursos recomendados para ti">
-                🔔
+<app-banda-seccion
+  [titulo]="primerNombre ? 'Hola, ' + primerNombre + '.' : 'Hola.'"
+  acento="Así va tu plata."
+  [serie]="saldoAcumulado"
+  idTitulo="finanzas-titulo">
+  <app-finanzas-menu banda-antes />
+
+  <div class="buscador-finanzas">
+    <label class="banda-buscador">
+      <app-icon nombre="search" [tamano]="20" />
+      <span class="visualmente-oculto">Buscar en tus finanzas</span>
+      <input
+        type="search"
+        placeholder="Busca una meta, inversión o movimiento"
+        [value]="terminoBusqueda()"
+        (input)="terminoBusqueda.set($any($event.target).value)"
+        (keydown.escape)="limpiarBusqueda()" />
+    </label>
+    @if (terminoBusqueda().trim()) {
+      <ul class="buscador-finanzas__lista" role="list" aria-live="polite">
+        @for (r of resultadosBusqueda; track r.tipo + r.nombre) {
+          <li>
+            <a [routerLink]="r.ruta" (click)="limpiarBusqueda()">
+              <app-icon [nombre]="r.icono" [tamano]="18" />
+              <span class="buscador-finanzas__nombre">{{ r.nombre }}</span>
+              <span class="buscador-finanzas__tipo">{{ r.tipo }}</span>
             </a>
-        </div>
-    </header>
-
-    @if (mostrarBusqueda()) {
-        <section class="barra-busqueda">
-            <input
-                type="text"
-                placeholder="Busca una sección, meta, inversión o movimiento..."
-                [ngModel]="terminoBusqueda()"
-                (ngModelChange)="terminoBusqueda.set($event)"
-                name="busquedaGlobal"
-                autofocus />
-
-            @if (terminoBusqueda().trim()) {
-                <ul class="resultados-busqueda">
-                    @for (r of resultadosBusqueda; track r.tipo + r.nombre) {
-                        <li>
-                            <a [routerLink]="r.ruta" (click)="alternarBusqueda()">
-                                <span class="resultado-icono" aria-hidden="true">{{ r.icono }}</span>
-                                <span class="resultado-nombre">{{ r.nombre }}</span>
-                                <span class="resultado-tipo">{{ r.tipo }}</span>
-                            </a>
-                        </li>
-                    }
-                    @if (resultadosBusqueda.length === 0) {
-                        <li class="sin-resultados">Sin resultados para "{{ terminoBusqueda() }}"</li>
-                    }
-                </ul>
-            }
-        </section>
-    }
-
-    <section class="salud-financiera"
-        [class.salud-orden]="salud.estado === 'En orden'"
-        [class.salud-atencion]="salud.estado === 'Atención'"
-        [class.salud-riesgo]="salud.estado === 'Alto riesgo'">
-        <span><strong>{{ salud.estado }}</strong> — {{ salud.mensaje }}</span>
-        <a class="link-salud" routerLink="/libro-mayor">Ver detalle →</a>
-    </section>
-
-    <section class="cards-resumen" aria-label="Resumen financiero">
-        @for (t of tarjetas; track t.titulo) {
-            <div class="card-resumen">
-                <span class="card-icono" aria-hidden="true">{{ t.icono }}</span>
-                <span class="card-titulo">{{ t.titulo }}</span>
-                <span class="card-valor">{{ t.valor }}</span>
-                <span class="card-tendencia">{{ t.tendencia }}</span>
-                <a class="card-boton" [routerLink]="t.ruta">Ver detalle →</a>
-            </div>
+          </li>
+        } @empty {
+          <li class="buscador-finanzas__vacio">Nada coincide con «{{ terminoBusqueda() }}».</li>
         }
-    </section>
+      </ul>
+    }
+  </div>
 
-    <section class="graficas">
-        <div class="panel">
-            <h2>Distribución del salario</h2>
-            <div class="donut-wrap">
-                <div class="donut" [style.background]="gradienteDistribucion" role="img" aria-label="Gráfica de distribución del salario">
-                    <div class="donut-hueco" aria-hidden="true">💲</div>
-                </div>
-                <ul class="leyenda">
-                    @for (seg of distribucion; track seg.etiqueta) {
-                        <li>
-                            <span class="punto" [style.background]="seg.color" aria-hidden="true"></span>
-                            {{ seg.etiqueta }} <strong>{{ seg.porcentaje }}%</strong>
-                        </li>
-                    }
-                </ul>
+  <div banda-lado class="saldo">
+    <p class="saldo__etiqueta">Te queda en {{ mesActual }}</p>
+    <p class="saldo__cifra" [class.saldo__cifra--negativa]="disponible < 0">{{ disponible | moneda }}</p>
+    <p class="saldo__estado" [attr.data-estado]="salud.estado">
+      <app-icon [nombre]="salud.icono" [tamano]="18" />
+      <span><strong>{{ salud.titulo }}.</strong> {{ salud.mensaje }}</span>
+    </p>
+    <div class="saldo__horizonte">
+      <app-horizonte
+        [serie]="disponiblePorMes"
+        sobre="oscuro"
+        etiqueta="Lo que te quedó en cada uno de los últimos seis meses" />
+      <span>Promedio de 6 meses: <strong class="cifra">{{ promedioDisponible | moneda }}</strong></span>
+    </div>
+  </div>
+</app-banda-seccion>
+
+<main class="panel">
+  <!-- Flujo de 6 meses + cómo voy este mes -->
+  <section class="bloque bloque--flujo" aria-labelledby="flujo-titulo">
+    <div class="bloque__cabeza">
+      <h2 id="flujo-titulo">Lo que entra y lo que sale</h2>
+      <a class="enlace" routerLink="/libro-mayor">Libro Mayor <app-icon nombre="chevron-right" [tamano]="16" /></a>
+    </div>
+    <div class="flujo">
+      <app-columnas
+        class="flujo__grafica"
+        [etiquetas]="etiquetasMeses"
+        [series]="seriesFlujo"
+        titulo="Ingresos y gastos de los últimos seis meses" />
+
+      <dl class="flujo__mes">
+        @for (c of comparaciones; track c.etiqueta) {
+          <div class="flujo__dato">
+            <dt>{{ c.etiqueta }} este mes</dt>
+            <dd>
+              <span class="flujo__valor cifra">{{ c.valor | moneda }}</span>
+              @if (c.variacion !== null && c.variacion !== 0) {
+                <span
+                  class="flujo__cambio"
+                  [class.flujo__cambio--bien]="(c.variacion > 0) === c.subirEsBueno"
+                  [class.flujo__cambio--mal]="(c.variacion > 0) !== c.subirEsBueno">
+                  <app-icon [nombre]="c.variacion > 0 ? 'arrow-up-right' : 'arrow-down-right'" [tamano]="14" />
+                  {{ c.variacion > 0 ? c.variacion : -c.variacion }} % {{ c.variacion > 0 ? 'más' : 'menos' }} que el mes pasado
+                </span>
+              }
+            </dd>
+          </div>
+        }
+        <div class="flujo__dato">
+          <dt>Guardas</dt>
+          <dd>
+            <span class="flujo__valor cifra">{{ ahorroPct }} %</span>
+            <span class="flujo__nota">de lo que entra. La meta sana es 20 %.</span>
+          </dd>
+          <app-medidor [valor]="ahorroPct" [maximo]="20" etiqueta="Ahorro frente a la meta del 20 %" />
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- En qué se va la plata -->
+  @if (gastosDelMes.length) {
+    <section class="bloque bloque--gastos" aria-labelledby="gastos-titulo">
+      <div class="bloque__cabeza">
+        <h2 id="gastos-titulo">¿En qué se va tu plata?</h2>
+      </div>
+      @if (mayorGasto) {
+        <p class="bloque__lectura">
+          <strong>{{ mayorGasto.etiqueta }}</strong> se lleva el {{ pctMayorGasto }} % de lo que gastaste en {{ mesActual }}.
+        </p>
+      }
+      <app-barra-partes [datos]="gastosDelMes" [titulo]="'Gastos por categoría en ' + mesActual" />
+    </section>
+  }
+
+  <!-- Metas -->
+  <section class="bloque bloque--metas" aria-labelledby="metas-titulo">
+    <div class="bloque__cabeza">
+      <h2 id="metas-titulo">Tus metas</h2>
+      <a class="enlace" routerLink="/metas">Todas <app-icon nombre="chevron-right" [tamano]="16" /></a>
+    </div>
+    @if (metas.length) {
+      <ul class="metas">
+        @for (meta of metas; track meta.id) {
+          <li class="meta">
+            <div class="meta__fila">
+              <span class="meta__nombre">{{ meta.nombre }}</span>
+              <span class="meta__pct cifra">{{ meta.porcentaje }} %</span>
             </div>
-            <a class="link-boton" routerLink="/libro-mayor">Ver en Libro Mayor →</a>
-        </div>
+            <app-medidor [valor]="meta.actual" [maximo]="meta.objetivo" [etiqueta]="'Avance de ' + meta.nombre" />
+            <p class="meta__montos"><span class="cifra">{{ meta.actual | moneda }}</span> de <span class="cifra">{{ meta.objetivo | moneda }}</span></p>
+          </li>
+        }
+      </ul>
+      @if (metasCumplidas > 0) {
+        <p class="metas__cumplidas">
+          <app-icon nombre="check-circle" [tamano]="16" />
+          {{ metasCumplidas === 1 ? 'Ya cumpliste 1 meta.' : 'Ya cumpliste ' + metasCumplidas + ' metas.' }}
+        </p>
+      }
+    } @else {
+      <p class="vacio">No tienes metas en curso. <a routerLink="/metas">Crea la primera</a>.</p>
+    }
+  </section>
 
-        <div class="panel">
-            <div class="panel-header">
-                <h2>Crecimiento inversión</h2>
-                <span class="crecimiento-badge">+{{ crecimientoPorcentaje }}%</span>
-            </div>
-            <svg class="linea-chart" viewBox="0 0 320 90" preserveAspectRatio="none" role="img" aria-label="Tendencia de crecimiento de la inversión">
-                <polyline [attr.points]="puntosLinea" fill="none" stroke="var(--sage)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <div class="linea-rango">
-                <span>{{ crecimientoInicio.valor }}M</span>
-                <span aria-hidden="true">→</span>
-                <span>{{ crecimientoFin.valor }}M COP</span>
-            </div>
-            <a class="link-boton" routerLink="/inversiones">Ver en Inversiones →</a>
-        </div>
+  <!-- Movimientos recientes -->
+  <section class="bloque bloque--movimientos" aria-labelledby="movs-titulo">
+    <div class="bloque__cabeza">
+      <h2 id="movs-titulo">Movimientos recientes</h2>
+      <a class="enlace" routerLink="/libro-mayor">Ver todos <app-icon nombre="chevron-right" [tamano]="16" /></a>
+    </div>
+    @if (movimientos.length) {
+      <ul class="movs">
+        @for (mov of movimientos; track mov.id) {
+          <li class="mov">
+            <span class="mov__icono" [class.mov__icono--ingreso]="mov.tipo === 'ingreso'">
+              <app-icon [nombre]="iconoDe(mov)" [tamano]="18" />
+            </span>
+            <span class="mov__texto">
+              <span class="mov__concepto">{{ mov.concepto }}</span>
+              <span class="mov__meta">{{ mov.categoria }} · {{ formatearFecha(mov.fecha) }}</span>
+            </span>
+            <span class="mov__valor cifra" [class.mov__valor--ingreso]="mov.tipo === 'ingreso'">
+              {{ mov.tipo === 'ingreso' ? '+' : '−' }}{{ mov.valor | moneda }}
+            </span>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="vacio">Aún no tienes movimientos. <a routerLink="/libro-mayor">Registra el primero</a>.</p>
+    }
+  </section>
+
+  <!-- Inversiones -->
+  @if (totalInvertido > 0) {
+    <section class="bloque bloque--inversion" aria-labelledby="inv-titulo">
+      <div class="bloque__cabeza">
+        <h2 id="inv-titulo">Tu portafolio</h2>
+        <a class="enlace" routerLink="/inversiones">Inversiones <app-icon nombre="chevron-right" [tamano]="16" /></a>
+      </div>
+      <p class="bloque__lectura">
+        Vale <strong class="cifra">{{ crecimiento[crecimiento.length - 1].valor | moneda }}</strong>,
+        {{ crecimientoPct >= 0 ? 'un ' + crecimientoPct + ' % más' : 'un ' + -crecimientoPct + ' % menos' }} que hace seis meses.
+      </p>
+      <app-grafica-linea [puntos]="crecimiento" titulo="Valor del portafolio en los últimos seis meses" [alto]="180" />
     </section>
+  }
 
-    <section class="panel tabla-panel">
-        <div class="panel-header">
-            <h2>Movimientos recientes</h2>
-            <a class="link-boton" routerLink="/libro-mayor">Ver todos en Libro Mayor →</a>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Concepto</th>
-                    <th>Fecha</th>
-                    <th>Monto</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (mov of movimientos; track mov.id) {
-                    <tr>
-                        <td>
-                            <span class="icono-fila" aria-hidden="true">{{ iconoDe(mov) }}</span>
-                            {{ mov.concepto }}
-                        </td>
-                        <td class="fecha-fila">{{ formatearFecha(mov.fecha) }}</td>
-                        <td [class.negativo]="mov.tipo === 'gasto'" [class.positivo]="mov.tipo === 'ingreso'">
-                            {{ formatearMonto(mov) }}
-                        </td>
-                    </tr>
-                }
-                @if (movimientos.length === 0) {
-                    <tr>
-                        <td colspan="3" class="lista-vacia">Aún no tienes movimientos registrados.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </section>
-
-    <section class="panel metas-panel">
-        <div class="panel-header">
-            <h2>Tus metas</h2>
-            <a class="link-boton" routerLink="/metas">Ver todas →</a>
-        </div>
-        <div class="metas-grid">
-            @for (meta of metas; track meta.nombre) {
-                <div class="meta-item">
-                    <div class="meta-anillo">
-                        <svg width="88" height="88" viewBox="0 0 88 88" role="img" [attr.aria-label]="meta.nombre + ': ' + meta.porcentaje + ' por ciento completado'">
-                            <circle cx="44" cy="44" r="30" fill="none" stroke="var(--cloud)" stroke-width="7" />
-                            <circle
-                                cx="44" cy="44" r="30" fill="none" stroke="var(--sage)" stroke-width="7"
-                                stroke-linecap="round"
-                                [attr.stroke-dasharray]="circunferencia"
-                                [attr.stroke-dashoffset]="obtenerOffset(meta.porcentaje)"
-                                transform="rotate(-90 44 44)" />
-                        </svg>
-                        <span class="meta-icono" aria-hidden="true">{{ meta.icono }}</span>
-                        <span class="meta-porcentaje">{{ meta.porcentaje }}%</span>
-                    </div>
-                    <span class="meta-nombre">{{ meta.nombre }}</span>
-                    <span class="meta-montos">{{ meta.actual | moneda }} / {{ meta.objetivo | moneda }}</span>
-                </div>
-            }
-        </div>
-    </section>
-
+  <div class="panel__curso">
     <app-curso-banner
-        texto="Reparte tu sueldo en tres bolsillos y deja de improvisar cada mes, ¿cómo se hace?"
-        cursoId="presupuesto-50-30-20">
-    </app-curso-banner>
-</div>
+      texto="Reparte tu sueldo en tres bolsillos y deja de improvisar cada mes, ¿cómo se hace?"
+      cursoId="presupuesto-50-30-20" />
+    <a class="enlace" [routerLink]="['/educacion']" [queryParams]="{ escuela: escuelaRecomendada }">
+      Más cursos para ti <app-icon nombre="chevron-right" [tamano]="16" />
+    </a>
+  </div>
+</main>
