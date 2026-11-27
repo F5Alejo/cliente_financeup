@@ -1,7 +1,7 @@
 import { Routes, UrlMatchResult, UrlSegment } from '@angular/router';
 import { LayoutComponent } from './layout/layout/layout';
 import { adminGuard } from './pages/admin/admin.guard';
-import { authGuard } from './guards/auth.guard';
+import { authGuard, politicaPendienteGuard } from './guards/auth.guard';
 
 // Pantallas de administración que usan el layout nuevo (sidebar + header), además de /admin (dashboard).
 // El resto de /admin/* (libro mayor) sigue con el layout anterior hasta que se migre.
@@ -132,6 +132,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/login/register/register').then((m) => m.RegisterComponent),
         title: 'Registro - FinanceUp',
+      },
+
+      {
+        path: 'aceptar-politica',
+        canActivate: [politicaPendienteGuard],
+        loadComponent: () =>
+          import('./pages/login/aceptar-politica/aceptar-politica').then((m) => m.AceptarPoliticaComponent),
+        title: 'Acepta la política de datos - FinanceUp',
       },
 
       {

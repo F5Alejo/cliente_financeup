@@ -1,0 +1,52 @@
+<app-banda-seccion
+  [titulo]="'Hola, ' + nombre + '.'"
+  acento="Antes de seguir, revisa cómo tratamos tus datos."
+  texto="Todavía no tenemos tu autorización para tratar tus datos, o la política cambió desde tu último ingreso. Acéptala para seguir a tus finanzas, cursos y solicitudes."
+  idTitulo="politica-pendiente-titulo">
+  <ul class="acceso-lista" aria-label="Lo esencial de la política">
+    <li>
+      <app-icon nombre="shield-check" [tamano]="20" />
+      <span><strong>Solo lo necesario</strong> Usamos tus datos para operar tu cuenta; no los vendemos ni hacemos publicidad.</span>
+    </li>
+    <li>
+      <app-icon nombre="user" [tamano]="20" />
+      <span><strong>Tus derechos</strong> Puedes pedir una copia, corregirlos o borrarlos desde Mis PQR.</span>
+    </li>
+    <li>
+      <app-icon nombre="clock" [tamano]="20" />
+      <span><strong>Respuesta en plazo</strong> Consultas en 10 días hábiles y reclamos en 15.</span>
+    </li>
+  </ul>
+
+  <div banda-lado class="acceso-tarjeta">
+    <h2>Política de datos, versión {{ version }}</h2>
+    <p class="acceso-tarjeta__texto">Vigente desde el {{ vigencia }}.</p>
+
+    <form class="acceso-form" (ngSubmit)="aceptar()" novalidate>
+      @if (errorMessage()) {
+        <p class="acceso-alerta" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <div class="campo">
+        <label class="casilla">
+          <input id="pol-acepta" type="checkbox" name="acepta" [(ngModel)]="acepta"
+            [attr.aria-invalid]="intentoSinMarcar() && !acepta"
+            [attr.aria-describedby]="intentoSinMarcar() && !acepta ? 'pol-acepta-error' : null">
+          <span>
+            Autorizo a FinanceUp a tratar mis datos personales para crear y operar mi cuenta, como explica la
+            <a routerLink="/politica-datos" target="_blank" class="acceso-enlace--texto">política de tratamiento de datos<span class="visualmente-oculto"> (se abre en otra pestaña)</span></a>.
+          </span>
+        </label>
+        @if (intentoSinMarcar() && !acepta) {
+          <p class="campo__error" id="pol-acepta-error">Para usar tu cuenta necesitamos tu autorización.</p>
+        }
+      </div>
+
+      <button type="submit" class="acceso-boton" [disabled]="cargando()">
+        {{ cargando() ? 'Guardando…' : 'Aceptar y continuar' }}
+      </button>
+    </form>
+
+    <p class="acceso-pie">¿No estás de acuerdo? <button type="button" class="acceso-enlace" (click)="salir()">Salir sin aceptar</button></p>
+  </div>
+</app-banda-seccion>

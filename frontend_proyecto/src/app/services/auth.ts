@@ -37,6 +37,8 @@ export interface Usuario {
   documento?: string;
   direccion?: string;
   fechaNacimiento?: string;
+  /** Un usuario normal que aún no acepta la política vigente (el admin nunca) */
+  debeAceptarPolitica?: boolean;
 }
 
 /** Respuesta del paso 1 del login: el MID envía el código al correo. */
@@ -44,6 +46,14 @@ export interface PasoLogin {
   mensaje: string;
   token_verificacion: string;
 }
+
+/**
+ * Resultado del paso 1: el usuario normal sigue al código; el administrador entra
+ * directo porque el MID le entrega la sesión sin código.
+ */
+export type ResultadoLogin =
+  | { tipo: 'codigo'; mensaje: string; tokenVerificacion: string }
+  | { tipo: 'sesion'; usuario: Usuario };
 
 /** Datos del formulario de registro. */
 export interface DatosRegistro {
@@ -64,7 +74,11 @@ interface SesionMid {
   email: string;
   rol: Rol;
   estado: EstadoUsuario;
+  debe_aceptar_politica?: boolean;
 }
+
+/** Respuesta de POST /login: el paso del código o, para el admin, la sesión. */
+type RespuestaLogin = (PasoLogin & { requiere_codigo?: true }) | (SesionMid & { requiere_codigo: false; mensaje: string });
 
 /** Perfil como lo devuelve el MID (GET /perfil/:id). */
 export interface Perfil {
@@ -118,8 +132,14 @@ export class AuthService {
   }
 
   /** Login, paso 1: el MID revisa correo y contraseña y envía un código al correo. */
-  iniciarSesion(email: string, contrasena: string): Observable<PasoLogin> {
-    return this.http.post<PasoLogin>(`${API_URL}/login`, { email, contrasena });
+  iniciarSesion(email: string, contrasena: string): Observable<ResultadoLogin> {
+    return this.http.post<RespuestaLogin>(`${API_URL}/login`, { email, contrasena }).pipe(
+      map((respuesta): ResultadoLogin =>
+        respuesta.requiere_codigo === false
+          ? { tipo: 'sesion', usuario: this.guardarSesion(respuesta) }
+          : { tipo: 'codigo', mensaje: respuesta.mensaje, tokenVerificacion: respuesta.token_verificacion },
+      ),
+    );
   }
 
   /** Login, paso 2: con el código correcto el MID entrega el token y se guarda la sesión. */
@@ -152,6 +172,7 @@ export class AuthService {
       rol: sesion.rol,
       estado: sesion.estado,
       ultimoAcceso: new Date().toISOString(),
+      debeAceptarPolitica: sesion.rol !== 'admin' && !!sesion.debe_aceptar_politica,
     };
     this.usuarioActual = usuario;
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
@@ -174,6 +195,32 @@ export class AuthService {
         return perfil;
       })
     );
+  }
+
+  /** Guarda que el usuario aceptó la política vigente y lo deja seguir a la app. */
+  aceptarPolitica(): Observable<Perfil> {
+    return this.http
+      .put<Perfil>(`${API_URL}/perfil/${this.usuarioActual?.id}/politica`, {
+        acepta_terminos: true,
+        version_politica: VERSION_POLITICA,
+      })
+      .pipe(
+        map((perfil) => {
+          if (this.usuarioActual) {
+            this.usuarioActual = { ...this.usuarioActual, debeAceptarPolitica: false };
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(this.usuarioActual));
+          }
+          return perfil;
+        }),
+      );
+  }
+
+  /** A dónde va cada quien al entrar: el admin a su panel; el usuario a aceptar la política si le falta. */
+  rutaDeInicio(usuario: Usuario): string {
+    if (usuario.rol === 'admin') {
+      return '/admin';
+    }
+    return usuario.debeAceptarPolitica ? '/aceptar-politica' : '/home';
   }
 
   /** Cambia la contraseña desde el perfil (el MID revisa que la actual sea correcta). */

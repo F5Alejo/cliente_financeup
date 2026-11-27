@@ -36,7 +36,9 @@ describe('AuthService', () => {
 
   it('el paso 1 del login manda correo y contraseña al MID', () => {
     let tokenVerificacion = '';
-    service.iniciarSesion('ana@correo.com', 'Clave1234').subscribe((r) => (tokenVerificacion = r.token_verificacion));
+    service
+      .iniciarSesion('ana@correo.com', 'Clave1234')
+      .subscribe((r) => (tokenVerificacion = r.tipo === 'codigo' ? r.tokenVerificacion : ''));
 
     const peticion = http.expectOne(`${API_URL}/login`);
     expect(peticion.request.method).toBe('POST');
@@ -45,6 +47,37 @@ describe('AuthService', () => {
 
     expect(tokenVerificacion).toBe('tv-1');
     expect(service.estaAutenticado()).toBe(false);
+  });
+
+  it('el administrador entra sin código: el paso 1 ya deja la sesión iniciada', () => {
+    let tipo = '';
+    service.iniciarSesion('admin@financeup.com', 'Admin1234').subscribe((r) => (tipo = r.tipo));
+
+    http
+      .expectOne(`${API_URL}/login`)
+      .flush({ ...SESION_MID, rol: 'admin', requiere_codigo: false, debe_aceptar_politica: false });
+
+    expect(tipo).toBe('sesion');
+    const usuario = service.obtenerUsuario()!;
+    expect(usuario.rol).toBe('admin');
+    expect(service.rutaDeInicio(usuario)).toBe('/admin');
+  });
+
+  it('el usuario que no ha aceptado la política va a aceptarla y luego sigue a la app', () => {
+    service.verificarCodigo('tv-1', '123456').subscribe();
+    http.expectOne(`${API_URL}/login/verificar`).flush({ ...SESION_MID, debe_aceptar_politica: true });
+
+    expect(service.rutaDeInicio(service.obtenerUsuario()!)).toBe('/aceptar-politica');
+
+    service.aceptarPolitica().subscribe();
+    const peticion = http.expectOne(`${API_URL}/perfil/7/politica`);
+    expect(peticion.request.method).toBe('PUT');
+    expect(peticion.request.body).toEqual({ acepta_terminos: true, version_politica: VERSION_POLITICA });
+    peticion.flush({ id_usuario: 7, version_politica: VERSION_POLITICA });
+
+    expect(service.obtenerUsuario()?.debeAceptarPolitica).toBe(false);
+    expect(service.rutaDeInicio(service.obtenerUsuario()!)).toBe('/home');
+    expect(JSON.parse(sessionStorage.getItem('financeup_user')!).debeAceptarPolitica).toBe(false);
   });
 
   it('al verificar el código guarda la sesión con el token del MID', () => {

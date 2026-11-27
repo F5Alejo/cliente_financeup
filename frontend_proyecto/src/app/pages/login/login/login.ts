@@ -1,7 +1,7 @@
 import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../services/auth';
+import { AuthService, Usuario } from '../../../services/auth';
 import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
 import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
@@ -49,18 +49,22 @@ export class LoginComponent {
     effect(() => this.campoCodigo()?.nativeElement.focus());
   }
 
-  /** Paso 1: el MID revisa correo y contraseña y manda el código al correo. */
+  /** Paso 1: el MID revisa correo y contraseña. Al usuario le manda el código; el admin entra directo. */
   login(): void {
     this.errorMessage.set('');
     this.cargando.set(true);
 
     this.authService.iniciarSesion(this.email.trim(), this.password).subscribe({
-      next: (respuesta) => {
+      next: (resultado) => {
         this.cargando.set(false);
-        this.tokenVerificacion = respuesta.token_verificacion;
+        if (resultado.tipo === 'sesion') {
+          this.entrar(resultado.usuario);
+          return;
+        }
+        this.tokenVerificacion = resultado.tokenVerificacion;
         this.codigo = '';
         this.stage.set('verificacion');
-        this.toastService.info(respuesta.mensaje);
+        this.toastService.info(resultado.mensaje);
       },
       error: (error) => {
         this.cargando.set(false);
@@ -77,13 +81,7 @@ export class LoginComponent {
     this.authService.verificarCodigo(this.tokenVerificacion, this.codigo.trim()).subscribe({
       next: (usuario) => {
         this.cargando.set(false);
-        if (this.rememberMe) {
-          localStorage.setItem('financeup_email', this.email.trim());
-        } else {
-          localStorage.removeItem('financeup_email');
-        }
-        this.toastService.success(`Bienvenido ${usuario.nombre}`);
-        this.router.navigateByUrl(usuario.rol === 'admin' ? '/admin' : '/home');
+        this.entrar(usuario);
       },
       error: (error) => {
         this.cargando.set(false);
@@ -92,6 +90,17 @@ export class LoginComponent {
         this.campoCodigo()?.nativeElement.focus();
       },
     });
+  }
+
+  /** Sesión lista: recuerda el correo si se pidió y lleva a cada quien a su inicio. */
+  private entrar(usuario: Usuario): void {
+    if (this.rememberMe) {
+      localStorage.setItem('financeup_email', this.email.trim());
+    } else {
+      localStorage.removeItem('financeup_email');
+    }
+    this.toastService.success(`Bienvenido ${usuario.nombre}`);
+    this.router.navigateByUrl(this.authService.rutaDeInicio(usuario));
   }
 
   reenviarCodigo(): void {

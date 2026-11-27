@@ -76,6 +76,73 @@ test('login: no hay botones de redes sociales sin backend y los enlaces llevan a
   await expect(page).toHaveURL(/#\/register$/);
 });
 
+const SESION = {
+  mensaje: 'Inicio de sesion exitoso',
+  token: 'token-de-prueba',
+  expira_en: 3600,
+  id_usuario: 7,
+  nombre: 'Laura',
+  apellido: 'Gómez',
+  email: 'laura@ejemplo.com',
+  estado: 'activo',
+};
+
+async function entrarConClave(page: Page) {
+  await page.goto('/#/login');
+  await page.getByLabel('Correo electrónico').fill('laura@ejemplo.com');
+  await page.getByLabel('Contraseña', { exact: true }).fill('Clave1234');
+  await page.getByRole('button', { name: 'Continuar' }).click();
+}
+
+test('login: el administrador entra directo a su panel, sin código', async ({ page }) => {
+  await page.route('**/v1/login', (ruta) =>
+    ruta.fulfill({ json: { ...SESION, rol: 'admin', requiere_codigo: false, debe_aceptar_politica: false } }),
+  );
+  await entrarConClave(page);
+  await expect(page).toHaveURL(/#\/admin/);
+  await expect(page.getByLabel('Código de verificación')).toHaveCount(0);
+});
+
+test('login: el usuario sin la política aceptada la acepta antes de entrar', async ({ page }) => {
+  await page.route('**/v1/login', (ruta) =>
+    ruta.fulfill({ json: { mensaje: 'Te enviamos un código', requiere_codigo: true, token_verificacion: 'tmp-1' } }),
+  );
+  await page.route('**/v1/login/verificar', (ruta) =>
+    ruta.fulfill({ json: { ...SESION, rol: 'user', debe_aceptar_politica: true } }),
+  );
+  let cuerpo: Record<string, unknown> = {};
+  await page.route('**/v1/perfil/7/politica', async (ruta) => {
+    cuerpo = ruta.request().postDataJSON();
+    await ruta.fulfill({ json: { id_usuario: 7, version_politica: '1.0' } });
+  });
+
+  await entrarConClave(page);
+  await page.getByLabel('Código de verificación').fill('123456');
+  await page.getByRole('button', { name: 'Verificar y entrar' }).click();
+  await expect(page).toHaveURL(/#\/aceptar-politica/);
+  await expect(page.locator('app-banda-seccion h1')).toContainText('Laura');
+  await sinGraves(page);
+  await sinScrollHorizontal(page);
+
+  // Sin aceptar no puede ir a una pantalla privada
+  await page.goto('/#/perfil');
+  await expect(page).toHaveURL(/#\/aceptar-politica/);
+
+  await page.getByRole('button', { name: 'Aceptar y continuar' }).click();
+  await expect(page.locator('#pol-acepta-error')).toBeVisible();
+  await expect(page.getByRole('checkbox')).toBeFocused();
+
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'Aceptar y continuar' }).click();
+  await expect(page).toHaveURL(/#\/home/);
+  expect(cuerpo).toEqual({ acepta_terminos: true, version_politica: '1.0' });
+});
+
+test('aceptar política: sin sesión manda al login', async ({ page }) => {
+  await page.goto('/#/aceptar-politica');
+  await expect(page).toHaveURL(/#\/login/);
+});
+
 test('registro: enviar vacío marca cada campo y lleva el foco al nombre', async ({ page }) => {
   await page.goto('/#/register');
   await page.getByRole('button', { name: 'Crear cuenta' }).click();
