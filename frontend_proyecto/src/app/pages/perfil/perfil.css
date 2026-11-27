@@ -150,3 +150,25 @@
 .reglas-password li.cumplida::before {
   content: '✓ ';
 }
+
+/* Prueba de la autorización de datos y accesos a ejercer los derechos */
+.autorizacion p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.autorizacion__enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.autorizacion__enlaces a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 700;
+  color: var(--green-accent-text);
+  text-underline-offset: 3px;
+}

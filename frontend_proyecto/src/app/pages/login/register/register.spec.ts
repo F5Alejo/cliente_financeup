@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { RegisterComponent } from './register';
+import { EDAD_MINIMA, fechaMaximaNacimiento } from '../../../shared/utils/politica';
 
 describe('Register', () => {
   let component: RegisterComponent;
@@ -28,6 +29,26 @@ describe('Register', () => {
     expect(component.password?.valid).toBe(true);
     component.password?.setValue('clave1234');
     expect(component.password?.valid).toBe(false);
+  });
+
+  it('la fecha de nacimiento exige mayoría de edad', () => {
+    const fecha = component.fechaNacimiento!;
+    fecha.setValue('');
+    expect(fecha.hasError('required')).toBe(true);
+
+    // Cumple 18 justo hoy: sí puede registrarse
+    fecha.setValue(fechaMaximaNacimiento());
+    expect(fecha.valid).toBe(true);
+
+    // Le falta un día: nació un día después de la fecha límite
+    const hoy = new Date();
+    const manana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 1);
+    fecha.setValue(fechaMaximaNacimiento(manana));
+    expect(fecha.hasError('menorDeEdad')).toBe(true);
+    expect(component.errorFecha).toContain(`mayores de ${EDAD_MINIMA}`);
+
+    fecha.setValue('1890-05-01');
+    expect(fecha.hasError('fechaInvalida')).toBe(true);
   });
 
   it('marca la confirmación cuando no coincide', () => {

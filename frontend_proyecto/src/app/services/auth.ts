@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { API_URL } from './api';
+import { VERSION_POLITICA } from '../shared/utils/politica';
 
 export type Rol = 'admin' | 'user';
 export type EstadoUsuario = 'activo' | 'bloqueado' | 'pendiente' | 'suspendido';
@@ -50,6 +51,8 @@ export interface DatosRegistro {
   apellido: string;
   email: string;
   contrasena: string;
+  /** aaaa-mm-dd; el MID exige mayoría de edad */
+  fecha_nacimiento: string;
 }
 
 /** Lo que responde el MID cuando la sesión queda iniciada. */
@@ -77,6 +80,9 @@ export interface Perfil {
   fecha_nacimiento: string;
   estado: EstadoUsuario;
   rol: Rol;
+  /** Prueba de la autorización: versión de la política aceptada y cuándo (vacíos en cuentas viejas) */
+  version_politica?: string;
+  fecha_aceptacion_terminos?: string;
 }
 
 /** Datos personales que se pueden editar en "Mi perfil" (el correo y la cédula no). */
@@ -131,7 +137,7 @@ export class AuthService {
   /** Crea la cuenta en el MID; el MID responde con la sesión ya iniciada. */
   registrar(datos: DatosRegistro): Observable<Usuario> {
     return this.http
-      .post<SesionMid>(`${API_URL}/registro`, { ...datos, acepta_terminos: true })
+      .post<SesionMid>(`${API_URL}/registro`, { ...datos, acepta_terminos: true, version_politica: VERSION_POLITICA })
       .pipe(map((sesion) => this.guardarSesion(sesion)));
   }
 

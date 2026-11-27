@@ -49,13 +49,32 @@
         </div>
         <div class="form-group">
           <label for="perfil-fecha">Fecha de nacimiento</label>
-          <input id="perfil-fecha" type="date" [(ngModel)]="fechaNacimiento" name="fechaNacimiento" autocomplete="bday">
+          <input id="perfil-fecha" type="date" [(ngModel)]="fechaNacimiento" name="fechaNacimiento" autocomplete="bday"
+            min="1900-01-01" [max]="fechaMaxima">
         </div>
       </div>
 
       <button type="button" class="btn-guardar" (click)="guardarPerfil()" [disabled]="guardando()">
         {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
       </button>
+    </section>
+
+    <section class="panel autorizacion" aria-labelledby="perfil-autorizacion">
+      <h2 id="perfil-autorizacion">Autorización de tus datos</h2>
+      @if (perfil()!.version_politica) {
+        <p>
+          Aceptaste la <strong>versión {{ perfil()!.version_politica }}</strong> de la política de tratamiento de datos
+          @if (perfil()!.fecha_aceptacion_terminos) {
+            el {{ formatearFecha(perfil()!.fecha_aceptacion_terminos) }}
+          }.
+        </p>
+      } @else {
+        <p>Tu cuenta se creó antes de que guardáramos la versión de la política que aceptaste.</p>
+      }
+      <p class="autorizacion__enlaces">
+        <a routerLink="/politica-datos">Leer la política</a>
+        <a routerLink="/nuevo-pqr" [queryParams]="{ categoria: 'Datos personales' }">Pedir una copia, corrección o borrado</a>
+      </p>
     </section>
 
     <section class="panel">

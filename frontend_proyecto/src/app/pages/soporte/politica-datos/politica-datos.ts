@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
 import { IconComponent } from '../../../shared/components/icon/icon';
+import { EDAD_MINIMA, VERSION_POLITICA, VIGENCIA_POLITICA } from '../../../shared/utils/politica';
 
 /** Un grupo de datos que guarda FinanceUp, para qué sirve y cuánto tiempo se conserva. */
 interface GrupoDatos {
@@ -31,8 +32,9 @@ interface DatoNavegador {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliticaDatosComponent {
-  readonly version = '1.0';
-  readonly vigencia = '27 de noviembre de 2026';
+  readonly version = VERSION_POLITICA;
+  readonly vigencia = VIGENCIA_POLITICA;
+  readonly edadMinima = EDAD_MINIMA;
   readonly correo = 'soporte@financeup.com';
 
   /** Índice de la página: cada id es una sección del artículo. */

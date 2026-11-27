@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { VERSION_POLITICA } from '../shared/utils/politica';
 
 import { AuthService } from './auth';
 import { API_URL, mensajeDeError } from './api';
@@ -62,7 +63,13 @@ describe('AuthService', () => {
 
   it('el registro manda los datos con los nombres del MID y deja la sesión iniciada', () => {
     service
-      .registrar({ nombre: 'Ana', apellido: 'Gómez', email: 'ana@correo.com', contrasena: 'Clave1234' })
+      .registrar({
+        nombre: 'Ana',
+        apellido: 'Gómez',
+        email: 'ana@correo.com',
+        contrasena: 'Clave1234',
+        fecha_nacimiento: '1998-04-12',
+      })
       .subscribe();
 
     const peticion = http.expectOne(`${API_URL}/registro`);
@@ -71,7 +78,10 @@ describe('AuthService', () => {
       apellido: 'Gómez',
       email: 'ana@correo.com',
       contrasena: 'Clave1234',
+      fecha_nacimiento: '1998-04-12',
       acepta_terminos: true,
+      // Prueba de qué texto aceptó: la versión vigente de la política
+      version_politica: VERSION_POLITICA,
     });
     peticion.flush({ ...SESION_MID, mensaje: 'Usuario registrado' });
 

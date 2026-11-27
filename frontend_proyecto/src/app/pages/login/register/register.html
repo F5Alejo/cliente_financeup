@@ -1,7 +1,7 @@
 <app-banda-seccion
   titulo="Crea tu cuenta,"
   acento="y pon en orden tu dinero."
-  texto="Solo te pedimos tu nombre, un correo y una contraseña. Al terminar entras directo a tu panel."
+  texto="Solo te pedimos tu nombre, un correo, tu fecha de nacimiento y una contraseña. Al terminar entras directo a tu panel."
   idTitulo="registro-titulo">
   <ul class="acceso-lista" aria-label="Qué encuentras en FinanceUp">
     <li>
@@ -58,6 +58,18 @@
           <p class="campo__error" id="reg-correo-error">
             {{ correo?.errors?.['required'] ? 'Escribe tu correo.' : 'Revisa el correo: debe verse como nombre@dominio.com.' }}
           </p>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="reg-fechaNacimiento">Fecha de nacimiento</label>
+        <input id="reg-fechaNacimiento" type="date" formControlName="fechaNacimiento" autocomplete="bday"
+          min="1900-01-01" [max]="fechaMaxima"
+          [attr.aria-invalid]="conError('fechaNacimiento')"
+          [attr.aria-describedby]="conError('fechaNacimiento') ? 'reg-fecha-ayuda reg-fecha-error' : 'reg-fecha-ayuda'">
+        <p class="campo__ayuda" id="reg-fecha-ayuda">Debes tener {{ edadMinima }} años o más.</p>
+        @if (conError('fechaNacimiento')) {
+          <p class="campo__error" id="reg-fecha-error">{{ errorFecha }}</p>
         }
       </div>
 

@@ -145,6 +145,13 @@ app-banda-seccion {
   border-color: var(--negative);
 }
 
+.campo__ayuda {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
 .campo__error {
   margin: 0;
   font-size: 0.85rem;

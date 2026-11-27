@@ -85,11 +85,47 @@ test('registro: enviar vacío marca cada campo y lleva el foco al nombre', async
   await expect(nombre).toHaveAttribute('aria-invalid', 'true');
   await expect(page.locator('#reg-nombre-error')).toBeVisible();
   await expect(page.locator('#reg-correo-error')).toBeVisible();
+  await expect(page.locator('#reg-fecha-error')).toHaveText('Escribe tu fecha de nacimiento.');
   await expect(page.locator('#reg-terminos-error')).toBeVisible();
 
   await nombre.fill('Ana');
   await expect(page.locator('#reg-nombre-error')).toHaveCount(0);
   await sinGraves(page);
+});
+
+test('registro: un menor de edad no puede crear la cuenta', async ({ page }) => {
+  await page.goto('/#/register');
+  const fecha = page.getByLabel('Fecha de nacimiento');
+  const hoy = new Date();
+  const anio = hoy.getFullYear() - 10;
+  await fecha.fill(`${anio}-01-15`);
+  await fecha.blur();
+  await expect(page.locator('#reg-fecha-error')).toHaveText('FinanceUp es solo para mayores de 18 años.');
+  await expect(fecha).toHaveAttribute('aria-invalid', 'true');
+
+  await fecha.fill('1998-04-12');
+  await expect(page.locator('#reg-fecha-error')).toHaveCount(0);
+});
+
+test('registro: envía la fecha y la versión de la política al MID', async ({ page }) => {
+  let cuerpo: Record<string, unknown> = {};
+  await page.route('**/v1/registro', async (ruta) => {
+    cuerpo = ruta.request().postDataJSON();
+    await ruta.fulfill({ status: 400, json: { error: 'Prueba: no se crea la cuenta' } });
+  });
+
+  await page.goto('/#/register');
+  await page.getByLabel('Nombre').fill('Laura');
+  await page.getByLabel('Apellido').fill('Gómez');
+  await page.getByLabel('Correo electrónico').fill('laura@ejemplo.com');
+  await page.getByLabel('Fecha de nacimiento').fill('1998-04-12');
+  await page.getByLabel('Contraseña', { exact: true }).fill('Clave1234');
+  await page.getByLabel('Confirma la contraseña').fill('Clave1234');
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'Crear cuenta' }).click();
+
+  await expect(page.getByRole('alert')).toBeVisible();
+  expect(cuerpo).toMatchObject({ fecha_nacimiento: '1998-04-12', acepta_terminos: true, version_politica: '1.0' });
 });
 
 test('registro: las reglas de la contraseña se encienden al cumplirse', async ({ page }) => {

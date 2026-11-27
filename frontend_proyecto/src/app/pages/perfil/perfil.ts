@@ -1,8 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AuthService, Perfil } from '../../services/auth';
 import { mensajeDeError } from '../../services/api';
 import { ToastService } from '../../shared/services/toast';
+import { fechaMaximaNacimiento } from '../../shared/utils/politica';
+import { formatearFecha } from '../../shared/utils/fechas';
 
 interface PasswordRules {
   minLength: boolean;
@@ -13,7 +16,7 @@ interface PasswordRules {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })
@@ -35,6 +38,9 @@ export class PerfilComponent implements OnInit {
   ciudad = '';
   direccion = '';
   fechaNacimiento = '';
+  /** El MID solo acepta mayores de edad, también al editar la fecha */
+  readonly fechaMaxima = fechaMaximaNacimiento();
+  readonly formatearFecha = formatearFecha;
 
   // ---------- Cambiar contraseña ----------
   passwordActual = '';
