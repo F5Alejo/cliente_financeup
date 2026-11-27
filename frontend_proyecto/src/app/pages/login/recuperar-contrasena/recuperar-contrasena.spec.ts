@@ -39,7 +39,6 @@ describe('RecuperarContrasena', () => {
     component.codigo = '654321';
     component.nuevaPassword = 'Nueva1234';
     component.confirmarPassword = 'Nueva1234';
-    component.onPasswordInput();
     component.guardarPassword();
 
     const peticion = http.expectOne(`${API_URL}/recuperar-contrasena`);
@@ -54,7 +53,6 @@ describe('RecuperarContrasena', () => {
     component.codigo = '000000';
     component.nuevaPassword = 'Nueva1234';
     component.confirmarPassword = 'Nueva1234';
-    component.onPasswordInput();
     component.guardarPassword();
 
     http

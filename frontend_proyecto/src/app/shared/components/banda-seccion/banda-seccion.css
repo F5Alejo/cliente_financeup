@@ -1,5 +1,6 @@
 /* Banda de sección: la superficie de marca de la portada, en versión de trabajo.
-   Cada página puede alinear el contenido con el suyo usando --banda-max y --banda-gutter. */
+   Cada página puede alinear el contenido con el suyo usando --banda-max y --banda-gutter,
+   y ensanchar la columna derecha con --banda-lado (fr) o centrarla con --banda-alinear. */
 
 :host {
   display: block;
@@ -70,8 +71,8 @@
   padding: clamp(2.75rem, 2rem + 3vw, 4.75rem) var(--banda-gutter, var(--page-gutter))
     clamp(3rem, 2rem + 3.5vw, 5.25rem);
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
-  align-items: end;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, var(--banda-lado, 0.75fr));
+  align-items: var(--banda-alinear, end);
   gap: clamp(1.5rem, 4vw, 3.5rem);
 }
 

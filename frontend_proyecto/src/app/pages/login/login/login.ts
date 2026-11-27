@@ -1,19 +1,20 @@
-import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth';
 import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
 
 type LoginStage = 'credenciales' | 'verificacion';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule, RouterLink, BandaSeccionComponent, IconComponent],
   templateUrl: './login.html',
-  styleUrls: ['./login.css'],
+  styleUrl: '../acceso.css',
 })
 export class LoginComponent {
   private router = inject(Router);
@@ -31,16 +32,21 @@ export class LoginComponent {
   errorMessage = signal('');
   cargando = signal(false);
 
+  /** Campo del código: cuando aparece (paso 2) recibe el foco. */
+  private campoCodigo = viewChild<ElementRef<HTMLInputElement>>('campoCodigo');
+
   /** Token temporal que da el MID en el paso 1; se usa para verificar o reenviar el código. */
   private tokenVerificacion = '';
 
   constructor() {
-    // Si el usuario marcó "Recordarme" antes, precargamos su correo
+    // Si el usuario marcó "Recordar mi correo" antes, precargamos su correo
     const emailGuardado = localStorage.getItem('financeup_email');
     if (emailGuardado) {
       this.email = emailGuardado;
       this.rememberMe = true;
     }
+
+    effect(() => this.campoCodigo()?.nativeElement.focus());
   }
 
   /** Paso 1: el MID revisa correo y contraseña y manda el código al correo. */
@@ -65,6 +71,7 @@ export class LoginComponent {
 
   /** Paso 2: con el código correcto el MID entrega el token y entramos. */
   verificarCodigo(): void {
+    this.errorMessage.set('');
     this.cargando.set(true);
 
     this.authService.verificarCodigo(this.tokenVerificacion, this.codigo.trim()).subscribe({
@@ -81,7 +88,8 @@ export class LoginComponent {
       error: (error) => {
         this.cargando.set(false);
         this.codigo = '';
-        this.toastService.error(mensajeDeError(error));
+        this.errorMessage.set(mensajeDeError(error));
+        this.campoCodigo()?.nativeElement.focus();
       },
     });
   }
@@ -95,31 +103,12 @@ export class LoginComponent {
 
   volverACredenciales(): void {
     this.stage.set('credenciales');
+    this.errorMessage.set('');
     this.tokenVerificacion = '';
     this.codigo = '';
   }
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
-  }
-
-  loginWithGoogle(): void {
-    console.log('[Login] Inicio de sesión con Google');
-  }
-
-  loginWithApple(): void {
-    console.log('[Login] Inicio de sesión con Apple');
-  }
-
-  loginWithFacebook(): void {
-    console.log('[Login] Inicio de sesión con Facebook');
-  }
-
-  goToRegister(): void {
-    this.router.navigate(['/register']);
-  }
-
-  goToForgotPassword(): void {
-    this.router.navigate(['/recuperar-contrasena']);
   }
 }

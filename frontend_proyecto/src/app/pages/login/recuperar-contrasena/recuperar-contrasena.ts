@@ -1,27 +1,23 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth';
 import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
+import { BandaSeccionComponent } from '../../../shared/components/banda-seccion/banda-seccion';
+import { IconComponent } from '../../../shared/components/icon/icon';
+import { Regla, reglasContrasena } from '../reglas-contrasena';
 
 // Pasos: 1) escribir el correo, 2) código + clave nueva, 3) listo
 type Paso = 'correo' | 'codigo' | 'listo';
 
-interface PasswordRules {
-  minLength: boolean;
-  hasNumber: boolean;
-  hasUppercase: boolean;
-}
-
 @Component({
   selector: 'app-recuperar-contrasena',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink, BandaSeccionComponent, IconComponent],
   templateUrl: './recuperar-contrasena.html',
-  styleUrl: './recuperar-contrasena.css',
+  styleUrl: '../acceso.css',
 })
 export class RecuperarContrasena {
-  private router = inject(Router);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
 
@@ -34,12 +30,21 @@ export class RecuperarContrasena {
   codigo = '';
   nuevaPassword = '';
   confirmarPassword = '';
+  mostrarClave = false;
 
-  rules: PasswordRules = {
-    minLength: false,
-    hasNumber: false,
-    hasUppercase: false,
-  };
+  /** Al cambiar de paso el foco va a lo nuevo: el código en el paso 2, el título en el 3. */
+  private campoCodigo = viewChild<ElementRef<HTMLInputElement>>('campoCodigo');
+  private tituloListo = viewChild<ElementRef<HTMLElement>>('tituloListo');
+
+  constructor() {
+    effect(() => this.campoCodigo()?.nativeElement.focus());
+    effect(() => this.tituloListo()?.nativeElement.focus());
+  }
+
+  /** Reglas de la contraseña con lo que ya cumple lo escrito (las mismas del MID). */
+  get reglas(): Regla[] {
+    return reglasContrasena(this.nuevaPassword);
+  }
 
   // ---------- Paso 1: pedir el código ----------
 
@@ -67,31 +72,19 @@ export class RecuperarContrasena {
 
   // ---------- Paso 2: código y contraseña nueva ----------
 
-  onPasswordInput(): void {
-    this.rules = {
-      minLength: this.nuevaPassword.length >= 8,
-      hasNumber: /\d/.test(this.nuevaPassword),
-      hasUppercase: /[A-Z]/.test(this.nuevaPassword),
-    };
-  }
-
-  get allRulesPassed(): boolean {
-    return this.rules.minLength && this.rules.hasNumber && this.rules.hasUppercase;
-  }
-
   guardarPassword(): void {
     this.errorMessage.set('');
 
     if (!/^\d{6}$/.test(this.codigo.trim())) {
-      this.errorMessage.set('El código tiene 6 dígitos.');
+      this.errorMessage.set('El código tiene 6 dígitos. Cópialo del correo que te enviamos.');
       return;
     }
-    if (!this.allRulesPassed) {
-      this.errorMessage.set('La contraseña no cumple con todos los requisitos.');
+    if (!this.reglas.every((regla) => regla.cumple)) {
+      this.errorMessage.set('A la contraseña le falta cumplir alguna de las reglas de abajo.');
       return;
     }
     if (this.nuevaPassword !== this.confirmarPassword) {
-      this.errorMessage.set('Las contraseñas no coinciden.');
+      this.errorMessage.set('La confirmación no coincide con la contraseña nueva.');
       return;
     }
 
@@ -112,9 +105,5 @@ export class RecuperarContrasena {
     this.errorMessage.set('');
     this.codigo = '';
     this.paso.set('correo');
-  }
-
-  goToLogin(): void {
-    this.router.navigate(['/login']);
   }
 }
