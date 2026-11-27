@@ -286,6 +286,12 @@ app-banda-seccion {
   border-color: var(--negative);
 }
 
+.acepta a {
+  font-weight: 700;
+  color: var(--verde-hondo);
+  text-underline-offset: 3px;
+}
+
 .acepta input {
   width: 18px;
   height: 18px;

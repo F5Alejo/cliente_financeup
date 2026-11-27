@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AlianzasService, FichaOferta, plazosPosibles } from '../../../services/alianzas';
 import { mensajeDeError } from '../../../services/api';
 import { AuthService } from '../../../services/auth';
@@ -26,7 +26,7 @@ interface Acuse {
 @Component({
   selector: 'app-solicitud',
   standalone: true,
-  imports: [CommonModule, FormsModule, BandaSeccionComponent, IconComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BandaSeccionComponent, IconComponent],
   templateUrl: './solicitud.html',
   styleUrl: './solicitud.css',
 })

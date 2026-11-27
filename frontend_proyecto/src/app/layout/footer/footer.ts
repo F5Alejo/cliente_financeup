@@ -41,7 +41,9 @@ export class FooterComponent {
       title: 'Empresa',
       links: [
         { label: 'Aliados', path: '/alianzas' },
-        { label: 'Comunidad', path: '/alianzas' }
+        { label: 'Comunidad', path: '/alianzas' },
+        { label: 'Política de datos', path: '/politica-datos' },
+        { label: 'Cookies', path: '/cookis' }
       ]
     }
   ];

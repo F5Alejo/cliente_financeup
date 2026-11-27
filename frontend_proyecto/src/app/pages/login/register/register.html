@@ -102,7 +102,10 @@
           <input id="reg-aceptaTerminos" type="checkbox" formControlName="aceptaTerminos"
             [attr.aria-invalid]="conError('aceptaTerminos')"
             [attr.aria-describedby]="conError('aceptaTerminos') ? 'reg-terminos-error' : null">
-          Acepto los términos de uso y autorizo el tratamiento de mis datos personales según la Ley 1581 de 2012.
+          <span>
+            Autorizo a FinanceUp a tratar mis datos personales para crear y operar mi cuenta, como explica la
+            <a routerLink="/politica-datos" target="_blank" class="acceso-enlace--texto">política de tratamiento de datos<span class="visualmente-oculto"> (se abre en otra pestaña)</span></a>.
+          </span>
         </label>
         @if (conError('aceptaTerminos')) {
           <p class="campo__error" id="reg-terminos-error">Para crear la cuenta necesitamos tu autorización.</p>

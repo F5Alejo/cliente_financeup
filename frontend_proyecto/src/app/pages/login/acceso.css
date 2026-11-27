@@ -244,6 +244,19 @@ app-banda-seccion {
   accent-color: var(--brand-strong);
 }
 
+/* Enlace dentro de un texto corrido (la política en la casilla del registro) */
+.acceso-enlace--texto {
+  font-weight: 700;
+  color: var(--brand-strong);
+  text-underline-offset: 3px;
+}
+
+.acceso-enlace--texto:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
 /* ---------- Avisos, botones y enlaces ---------- */
 .acceso-alerta {
   margin: 0;

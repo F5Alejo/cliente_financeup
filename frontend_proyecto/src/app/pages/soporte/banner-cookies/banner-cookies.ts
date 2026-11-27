@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ToastService } from '../../../shared/services/toast';
 
 // Elección del usuario guardada en el navegador: 'todas' | 'fundamentales' | 'rechazadas'
@@ -7,7 +7,7 @@ const CLAVE_COOKIES = 'financeup_cookies';
 
 @Component({
   selector: 'app-banner-cookies',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './banner-cookies.html',
   styleUrl: './banner-cookies.css',
 })

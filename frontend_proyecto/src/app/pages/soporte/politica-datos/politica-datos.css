@@ -1,0 +1,327 @@
+/* Política de datos: banda verde arriba; abajo, índice fijo a la izquierda y el texto en una columna legible. */
+
+:host {
+  display: block;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.politica {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 64px);
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 48px clamp(18px, 4vw, 44px) 96px;
+}
+
+/* ---------- Índice ---------- */
+.politica__indice {
+  position: sticky;
+  top: 96px;
+  align-self: start;
+}
+
+.politica__indice h2 {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.politica__indice ol {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--line);
+}
+
+.politica__indice a {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 0 6px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--ink-body);
+  font-size: 0.92rem;
+  line-height: 1.35;
+  text-decoration: none;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+
+.politica__indice a:hover {
+  border-left-color: var(--brand-strong);
+  color: var(--brand-strong);
+}
+
+.politica__indice a:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Texto ---------- */
+.politica__texto {
+  display: grid;
+  gap: 52px;
+  max-width: 72ch;
+  line-height: 1.65;
+  color: var(--ink-body);
+}
+
+.politica__texto,
+.politica__texto section {
+  min-width: 0;
+}
+
+.politica__texto section {
+  scroll-margin-top: 96px;
+}
+
+.politica__texto h2 {
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 1.15rem + 0.6vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.politica__texto p {
+  margin: 0 0 12px;
+}
+
+.politica__texto strong {
+  color: var(--ink);
+}
+
+.politica__texto a {
+  color: var(--brand-strong);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.politica__texto a:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.politica__lista {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.politica__lista li::marker {
+  color: var(--brand-strong);
+}
+
+/* Contacto del responsable */
+.politica__contacto {
+  display: grid;
+  gap: 0;
+  margin: 18px 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.politica__contacto div {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.35fr) 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.politica__contacto dt {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.politica__contacto dd {
+  margin: 0;
+}
+
+/* Tablas: se desplazan solas en pantallas angostas */
+.politica__tabla {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.politica__tabla:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+}
+
+.politica__tabla table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.politica__tabla th,
+.politica__tabla td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.politica__tabla tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.politica__tabla thead th {
+  background: var(--surface-sunk);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-body);
+}
+
+.politica__tabla tbody th {
+  width: 42%;
+  font-weight: 400;
+}
+
+.politica__tabla tbody th strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.politica__tabla code {
+  font-family: var(--fuente-cifra);
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+/* Aviso destacado */
+.politica__nota {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: var(--r-lg);
+  background: var(--brand-wash);
+}
+
+.politica__nota app-icon {
+  flex: none;
+  margin-top: 3px;
+  color: var(--brand-strong);
+}
+
+.politica__nota p {
+  margin: 0;
+}
+
+/* Derechos con ícono */
+.politica__derechos {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.politica__derechos li {
+  display: flex;
+  gap: 12px;
+}
+
+.politica__derechos app-icon {
+  flex: none;
+  margin-top: 3px;
+  color: var(--brand-strong);
+}
+
+/* Pasos numerados */
+.politica__pasos {
+  display: grid;
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+
+.politica__pasos > li {
+  position: relative;
+  padding-left: 48px;
+  counter-increment: paso;
+}
+
+.politica__pasos > li::before {
+  content: counter(paso);
+  position: absolute;
+  left: 0;
+  top: -2px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--verde-900);
+  font-weight: 800;
+  color: var(--lime);
+}
+
+.politica__pasos > li > strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.politica__plazos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.politica__plazos div {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.politica__plazos dt {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.politica__plazos dd {
+  margin: 4px 0 0;
+}
+
+.politica__plazos .cifra {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--brand-strong);
+}
+
+@media (max-width: 860px) {
+  .politica {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .politica__indice {
+    position: static;
+  }
+
+  /* En el teléfono la cabecera ocupa dos filas */
+  .politica__texto section {
+    scroll-margin-top: 140px;
+  }
+}

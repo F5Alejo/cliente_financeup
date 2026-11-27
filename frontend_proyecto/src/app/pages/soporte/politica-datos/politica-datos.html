@@ -1,0 +1,213 @@
+<app-banda-seccion
+  titulo="Tus datos son tuyos,"
+  acento="así los cuidamos."
+  texto="Qué datos guarda FinanceUp, para qué los usa, con quién los comparte y cómo puedes consultarlos, corregirlos o pedir que los borremos."
+  idTitulo="politica-titulo">
+  <dl class="banda-cifras">
+    <div><dt>Versión</dt><dd class="cifra">{{ version }}</dd></div>
+    <div><dt>Vigente desde</dt><dd>{{ vigencia }}</dd></div>
+    <div><dt>Respuesta a consultas</dt><dd>10 días hábiles</dd></div>
+  </dl>
+
+  <div banda-lado class="tarjeta-banda">
+    <p class="tarjeta-banda__etiqueta">¿Quieres ver, corregir o borrar tus datos?</p>
+    <p>Radica una PQR en la categoría «Datos personales» o escríbenos. Es gratis.</p>
+    <div class="tarjeta-banda__acciones">
+      <a class="boton-lima" routerLink="/nuevo-pqr" [queryParams]="{ categoria: 'Datos personales' }">
+        <app-icon nombre="clipboard-list" [tamano]="18" /> Radicar PQR
+      </a>
+      <a class="boton-fantasma" [href]="'mailto:' + correo">
+        <app-icon nombre="mail" [tamano]="18" /> Escribir
+      </a>
+    </div>
+  </div>
+</app-banda-seccion>
+
+<div class="politica">
+  <nav class="politica__indice" aria-labelledby="indice-titulo">
+    <h2 id="indice-titulo">En esta página</h2>
+    <ol>
+      @for (seccion of indice; track seccion.id) {
+        <li><a [routerLink]="[]" [fragment]="seccion.id">{{ seccion.titulo }}</a></li>
+      }
+    </ol>
+  </nav>
+
+  <article class="politica__texto">
+    <section id="responsable" aria-labelledby="t-responsable">
+      <h2 id="t-responsable">Quién responde por tus datos</h2>
+      <p>
+        <strong>FinanceUp</strong>, plataforma de finanzas personales y educación financiera, es la responsable
+        del tratamiento de los datos que entregas al usar el sitio. Esta política cumple lo que piden la
+        Ley 1581 de 2012 y el Decreto 1074 de 2015 (Sección 2.2.2.25).
+      </p>
+      <dl class="politica__contacto">
+        <div><dt>Correo</dt><dd><a [href]="'mailto:' + correo">{{ correo }}</a></dd></div>
+        <div><dt>En la plataforma</dt><dd><a routerLink="/pqr">Mis PQR</a>, categoría «Datos personales»</dd></div>
+        <div><dt>Quién atiende</dt><dd>El equipo de soporte de FinanceUp</dd></div>
+      </dl>
+    </section>
+
+    <section id="datos" aria-labelledby="t-datos">
+      <h2 id="t-datos">Qué datos guardamos</h2>
+      <p>Solo lo que necesita cada parte de la plataforma. Los campos opcionales del perfil puedes dejarlos vacíos.</p>
+      <div class="politica__tabla" role="region" aria-labelledby="t-datos" tabindex="0">
+        <table>
+          <thead>
+            <tr><th scope="col">Datos</th><th scope="col">Para qué</th><th scope="col">Cuánto tiempo</th></tr>
+          </thead>
+          <tbody>
+            @for (g of grupos; track g.grupo) {
+              <tr>
+                <th scope="row"><strong>{{ g.grupo }}</strong><span>{{ g.datos }}</span></th>
+                <td>{{ g.paraQue }}</td>
+                <td>{{ g.plazo }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="finalidades" aria-labelledby="t-finalidades">
+      <h2 id="t-finalidades">Para qué los usamos</h2>
+      <ul class="politica__lista">
+        <li>Crear y mantener tu cuenta, y verificar que eres tú cuando entras o cambias la contraseña.</li>
+        <li>Mostrarte tus finanzas, metas, inversiones y el avance de tus cursos.</li>
+        <li>Enviarte los códigos de verificación y los avisos de tu cuenta por correo.</li>
+        <li>Llevar tu solicitud a la entidad aliada que elegiste en Alianzas.</li>
+        <li>Responder tus PQR.</li>
+        <li>Sacar reportes con cifras totales para mejorar la plataforma.</li>
+      </ul>
+      <div class="politica__nota">
+        <app-icon nombre="shield-check" [tamano]="20" />
+        <p>
+          <strong>Lo que no hacemos:</strong> no vendemos tus datos, no los usamos para publicidad y no
+          decidimos créditos. Si pides un producto, quien lo estudia y lo aprueba es la entidad aliada.
+        </p>
+      </div>
+    </section>
+
+    <section id="compartir" aria-labelledby="t-compartir">
+      <h2 id="t-compartir">Quién más los ve</h2>
+      <ul class="politica__lista">
+        <li>
+          <strong>El equipo de FinanceUp con rol de administrador</strong>, para gestionar cuentas, cursos,
+          ofertas y PQR.
+        </li>
+        <li>
+          <strong>La entidad aliada y su asesor</strong>, solo cuando radicas una solicitud en Alianzas y solo
+          con los datos de esa solicitud. Desde ese momento la entidad también responde por el uso que les dé,
+          incluida la consulta en centrales de riesgo que autorizas en el formulario.
+        </li>
+        <li>
+          <strong>El servicio de correo</strong> que envía los códigos de verificación. Solo recibe tu correo y el
+          mensaje.
+        </li>
+        <li><strong>Autoridades</strong> que los pidan con una orden legal.</li>
+      </ul>
+    </section>
+
+    <section id="derechos" aria-labelledby="t-derechos">
+      <h2 id="t-derechos">Tus derechos</h2>
+      <p>Según el artículo 8 de la Ley 1581 de 2012, puedes:</p>
+      <ul class="politica__derechos">
+        <li><app-icon nombre="eye" [tamano]="20" /><span><strong>Conocer</strong> qué datos tuyos tenemos.</span></li>
+        <li><app-icon nombre="pencil" [tamano]="20" /><span><strong>Actualizar y corregir</strong> los que estén incompletos o mal.</span></li>
+        <li><app-icon nombre="file-text" [tamano]="20" /><span><strong>Pedir prueba</strong> de la autorización que nos diste al registrarte.</span></li>
+        <li><app-icon nombre="info" [tamano]="20" /><span><strong>Saber</strong> para qué los hemos usado.</span></li>
+        <li><app-icon nombre="trash" [tamano]="20" /><span><strong>Revocar la autorización o pedir que los borremos</strong>, salvo los que una ley o un contrato vigente nos obligue a conservar.</span></li>
+        <li><app-icon nombre="landmark" [tamano]="20" /><span><strong>Quejarte ante la Superintendencia de Industria y Comercio</strong>, después de presentarnos tu consulta o reclamo.</span></li>
+      </ul>
+      <p>Consultar tus datos es gratis.</p>
+    </section>
+
+    <section id="ejercer" aria-labelledby="t-ejercer">
+      <h2 id="t-ejercer">Cómo consultar, corregir o borrar</h2>
+      <ol class="politica__pasos">
+        <li>
+          <strong>Lo que puedes cambiar tú mismo.</strong>
+          En <a routerLink="/perfil">Mi perfil</a> editas nombre, apellido, teléfono, ciudad, dirección y fecha de
+          nacimiento. El correo y el documento se cambian con una PQR.
+        </li>
+        <li>
+          <strong>Radica la solicitud.</strong>
+          En <a routerLink="/nuevo-pqr" [queryParams]="{ categoria: 'Datos personales' }">Nueva PQR</a>, categoría
+          «Datos personales». Usa <em>Petición</em> para una consulta y <em>Reclamo</em> para corregir, borrar o
+          revocar. Si no tienes cuenta o no puedes entrar, escribe a <a [href]="'mailto:' + correo">{{ correo }}</a>
+          desde el correo con el que te registraste.
+        </li>
+        <li>
+          <strong>Te respondemos en los plazos de la ley.</strong>
+          <dl class="politica__plazos">
+            <div>
+              <dt>Consulta</dt>
+              <dd><span class="cifra">10</span> días hábiles. Si no alcanzamos, te avisamos y tomamos hasta 5 más.</dd>
+            </div>
+            <div>
+              <dt>Reclamo</dt>
+              <dd><span class="cifra">15</span> días hábiles. Si no alcanzamos, te avisamos y tomamos hasta 8 más.</dd>
+            </div>
+          </dl>
+          Si al reclamo le falta información, te la pedimos en los 5 días hábiles siguientes. Si pasan dos meses sin
+          que la envíes, entendemos que desististe.
+        </li>
+      </ol>
+    </section>
+
+    <section id="seguridad" aria-labelledby="t-seguridad">
+      <h2 id="t-seguridad">Cómo los protegemos</h2>
+      <ul class="politica__lista">
+        <li>Tu contraseña se guarda cifrada con bcrypt: nadie del equipo puede leerla.</li>
+        <li>Para entrar pedimos un código de 6 dígitos que llega a tu correo. Solo guardamos su versión cifrada.</li>
+        <li>Tras 5 intentos fallidos, la cuenta se bloquea 15 minutos.</li>
+        <li>Las pantallas con datos tuyos exigen una sesión iniciada con un token firmado.</li>
+      </ul>
+    </section>
+
+    <section id="navegador" aria-labelledby="t-navegador">
+      <h2 id="t-navegador">Lo que queda en tu navegador</h2>
+      <p>
+        No usamos cookies de publicidad ni de analítica. La app guarda esto en tu navegador para funcionar, y
+        puedes cambiar tu elección en el <a routerLink="/cookis">aviso de cookies</a>:
+      </p>
+      <div class="politica__tabla" role="region" aria-labelledby="t-navegador" tabindex="0">
+        <table>
+          <thead>
+            <tr><th scope="col">Clave</th><th scope="col">Qué guarda</th><th scope="col">Cuánto dura</th></tr>
+          </thead>
+          <tbody>
+            @for (n of navegador; track n.clave) {
+              <tr>
+                <th scope="row"><code>{{ n.clave }}</code></th>
+                <td>{{ n.guarda }}</td>
+                <td>{{ n.dura }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="menores" aria-labelledby="t-menores">
+      <h2 id="t-menores">Datos sensibles y menores de edad</h2>
+      <p>
+        No pedimos datos sensibles (salud, origen étnico, religión, opinión política, orientación sexual ni datos
+        biométricos). Si alguna vez te preguntamos uno, responder será opcional.
+      </p>
+      <p>
+        FinanceUp está pensado para mayores de edad. Si tienes menos de 18 años, crea la cuenta con tu madre, padre
+        o representante legal: esa persona es quien autoriza el tratamiento.
+      </p>
+    </section>
+
+    <section id="vigencia" aria-labelledby="t-vigencia">
+      <h2 id="t-vigencia">Vigencia y cambios</h2>
+      <p>
+        Esta es la versión {{ version }}, vigente desde el {{ vigencia }}. Las bases de datos se conservan mientras
+        FinanceUp funcione. Si cambiamos algo importante, como las finalidades o con quién compartimos datos, te
+        avisaremos por correo antes de aplicarlo y, si hace falta, te pediremos de nuevo la autorización.
+      </p>
+    </section>
+  </article>
+</div>

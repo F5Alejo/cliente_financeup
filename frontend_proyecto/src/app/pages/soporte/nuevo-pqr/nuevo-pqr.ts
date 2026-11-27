@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PqrService, PrioridadPqr, TipoPqr } from '../../../services/pqr';
 import { mensajeDeError } from '../../../services/api';
 import { ToastService } from '../../../shared/services/toast';
@@ -22,7 +22,13 @@ export class NuevoPqrComponent {
     private toastService: ToastService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    // Desde la política de datos se llega con ?categoria=Datos personales
+    const pedida = inject(ActivatedRoute).snapshot.queryParamMap.get('categoria');
+    if (pedida && this.categorias.includes(pedida)) {
+      this.categoria = pedida;
+    }
+  }
 
   // Textos de la interfaz
   subtitulo: string =
@@ -52,6 +58,7 @@ export class NuevoPqrComponent {
     'Movimientos y pagos',
     'Plataforma',
     'Alianzas y beneficios',
+    'Datos personales',
   ];
   readonly prioridades: PrioridadPqr[] = ['Alta', 'Media', 'Baja'];
 

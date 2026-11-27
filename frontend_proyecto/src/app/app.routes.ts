@@ -273,6 +273,12 @@ export const routes: Routes = [
         title: 'Cookies - FinanceUp',
       },
       {
+        path: 'politica-datos',
+        loadComponent: () =>
+          import('./pages/soporte/politica-datos/politica-datos').then((m) => m.PoliticaDatosComponent),
+        title: 'Política de tratamiento de datos - FinanceUp',
+      },
+      {
         path: 'finanzas',
         canActivate: [authGuard],
         loadComponent: () =>
